@@ -1,21 +1,10 @@
-/**
- * ssr.config.js -- example app config
- *
- * The engine scripts (inject-brand.js, prerender.js) live one level up
- * at ../scripts/. The example's package.json build script calls them
- * with node ../scripts/inject-brand.js etc.
- *
- * This config is intentionally minimal -- just enough to prove
- * multi-route prerendering, meta injection, and sitemap generation.
- */
-
 export default {
   siteUrl:       'https://cf-seo-ssr-example.pages.dev',
-  siteName:      'cf-seo-ssr example',
-  author:        'cf-seo-ssr',
-  tagline:       'Vite + React + Cloudflare Pages prerender demo',
+  siteName:      'cf-seo-ssr',
+  author:        'dhaupin',
+  tagline:       'Build-time prerender for Vite + React + Cloudflare Pages',
   ogImage:       'https://cf-seo-ssr-example.pages.dev/og-image.png',
-  keywords:      'vite, react, cloudflare pages, SSR, prerender, SEO',
+  keywords:      'vite, react, cloudflare pages, SSR, prerender, SEO, static site',
   appLayoutPath: '/src/AppLayout.jsx',
 
   routes: [
@@ -24,8 +13,8 @@ export default {
       priority:   '1.0',
       changefreq: 'monthly',
       meta: {
-        title:       'cf-seo-ssr example | Vite + React + CF Pages prerender',
-        description: 'A minimal example app showing build-time prerendering for Vite + React on Cloudflare Pages. View source to see baked-in SEO meta.',
+        title:       'cf-seo-ssr | Build-time prerender for Vite + React + Cloudflare Pages',
+        description: 'Drop-in build-time prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct SEO meta, sitemap, and 404 -- no framework required.',
       },
     },
     {
@@ -33,17 +22,17 @@ export default {
       priority:   '0.8',
       changefreq: 'monthly',
       meta: {
-        title:       'About | cf-seo-ssr example',
-        description: "About the cf-seo-ssr prerender layer. What it does, what it doesn't do, and how it works.",
+        title:       'About | cf-seo-ssr',
+        description: "How cf-seo-ssr works under the hood. ssrLoadModule, StaticRouter, hydrateRoot, and the decisions that make it debuggable.",
       },
     },
     {
-      path:       '/contact',
-      priority:   '0.6',
-      changefreq: 'yearly',
+      path:       '/use',
+      priority:   '0.9',
+      changefreq: 'monthly',
       meta: {
-        title:       'Contact | cf-seo-ssr example',
-        description: 'Contact page for the cf-seo-ssr example app. Demonstrates per-route meta injection on a simple contact page.',
+        title:       'Use it | cf-seo-ssr',
+        description: 'How to integrate cf-seo-ssr into your Vite + React app. Copy three files, write a config, update your build script.',
       },
     },
   ],
@@ -51,19 +40,26 @@ export default {
   buildJsonLd() {
     return [
       {
-        '@context': 'https://schema.org',
-        '@type':    'SoftwareApplication',
-        name:       'cf-seo-ssr',
-        url:        'https://github.com/your-org/cf-seo-ssr',
-        description: 'Build-time prerender layer for Vite + React + Cloudflare Pages.',
-        applicationCategory: 'DeveloperApplication',
+        '@context':           'https://schema.org',
+        '@type':              'SoftwareApplication',
+        name:                 'cf-seo-ssr',
+        url:                  'https://github.com/dhaupin/cf-seo-ssr',
+        description:          'Build-time prerender layer for Vite + React + Cloudflare Pages.',
+        applicationCategory:  'DeveloperApplication',
+        operatingSystem:      'Any',
+        license:              'https://opensource.org/licenses/MIT',
+        author: {
+          '@type': 'Person',
+          name:    'dhaupin',
+          url:     'https://github.com/dhaupin',
+        },
       },
     ]
   },
 
   notFound: {
-    heading:    'Page not found.',
-    body:       "That route doesn't exist in this example app.",
-    primaryCta: { label: 'Go home', href: '/' },
+    heading:    'Route not found.',
+    body:       "That path doesn't exist. Head back home.",
+    primaryCta: { label: 'Back to home', href: '/' },
   },
 }
