@@ -1,4 +1,4 @@
-# SCOPE.md — vite-cf-ssr
+# SCOPE.md - Cloudflare SEO SSR (For React -> Vite)
 
 Project scope, current state, and the full todo list for turning this
 proof of concept into a reusable package.
@@ -8,7 +8,7 @@ proof of concept into a reusable package.
 ## Current state
 
 This is a working proof of concept extracted from a real production app
-(Vibe Flow Festival, deployed on Cloudflare Pages). Everything in this
+(deployed on Cloudflare Pages). Everything in this
 repo has been debugged and deployed. The SSR pipeline works correctly.
 
 What it is NOT yet:
@@ -40,7 +40,7 @@ What it is NOT yet:
 These are the changes needed to go from "extracted from VFF" to
 "works cleanly in any Vite + React app":
 
-### P0 — blockers (must do before it's actually reusable)
+### P0 - blockers (must do before it's actually reusable)
 
 - [ ] **Extract config interface.** Replace all `brand.js` imports in
   `prerender.js` and `inject-brand.js` with a single `ssr.config.js` that
@@ -74,7 +74,7 @@ These are the changes needed to go from "extracted from VFF" to
   _redirects (VFF-specific routes), and index.html (VFF placeholder meta).
   Replace with generic placeholders or generate them from config.
 
-### P1 — significantly improves usability
+### P1 - significantly improves usability
 
 - [ ] **CLI scaffold tool.** `npx vite-cf-ssr init` that copies the template
   files into an existing Vite project and creates a starter `ssr.config.js`.
@@ -109,14 +109,14 @@ These are the changes needed to go from "extracted from VFF" to
   minimal Vite + React Router v6 app and integrate the layer from scratch
   using only the README. Fix everything that breaks.
 
-### P2 — polish
+### P2 - polish
 
 - [ ] **npm package setup.** `package.json` with `bin` pointing to the CLI,
   `exports` for the hooks, proper `peerDependencies` (vite, react, react-router-dom).
 
 - [ ] **GitHub Actions.** CI that runs a test build using the example app config.
 
-- [ ] **Example app.** A minimal `/example` directory in the repo —
+- [ ] **Example app.** A minimal `/example` directory in the repo -
   a bare Vite + React Router app using this layer, deployable to CF Pages
   with one click.
 
@@ -141,7 +141,7 @@ for conflicts before committing.
 or as an importable hook from the package? Copying is simpler and avoids the
 SITE_URL coupling problem. `npx vite-cf-ssr add usePageMeta` could handle it.
 
-**Vite version floor.** Currently built against Vite 5. Vite 6 is out — test
+**Vite version floor.** Currently built against Vite 5. Vite 6 is out - test
 and decide whether to support both or set the floor at 5.
 
 **React version floor.** Requires React 18 for `hydrateRoot`. No plan to support 17.
@@ -150,7 +150,7 @@ and decide whether to support both or set the floor at 5.
 
 ## What this does NOT need to become
 
-Keep this simple. The value is that it's thin and understandable — a developer
+Keep this simple. The value is that it's thin and understandable - a developer
 can read the entire prerender.js in 10 minutes and know exactly what it does.
 The moment it grows into a plugin system or tries to handle every edge case,
 it loses that advantage. Astro already exists.

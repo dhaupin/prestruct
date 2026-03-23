@@ -1,11 +1,10 @@
-# AGENTS.md — vite-cf-ssr
+# AGENTS.md - Cloudflare SEO SSR (For React -> Vite)
 
 Engineering history and hard-won decisions. Written for an AI agent (or human)
 picking this work up cold. Read this before touching anything.
 
-The context: this library was extracted from a production Vibe Flow Festival
-website build. Every pattern here was debugged against real CF Pages deployments.
-Nothing is theoretical.
+The context: this library was extracted from a production website build. Every 
+pattern here was debugged against real CF Pages deployments. Nothing is theoretical.
 
 ---
 
@@ -25,7 +24,7 @@ the other. They're strangers.
 
 **The fix:** Use `vite.createServer()` + `vite.ssrLoadModule()` instead of a
 compiled SSR bundle. `ssrLoadModule` resolves all imports through Vite's unified
-module registry — single instance of every package, StaticRouter and Routes share
+module registry - single instance of every package, StaticRouter and Routes share
 the same context object. Location propagates correctly.
 
 **The key code pattern in prerender.js:**
@@ -62,11 +61,11 @@ a chance to set its location. StaticRouter wrapped it, but BrowserRouter's conte
 was already in the module registry as the active router.
 
 **The fix:** Create a separate `AppLayout.jsx` file that has ZERO router imports.
-It imports only `Routes`, `Route`, `useLocation` from react-router-dom — never
+It imports only `Routes`, `Route`, `useLocation` from react-router-dom - never
 `BrowserRouter`. The router is always provided externally by the caller:
 - Client: `App.jsx` wraps `<AppLayout>` in `<BrowserRouter>`
 - SSR: `entry-server.jsx` wraps `<AppLayout>` in `<StaticRouter location={url}>`
-- Prerender: `ssrLoadModule('/src/AppLayout.jsx')` — loads AppLayout directly,
+- Prerender: `ssrLoadModule('/src/AppLayout.jsx')` - loads AppLayout directly,
   no BrowserRouter ever touches the module graph
 
 **The rule for any app using this library:**
@@ -76,7 +75,7 @@ render as '/'.
 
 ---
 
-## react-router-dom/server.js — the .js extension requirement
+## react-router-dom/server.js - the .js extension requirement
 
 **What broke:** Build failed on Cloudflare Pages with:
 ```
@@ -93,7 +92,7 @@ This applies in both `prerender.js` (the dynamic import) and `entry-server.jsx`.
 
 ---
 
-## hydrateRoot vs createRoot — why it matters for FOUC
+## hydrateRoot vs createRoot - why it matters for FOUC
 
 **createRoot** replaces the entire DOM subtree with a fresh React render.
 Even if the SSR HTML is identical to what React would render, the browser
@@ -153,8 +152,8 @@ for 404), falls to `createRoot().render()`. React renders `<App>` inside
 finds no matching `<Route>`. `<Routes>` renders nothing. Blank page.
 
 **The fix:**
-1. Use `<div id="root-404">` — main.jsx never touches it
-2. Strip the React bundle `<script>` tag from 404.html entirely — no JS loads
+1. Use `<div id="root-404">` - main.jsx never touches it
+2. Strip the React bundle `<script>` tag from 404.html entirely - no JS loads
 3. The 404 page is pure static HTML. It doesn't need React.
 
 ```js
@@ -166,7 +165,7 @@ HTTP 404 status. No configuration needed. Just put the file at `dist/404.html`.
 
 ---
 
-## $ in meta description strings — the regex backreference bug
+## $ in meta description strings - the regex backreference bug
 
 **What broke:** The `/tickets` page meta description appeared as:
 ```
@@ -175,9 +174,9 @@ Weekend Camping Pass (<meta name="description" content="20), Full Day Pass...
 
 **Root cause:** The description contained `$120`, `$25`, `$10` (pass prices).
 JavaScript's `String.prototype.replace()` treats `$` in the replacement string
-as a special character — `$1`, `$2` etc. are backreferences to capture groups.
+as a special character - `$1`, `$2` etc. are backreferences to capture groups.
 `$120` was interpreted as capture group 1 followed by literal `20`. Capture group 1
-happened to be the opening `content="` — so it got inserted mid-description.
+happened to be the opening `content="` - so it got inserted mid-description.
 
 **The fix:** Escape dollar signs before using a string as a replacement:
 ```js
@@ -207,7 +206,7 @@ to directory-index files to the trailing slash version:
 So our rule redirected `/about/` → `/about`, then CF redirected back to `/about/`.
 
 **The correct approach:** Do nothing. React Router v6 matches `/about/` against
-`<Route path="/about">` natively — it normalizes trailing slashes during matching.
+`<Route path="/about">` natively - it normalizes trailing slashes during matching.
 NavLink's `isActive` also handles both forms correctly. CF Pages can do its Pretty
 URLs thing. The canonical URL in prerender has no trailing slash, which is the
 SEO signal that matters.
@@ -218,7 +217,7 @@ CF handle it.
 
 ---
 
-## Google Fonts preload — what doesn't work
+## Google Fonts preload - what doesn't work
 
 **What we tried:** Preloading specific woff2 font files with hardcoded CDN paths:
 ```html
@@ -251,19 +250,19 @@ no hash rotation issues, works offline.
 
 ---
 
-## usePageMeta — why all 7 tags, not just title
+## usePageMeta - why all 7 tags, not just title
 
 When a user navigates within the SPA, they stay on the same HTML document.
 The `<head>` tags from whichever route they first loaded don't update unless
 something explicitly updates them. This affects:
 
-- **Browser tab title** — obvious, everyone notices
-- **canonical** — JS-enabled bots (Googlebot, Bingbot) do execute JS and
+- **Browser tab title** - obvious, everyone notices
+- **canonical** - JS-enabled bots (Googlebot, Bingbot) do execute JS and
   navigate SPAs. If canonical points to `/tickets` when they're crawling `/about`,
   they may attribute the content to the wrong URL.
-- **og:url** — if a user shares a page after navigating to it (not the first load),
+- **og:url** - if a user shares a page after navigating to it (not the first load),
   the social preview uses the og:url value in the DOM at share time.
-- **og:title, og:description, twitter:title, twitter:description** — same reason.
+- **og:title, og:description, twitter:title, twitter:description** - same reason.
 
 Tags intentionally NOT updated per navigation: `og:image`, `og:type`, `og:locale`,
 `og:site_name`, `twitter:card`, `twitter:image`. These describe the site/brand,
@@ -271,7 +270,7 @@ not the specific page, so they're correct on every route.
 
 ---
 
-## Stale SSR / CF Pages flooding — why it's not a problem
+## Stale SSR / CF Pages flooding - why it's not a problem
 
 **The concern:** "Won't old HTML files with old JS bundle hashes accumulate on CF?"
 
@@ -279,7 +278,7 @@ not the specific page, so they're correct on every route.
 - Vite fingerprints all JS/CSS (`index-HASH.js`). The hash changes when content changes.
 - Prerender runs in the same pipeline, reading the freshly-written `dist/index.html`.
 - Every HTML file references the current build's asset hash. They're always in sync.
-- CF Pages only uploads files whose hash changed — `N already uploaded` in build logs.
+- CF Pages only uploads files whose hash changed - `N already uploaded` in build logs.
 - HTML files have `Cache-Control: no-cache` so browsers always revalidate.
 - Old asset files stay in CF's store but are never referenced by any live HTML.
   CF auto-cleans them over time.
@@ -294,7 +293,7 @@ For large pages this adds latency to the build. React 18's `renderToPipeableStre
 streams HTML progressively. Not needed for build-time prerender, but relevant if
 this ever moves toward edge SSR.
 
-**Edge SSR (per-request).** This whole system is build-time prerender — every route
+**Edge SSR (per-request).** This whole system is build-time prerender - every route
 is rendered once at deploy time and served as static HTML. Per-request SSR (rendering
 in a CF Worker on every request) would require a different architecture entirely.
 The ssrLoadModule approach only works at build time; it spins up a Vite dev server.

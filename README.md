@@ -1,12 +1,12 @@
-# vite-cf-ssr
+# Cloudflare SEO SSR (For React -> Vite)
 
 A lightweight SSR prerender layer for **Vite + React + Cloudflare Pages** apps.
 
 No framework lock-in. No new build tool. Just scripts that run after `vite build`,
 render each route to static HTML, and deploy to CF Pages with correct SEO, caching,
-and hydration — all already working and debugged.
+and hydration - all already working and debugged.
 
-This is a **proof of concept** extracted from a production Vibe Flow Festival build.
+This is a **proof of concept** extracted from a production build.
 See `AGENTS.md` for the full engineering story and every hard-won decision.
 
 ---
@@ -20,7 +20,7 @@ See `AGENTS.md` for the full engineering story and every hard-won decision.
 - Writes `_redirects` rules for clean URL handling (`.html` stripping, `/home` → `/`)
 - Sets correct `Cache-Control` headers for HTML (no-cache) and assets (immutable)
 - Ships a `usePageMeta` hook that keeps all head tags in sync on client-side navigation
-- Uses `hydrateRoot` (not `createRoot`) so the SSR HTML is reused — no FOUC
+- Uses `hydrateRoot` (not `createRoot`) so the SSR HTML is reused - no FOUC
 
 ---
 
@@ -59,18 +59,18 @@ scripts/
 
 src/
   AppLayout.jsx      Template: routes + layout, NO BrowserRouter (critical)
-  entry-server.jsx   Template: SSR entry — wraps AppLayout in StaticRouter
-  main.jsx           Template: client entry — hydrateRoot or createRoot
+  entry-server.jsx   Template: SSR entry - wraps AppLayout in StaticRouter
+  main.jsx           Template: client entry - hydrateRoot or createRoot
   usePageMeta.js     Hook: updates head tags on client-side navigation
 
 public/
   _redirects         CF Pages redirect rules
   _headers           CF Pages cache + security headers
 
-index.html           Shell template — all meta injected at build time
+index.html           Shell template - all meta injected at build time
 ```
 
-Files marked **Engine** stay identical across apps — no edits needed.
+Files marked **Engine** stay identical across apps - no edits needed.
 Files marked **Template** need minor app-specific wiring (see Integration below).
 
 ---
@@ -107,7 +107,7 @@ const ROUTES = [
     priority: '1.0',
     changefreq: 'weekly',
     meta: {
-      title: 'Your Site — Tagline',
+      title: 'Your Site - Tagline',
       description: 'Your homepage description.',
     },
   },
@@ -116,7 +116,7 @@ const ROUTES = [
     priority: '0.9',
     changefreq: 'monthly',
     meta: {
-      title: 'About — Your Site',
+      title: 'About - Your Site',
       description: 'About your site.',
     },
   },
@@ -124,12 +124,12 @@ const ROUTES = [
 ]
 ```
 
-### 4. Create AppLayout.jsx (critical — read this)
+### 4. Create AppLayout.jsx (critical - read this)
 
 **AppLayout must not import BrowserRouter.** This is the single most important rule.
 
 ```jsx
-// AppLayout.jsx — NO BrowserRouter here
+// AppLayout.jsx - NO BrowserRouter here
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Nav from './components/Nav'
@@ -179,7 +179,7 @@ import usePageMeta from '../usePageMeta.js'
 export default function About() {
   usePageMeta({
     path:        '/about',
-    title:       'About — Your Site',
+    title:       'About - Your Site',
     description: 'About your site.',
   })
   // ...
@@ -208,8 +208,8 @@ const SITE_URL = import.meta.env.VITE_SITE_URL
 
 ### 7. Copy public files and update for your domain
 
-`_headers` — update the CSP domain references and Access-Control-Allow-Origin.
-`_redirects` — add any app-specific redirects. The `.html` stripping rules are
+`_headers` - update the CSP domain references and Access-Control-Allow-Origin.
+`_redirects` - add any app-specific redirects. The `.html` stripping rules are
 reusable as-is.
 
 ---
@@ -231,7 +231,7 @@ replaces the DOM, causing a visible flash as React re-renders.
 
 **Inline style tags in JSX.** React 18 defers `<style>` tags in JSX to `<head>`,
 causing hydration tree mismatches. Keep all CSS in `.css` files or use inline
-`style={{}}` props — never `<style>` tags inside component JSX.
+`style={{}}` props - never `<style>` tags inside component JSX.
 
 **Nav dark mode state.** Any component that reads `localStorage` or
 `window.matchMedia` at render time will cause an SSR/client mismatch.
@@ -239,7 +239,7 @@ Initialize state as `false` (SSR-safe), then sync via `useEffect`.
 
 **404 page hydration.** CF Pages serves `dist/404.html` for unmatched routes.
 If this file has `id="root"`, `main.jsx` will try to `hydrateRoot` or `createRoot`
-on it, and React will render `<Routes>` which matches nothing — blank page.
+on it, and React will render `<Routes>` which matches nothing - blank page.
 Use `id="root-404"` and strip the React bundle `<script>` tag from `404.html`.
 
 **$ in meta descriptions.** `String.replace()` treats `$1`, `$2` etc. in the
@@ -249,7 +249,7 @@ like `$120`) corrupt the injected meta tags. Escape with
 
 **CF Pages trailing slash.** CF Pages' Pretty URLs feature serves
 `dist/about/index.html` at both `/about` and `/about/`. Do not add redirect
-rules to strip trailing slashes — they create redirect loops because CF itself
+rules to strip trailing slashes - they create redirect loops because CF itself
 adds the slash before your rule fires. React Router v6 matches both forms
 natively. Leave it alone.
 
