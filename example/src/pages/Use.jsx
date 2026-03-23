@@ -1,14 +1,14 @@
 import usePageMeta from '../hooks/usePageMeta.js'
 
-const SITE_URL = 'https://cf-seo-ssr-example.pages.dev'
-const GITHUB   = 'https://github.com/dhaupin/cf-seo-ssr'
+const SITE_URL = 'https://prestruct.creadev.org'
+const GITHUB   = 'https://github.com/dhaupin/prestruct'
 
 export default function Use() {
   usePageMeta({
     siteUrl:     SITE_URL,
     path:        '/use',
-    title:       'Use it | cf-seo-ssr',
-    description: 'How to integrate cf-seo-ssr into your Vite + React app. Copy three files, write a config, update your build script.',
+    title:       'Use it | prestruct',
+    description: 'Add SEO prerendering to your Vite + React app in minutes. Copy three files, write ssr.config.js, update your build script.',
   })
 
   return (
@@ -16,10 +16,10 @@ export default function Use() {
       <section className="page-hero">
         <div className="container">
           <p className="page-kicker fade-up">Use it</p>
-          <h1 className="page-heading fade-up delay-1">Integrate in minutes.</h1>
+          <h1 className="page-heading fade-up delay-1">Add SEO in minutes.</h1>
           <p className="page-sub fade-up delay-2">
-            Copy three files, write a config, update your build script.
             Works with any existing Vite + React + React Router v6 app on Cloudflare Pages.
+            The only structural change is extracting AppLayout from App.jsx.
           </p>
         </div>
       </section>
@@ -34,7 +34,11 @@ export default function Use() {
             </div>
             <div className="feature">
               <p className="feature-icon">time</p>
-              <p className="feature-desc">~15 minutes for a simple app. The AppLayout refactor is the only structural change required.</p>
+              <p className="feature-desc">~15 minutes. The AppLayout extraction is the only structural change. Everything else is additive.</p>
+            </div>
+            <div className="feature">
+              <p className="feature-icon">build cost</p>
+              <p className="feature-desc">~2 seconds added to build time for a typical 3-10 route app. Scales linearly with route count.</p>
             </div>
           </div>
         </div>
@@ -42,12 +46,12 @@ export default function Use() {
 
       <section className="section">
         <div className="container">
-          <p className="section-label">Quick start</p>
+          <p className="section-label">Integration steps</p>
           <div className="quickstart">
 
             <div className="qs-block">
-              <p className="qs-label">1. Copy the engine files</p>
-              <pre><code>{`# from the cf-seo-ssr repo
+              <p className="qs-label">1. Copy the engine files into your app</p>
+              <pre><code>{`# from the prestruct repo
 cp scripts/prerender.js               your-app/scripts/
 cp scripts/inject-brand.js            your-app/scripts/
 cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</code></pre>
@@ -59,7 +63,7 @@ cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</code></pre>
   siteUrl:       'https://yoursite.com',
   siteName:      'Your Site',
   author:        'Your Org',
-  tagline:       'Your tagline.',
+  tagline:       'What your site does.',
   ogImage:       'https://yoursite.com/og-image.jpg',
   keywords:      'keyword one, keyword two',
   appLayoutPath: '/src/AppLayout.jsx',
@@ -68,30 +72,47 @@ cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</code></pre>
     {
       path: '/', priority: '1.0', changefreq: 'weekly',
       meta: {
-        title:       'Your Site | Your tagline.',
-        description: 'Homepage description.',
+        title:       'Your Site | What your site does.',
+        description: 'Homepage description, 50-160 chars.',
       },
     },
-    // one entry per route
+    {
+      path: '/about', priority: '0.8', changefreq: 'monthly',
+      meta: {
+        title:       'About | Your Site',
+        description: 'About page description.',
+      },
+    },
+    // one entry per route -- unlisted routes won't be prerendered
   ],
 
+  // schema.org JSON-LD -- injected into every page <head>
   buildJsonLd() {
-    return [{ '@context': 'https://schema.org', '@type': 'Organization', ... }]
+    return [
+      {
+        '@context': 'https://schema.org',
+        '@type':    'Organization',
+        name:       'Your Org',
+        url:        'https://yoursite.com',
+      },
+    ]
   },
 }`}</code></pre>
+              <div className="callout" style={{ marginTop: '1rem' }}>
+                <strong>Apostrophe rule:</strong> use double quotes for any string containing a contraction.
+                <code>"We're open Mon-Fri"</code> works. <code>'We\'re open Mon-Fri'</code> breaks the parser.
+              </div>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">3. Extract AppLayout from App.jsx</p>
               <div className="callout">
                 <strong>Critical:</strong> AppLayout must never import BrowserRouter -- anywhere in its module graph.
-                If it does, every route prerenders as <code>/</code>. See <a href="/about">About</a> for why.
+                BrowserRouter initializing at SSR time causes every route to prerender as <code>/</code>. See <a href="/about">how it works</a>.
               </div>
-              <pre><code>{`// AppLayout.jsx -- NO BrowserRouter, ever
+              <pre><code>{`// src/AppLayout.jsx -- NO BrowserRouter, ever
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import Nav from './components/Nav'
-import Home from './pages/Home'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -107,13 +128,16 @@ export default function AppLayout() {
       <ScrollToTop />
       <Nav />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/"      element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="*"      element={<NotFound />} />
       </Routes>
+      <Footer />
     </>
   )
 }
 
-// App.jsx -- BrowserRouter lives ONLY here
+// src/App.jsx -- BrowserRouter lives ONLY here
 import { BrowserRouter } from 'react-router-dom'
 import AppLayout from './AppLayout'
 export default function App() {
@@ -132,14 +156,18 @@ export default function About() {
     title:       'About | Your Site',
     description: 'About page description.',
   })
-  // ...
+  // rest of your component
 }`}</code></pre>
+              <p className="qs-label" style={{ marginTop: '1rem' }}>Tip: wrap it to avoid repeating siteUrl</p>
+              <pre><code>{`// src/hooks/useMeta.js
+import usePageMeta from './usePageMeta.js'
+const SITE = 'https://yoursite.com'
+export default (args) => usePageMeta({ siteUrl: SITE, ...args })`}</code></pre>
             </div>
 
             <div className="qs-block">
-              <p className="qs-label">5. Update main.jsx</p>
+              <p className="qs-label">5. Update main.jsx -- use hydrateRoot for SSR content</p>
               <pre><code>{`const root = document.getElementById('root')
-
 if (root && root.dataset.serverRendered) {
   ReactDOM.hydrateRoot(root, <React.StrictMode><App /></React.StrictMode>)
 } else if (root) {
@@ -153,12 +181,24 @@ if (root && root.dataset.serverRendered) {
             </div>
 
             <div className="qs-block">
-              <p className="qs-label">7. Remove the SPA fallback from public/_redirects</p>
+              <p className="qs-label">7. Remove SPA fallback from public/_redirects</p>
               <div className="callout">
-                <strong>Remove</strong> <code>/* /index.html 200</code> from <code>_redirects</code>.
-                With prerendering, every route has its own HTML file. The SPA fallback causes
-                an infinite redirect loop with CF Pages.
+                <strong>Remove</strong> <code>/* /index.html 200</code> if it exists.
+                prestruct gives every route its own HTML file -- the SPA fallback creates
+                an infinite redirect loop with Cloudflare Pages' Pretty URLs feature.
               </div>
+            </div>
+
+            <div className="qs-block">
+              <p className="qs-label">8. Guard any localStorage / window access</p>
+              <pre><code>{`// Wrong -- throws in Node during prerender
+const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark')
+
+// Correct -- SSR-safe
+const [theme, setTheme] = useState(() => {
+  if (typeof window === 'undefined') return 'dark'
+  return localStorage.getItem('theme') || 'dark'
+})`}</code></pre>
             </div>
 
           </div>

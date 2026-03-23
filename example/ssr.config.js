@@ -1,10 +1,10 @@
 export default {
-  siteUrl:       'https://cf-seo-ssr-example.pages.dev',
-  siteName:      'cf-seo-ssr',
+  siteUrl:       'https://prestruct.creadev.org',
+  siteName:      'prestruct',
   author:        'dhaupin',
-  tagline:       'Build-time prerender for Vite + React + Cloudflare Pages',
-  ogImage:       'https://cf-seo-ssr-example.pages.dev/og-image.png',
-  keywords:      'vite, react, cloudflare pages, SSR, prerender, SEO, static site',
+  tagline:       'SEO prerendering for Vite + React on Cloudflare Pages',
+  ogImage:       'https://prestruct.creadev.org/og-image.png',
+  keywords:      'vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator',
   appLayoutPath: '/src/AppLayout.jsx',
 
   routes: [
@@ -13,8 +13,8 @@ export default {
       priority:   '1.0',
       changefreq: 'monthly',
       meta: {
-        title:       'cf-seo-ssr | Build-time prerender for Vite + React + Cloudflare Pages',
-        description: 'Drop-in build-time prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct SEO meta, sitemap, and 404 -- no framework required.',
+        title:       'prestruct | SEO prerendering for Vite + React on Cloudflare Pages',
+        description: 'Make your Vite + React app visible to search engines. prestruct prerenders each route to static HTML with correct title, description, Open Graph, schema.org, and cache headers.',
       },
     },
     {
@@ -22,8 +22,8 @@ export default {
       priority:   '0.8',
       changefreq: 'monthly',
       meta: {
-        title:       'About | cf-seo-ssr',
-        description: "How cf-seo-ssr works under the hood. ssrLoadModule, StaticRouter, hydrateRoot, and the decisions that make it debuggable.",
+        title:       'How it works | prestruct',
+        description: 'How prestruct prerenders Vite + React routes to static HTML. The build pipeline, caching strategy, and key architectural decisions explained.',
       },
     },
     {
@@ -31,8 +31,8 @@ export default {
       priority:   '0.9',
       changefreq: 'monthly',
       meta: {
-        title:       'Use it | cf-seo-ssr',
-        description: 'How to integrate cf-seo-ssr into your Vite + React app. Copy three files, write a config, update your build script.',
+        title:       'Use it | prestruct',
+        description: 'Add SEO prerendering to your Vite + React app in minutes. Copy three files, write ssr.config.js, update your build script.',
       },
     },
   ],
@@ -42,12 +42,20 @@ export default {
       {
         '@context':           'https://schema.org',
         '@type':              'SoftwareApplication',
-        name:                 'cf-seo-ssr',
-        url:                  'https://github.com/dhaupin/cf-seo-ssr',
-        description:          'Build-time prerender layer for Vite + React + Cloudflare Pages.',
+        name:                 'prestruct',
+        url:                  'https://github.com/dhaupin/prestruct',
+        description:          'Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.',
         applicationCategory:  'DeveloperApplication',
         operatingSystem:      'Any',
         license:              'https://opensource.org/licenses/MIT',
+        featureList: [
+          'Per-route static HTML prerendering',
+          'Title, description, Open Graph, Twitter Card injection',
+          'schema.org JSON-LD structured data',
+          'Automatic sitemap.xml generation',
+          'Correct HTTP 404 status for unmatched routes',
+          'Immutable asset caching with Cloudflare Pages',
+        ],
         author: {
           '@type': 'Person',
           name:    'dhaupin',

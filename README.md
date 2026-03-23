@@ -1,4 +1,4 @@
-# cf-seo-ssr
+# prestruct
 
 A lightweight build-time prerender layer for **Vite + React + Cloudflare Pages** apps.
 

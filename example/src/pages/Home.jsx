@@ -1,15 +1,15 @@
 import usePageMeta from '../hooks/usePageMeta.js'
 import { Link } from 'react-router-dom'
 
-const SITE_URL = 'https://cf-seo-ssr-example.pages.dev'
-const GITHUB   = 'https://github.com/dhaupin/cf-seo-ssr'
+const SITE_URL = 'https://prestruct.creadev.org'
+const GITHUB   = 'https://github.com/dhaupin/prestruct'
 
 export default function Home() {
   usePageMeta({
     siteUrl:     SITE_URL,
     path:        '/',
-    title:       'cf-seo-ssr | Build-time prerender for Vite + React + Cloudflare Pages',
-    description: 'Drop-in build-time prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct SEO meta, sitemap, and 404 -- no framework required.',
+    title:       'prestruct | SEO prerendering for Vite + React on Cloudflare Pages',
+    description: 'Make your Vite + React app visible to search engines. prestruct prerenders each route to static HTML with correct title, description, Open Graph, schema.org, and cache headers -- deployed to Cloudflare Pages.',
   })
 
   return (
@@ -18,13 +18,14 @@ export default function Home() {
         <div className="container">
           <p className="hero-kicker fade-up">Open source / MIT</p>
           <h1 className="hero-heading fade-up delay-1">
-            SSR prerender for<br />
-            <em>Vite + React</em> on CF Pages.
+            Your React app,<br />
+            <em>visible to search engines.</em>
           </h1>
           <p className="hero-sub fade-up delay-2">
-            Two Node scripts that run after <code>vite build</code>. Each route
-            gets its own static HTML with correct title, description, Open Graph,
-            canonical, and JSON-LD baked in. No framework. No edge runtime. No lock-in.
+            Search engines crawl HTML. SPAs serve an empty shell. prestruct fixes that --
+            rendering each route to static HTML at build time with correct title,
+            description, Open Graph, schema.org, and cache headers. No framework migration.
+            No edge runtime. Just a smarter build step.
           </p>
           <div className="hero-actions fade-up delay-3">
             <Link to="/use" className="btn btn-primary">Get started →</Link>
@@ -42,7 +43,7 @@ export default function Home() {
               </div>
               <div className="pipeline-step">
                 <p className="step-cmd">inject-brand.js</p>
-                <p className="step-desc">Global meta into dist/index.html</p>
+                <p className="step-desc">Global SEO meta into index.html</p>
               </div>
               <div className="pipeline-step">
                 <p className="step-cmd">prerender.js</p>
@@ -50,7 +51,7 @@ export default function Home() {
               </div>
               <div className="pipeline-step">
                 <p className="step-cmd">CF Pages deploy</p>
-                <p className="step-desc">Static files, global CDN, HTTP 200</p>
+                <p className="step-desc">Globally cached, correct HTTP status</p>
               </div>
             </div>
           </div>
@@ -59,27 +60,47 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <p className="section-label">What you get</p>
-          <div className="feature-grid">
-            <div className="feature">
-              <p className="feature-icon">→ per-route HTML</p>
-              <h3 className="feature-title">Static HTML per route</h3>
-              <p className="feature-desc">Each route gets its own <code>index.html</code> with correct head tags. Bots see real content, no JS required.</p>
+          <p className="section-label">The SPA SEO problem</p>
+          <div className="compare">
+            <div className="compare-row header">
+              <div className="compare-cell"></div>
+              <div className="compare-cell">Plain SPA</div>
+              <div className="compare-cell">SPA + prestruct</div>
             </div>
-            <div className="feature">
-              <p className="feature-icon">→ meta injection</p>
-              <h3 className="feature-title">Title, OG, canonical</h3>
-              <p className="feature-desc">Per-route title, description, og:url, og:title, og:description, canonical -- all baked in at build time.</p>
+            <div className="compare-row">
+              <div className="compare-cell label">Googlebot sees</div>
+              <div className="compare-cell bad">Empty &lt;div id="root"&gt;</div>
+              <div className="compare-cell good">Full rendered HTML</div>
             </div>
-            <div className="feature">
-              <p className="feature-icon">→ hydration</p>
-              <h3 className="feature-title">Zero FOUC</h3>
-              <p className="feature-desc"><code>hydrateRoot</code> attaches React to the existing SSR DOM. No repaint, no flash of unstyled content.</p>
+            <div className="compare-row">
+              <div className="compare-cell label">Per-route title</div>
+              <div className="compare-cell bad">Wrong or missing</div>
+              <div className="compare-cell good">Baked in at build time</div>
             </div>
-            <div className="feature">
-              <p className="feature-icon">→ sitemap + 404</p>
-              <h3 className="feature-title">Sitemap + 404</h3>
-              <p className="feature-desc">sitemap.xml generated from your routes config with today's date. 404.html served by CF Pages with real HTTP 404.</p>
+            <div className="compare-row">
+              <div className="compare-cell label">Open Graph / social</div>
+              <div className="compare-cell bad">Site-wide default only</div>
+              <div className="compare-cell good">Per-route og:title, og:description, og:url</div>
+            </div>
+            <div className="compare-row">
+              <div className="compare-cell label">schema.org JSON-LD</div>
+              <div className="compare-cell bad">Not present</div>
+              <div className="compare-cell good">Injected from config</div>
+            </div>
+            <div className="compare-row">
+              <div className="compare-cell label">Asset caching</div>
+              <div className="compare-cell bad">No cache strategy</div>
+              <div className="compare-cell good">Immutable assets, no-cache HTML</div>
+            </div>
+            <div className="compare-row">
+              <div className="compare-cell label">404 status</div>
+              <div className="compare-cell bad">HTTP 200 on all routes</div>
+              <div className="compare-cell good">Real HTTP 404 from 404.html</div>
+            </div>
+            <div className="compare-row">
+              <div className="compare-cell label">Sitemap</div>
+              <div className="compare-cell bad">Manual, goes stale</div>
+              <div className="compare-cell good">Auto-generated on every build</div>
             </div>
           </div>
         </div>
@@ -87,7 +108,45 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <p className="section-label">Proof -- view-source on this page</p>
+          <p className="section-label">What you gain</p>
+          <div className="benefit-grid">
+            <div className="benefit">
+              <p className="benefit-num">↑ rank</p>
+              <h3 className="benefit-title">Crawlable content</h3>
+              <p className="benefit-desc">Every route serves its full HTML to bots. No JavaScript execution required. Googlebot, Bingbot, and social crawlers see exactly what a user sees.</p>
+            </div>
+            <div className="benefit">
+              <p className="benefit-num">↑ CTR</p>
+              <h3 className="benefit-title">Rich search previews</h3>
+              <p className="benefit-desc">Per-route title and description baked into HTML. Your search result shows the right snippet for each page, not a generic site-wide fallback.</p>
+            </div>
+            <div className="benefit">
+              <p className="benefit-num">↑ share</p>
+              <h3 className="benefit-title">Social cards that work</h3>
+              <p className="benefit-desc">og:title, og:description, og:url, og:image correct on every route. When someone shares your /pricing page, the card shows pricing content, not your homepage.</p>
+            </div>
+            <div className="benefit">
+              <p className="benefit-num">↑ trust</p>
+              <h3 className="benefit-title">Schema.org structured data</h3>
+              <p className="benefit-desc">JSON-LD injected from your config into every page head. Organization, WebSite, Product, Article -- whatever your app needs to earn rich results.</p>
+            </div>
+            <div className="benefit">
+              <p className="benefit-num">↑ speed</p>
+              <h3 className="benefit-title">Correct cache headers</h3>
+              <p className="benefit-desc">Hashed JS/CSS assets cached immutably. HTML revalidates on every request. Users always get fresh content, browsers never re-download unchanged bundles.</p>
+            </div>
+            <div className="benefit">
+              <p className="benefit-num">0 cost</p>
+              <h3 className="benefit-title">No infrastructure change</h3>
+              <p className="benefit-desc">Still deploying to Cloudflare Pages as static files. No server, no edge worker, no new dependencies at runtime. Build time goes up by ~2 seconds.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <p className="section-label">This page, right now</p>
           <div className="proof-panel">
             <div className="proof-bar">
               <span className="proof-dot" />
@@ -96,12 +155,14 @@ export default function Home() {
               <span className="proof-url">view-source:{SITE_URL}</span>
             </div>
             <div className="proof-body">
-              <p className="proof-line"><span className="hl-muted">&lt;!-- Primary SEO (populated by inject-brand.js) --&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;title&gt;</span><span className="hl-value">cf-seo-ssr | Build-time prerender for Vite + React + Cloudflare Pages</span><span className="hl-tag">&lt;/title&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;meta</span> <span className="hl-attr">name</span>=<span className="hl-value">"description"</span> <span className="hl-attr">content</span>=<span className="hl-value">"Drop-in build-time prerender layer..."</span> <span className="hl-tag">/&gt;</span></p>
+              <p className="proof-line"><span className="hl-muted">&lt;!-- injected by inject-brand.js from ssr.config.js --&gt;</span></p>
+              <p className="proof-line"><span className="hl-tag">&lt;title&gt;</span><span className="hl-value">prestruct | SEO prerendering for Vite + React on Cloudflare Pages</span><span className="hl-tag">&lt;/title&gt;</span></p>
+              <p className="proof-line"><span className="hl-tag">&lt;meta</span> <span className="hl-attr">name</span>=<span className="hl-value">"description"</span> <span className="hl-attr">content</span>=<span className="hl-value">"Make your Vite + React app visible to search engines..."</span> <span className="hl-tag">/&gt;</span></p>
               <p className="proof-line"><span className="hl-tag">&lt;link</span> <span className="hl-attr">rel</span>=<span className="hl-value">"canonical"</span> <span className="hl-attr">href</span>=<span className="hl-value">"{SITE_URL}/"</span> <span className="hl-tag">/&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;meta</span> <span className="hl-attr">property</span>=<span className="hl-value">"og:title"</span> <span className="hl-attr">content</span>=<span className="hl-value">"cf-seo-ssr | Build-time prerender..."</span> <span className="hl-tag">/&gt;</span></p>
-              <p className="proof-line"><span className="hl-muted">&lt;!-- ...and the full rendered HTML of this page, no JS needed --&gt;</span></p>
+              <p className="proof-line"><span className="hl-tag">&lt;meta</span> <span className="hl-attr">property</span>=<span className="hl-value">"og:url"</span> <span className="hl-attr">content</span>=<span className="hl-value">"{SITE_URL}/"</span> <span className="hl-tag">/&gt;</span></p>
+              <p className="proof-line"><span className="hl-tag">&lt;script</span> <span className="hl-attr">type</span>=<span className="hl-value">"application/ld+json"</span><span className="hl-tag">&gt;</span><span className="hl-muted">{"{ \"@type\": \"SoftwareApplication\", ... }"}</span><span className="hl-tag">&lt;/script&gt;</span></p>
+              <p className="proof-line"><span className="hl-muted">&lt;!-- then the full rendered HTML of this route, no JS needed --&gt;</span></p>
+              <p className="proof-line"><span className="hl-tag">&lt;div</span> <span className="hl-attr">id</span>=<span className="hl-value">"root"</span> <span className="hl-attr">data-server-rendered</span>=<span className="hl-value">"true"</span><span className="hl-tag">&gt;</span><span className="hl-muted">...full HTML...</span><span className="hl-tag">&lt;/div&gt;</span></p>
             </div>
           </div>
         </div>

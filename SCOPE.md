@@ -1,4 +1,4 @@
-# SCOPE.md — cf-seo-ssr
+# SCOPE.md — prestruct
 
 What this is, what it isn't, and what's left to do.
 
@@ -6,7 +6,7 @@ What this is, what it isn't, and what's left to do.
 
 ## What was done in v2
 
-v1 was extracted from a production app (VFF) with app-specific strings throughout.
+v1 was extracted from a production app with app-specific strings throughout.
 v2 completes the P0 items from v1's SCOPE.md:
 
 - [x] **Config interface extracted.** All brand identity and routes live in
@@ -20,7 +20,7 @@ v2 completes the P0 items from v1's SCOPE.md:
   main.jsx) need minor app-specific wiring.
 - [x] **All app-specific strings removed.** `_headers`, `_redirects`, `index.html`,
   and all scripts are now fully generic.
-- [x] **Validated against a second app.** Creadev.org is the second production integration.
+- [x] **Validated against a second app.** A second production app validated the config interface and uncovered several new gotchas documented in AGENTS.md.
   Several new gotchas were discovered and documented in AGENTS.md.
 
 ---
@@ -43,7 +43,7 @@ v2 completes the P0 items from v1's SCOPE.md:
 
 ## P1 -- significantly improves usability (not yet done)
 
-- [ ] **CLI scaffold tool.** `npx cf-seo-ssr init` that copies the template files
+- [ ] **CLI scaffold tool.** `npx prestruct init` that copies the template files
   into an existing Vite project and creates a starter `ssr.config.js`.
   Probably 100-150 lines of Node.
 

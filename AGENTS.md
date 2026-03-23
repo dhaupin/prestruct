@@ -1,10 +1,10 @@
-# AGENTS.md — cf-seo-ssr
+# AGENTS.md — prestruct
 
 Engineering history and hard-won decisions. Written for an AI agent (or human)
 picking this up cold. Read before touching anything.
 
 Every pattern here was debugged against real CF Pages deployments across two
-production apps (VFF and creadev.org). Nothing is theoretical.
+production apps (two production apps). Nothing is theoretical.
 
 ---
 
@@ -215,7 +215,7 @@ cacheable bundles with a single rule.
 **What broke:** CF Pages build failed with:
 ```
 ERROR: Expected "}" but found "re"
-description: 'Get in touch with Creadev.org. We're based in NW Pennsylvania...'
+description: 'We're open Monday through Friday...'
                                                           ^
 ```
 
