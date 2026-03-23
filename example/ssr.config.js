@@ -27,11 +27,11 @@ export default {
       },
     },
     {
-      path:       '/use',
+      path:       '/deploy',
       priority:   '0.9',
       changefreq: 'monthly',
       meta: {
-        title:       'Use it | prestruct',
+        title:       'Deploy | prestruct',
         description: 'Add SEO prerendering to your Vite + React app in minutes. Copy three files, write ssr.config.js, update your build script.',
       },
     },
@@ -66,7 +66,7 @@ export default {
   },
 
   notFound: {
-    heading:    'Page not found.',
+    heading:    'Route not found.',
     body:       "That path doesn't exist. Head back home.",
     primaryCta: { label: 'Back to home', href: '/' },
   },

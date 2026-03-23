@@ -1,5 +1,7 @@
 import usePageMeta from '../hooks/usePageMeta.js'
 import { Link } from 'react-router-dom'
+import ViewSource from '../components/ViewSource.jsx'
+import ToolsBlock from '../components/ToolsBlock.jsx'
 
 const SITE_URL = 'https://prestruct.creadev.org'
 const GITHUB   = 'https://github.com/dhaupin/prestruct'
@@ -9,7 +11,7 @@ export default function Home() {
     siteUrl:     SITE_URL,
     path:        '/',
     title:       'prestruct | SEO prerendering for Vite + React on Cloudflare Pages',
-    description: 'Make your Vite + React app visible to search engines. prestruct prerenders each route to static HTML with correct title, description, Open Graph, schema.org, and cache headers -- deployed to Cloudflare Pages.',
+    description: 'Make your Vite + React app visible to search engines. prestruct prerenders each route to static HTML with correct title, description, Open Graph, schema.org, and cache headers deployed to Cloudflare Pages.',
   })
 
   return (
@@ -22,13 +24,13 @@ export default function Home() {
             <em>visible to search engines.</em>
           </h1>
           <p className="hero-sub fade-up delay-2">
-            Search engines crawl HTML. SPAs serve an empty shell. prestruct fixes that --
+            Search engines crawl HTML. SPAs serve an empty shell. prestruct fixes that:
             rendering each route to static HTML at build time with correct title,
-            description, Open Graph, schema.org, and cache headers. No framework migration.
-            No edge runtime. Just a smarter build step.
+            description, Open Graph, schema.org, and cache headers. No framework migration,
+            no edge runtime, a smarter build step.
           </p>
           <div className="hero-actions fade-up delay-3">
-            <Link to="/use" className="btn btn-primary">Get started →</Link>
+            <Link to="/deploy" className="btn btn-primary">Get started</Link>
             <a href={GITHUB} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
               View source
             </a>
@@ -55,6 +57,20 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <p className="section-label">This site is the proof</p>
+          <div className="callout" style={{ marginBottom: '1.5rem' }}>
+            The repo running at <strong>{SITE_URL}</strong> is the same example app in
+            the <a href={GITHUB} target="_blank" rel="noopener noreferrer">prestruct GitHub repo</a>.
+            Every page you visit here was prerendered by prestruct at build time.
+            The widget below fetches and parses the live HTML for the current route so you can
+            see exactly what a search engine or social crawler sees.
+          </div>
+          <ViewSource />
         </div>
       </section>
 
@@ -94,7 +110,7 @@ export default function Home() {
             </div>
             <div className="compare-row">
               <div className="compare-cell label">404 status</div>
-              <div className="compare-cell bad">HTTP 200 on all routes</div>
+              <div className="compare-cell bad">HTTP 200 on every route</div>
               <div className="compare-cell good">Real HTTP 404 from 404.html</div>
             </div>
             <div className="compare-row">
@@ -111,34 +127,34 @@ export default function Home() {
           <p className="section-label">What you gain</p>
           <div className="benefit-grid">
             <div className="benefit">
-              <p className="benefit-num">↑ rank</p>
+              <p className="benefit-num">rank</p>
               <h3 className="benefit-title">Crawlable content</h3>
-              <p className="benefit-desc">Every route serves its full HTML to bots. No JavaScript execution required. Googlebot, Bingbot, and social crawlers see exactly what a user sees.</p>
+              <p className="benefit-desc">Every route serves full HTML to bots. No JavaScript execution required. Googlebot, Bingbot, and social crawlers see exactly what a user sees.</p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">↑ CTR</p>
+              <p className="benefit-num">CTR</p>
               <h3 className="benefit-title">Rich search previews</h3>
               <p className="benefit-desc">Per-route title and description baked into HTML. Your search result shows the right snippet for each page, not a generic site-wide fallback.</p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">↑ share</p>
+              <p className="benefit-num">share</p>
               <h3 className="benefit-title">Social cards that work</h3>
               <p className="benefit-desc">og:title, og:description, og:url, og:image correct on every route. When someone shares your /pricing page, the card shows pricing content, not your homepage.</p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">↑ trust</p>
-              <h3 className="benefit-title">Schema.org structured data</h3>
-              <p className="benefit-desc">JSON-LD injected from your config into every page head. Organization, WebSite, Product, Article -- whatever your app needs to earn rich results.</p>
+              <p className="benefit-num">trust</p>
+              <h3 className="benefit-title">Structured data</h3>
+              <p className="benefit-desc">JSON-LD injected from your config into every page head. Organization, WebSite, Product, Article: whatever your app needs to earn rich results.</p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">↑ speed</p>
+              <p className="benefit-num">speed</p>
               <h3 className="benefit-title">Correct cache headers</h3>
               <p className="benefit-desc">Hashed JS/CSS assets cached immutably. HTML revalidates on every request. Users always get fresh content, browsers never re-download unchanged bundles.</p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">0 cost</p>
+              <p className="benefit-num">zero cost</p>
               <h3 className="benefit-title">No infrastructure change</h3>
-              <p className="benefit-desc">Still deploying to Cloudflare Pages as static files. No server, no edge worker, no new dependencies at runtime. Build time goes up by ~2 seconds.</p>
+              <p className="benefit-desc">Still deploying to Cloudflare Pages as static files. No server, no edge worker, no new runtime dependencies. Build time goes up by about 2 seconds.</p>
             </div>
           </div>
         </div>
@@ -146,25 +162,12 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <p className="section-label">This page, right now</p>
-          <div className="proof-panel">
-            <div className="proof-bar">
-              <span className="proof-dot" />
-              <span className="proof-dot" />
-              <span className="proof-dot" />
-              <span className="proof-url">view-source:{SITE_URL}</span>
-            </div>
-            <div className="proof-body">
-              <p className="proof-line"><span className="hl-muted">&lt;!-- injected by inject-brand.js from ssr.config.js --&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;title&gt;</span><span className="hl-value">prestruct | SEO prerendering for Vite + React on Cloudflare Pages</span><span className="hl-tag">&lt;/title&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;meta</span> <span className="hl-attr">name</span>=<span className="hl-value">"description"</span> <span className="hl-attr">content</span>=<span className="hl-value">"Make your Vite + React app visible to search engines..."</span> <span className="hl-tag">/&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;link</span> <span className="hl-attr">rel</span>=<span className="hl-value">"canonical"</span> <span className="hl-attr">href</span>=<span className="hl-value">"{SITE_URL}/"</span> <span className="hl-tag">/&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;meta</span> <span className="hl-attr">property</span>=<span className="hl-value">"og:url"</span> <span className="hl-attr">content</span>=<span className="hl-value">"{SITE_URL}/"</span> <span className="hl-tag">/&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;script</span> <span className="hl-attr">type</span>=<span className="hl-value">"application/ld+json"</span><span className="hl-tag">&gt;</span><span className="hl-muted">{"{ \"@type\": \"SoftwareApplication\", ... }"}</span><span className="hl-tag">&lt;/script&gt;</span></p>
-              <p className="proof-line"><span className="hl-muted">&lt;!-- then the full rendered HTML of this route, no JS needed --&gt;</span></p>
-              <p className="proof-line"><span className="hl-tag">&lt;div</span> <span className="hl-attr">id</span>=<span className="hl-value">"root"</span> <span className="hl-attr">data-server-rendered</span>=<span className="hl-value">"true"</span><span className="hl-tag">&gt;</span><span className="hl-muted">...full HTML...</span><span className="hl-tag">&lt;/div&gt;</span></p>
-            </div>
-          </div>
+          <p className="section-label">Verify it yourself</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-2)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+            Every tool below accepts a URL and reports what it finds. Use them on this site
+            or on your own after integrating prestruct.
+          </p>
+          <ToolsBlock />
         </div>
       </section>
     </>

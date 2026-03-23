@@ -3,8 +3,8 @@
 A lightweight build-time prerender layer for **Vite + React + Cloudflare Pages** apps.
 
 No framework lock-in. No new build tool. Drop in three files, add a config, and your
-SPA gets fully-rendered static HTML per route -- correct SEO, correct head tags, correct
-HTTP status codes -- all already working and debugged against real CF Pages deployments.
+SPA gets fully-rendered static HTML per route, with correct SEO, correct head tags, and
+correct HTTP status codes. Already working and debugged against real CF Pages deployments.
 
 This is **build-time prerender**, not edge SSR. Every route is rendered once at deploy
 time and served as a static HTML file. CF Pages handles the rest.
@@ -18,7 +18,7 @@ time and served as a static HTML file. CF Pages handles the rest.
 - Generates `sitemap.xml` automatically from your routes config with today's date
 - Generates a `404.html` that CF Pages serves with a real HTTP 404 status
 - Ships a `usePageMeta` hook that keeps head tags in sync on client-side navigation
-- Uses `hydrateRoot` (not `createRoot`) so SSR HTML is reused -- no FOUC
+- Uses `hydrateRoot` (not `createRoot`) so SSR HTML is reused, no FOUC
 
 ---
 
@@ -51,28 +51,28 @@ string, injects route-specific meta, and writes the HTML file.
 
 ```
 scripts/
-  prerender.js       Engine -- renders all routes, generates sitemap + 404
-  inject-brand.js    Engine -- injects brand meta into the base index.html shell
+  prerender.js       Engine: renders all routes, generates sitemap + 404
+  inject-brand.js    Engine: injects brand meta into the base index.html shell
 
 templates/
   src/
-    AppLayout.jsx      Template -- your routes + layout, NO BrowserRouter (critical)
-    entry-server.jsx   Template -- SSR entry, wraps AppLayout in StaticRouter
-    main.jsx           Template -- client entry, hydrateRoot or createRoot
+    AppLayout.jsx      Template: your routes + layout, NO BrowserRouter (critical)
+    entry-server.jsx   Template: SSR entry, wraps AppLayout in StaticRouter
+    main.jsx           Template: client entry, hydrateRoot or createRoot
     hooks/
-      usePageMeta.js   Hook -- updates head tags on client-side navigation
-  index.html           Shell template -- meta injected at build time, not hardcoded
-  ssr.config.js        Your config -- site identity, routes, JSON-LD
+      usePageMeta.js   Hook: updates head tags on client-side navigation
+  index.html           Shell template. Meta injected at build time, not hardcoded
+  ssr.config.js        Your config: site identity, routes, JSON-LD
   package.json         Example build script showing the three-step chain
 
 public/
   _headers           CF Pages cache + security headers (generic, edit as needed)
   _redirects         CF Pages redirect rules (SPA fallback not needed post-prerender)
 
-example/             Working app -- CF Pages root directory, builds and deploys as-is
+example/             Working app. CF Pages root directory, builds and deploys as-is
 ```
 
-Files marked **Engine** stay identical across apps -- copy them and never edit.
+Files marked **Engine** stay identical across apps. Copy them and never edit.
 Files marked **Template** need minor app-specific wiring (see Integration below).
 
 ---
@@ -133,7 +133,7 @@ export default {
 }
 ```
 
-### 3. Create `AppLayout.jsx` (critical -- read this)
+### 3. Create `AppLayout.jsx` (critical, read this)
 
 **AppLayout must not import BrowserRouter.** This is the single most important rule.
 If BrowserRouter is anywhere in its module graph, every route prerendering as `/`.
@@ -226,12 +226,12 @@ Use the provided `templates/src/main.jsx`. Key change: `hydrateRoot` when SSR co
 
 ### 7. Copy `index.html` and `public/` files
 
-`index.html` -- the shell template. Leave meta tags as placeholder stubs. inject-brand
+`index.html`: the shell template. Leave meta tags as placeholder stubs. inject-brand
 writes the real values at build time from `ssr.config.js`.
 
-`public/_headers` -- update the CSP if you have additional script/style domains.
+`public/_headers`: update the CSP if you have additional script/style domains.
 
-`public/_redirects` -- the SPA fallback (`/* /index.html 200`) is NOT needed once
+`public/_redirects`: the SPA fallback (`/* /index.html 200`) is NOT needed once
 you're prerendering. Including it causes an infinite redirect loop on CF Pages.
 
 ---

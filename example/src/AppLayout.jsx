@@ -7,7 +7,7 @@ import { Routes, Route, useLocation, NavLink, Link } from 'react-router-dom'
 import { useEffect } from 'react'
 import Home     from './pages/Home.jsx'
 import About    from './pages/About.jsx'
-import Use      from './pages/Use.jsx'
+import Deploy      from './pages/Deploy.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 const GITHUB        = 'https://github.com/dhaupin/prestruct'
@@ -41,7 +41,7 @@ export default function AppLayout() {
         <nav className="nav">
           <NavLink to="/"     end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>home</NavLink>
           <NavLink to="/about"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>how it works</NavLink>
-          <NavLink to="/use"     className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>use it</NavLink>
+          <NavLink to="/deploy"     className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>deploy</NavLink>
           <a href={GITHUB} className="nav-github" target="_blank" rel="noopener noreferrer">
             <GitHubIcon />
             <span>github</span>
@@ -53,7 +53,7 @@ export default function AppLayout() {
         <Routes>
           <Route path="/"      element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/use"   element={<Use />} />
+          <Route path="/deploy"   element={<Deploy />} />
           <Route path="*"      element={<NotFound />} />
         </Routes>
       </main>

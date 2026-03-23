@@ -1,4 +1,4 @@
-# SCOPE.md — prestruct
+# SCOPE.md: prestruct
 
 What this is, what it isn't, and what's left to do.
 
@@ -41,7 +41,7 @@ v2 completes the P0 items from v1's SCOPE.md:
 
 ---
 
-## P1 -- significantly improves usability (not yet done)
+## P1: significantly improves usability (not yet done)
 
 - [ ] **CLI scaffold tool.** `npx prestruct init` that copies the template files
   into an existing Vite project and creates a starter `ssr.config.js`.
@@ -66,18 +66,18 @@ v2 completes the P0 items from v1's SCOPE.md:
 
 - [ ] **Per-route `og:image`.** Currently one global OG image. Support
   `meta.ogImage` per route so blog posts, product pages can have unique social images.
-  (The inject logic already supports `meta.ogImage` -- this is just documenting it.)
+  (The inject logic already supports `meta.ogImage`. This is just documenting it.)
 
 ---
 
-## P2 -- polish
+## P2: polish
 
 - [ ] **npm package setup.** `package.json` with `bin` for the CLI, `exports` for
   the hooks, `peerDependencies` (vite, react, react-router-dom).
 
 - [ ] **GitHub Actions.** CI that runs a test build using the example config.
 
-- [ ] **Example app.** A minimal `/example` directory -- bare Vite + React Router
+- [ ] **Example app.** A minimal `/example` directory. Bare Vite + React Router
   app using this layer, deployable to CF Pages with one command.
 
 - [ ] **Configurable 404 content.** Let the consuming app pass a `notFound` object
@@ -94,7 +94,7 @@ v2 completes the P0 items from v1's SCOPE.md:
 future `fetchRoutes`). JSON would be simpler but can't express functions.
 
 **usePageMeta distribution:** Ship as a file to copy. No package import needed.
-The `siteUrl` is passed as a prop or read from env -- no coupling to app config files.
+The `siteUrl` is passed as a prop or read from env. No coupling to app config files.
 
 **Vite version floor:** Vite 5. Vite 6 not yet tested.
 

@@ -20,7 +20,7 @@ export default function About() {
           <p className="page-sub fade-up delay-2">
             prestruct adds two Node scripts to your existing Vite build. They run after
             <code>vite build</code>, take about 2 seconds, and leave you with a dist/
-            that search engines can actually crawl.
+            that search engines can crawl.
           </p>
         </div>
       </section>
@@ -107,13 +107,13 @@ export default function About() {
           <div className="callout">
             <strong>Why hydrateRoot instead of createRoot</strong><br />
             createRoot replaces the entire DOM on mount, causing a repaint even when the SSR
-            HTML matches perfectly -- users see a flash (FOUC). hydrateRoot attaches React to
+            HTML matches perfectly. Users see a flash (FOUC). hydrateRoot attaches React to
             the existing SSR DOM without touching it. The page that the crawler indexed is
             identical to what the user's browser paints. No flash, no mismatch.
           </div>
 
           <div style={{ marginTop: '2rem' }}>
-            <Link to="/use" className="btn btn-primary">Ready to integrate →</Link>
+            <Link to="/deploy" className="btn btn-primary">Ready to integrate →</Link>
           </div>
         </div>
       </section>

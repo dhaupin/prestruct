@@ -1,7 +1,10 @@
-# AGENTS.md — prestruct
+# AGENTS.md: prestruct
 
 Engineering history and hard-won decisions. Written for an AI agent (or human)
 picking this up cold. Read before touching anything.
+
+**Also read:** `CONTENT.md` before writing any copy, documentation, or code
+comments. It covers tone, voice, formatting, naming, and what to avoid.
 
 Every pattern here was debugged against real CF Pages deployments across two
 production apps (two production apps). Nothing is theoretical.
@@ -22,7 +25,7 @@ When the prerender script imported the SSR bundle, it got a different instance o
 one instance can't propagate to `Routes` in the other. They're strangers.
 
 **The fix:** Use `vite.createServer()` + `vite.ssrLoadModule()`. ssrLoadModule resolves
-all imports through Vite's unified module registry -- single instance of every package,
+all imports through Vite's unified module registry: single instance of every package,
 StaticRouter and Routes share the same context. Location propagates correctly.
 
 ```js
@@ -61,7 +64,7 @@ message tells you this is happening.
 
 ---
 
-## react-router-dom/server.js -- the .js extension requirement
+## react-router-dom/server.js: the .js extension requirement
 
 **What broke:** CF Pages build failed with:
 ```
@@ -77,7 +80,7 @@ environments but not CF Pages.
 
 ---
 
-## hydrateRoot vs createRoot -- FOUC
+## hydrateRoot vs createRoot: FOUC
 
 **createRoot** replaces the entire DOM with a fresh React render. Even if the SSR HTML
 is identical, the browser repaints the whole content. Users see styled SSR content go
@@ -126,7 +129,7 @@ found no matching route for the 404 URL. `<Routes>` rendered nothing. Blank page
 
 **The fix:**
 1. Use `<div id="root-404">` -- main.jsx never touches it
-2. Strip the React bundle `<script>` tag from 404.html -- no JS loads at all
+2. Strip the React bundle `<script>` tag from 404.html. No JS loads at all
 3. 404 is pure static HTML. It doesn't need React.
 
 CF Pages serves `dist/404.html` automatically for unmatched routes with HTTP 404.
@@ -134,7 +137,7 @@ No configuration needed.
 
 ---
 
-## $ in meta description strings -- the regex backreference bug
+## $ in meta description strings: the regex backreference bug
 
 **What broke:** Description containing `$120` rendered as garbled content with injected
 HTML fragments mid-string.
@@ -152,12 +155,12 @@ Four dollar signs in the source produces two literal dollar signs in the replace
 string, which produces one dollar sign in the output.
 
 **General rule:** Any user-supplied string used as the second argument to `.replace()`
-must have its `$` characters escaped. This applies to all meta fields -- title,
+must have its `$` characters escaped. This applies to all meta fields: title,
 description, ogImage path, anything.
 
 ---
 
-## CF Pages trailing slash -- don't fight it
+## CF Pages trailing slash: leave it alone
 
 **What we tried:** `_redirects` rules to strip trailing slashes:
 ```
@@ -178,12 +181,12 @@ Let CF handle those. Only add rules for paths that have no prerendered file.
 
 ---
 
-## SPA fallback redirect -- remove it after prerendering
+## SPA fallback redirect: remove it after prerendering
 
 **What broke:** CF Pages build logs showed `Infinite loop detected` warning.
 
 **Root cause:** `/* /index.html 200` was the SPA fallback. Pre-prerender, it was
-necessary -- CF needed to rewrite every path to `index.html` so React Router could
+necessary. CF needed to rewrite every path to `index.html` so React Router could
 handle routing. Post-prerender, every route has its own `index.html`. The rule is
 not only unnecessary but causes a loop: CF's Pretty URLs rewrites `/about/` to
 `dist/about/index.html`, which satisfies the SPA rule, which rewrites back to
@@ -193,7 +196,7 @@ not only unnecessary but causes a loop: CF's Pretty URLs rewrites `/about/` to
 
 ---
 
-## _headers wildcard rules -- CF Pages doesn't support globs
+## _headers wildcard rules: CF Pages does not support globs
 
 **What broke:** Build logs showed:
 ```
@@ -210,7 +213,7 @@ cacheable bundles with a single rule.
 
 ---
 
-## Apostrophes in single-quoted JS strings -- parser error
+## Apostrophes in single-quoted JS strings: parser error
 
 **What broke:** CF Pages build failed with:
 ```
@@ -238,25 +241,25 @@ description: "We're based in NW Pennsylvania."
 
 ---
 
-## usePageMeta -- why all 7 tags, not just title
+## usePageMeta: why all 7 tags, not just title
 
 When a user navigates within the SPA, they stay on the same HTML document.
 Head tags from the first-loaded route don't update unless something explicitly
 updates them. This matters for:
 
-- **Browser tab title** -- obvious
-- **canonical** -- JS-enabled bots (Googlebot, Bingbot) execute JS and navigate SPAs.
+- **Browser tab title**: obvious
+- **canonical**: JS-enabled bots (Googlebot, Bingbot) execute JS and navigate SPAs.
   Wrong canonical can cause content to be attributed to the wrong URL.
-- **og:url** -- if a user shares after navigating (not the first load), the
+- **og:url**: if a user shares after navigating (not the first load), the
   social preview uses the og:url in the DOM at share time.
-- **og:title, og:description, twitter:title, twitter:description** -- same reason.
+- **og:title, og:description, twitter:title, twitter:description**: same reason.
 
 Tags NOT updated per navigation: `og:image`, `og:type`, `og:locale`, `og:site_name`,
 `twitter:card`, `twitter:image`. These describe the site, not the specific page.
 
 ---
 
-## Google Fonts -- preload doesn't work
+## Google Fonts: preload does not work
 
 **What broke:** 404 errors on preloaded font files, "preloaded but not used" warnings.
 
@@ -268,7 +271,7 @@ the stylesheet normally. If you need zero-FOUT, self-host the font files.
 
 ---
 
-## Stale assets -- why it's not a problem
+## Stale assets: why it's not a problem
 
 Vite fingerprints all JS/CSS (`index-HASH.js`). Prerender reads the freshly-written
 `dist/index.html` so every HTML file references the current build's hash. They're
