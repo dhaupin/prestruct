@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      ALL HEAD META IS INJECTED AT BUILD TIME by scripts/inject-brand.js.
+      Source of truth: src/brand.js
+
+      The values below are build-time placeholders only.
+      They are replaced during `npm run build` and never appear in production.
+      Do not edit them here — edit src/brand.js instead.
+    -->
+    <title>Vibe Flow Festival</title>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <meta name="keywords" content="" />
+    <link rel="canonical" href="https://vibeflowfestival.com/" />
+
+    <!-- Fonts — preconnect primes the CDN connection, stylesheet loads async -->
+    <!-- display=swap ensures text renders in fallback font immediately, no blocking -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Quicksand:wght@300;400;500&display=swap"
+      media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Quicksand:wght@300;400;500&display=swap" />
+    </noscript>
+
+    <!-- Theme init: runs before React to prevent flash of wrong theme -->
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('vff-theme');
+          if (stored === 'dark' || stored === 'light') {
+            document.documentElement.setAttribute('data-theme', stored);
+          } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+# ============================================================
+# Vibe Flow Festival — Cloudflare Pages Headers
+# ============================================================
+#
+# Cache strategy for a Vite SPA with prerendered HTML:
+#
+#   HTML (index.html + prerendered routes)
+#     Cache-Control: no-cache
+#     Browser must revalidate before serving from cache.
+#     CF returns a 304 Not Modified if nothing changed — fast,
+#     but guarantees a fresh deploy is always picked up.
+#
+#   /assets/* (Vite-fingerprinted JS and CSS bundles)
+#     Cache-Control: public, max-age=31536000, immutable
+#     These filenames include a content hash (e.g. index-CUY2nPQy.js).
+#     Hash changes on every build, so long cache is safe and correct.
+#
+#   Static assets (logo, og-image, etc.)
+#     Cache-Control: public, max-age=86400
+#     1 day — reasonable for images that change infrequently.
+#     Override per-file below if you need longer/shorter.
+#
+# ============================================================
+
+# ── Hashed bundles — cache forever ────────────────────────────────────────────
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── Static assets — cache 1 day ───────────────────────────────────────────────
+/logo.png
+  Cache-Control: public, max-age=86400
+
+/og-image.jpg
+  Cache-Control: public, max-age=86400
+
+/favicon.ico
+  Cache-Control: public, max-age=86400
+
+# ── HTML — always revalidate ──────────────────────────────────────────────────
+# Covers index.html and all prerendered route pages
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/about
+  Cache-Control: no-cache
+
+/schedule
+  Cache-Control: no-cache
+
+/tickets
+  Cache-Control: no-cache
+
+/vendors
+  Cache-Control: no-cache
+
+/volunteer
+  Cache-Control: no-cache
+
+/musicians
+  Cache-Control: no-cache
+
+/news
+  Cache-Control: no-cache
+
+/contact
+  Cache-Control: no-cache
+
+/terms
+  Cache-Control: no-cache
+
+/privacy
+  Cache-Control: no-cache
+
+/404.html
+  Cache-Control: no-cache
+
+# ── Security headers — all routes ─────────────────────────────────────────────
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://fonts.googleapis.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://challenges.cloudflare.com https://api.mailchannels.net https://www.googleapis.com; frame-src https://app.pandadoc.com https://www.eventbrite.com; frame-ancestors 'none';
+
+# ── API routes — no cache, CORS ───────────────────────────────────────────────
+/api/*
+  Cache-Control: no-store
+  Access-Control-Allow-Origin: https://vibeflowfestival.com
+  Access-Control-Allow-Methods: POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type

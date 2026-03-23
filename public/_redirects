@@ -1,0 +1,18 @@
+# /home → / canonical redirect
+/home               /               301
+/home/              /               301
+
+# Strip .html extension from prerendered route files.
+# CF Pages serves /tickets/index.html at both /tickets and /tickets.html.
+# When accessed as /tickets.html, React Router's pathname is '/tickets.html'
+# which doesn't match Route path="/tickets". This redirect fixes that.
+/about.html         /about          301
+/schedule.html      /schedule       301
+/tickets.html       /tickets        301
+/vendors.html       /vendors        301
+/volunteer.html     /volunteer      301
+/musicians.html     /musicians      301
+/news.html          /news           301
+/contact.html       /contact        301
+/terms.html         /terms          301
+/privacy.html       /privacy        301
