@@ -1,9 +1,10 @@
 import usePageMeta from '../hooks/usePageMeta.js'
+import CodeBlock from '../components/CodeBlock.jsx'
 
 const SITE_URL = 'https://prestruct.creadev.org'
 const GITHUB   = 'https://github.com/dhaupin/prestruct'
 
-export default function Use() {
+export default function Deploy() {
   usePageMeta({
     siteUrl:     SITE_URL,
     path:        '/deploy',
@@ -34,11 +35,11 @@ export default function Use() {
             </div>
             <div className="feature">
               <p className="feature-icon">time</p>
-              <p className="feature-desc">~15 minutes. The AppLayout extraction is the only structural change. Everything else is additive.</p>
+              <p className="feature-desc">About 15 minutes. The AppLayout extraction is the only structural change. Everything else is additive.</p>
             </div>
             <div className="feature">
               <p className="feature-icon">build cost</p>
-              <p className="feature-desc">~2 seconds added to build time for a typical 3-10 route app. Scales linearly with route count.</p>
+              <p className="feature-desc">About 2 seconds added to build time for a typical 3-10 route app. Scales linearly with route count.</p>
             </div>
           </div>
         </div>
@@ -51,15 +52,14 @@ export default function Use() {
 
             <div className="qs-block">
               <p className="qs-label">1. Copy the engine files into your app</p>
-              <pre><code>{`# from the prestruct repo
-cp scripts/prerender.js               your-app/scripts/
+              <CodeBlock lang="sh">{`cp scripts/prerender.js               your-app/scripts/
 cp scripts/inject-brand.js            your-app/scripts/
-cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</code></pre>
+cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</CodeBlock>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">2. Create ssr.config.js in your project root</p>
-              <pre><code>{`export default {
+              <CodeBlock lang="js" label="ssr.config.js">{`export default {
   siteUrl:       'https://yoursite.com',
   siteName:      'Your Site',
   author:        'Your Org',
@@ -83,10 +83,8 @@ cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</code></pre>
         description: 'About page description.',
       },
     },
-    // one entry per route -- unlisted routes won't be prerendered
   ],
 
-  // schema.org JSON-LD -- injected into every page <head>
   buildJsonLd() {
     return [
       {
@@ -97,20 +95,21 @@ cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</code></pre>
       },
     ]
   },
-}`}</code></pre>
-              <div className="callout" style={{ marginTop: '1rem' }}>
-                <strong>Apostrophe rule:</strong> use double quotes for any string containing a contraction.
-                <code>"We're open Mon-Fri"</code> works. <code>'We\'re open Mon-Fri'</code> breaks the parser.
+}`}</CodeBlock>
+              <div className="callout u-mt-1">
+                <strong>Apostrophe rule:</strong> use double quotes for strings containing a contraction.{' '}
+                <code>"We're open Mon-Fri"</code> works. <code>{'\'We\\\'re open Mon-Fri\''}</code> breaks the parser.
               </div>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">3. Extract AppLayout from App.jsx</p>
-              <div className="callout">
+              <div className="callout u-mb-1">
                 <strong>Critical:</strong> AppLayout must never import BrowserRouter, anywhere in its module graph.
-                BrowserRouter initializing at SSR time causes every route to prerender as <code>/</code>. See <a href="/about">how it works</a>.
+                BrowserRouter initializing at SSR time causes every route to prerender as <code>/</code>.{' '}
+                See <a href="/about">how it works</a>.
               </div>
-              <pre><code>{`// src/AppLayout.jsx: NO BrowserRouter, ever
+              <CodeBlock lang="js" label="src/AppLayout.jsx">{`// NO BrowserRouter here, ever
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 
@@ -135,19 +134,18 @@ export default function AppLayout() {
       <Footer />
     </>
   )
-}
-
-// src/App.jsx -- BrowserRouter lives ONLY here
+}`}</CodeBlock>
+              <CodeBlock lang="js" label="src/App.jsx">{`// BrowserRouter lives ONLY here
 import { BrowserRouter } from 'react-router-dom'
 import AppLayout from './AppLayout'
 export default function App() {
   return <BrowserRouter><AppLayout /></BrowserRouter>
-}`}</code></pre>
+}`}</CodeBlock>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">4. Add usePageMeta to each page</p>
-              <pre><code>{`import usePageMeta from '../hooks/usePageMeta.js'
+              <CodeBlock lang="js">{`import usePageMeta from '../hooks/usePageMeta.js'
 
 export default function About() {
   usePageMeta({
@@ -156,34 +154,32 @@ export default function About() {
     title:       'About | Your Site',
     description: 'About page description.',
   })
-  // rest of your component
-}`}</code></pre>
-              <p className="qs-label" style={{ marginTop: '1rem' }}>Tip: wrap it to avoid repeating siteUrl</p>
-              <pre><code>{`// src/hooks/useMeta.js
-import usePageMeta from './usePageMeta.js'
+}`}</CodeBlock>
+              <p className="u-tip-label">Tip: wrap it to avoid repeating siteUrl</p>
+              <CodeBlock lang="js" label="src/hooks/useMeta.js">{`import usePageMeta from './usePageMeta.js'
 const SITE = 'https://yoursite.com'
-export default (args) => usePageMeta({ siteUrl: SITE, ...args })`}</code></pre>
+export default (args) => usePageMeta({ siteUrl: SITE, ...args })`}</CodeBlock>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">5. Update main.jsx: use hydrateRoot for SSR content</p>
-              <pre><code>{`const root = document.getElementById('root')
+              <CodeBlock lang="js">{`const root = document.getElementById('root')
 if (root && root.dataset.serverRendered) {
   ReactDOM.hydrateRoot(root, <React.StrictMode><App /></React.StrictMode>)
 } else if (root) {
   ReactDOM.createRoot(root).render(<React.StrictMode><App /></React.StrictMode>)
-}`}</code></pre>
+}`}</CodeBlock>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">6. Update package.json build script</p>
-              <pre><code>{`"build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js"`}</code></pre>
+              <CodeBlock lang="js" label="package.json">{`"build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js"`}</CodeBlock>
             </div>
 
             <div className="qs-block">
               <p className="qs-label">7. Remove SPA fallback from public/_redirects</p>
               <div className="callout">
-                <strong>Remove</strong> <code>/* /index.html 200</code> if it exists.
+                Remove <code>{'/* /index.html 200'}</code> if present.
                 prestruct gives every route its own HTML file. The SPA fallback creates
                 an infinite redirect loop with Cloudflare Pages' Pretty URLs feature.
               </div>
@@ -191,21 +187,21 @@ if (root && root.dataset.serverRendered) {
 
             <div className="qs-block">
               <p className="qs-label">8. Guard any localStorage / window access</p>
-              <pre><code>{`// Wrong: throws in Node during prerender
+              <CodeBlock lang="js">{`// Wrong: throws in Node during prerender
 const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark')
 
-// Correct -- SSR-safe
+// Correct: SSR-safe
 const [theme, setTheme] = useState(() => {
   if (typeof window === 'undefined') return 'dark'
   return localStorage.getItem('theme') || 'dark'
-})`}</code></pre>
+})`}</CodeBlock>
             </div>
 
           </div>
 
-          <div style={{ marginTop: '2.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="u-row u-mt-25">
             <a href={GITHUB} className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-              View full source →
+              View full source
             </a>
             <a href={`${GITHUB}/blob/main/AGENTS.md`} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
               Read AGENTS.md

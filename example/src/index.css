@@ -833,3 +833,107 @@ pre code {
   font-size: 0.72rem;
   color: var(--text-3);
 }
+
+/* ── CodeBlock component ─────────────────────────────────────────────────── */
+.cb {
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 0;
+}
+
+.cb-bar {
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  padding: 0.45rem 1rem;
+}
+
+.cb-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.cb-pre {
+  background: var(--bg-1);
+  margin: 0;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  border: none;
+  border-radius: 0;
+}
+
+.cb-code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--text-2);
+}
+
+/* Syntax token colours */
+.tok-tag   { color: #7c9ec8; }   /* HTML tag names */
+.tok-attr  { color: #c8a07c; }   /* Attribute names */
+.tok-val   { color: #a8c878; }   /* Quoted values */
+.tok-kw    { color: #c792ea; }   /* JS keywords */
+.tok-fn    { color: #7ca8c8; }   /* Function / command names */
+.tok-str   { color: #a8c878; }   /* JS strings */
+.tok-cmt   { color: var(--text-3); font-style: italic; }
+.tok-num   { color: #f78c6c; }   /* Numbers */
+.tok-punct { color: #89ddff; }   /* Punctuation */
+.tok-plain { color: var(--text-2); }
+
+/* ── DSL utility classes ─────────────────────────────────────────────────── */
+/*
+ * Utility classes extracted from recurring inline styles.
+ * Use these instead of style={{}} props.
+ * Naming: u-{property}-{value}  or  u-{pattern}
+ */
+
+/* Spacing */
+.u-mt-1  { margin-top: 1rem; }
+.u-mt-2  { margin-top: 2rem; }
+.u-mt-25 { margin-top: 2.5rem; }
+.u-mb-1  { margin-bottom: 1rem; }
+.u-mb-15 { margin-bottom: 1.5rem; }
+.u-mb-2  { margin-bottom: 2rem; }
+
+/* Row: flex row with gap, wraps on mobile */
+.u-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Section intro paragraph -- body copy under a section-label */
+.u-section-intro {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+/* Muted small label used above tip code blocks */
+.u-tip-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* VSW overrides -- body area when used without its own pre */
+.vsw .cb {
+  border: none;
+  border-radius: 0;
+}
+
+.vsw .cb-pre {
+  background: transparent;
+}

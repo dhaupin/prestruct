@@ -24,8 +24,8 @@ export default function Home() {
             <em>visible to search engines.</em>
           </h1>
           <p className="hero-sub fade-up delay-2">
-            Search engines crawl HTML. React apps serve an empty shell. Prestruct fixes that:
-            rendering each route to static HTML at build time with correct SEO meta tags, Open Graph, schema.org, and caching headers. No framework migration, no edge runtime, no bloat, just a smarter build step.
+            Search engines crawl HTML. React apps serve an empty shell. prestruct fixes that:
+            rendering each route to static HTML at build time with correct SEO meta tags, Open Graph, schema.org, and caching headers. No framework migration, no edge runtime, just a smarter build step.
           </p>
           <div className="hero-actions fade-up delay-3">
             <Link to="/deploy" className="btn btn-primary">Get started</Link>
@@ -61,8 +61,8 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <p className="section-label">The SPA SEO problem</p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-2)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
-            Single page apps (SPA) are great for humans (client side), but are basically an empty container for many crawlers/bots (server side). Prestruct solves this by rendering + caching React pages as static html, then deploying them to their CDN.
+          <p className="u-section-intro">
+            Single page apps (SPA) are great for humans (client side), but are basically an empty container for many crawlers/bots (server side). prestruct solves this by rendering + caching React pages as static html, then deploying them to their CDN.
           </p>
           <div className="compare">
             <div className="compare-row header">
@@ -141,7 +141,7 @@ export default function Home() {
             <div className="benefit">
               <p className="benefit-num">zero cost</p>
               <h3 className="benefit-title">No infrastructure change</h3>
-              <p className="benefit-desc">Prestruct deploys to Cloudflare Pages as static files. No server, no edge worker, no new runtime dependencies, no bloat. The tradeoff? Build time goes up by about 2 seconds for every 10 prerendered routes.</p>
+              <p className="benefit-desc">prestruct deploys to Cloudflare Pages as static files. No server, no edge worker, no new runtime dependencies. The tradeoff: Build time goes up by about 2 seconds for every 10 prerendered routes.</p>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <p className="section-label">Verify it yourself</p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-2)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+          <p className="u-section-intro">
             Every tool below accepts a URL and reports what it finds. Use them on this site
             or on your own, after integrating prestruct.
           </p>
@@ -161,7 +161,7 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <p className="section-label">This site is the proof</p>
-          <div className="callout" style={{ marginBottom: '1.5rem' }}>
+          <div className="callout u-mb-15">
             The repo running at <strong>{SITE_URL}</strong> is the same example app in
             the <a href={GITHUB} target="_blank" rel="noopener noreferrer">prestruct GitHub repo</a>.
             Every page you visit here was prerendered by prestruct at build time.
@@ -169,7 +169,7 @@ export default function Home() {
             see exactly what a search engine or social crawler sees.
           </div>
           <ViewSource />
-          <div style={{ marginTop: '2rem' }}>
+          <div className="u-mt-2">
             <Link to="/about" className="btn btn-primary">Learn More</Link>
           </div>
         </div>

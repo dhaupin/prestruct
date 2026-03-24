@@ -1,5 +1,6 @@
 import usePageMeta from '../hooks/usePageMeta.js'
 import { Link } from 'react-router-dom'
+import CodeBlock from '../components/CodeBlock.jsx'
 
 const SITE_URL = 'https://prestruct.creadev.org'
 
@@ -18,7 +19,7 @@ export default function About() {
           <p className="page-kicker fade-up">How it works</p>
           <h1 className="page-heading fade-up delay-1">The build pipeline.</h1>
           <p className="page-sub fade-up delay-2">
-            Prestruct adds two Node scripts to your existing Vite build. They run after{' '}
+            prestruct adds two Node scripts to your existing Vite build. They run after{' '}
             <code>vite build</code>, take about 2 seconds, and leave you with a{' '}
             <code>dist/</code> that search engines can crawl.
           </p>
@@ -139,9 +140,7 @@ export default function About() {
               <code>BrowserRouter</code> initializes immediately against{' '}
               <code>window.location</code>, which defaults to <code>/</code> in Node.
               This fires before <code>StaticRouter</code> can set the correct location.
-              <code>BrowserRouter</code> lives only in <code>App.jsx</code>.{' '}
-              <code>AppLayout</code> only uses <code>Routes</code>, <code>Route</code>,
-              and <code>useLocation</code>.
+              Keep <code>BrowserRouter</code> in <code>App.jsx</code> only.
             </p>
           </div>
 
@@ -152,19 +151,20 @@ export default function About() {
               even when the SSR HTML matches perfectly. Users see a flash (FOUC).{' '}
               <code>hydrateRoot</code> attaches React to the existing SSR DOM without
               touching it. The page the crawler indexed is identical to what the browser
-              paints. No flash, no mismatch.
+              paints.
             </p>
           </div>
 
-          <pre><code>{`// main.jsx: the hydrateRoot conditional
-const root = document.getElementById('root')
+          <div className="u-mt-1">
+            <CodeBlock lang="js" label="main.jsx">{`const root = document.getElementById('root')
 if (root && root.dataset.serverRendered) {
   ReactDOM.hydrateRoot(root, <React.StrictMode><App /></React.StrictMode>)
 } else if (root) {
   ReactDOM.createRoot(root).render(<React.StrictMode><App /></React.StrictMode>)
-}`}</code></pre>
+}`}</CodeBlock>
+          </div>
 
-          <div style={{ marginTop: '2rem' }}>
+          <div className="u-mt-2">
             <Link to="/deploy" className="btn btn-primary">Ready to integrate</Link>
           </div>
         </div>
