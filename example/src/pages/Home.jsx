@@ -27,7 +27,7 @@ export default function Home() {
             Search engines crawl HTML. SPAs serve an empty shell. prestruct fixes that:
             rendering each route to static HTML at build time with correct title,
             description, Open Graph, schema.org, and cache headers. No framework migration,
-            no edge runtime, a smarter build step.
+            no edge runtime, just a smarter build step.
           </p>
           <div className="hero-actions fade-up delay-3">
             <Link to="/deploy" className="btn btn-primary">Get started</Link>
@@ -62,21 +62,10 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <p className="section-label">This site is the proof</p>
-          <div className="callout" style={{ marginBottom: '1.5rem' }}>
-            The repo running at <strong>{SITE_URL}</strong> is the same example app in
-            the <a href={GITHUB} target="_blank" rel="noopener noreferrer">prestruct GitHub repo</a>.
-            Every page you visit here was prerendered by prestruct at build time.
-            The widget below fetches and parses the live HTML for the current route so you can
-            see exactly what a search engine or social crawler sees.
-          </div>
-          <ViewSource />
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
           <p className="section-label">The SPA SEO problem</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-2)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+            Single page apps (SPA) are great for humans (client side), but are basically an empty container for many crawlers/bots (server side). Prestruct solves this.
+          </p>
           <div className="compare">
             <div className="compare-row header">
               <div className="compare-cell"></div>
@@ -168,6 +157,20 @@ export default function Home() {
             or on your own after integrating prestruct.
           </p>
           <ToolsBlock />
+        </div>
+      </section>
+	  
+      <section className="section">
+        <div className="container">
+          <p className="section-label">This site is the proof</p>
+          <div className="callout" style={{ marginBottom: '1.5rem' }}>
+            The repo running at <strong>{SITE_URL}</strong> is the same example app in
+            the <a href={GITHUB} target="_blank" rel="noopener noreferrer">prestruct GitHub repo</a>.
+            Every page you visit here was prerendered by prestruct at build time.
+            The widget below fetches and parses the live HTML for the current route so you can
+            see exactly what a search engine or social crawler sees.
+          </div>
+          <ViewSource />
         </div>
       </section>
     </>
