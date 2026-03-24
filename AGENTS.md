@@ -4,7 +4,9 @@ Engineering history and hard-won decisions. Written for an AI agent (or human)
 picking this up cold. Read before touching anything.
 
 **Also read:** `CONTENT.md` before writing any copy, documentation, or code
-comments. It covers tone, voice, formatting, naming, and what to avoid.
+comments. It covers tone, voice, formatting, naming, and what to avoid. `SCOPE.md` 
+to organize future patterns and planning. It lays out next steps for the framework, 
+and how we should plan accordingly.
 
 Every pattern here was debugged against real CF Pages deployments across two
 production apps. Nothing is theoretical.

@@ -20,24 +20,23 @@ v2 completes the P0 items from v1's SCOPE.md:
   main.jsx) need minor app-specific wiring.
 - [x] **All app-specific strings removed.** `_headers`, `_redirects`, `index.html`,
   and all scripts are now fully generic.
-- [x] **Validated against a second app.** A second production app validated the config interface and uncovered several new gotchas documented in AGENTS.md.
-  Several new gotchas were discovered and documented in AGENTS.md.
+- [x] **Validated against a second app.** A second production app validated the config interface and uncovered several new gotchas documented in AGENTS.md. Please look over them before embarking.
 
 ---
 
-## What this is
+## What Prestruct is
 
 - A thin prerender layer for existing Vite + React + CF Pages apps
 - A set of debugged scripts + patterns you drop into a project
 - Opinionated about CF Pages specifically (cache headers, 404 handling, Pretty URLs)
 - Designed for React Router v6 with the StaticRouter/BrowserRouter split
 
-## What this is not
+## What Prestruct is not
 
-- A full SSR framework (no server, no streaming, no edge runtime)
-- A competitor to Remix, Astro, or TanStack Start
-- Suitable for apps needing per-request SSR (this is build-time prerender only)
-- CMS-aware out of the box (routes are static config)
+- Not a full SSR framework (no server, no streaming, no edge runtime)
+- Not a competitor to Remix, Astro, or TanStack Start
+- Not suitable for apps needing per-request SSR (this is build-time prerender only)
+- Not CMS-aware out of the box (routes are static config) - although it could be built
 
 ---
 
@@ -107,3 +106,4 @@ The `siteUrl` is passed as a prop or read from env. No coupling to app config fi
 The value of this library is that it's thin and readable. A developer can read
 prerender.js in 10 minutes and understand exactly what it does. If it grows into
 a plugin system that handles every edge case, it loses that. Astro already exists.
+Thanks for keeping it real.
