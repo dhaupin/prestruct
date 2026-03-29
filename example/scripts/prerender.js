@@ -1,8 +1,6 @@
 /**
  * scripts/prerender.js
  * ====================
- * ENGINE FILE -- copy once, never edit.
- *
  * Runs after `vite build && node scripts/inject-brand.js` via `npm run build`.
  * Uses Vite's ssrLoadModule to render each route to static HTML.
  *

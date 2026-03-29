@@ -1,8 +1,6 @@
 /**
  * src/hooks/usePageMeta.js
  * ========================
- * ENGINE FILE -- copy once, never edit.
- *
  * Updates route-specific head tags on client-side navigation.
  *
  * SSR (prerender.js) bakes correct tags into each route's HTML at build time --
