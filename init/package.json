@@ -1,6 +1,6 @@
 {
   "name": "prestruct",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Build-time SEO prerender layer for Vite + React + Cloudflare Pages",
   "type": "module",
   "scripts": {
