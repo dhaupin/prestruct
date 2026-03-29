@@ -1,8 +1,6 @@
 /**
  * scripts/inject-brand.js
  * =======================
- * ENGINE FILE -- copy once, never edit.
- *
  * Post-build script. Runs after `vite build` via `npm run build`.
  * Reads ssr.config.js and injects all head meta into dist/index.html:
  *   - <title>

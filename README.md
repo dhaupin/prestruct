@@ -52,26 +52,24 @@ string, injects route-specific meta, and writes the HTML file.
 ## File map
 
 ```
-scripts/
-  prerender.js       Engine: renders all routes, generates sitemap + 404
-  inject-brand.js    Engine: injects brand meta into the base index.html shell
+init/                       Release source of truth. Tagged and zipped by CI.
+  scripts/
+    inject-brand.js         Engine: injects global SEO meta into dist/index.html
+    prerender.js            Engine: renders each route to static HTML
+  src/hooks/
+    usePageMeta.js          Hook: keeps head tags in sync on client-side navigation
+  AppLayout.jsx             Template: routes + layout, NO BrowserRouter (critical)
+  entry-server.jsx          Template: SSR entry, wraps AppLayout in StaticRouter
+  main.jsx                  Template: client entry, hydrateRoot or createRoot
+  ssr.config.js             Starter config: site identity, routes, JSON-LD
+  index.html                Shell template. Meta injected at build time, not hardcoded
+  package.json              Example build script showing the three-step chain
+  VERSION                   Current release version
 
-templates/
-  src/
-    AppLayout.jsx      Template: your routes + layout, NO BrowserRouter (critical)
-    entry-server.jsx   Template: SSR entry, wraps AppLayout in StaticRouter
-    main.jsx           Template: client entry, hydrateRoot or createRoot
-    hooks/
-      usePageMeta.js   Hook: updates head tags on client-side navigation
-  index.html           Shell template. Meta injected at build time, not hardcoded
-  ssr.config.js        Your config: site identity, routes, JSON-LD
-  package.json         Example build script showing the three-step chain
-
-public/
-  _headers           CF Pages cache + security headers (generic, edit as needed)
-  _redirects         CF Pages redirect rules (SPA fallback not needed post-prerender)
-
-example/             Working app. CF Pages root directory, builds and deploys as-is
+example/                    Live site (prestruct.creadev.org). Also the integration reference.
+  scripts/                  Auto-synced from init/ on each release via GitHub Actions
+  src/hooks/usePageMeta.js  Auto-synced from init/ on each release
+  ...                       Site-specific UI -- pages, components, styles
 ```
 
 Files marked **Engine** stay identical across apps. Copy them and never edit.
@@ -83,10 +81,13 @@ Files marked **Template** need minor app-specific wiring (see Integration below)
 
 ### 1. Copy the engine files
 
+Download the latest release from [GitHub Releases](https://github.com/dhaupin/prestruct/releases),
+or clone the repo and copy from `init/`:
+
 ```bash
-cp scripts/prerender.js              your-app/scripts/
-cp scripts/inject-brand.js           your-app/scripts/
-cp templates/src/hooks/usePageMeta.js your-app/src/hooks/
+cp init/scripts/inject-brand.js    your-app/scripts/
+cp init/scripts/prerender.js        your-app/scripts/
+cp init/src/hooks/usePageMeta.js    your-app/src/hooks/
 ```
 
 ### 2. Create `ssr.config.js` in your project root
@@ -213,7 +214,7 @@ export default (args) => usePageMeta({ siteUrl: SITE_URL, ...args })
 
 ### 5. Replace `main.jsx`
 
-Use the provided `templates/src/main.jsx`. Key change: `hydrateRoot` when SSR content is present,
+Use the provided `init/main.jsx`. Key change: `hydrateRoot` when SSR content is present,
 `createRoot` otherwise. Without this you get FOUC on every page load.
 
 ### 6. Update `package.json`
@@ -228,8 +229,7 @@ Use the provided `templates/src/main.jsx`. Key change: `hydrateRoot` when SSR co
 
 ### 7. Copy `index.html` and `public/` files
 
-`index.html`: the shell template. Leave meta tags as placeholder stubs. inject-brand
-writes the real values at build time from `ssr.config.js`.
+`index.html`: copy from `init/index.html`. Leave meta tags as placeholder stubs. inject-brand writes the real values at build time from `ssr.config.js`.
 
 `public/_headers`: update the CSP if you have additional script/style domains.
 

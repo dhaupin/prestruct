@@ -1,9 +1,14 @@
-# Creates a GitHub release when a version tag is pushed (v*.*.*)
-# The release asset contains only the engine files consumers need:
-#   scripts/inject-brand.js
-#   scripts/prerender.js
-#   templates/
-# The example/ app, docs, and public/ root are intentionally excluded.
+# release.yml
+# -----------
+# Fires when a version tag (v*.*.*) is pushed to main.
+# Zips the /init directory and publishes a GitHub release.
+#
+# After this release is published, sync-example.yml fires automatically
+# to copy the new init files into /example and redeploy the live site.
+#
+# To release:
+#   git tag v1.0.0
+#   git push origin v1.0.0
 
 name: Release
 
@@ -22,46 +27,54 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Extract version
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      - name: Write version into init/VERSION
+        run: echo "${{ env.VERSION }}" > init/VERSION
+
       - name: Build release archive
         run: |
-          VERSION="${GITHUB_REF_NAME}"
-          ARCHIVE="prestruct-${VERSION}.zip"
-
-          # Only ship the files integrators actually need
-          zip -r "${ARCHIVE}" \
-            scripts/inject-brand.js \
-            scripts/prerender.js \
-            templates/ \
-            README.md \
-            AGENTS.md \
-            SCOPE.md
-
+          ARCHIVE="prestruct-${{ env.VERSION }}.zip"
+          zip -r "${ARCHIVE}" init/ README.md AGENTS.md SCOPE.md CONTENT.md
           echo "ARCHIVE=${ARCHIVE}" >> $GITHUB_ENV
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          name: "prestruct ${{ env.VERSION }}"
+          name: "Prestruct ${{ env.VERSION }}"
           body: |
-            ## prestruct ${{ env.VERSION }}
+            ## Prestruct ${{ env.VERSION }}
 
-            ### What's included in this release
+            ### What's in this release
 
             | File | Purpose |
             |------|---------|
-            | `scripts/inject-brand.js` | Engine: injects global SEO meta into dist/index.html |
-            | `scripts/prerender.js` | Engine: renders each route to static HTML |
-            | `templates/` | Templates: AppLayout, main.jsx, entry-server, usePageMeta, ssr.config |
+            | `init/scripts/inject-brand.js` | Injects global SEO meta into `dist/index.html` |
+            | `init/scripts/prerender.js` | Renders each route to static HTML, generates sitemap + 404 |
+            | `init/src/hooks/usePageMeta.js` | Keeps head tags in sync on client-side navigation |
+            | `init/ssr.config.js` | Starter config template: routes, meta, JSON-LD |
+            | `init/AppLayout.jsx` | Template: routes + layout, no BrowserRouter |
+            | `init/main.jsx` | Template: hydrateRoot/createRoot conditional |
+            | `init/entry-server.jsx` | Template: SSR entry point |
+            | `init/index.html` | Shell template: meta injected at build time |
 
             ### Quick start
 
-            1. Copy `scripts/` and `templates/src/hooks/usePageMeta.js` into your app
-            2. Create `ssr.config.js` from `templates/ssr.config.js`
-            3. Extract `AppLayout.jsx` from your `App.jsx` (no BrowserRouter)
-            4. Update `package.json`: `"build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js"`
+            ```bash
+            # 1. Copy engine files into your app
+            cp init/scripts/inject-brand.js   your-app/scripts/
+            cp init/scripts/prerender.js       your-app/scripts/
+            cp init/src/hooks/usePageMeta.js   your-app/src/hooks/
 
-            See [README.md](README.md) for the full integration guide.
+            # 2. Copy starter templates
+            cp init/ssr.config.js    your-app/ssr.config.js
+            cp init/AppLayout.jsx    your-app/src/AppLayout.jsx
+            cp init/main.jsx         your-app/src/main.jsx
+            cp init/index.html       your-app/index.html
+            ```
+
+            See [README.md](README.md) and the [live example](https://prestruct.creadev.org) for full integration docs.
           files: ${{ env.ARCHIVE }}
           fail_on_unmatched_files: true
           generate_release_notes: true

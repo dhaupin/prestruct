@@ -42,7 +42,7 @@ v2 completes the P0 items from v1's SCOPE.md:
 
 ## P1: significantly improves usability (not yet done)
 
-- [ ] **CLI scaffold tool.** `npx prestruct init` that copies the template files
+- [ ] **CLI scaffold tool.** `npx prestruct init` that copies files from `init/`
   into an existing Vite project and creates a starter `ssr.config.js`.
   Probably 100-150 lines of Node.
 
@@ -76,8 +76,8 @@ v2 completes the P0 items from v1's SCOPE.md:
 
 - [ ] **GitHub Actions.** CI that runs a test build using the example config.
 
-- [ ] **Example app.** A minimal `/example` directory. Bare Vite + React Router
-  app using this layer, deployable to CF Pages with one command.
+- [ ] **Example app.** The `/example` directory is the live reference app at prestruct.creadev.org. It auto-syncs
+  from `init/` on each tagged release via GitHub Actions.
 
 - [ ] **Configurable 404 content.** Let the consuming app pass a `notFound` object
   in config with heading, body, and CTA labels. Currently hardcoded in prerender.js.

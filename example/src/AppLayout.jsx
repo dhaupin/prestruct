@@ -40,7 +40,7 @@ export default function AppLayout() {
         </Link>
         <nav className="nav">
           <NavLink to="/"     end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>home</NavLink>
-          <NavLink to="/about"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>about</NavLink>
+          <NavLink to="/about"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>how it works</NavLink>
           <NavLink to="/deploy"     className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>deploy</NavLink>
           <a href={GITHUB} className="nav-github" target="_blank" rel="noopener noreferrer">
             <GitHubIcon />

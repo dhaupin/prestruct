@@ -1,0 +1,78 @@
+# sync-example.yml
+# ----------------
+# Fires after a GitHub release is published (triggered by release.yml).
+# Copies the engine files from /init into /example so the live site
+# (prestruct.creadev.org) always runs a known stable release.
+#
+# What gets synced (engine files only -- example site UI is untouched):
+#   init/scripts/inject-brand.js  ->  example/scripts/inject-brand.js
+#   init/scripts/prerender.js     ->  example/scripts/prerender.js
+#   init/src/hooks/usePageMeta.js ->  example/src/hooks/usePageMeta.js
+#
+# After the commit, CF Pages detects the push and redeploys automatically.
+#
+# To pin the example site to a specific release without tagging, you can
+# manually trigger this workflow from the Actions tab and supply a tag.
+
+name: Sync example to release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to sync (e.g. v1.0.0). Defaults to latest.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Need full history + push access
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Resolve version
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "VERSION=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          elif [ -n "${{ github.event.release.tag_name }}" ]; then
+            echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=$(cat init/VERSION)" >> $GITHUB_ENV
+          fi
+
+      - name: Sync engine files from init into example
+        run: |
+          cp init/scripts/inject-brand.js   example/scripts/inject-brand.js
+          cp init/scripts/prerender.js       example/scripts/prerender.js
+          cp init/src/hooks/usePageMeta.js   example/src/hooks/usePageMeta.js
+          echo "Synced from ${{ env.VERSION }}"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add example/scripts/inject-brand.js \
+                  example/scripts/prerender.js \
+                  example/src/hooks/usePageMeta.js
+          git commit -m "chore: sync example to ${{ env.VERSION }}"
+          git push origin HEAD:main
+
+      - name: No changes
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "example/ already matches ${{ env.VERSION }}, nothing to commit."
