@@ -50,28 +50,21 @@ jobs:
 
             | File | Purpose |
             |------|---------|
-            | `init/scripts/inject-brand.js` | Injects global SEO meta into `dist/index.html` |
-            | `init/scripts/prerender.js` | Renders each route to static HTML, generates sitemap + 404 |
-            | `init/src/hooks/usePageMeta.js` | Keeps head tags in sync on client-side navigation |
-            | `init/ssr.config.js` | Starter config template: routes, meta, JSON-LD |
-            | `init/src/AppLayout.jsx` | Template: routes + layout, no BrowserRouter |
-            | `init/index.html` | Shell template: meta injected at build time |
-            | `init/public/_redirects` | 301 redirects created at build time |
-            | `init/public/_headers | Cache control headers for build and CDN assets |
+            | `scripts/inject-brand.js` | Engine: injects global SEO meta into `dist/index.html` |
+            | `scripts/prerender.js` | Engine: renders each route to static HTML, generates sitemap + 404 |
+            | `src/hooks/usePageMeta.js` | Hook: keeps head tags in sync on client-side navigation |
+            | `src/App.jsx` | Template: BrowserRouter wrapper, client entry point |
+            | `src/AppLayout.jsx` | Template: routes + layout, no BrowserRouter |
+            | `src/main.jsx` | Template: client entry, hydrateRoot or createRoot |
+            | `ssr.config.js` | Starter config: site identity, routes, JSON-LD |
+            | `index.html` | Shell template: meta injected at build time, not hardcoded |
+            | `public/_redirects` | CF Pages redirect rules, SPA fallback intentionally omitted |
+            | `public/_headers` | Security headers and CDN cache rules |
 
             ### Quick start
 
-            ```bash
-            # 1. Copy engine files into your app
-            cp init/scripts/inject-brand.js   your-app/scripts/
-            cp init/scripts/prerender.js       your-app/scripts/
-            cp init/src/hooks/usePageMeta.js   your-app/src/hooks/
-
-            # 2. Copy starter templates
-            cp init/ssr.config.js    your-app/ssr.config.js
-            cp init/AppLayout.jsx    your-app/src/AppLayout.jsx
-            cp init/index.html       your-app/index.html
-            ```
+            Download and unzip the archive, then copy the contents into your project root.
+            Fill in `ssr.config.js` with your site details and wire your routes into `AppLayout.jsx`.
 
             See [README.md](README.md) and the [live example](https://prestruct.creadev.org) for full integration docs.
           files: ${{ env.ARCHIVE }}

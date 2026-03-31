@@ -2,9 +2,10 @@
 
 A lightweight build-time prerender layer for **Vite + React + Cloudflare Pages** apps.
 
-No framework lock-in. No new build tool. Drop in three files, add a config, and your
-SPA gets fully-rendered static HTML per route, with correct SEO, correct head tags, and
-correct HTTP status codes. Already working and debugged against real CF Pages deployments.
+No framework lock-in. No new build tool. Drop in the release files, wire up a config,
+and your SPA gets fully-rendered static HTML per route, with correct SEO, correct head
+tags, and correct HTTP status codes. Already working and debugged against real CF Pages
+deployments.
 
 This is **build-time prerender**, not edge SSR. Every route is rendered once at deploy
 time and served as a static HTML file. CF Pages handles the rest.
@@ -56,20 +57,24 @@ init/                       Release source of truth. Tagged and zipped by CI.
   scripts/
     inject-brand.js         Engine: injects global SEO meta into dist/index.html
     prerender.js            Engine: renders each route to static HTML
-  src/hooks/
-    usePageMeta.js          Hook: keeps head tags in sync on client-side navigation
-  AppLayout.jsx             Template: routes + layout, NO BrowserRouter (critical)
-  entry-server.jsx          Template: SSR entry, wraps AppLayout in StaticRouter
-  main.jsx                  Template: client entry, hydrateRoot or createRoot
+  src/
+    App.jsx                 Template: BrowserRouter wrapper, client entry point
+    AppLayout.jsx           Template: routes + layout, NO BrowserRouter (critical)
+    main.jsx                Template: client entry, hydrateRoot or createRoot
+    hooks/
+      usePageMeta.js        Hook: keeps head tags in sync on client-side navigation
+  public/
+    _headers                Starter security headers and CDN cache rules
+    _redirects              CF Pages redirect rules, SPA fallback intentionally omitted
   ssr.config.js             Starter config: site identity, routes, JSON-LD
   index.html                Shell template. Meta injected at build time, not hardcoded
   package.json              Example build script showing the three-step chain
   VERSION                   Current release version
 
-example/                    Live site (prestruct.creadev.org). Also the integration reference.
+example/                    Working starting point and live integration reference.
   scripts/                  Auto-synced from init/ on each release via GitHub Actions
   src/hooks/usePageMeta.js  Auto-synced from init/ on each release
-  ...                       Site-specific UI -- pages, components, styles
+  ...                       Site-specific UI. Use it as a reference, not a dependency.
 ```
 
 Files marked **Engine** stay identical across apps. Copy them and never edit.
@@ -79,16 +84,13 @@ Files marked **Template** need minor app-specific wiring (see Integration below)
 
 ## Integration into a new app
 
-### 1. Copy the engine files
+### 1. Download the release
 
-Download the latest release from [GitHub Releases](https://github.com/dhaupin/prestruct/releases),
-or clone the repo and copy from `init/`:
+Grab the latest zip from [GitHub Releases](https://github.com/dhaupin/prestruct/releases).
+It contains a complete starting point: engine scripts, template files, config, shell HTML,
+and CF Pages headers/redirects. Copy the contents into your project root and adjust from there.
 
-```bash
-cp init/scripts/inject-brand.js    your-app/scripts/
-cp init/scripts/prerender.js        your-app/scripts/
-cp init/src/hooks/usePageMeta.js    your-app/src/hooks/
-```
+The `example/` folder in the repo is a working integration you can reference at any point.
 
 ### 2. Create `ssr.config.js` in your project root
 
@@ -212,10 +214,10 @@ const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://yoursite.com'
 export default (args) => usePageMeta({ siteUrl: SITE_URL, ...args })
 ```
 
-### 5. Replace `main.jsx`
+### 5. Update `main.jsx`
 
-Use the provided `init/main.jsx`. Key change: `hydrateRoot` when SSR content is present,
-`createRoot` otherwise. Without this you get FOUC on every page load.
+The release includes `src/main.jsx`. The key detail: it uses `hydrateRoot` when SSR
+content is present, `createRoot` otherwise. Without this you get FOUC on every page load.
 
 ### 6. Update `package.json`
 
@@ -227,14 +229,16 @@ Use the provided `init/main.jsx`. Key change: `hydrateRoot` when SSR content is 
 }
 ```
 
-### 7. Copy `index.html` and `public/` files
+### 7. Update `index.html` and `public/` files
 
-`index.html`: copy from `init/index.html`. Leave meta tags as placeholder stubs. inject-brand writes the real values at build time from `ssr.config.js`.
+`index.html`: leave the meta tags as placeholder stubs. `inject-brand.js` writes the
+real values at build time from `ssr.config.js`.
 
-`public/_headers`: update the CSP if you have additional script/style domains.
+`public/_headers`: update the CSP `connect-src` to include your own domain and any
+third-party fetch targets your app uses.
 
-`public/_redirects`: the SPA fallback (`/* /index.html 200`) is NOT needed once
-you're prerendering. Including it causes an infinite redirect loop on CF Pages.
+`public/_redirects`: the SPA fallback (`/* /index.html 200`) is intentionally absent.
+Including it causes an infinite redirect loop on CF Pages once you are prerendering.
 
 ---
 

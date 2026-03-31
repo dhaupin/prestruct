@@ -7,11 +7,11 @@
   X-XSS-Protection: 0
 
   # CSP notes:
-  # - script-src: Cloudflare Insights + Zaraz (zaraz.one, cloudflare.com worker)
-  # - connect-src: same-origin fetch for ViewSource, Cloudflare Insights beacon,
-  #   Cloudflare Zaraz, Google Analytics (stats.g.doubleclick.net, google-analytics.com)
-  # - Zaraz proxies GA through Cloudflare's edge so direct GA domains are also needed
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://prestruct.creadev.org https://cloudflareinsights.com https://stats.g.doubleclick.net https://www.google-analytics.com https://www.googletagmanager.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  # - script-src: Cloudflare Insights (remove if not using)
+  # - connect-src: add your own domain and any third-party fetch targets
+  # - style-src / font-src: includes Google Fonts (remove if not using)
+  # - Tighten or expand each directive to match your actual asset sources.
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://cloudflareinsights.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless

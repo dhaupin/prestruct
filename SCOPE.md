@@ -16,8 +16,8 @@ v2 completes the P0 items from v1's SCOPE.md:
 - [x] **`usePageMeta` decoupled.** Accepts `siteUrl` as a prop or reads from
   `VITE_SITE_URL` env. No brand file imports.
 - [x] **Template vs engine separation documented.** Engine files (prerender, inject-brand,
-  usePageMeta) are copy-once, never-edit. Template files (AppLayout, entry-server,
-  main.jsx) need minor app-specific wiring.
+  usePageMeta) are copy-once, never-edit. Template files (App, AppLayout, main.jsx)
+  need minor app-specific wiring.
 - [x] **All app-specific strings removed.** `_headers`, `_redirects`, `index.html`,
   and all scripts are now fully generic.
 - [x] **Validated against a second app.** A second production app validated the config interface and uncovered several new gotchas documented in AGENTS.md. Please look over them before embarking.
@@ -76,7 +76,7 @@ v2 completes the P0 items from v1's SCOPE.md:
 
 - [ ] **GitHub Actions.** CI that runs a test build using the example config.
 
-- [ ] **Example app.** The `/example` directory is the live reference app at prestruct.creadev.org. It auto-syncs
+- [x] **Example app.** The `/example` directory is the live reference app at prestruct.creadev.org. It auto-syncs
   from `init/` on each tagged release via GitHub Actions.
 
 - [ ] **Configurable 404 content.** Let the consuming app pass a `notFound` object

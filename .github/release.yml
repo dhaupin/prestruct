@@ -1,14 +1,72 @@
-# GitHub release changelog categories
-# Controls how PRs are grouped in auto-generated release notes
-changelog:
-  categories:
-    - title: Breaking changes
-      labels: ['breaking']
-    - title: New features
-      labels: ['enhancement', 'feature']
-    - title: Bug fixes
-      labels: ['bug', 'fix']
-    - title: Documentation
-      labels: ['documentation', 'docs']
-    - title: Other
-      labels: ['*']
+# release.yml
+# -----------
+# Fires when a version tag (v*.*.*) is pushed to main.
+# Zips the /init directory and publishes a GitHub release.
+#
+# After this release is published, sync-example.yml fires automatically
+# to copy the new init files into /example and redeploy the live site.
+#
+# To release:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      - name: Write version into init/VERSION
+        run: echo "${{ env.VERSION }}" > init/VERSION
+
+      - name: Build release archive
+        run: |
+          ARCHIVE="prestruct-${{ env.VERSION }}.zip"
+          zip -r "${ARCHIVE}" init/ README.md AGENTS.md SCOPE.md CONTENT.md
+          echo "ARCHIVE=${ARCHIVE}" >> $GITHUB_ENV
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Prestruct ${{ env.VERSION }}"
+          body: |
+            ## Prestruct ${{ env.VERSION }}
+
+            ### What's in this release
+
+            | File | Purpose |
+            |------|---------|
+            | `scripts/inject-brand.js` | Engine: injects global SEO meta into `dist/index.html` |
+            | `scripts/prerender.js` | Engine: renders each route to static HTML, generates sitemap + 404 |
+            | `src/hooks/usePageMeta.js` | Hook: keeps head tags in sync on client-side navigation |
+            | `src/App.jsx` | Template: BrowserRouter wrapper, client entry point |
+            | `src/AppLayout.jsx` | Template: routes + layout, no BrowserRouter |
+            | `src/main.jsx` | Template: client entry, hydrateRoot or createRoot |
+            | `ssr.config.js` | Starter config: site identity, routes, JSON-LD |
+            | `index.html` | Shell template: meta injected at build time, not hardcoded |
+            | `public/_redirects` | CF Pages redirect rules, SPA fallback intentionally omitted |
+            | `public/_headers` | Security headers and CDN cache rules |
+
+            ### Quick start
+
+            Download and unzip the archive, then copy the contents into your project root.
+            Fill in `ssr.config.js` with your site details and wire your routes into `AppLayout.jsx`.
+
+            See [README.md](README.md) and the [live example](https://prestruct.creadev.org) for full integration docs.
+          files: ${{ env.ARCHIVE }}
+          fail_on_unmatched_files: true
+          generate_release_notes: true
