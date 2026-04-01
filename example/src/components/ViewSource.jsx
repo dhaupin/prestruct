@@ -43,8 +43,20 @@ const EXTRACTORS = [
     build: (m) => `<meta property="og:image" content="${m[1]}" />`,
   },
   {
+    re: /<meta\s+name="twitter:card"\s+content="([^"]+)"/,
+    build: (m) => `<meta name="twitter:card" content="${m[1]}" />`,
+  },
+  {
     re: /<meta\s+name="twitter:title"\s+content="([^"]+)"/,
     build: (m) => `<meta name="twitter:title" content="${m[1]}" />`,
+  },
+  {
+    re: /<meta\s+name="twitter:description"\s+content="([^"]+)"/,
+    build: (m) => `<meta name="twitter:description" content="${m[1]}" />`,
+  },
+  {
+    re: /<meta\s+name="twitter:image"\s+content="([^"]+)"/,
+    build: (m) => `<meta name="twitter:image" content="${m[1]}" />`,
   },
   {
     re: /<script\s+type="application\/ld\+json">([\s\S]+?)<\/script>/,

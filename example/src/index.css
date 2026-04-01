@@ -977,6 +977,7 @@ pre code {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: auto;
   width: 26px;
   height: 26px;
   background: transparent;
