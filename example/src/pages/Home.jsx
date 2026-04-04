@@ -60,57 +60,6 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <p className="section-label">The SPA SEO problem</p>
-          <p className="u-section-intro">
-            Single page apps (SPA) are great for humans (client side), but are basically an empty container for many crawlers/bots (server side). Prestruct solves this by rendering + caching React pages as static html, then deploying them to their CDN.
-          </p>
-          <div className="compare">
-            <div className="compare-row header">
-              <div className="compare-cell"></div>
-              <div className="compare-cell">Plain SPA</div>
-              <div className="compare-cell">SPA + Prestruct</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">Googlebot sees</div>
-              <div className="compare-cell bad">Empty &lt;div id="root"&gt;</div>
-              <div className="compare-cell good">Full rendered HTML</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">Per-route title</div>
-              <div className="compare-cell bad">Wrong or missing</div>
-              <div className="compare-cell good">Baked in at build time</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">Open Graph / social</div>
-              <div className="compare-cell bad">Site-wide default only</div>
-              <div className="compare-cell good">Per-route og:title, og:description, og:url</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">schema.org JSON-LD</div>
-              <div className="compare-cell bad">Not present</div>
-              <div className="compare-cell good">Injected from config</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">Asset caching</div>
-              <div className="compare-cell bad">No cache strategy</div>
-              <div className="compare-cell good">Immutable assets, no-cache HTML</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">404 status</div>
-              <div className="compare-cell bad">HTTP 200 on every route</div>
-              <div className="compare-cell good">Real HTTP 404 from 404.html</div>
-            </div>
-            <div className="compare-row">
-              <div className="compare-cell label">Sitemap</div>
-              <div className="compare-cell bad">Manual, goes stale</div>
-              <div className="compare-cell good">Auto-generated on every build</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
           <p className="section-label">What you gain</p>
           <p className="u-section-intro">
             The Prestruct engine is a purpose built tool, that delivers SEO server side rendering (for crawlers), while being completely serverless on Cloudflare Pages.

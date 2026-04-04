@@ -22,6 +22,8 @@
 
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { mountIslands } from './islands.js'
+import { islands }      from './AppIslands.jsx'
 
 // Replace these with your actual components and pages
 // import Nav from './components/Nav'
@@ -33,6 +35,11 @@ function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' })
+    // Re-scan for islands on every route change. The WeakSet in islands.js
+    // prevents double-mounting elements that are already active. The setTimeout(0)
+    // defers the scan one tick so React has committed the new page to the DOM.
+    const t = setTimeout(() => mountIslands(islands), 0)
+    return () => clearTimeout(t)
   }, [pathname])
   return null
 }

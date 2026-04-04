@@ -47,13 +47,19 @@
 import ReactDOM from 'react-dom/client'
 import React    from 'react'
 
+// Tracks elements that have already been mounted to prevent double createRoot
+// calls when mountIslands is called again on SPA route change.
+const mounted = new WeakSet()
+
 function mount(el, Component) {
-  // Clear fallback content before mounting
+  if (mounted.has(el)) return
+  mounted.add(el)
   el.innerHTML = ''
   ReactDOM.createRoot(el).render(React.createElement(Component))
 }
 
 function observe(el, Component) {
+  if (mounted.has(el)) return
   const io = new IntersectionObserver((entries, observer) => {
     for (const entry of entries) {
       if (entry.isIntersecting) {
@@ -66,6 +72,7 @@ function observe(el, Component) {
 }
 
 function whenIdle(el, Component) {
+  if (mounted.has(el)) return
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => mount(el, Component), { timeout: 2000 })
   } else {

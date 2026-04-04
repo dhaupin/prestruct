@@ -477,6 +477,7 @@ pre code {
 .step-body {
   padding: 1.25rem 1.5rem;
   background: var(--bg);
+  min-width: 0; /* prevent grid blowout on mobile when children contain wide pre/code */
 }
 
 .step-title {
@@ -601,13 +602,73 @@ pre code {
 .delay-4 { animation-delay: 0.32s; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────────── */
+
+/* Hamburger button -- hidden on desktop */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 14px;
+  height: 1px;
+  background: var(--text-2);
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.nav-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
 @media (max-width: 600px) {
   .site-header { padding: 0 1rem; }
   .container { padding: 0 1rem; }
   .hero { padding: 3rem 0 2.5rem; }
-  .nav-github span { display: none; }
-  .pipeline-step { min-width: 120px; }
   .site-footer { padding: 1.25rem 1rem; }
+  .pipeline-step { min-width: 120px; }
+
+  .nav-toggle { display: flex; }
+
+  .nav {
+    display: none;
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: rgba(8,8,8,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0;
+    z-index: 9;
+  }
+
+  .nav.open { display: flex; }
+
+  .nav-link {
+    padding: 0.65rem 1.25rem;
+    border-radius: 0;
+    font-size: 0.82rem;
+  }
+
+  .nav-github {
+    margin: 0.25rem 1rem 0;
+    justify-content: center;
+  }
 }
 
 /* ── Wordmark ─────────────────────────────────────────────────────────────── */
@@ -724,8 +785,8 @@ pre code {
   color: var(--text-3);
 }
 
-.compare-cell.good  { color: var(--green); }
-.compare-cell.bad   { color: var(--red); }
+.compare-cell.good  { color: var(--accent-dim); }
+.compare-cell.bad   { color: var(--text-2); opacity: 0.6; }
 .compare-cell.label { color: var(--text); font-weight: 500; }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────────── */
@@ -970,6 +1031,12 @@ pre code {
 
 .vsw .cb-pre {
   background: transparent;
+  overflow-x: auto;
+}
+
+.vsw .cb-code {
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* ── CodeBlock copy button ───────────────────────────────────────────────── */

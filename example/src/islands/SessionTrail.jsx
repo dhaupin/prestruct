@@ -3,42 +3,28 @@
  * ============================
  * Dynamic island -- runs only in the browser, never during SSR prerender.
  *
- * Reads sessionStorage to show which pages the visitor has seen during
- * this visit. Demonstrates that island content is truly client-only:
- * the data doesn't exist at build time, varies per visitor, and is
- * invisible to crawlers.
+ * Displays pages visited this session using sessionStorage. Recording happens
+ * in AppLayout's ScrollToTop on every route change, so all pages are tracked
+ * regardless of whether this island is mounted. This component only reads
+ * and renders the trail.
  *
  * Load strategy: idle (data-pre-load="idle" in the HTML)
- * The trail is low priority -- it loads during browser downtime and
- * doesn't block anything above the fold.
- *
- * This component receives no props. It reads its own data from
- * sessionStorage and updates on mount.
  */
 
 import { useState, useEffect } from 'react'
 
-const STORAGE_KEY = 'pre-trail'
+const TRAIL_KEY = 'pre-trail'
 
 const LABELS = {
-  '/':       'Home',
-  '/about':  'How it works',
-  '/deploy': 'Deploy',
-}
-
-function recordCurrentPage() {
-  const path  = window.location.pathname.replace(/\/$/, '') || '/'
-  const trail = getTrail()
-  if (!trail.includes(path)) {
-    trail.push(path)
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trail))
-  }
-  return trail
+  '/':        'Home',
+  '/about':   'How it works',
+  '/deploy':  'Deploy',
+  '/islands': 'Dynamic islands',
 }
 
 function getTrail() {
   try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]')
+    return JSON.parse(sessionStorage.getItem(TRAIL_KEY) || '[]')
   } catch {
     return []
   }
@@ -48,7 +34,7 @@ export default function SessionTrail() {
   const [trail, setTrail] = useState([])
 
   useEffect(() => {
-    setTrail(recordCurrentPage())
+    setTrail(getTrail())
   }, [])
 
   if (!trail.length) return null
