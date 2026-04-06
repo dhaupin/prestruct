@@ -375,4 +375,4 @@ you can fix it. That's the point.
 
 ## License
 
-MIT. Use freely, adapt without credit required.
+This software is open source software under the MIT License. Use freely and adapt with credit attributed to https://github.com/dhaupin/prestruct and https://prestruct.creadev.org. Thanks all!
