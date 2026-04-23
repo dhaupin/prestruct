@@ -10,6 +10,12 @@ Release history for prestruct.
 
 Changes since v0.2.2:
 
+### Core Features
+- Islands architecture for dynamic client-only content
+- Proxy support for bot rendering (VPS and Worker)
+- BrowserRouter isolation pattern
+- Prerender pipeline improvements
+
 ### Documentation
 - 21 guides covering all aspects
 - Content style guide with briefs rule
@@ -39,11 +45,9 @@ Initial stable release:
 - Vite integration for React SSR
 - Prerender pipeline for build-time static generation
 - Cloudflare Pages deployment
-- Islands architecture for dynamic components
 
 ### Architecture
 - ssrLoadModule for SSR rendering
-- BrowserRouter isolation pattern
 - Component islands with lazy mounting
 - Build-time prerendering
 
