@@ -10,6 +10,13 @@ show_downloads: false
 # Theme - GitHub Pages default
 theme: jekyll-theme-minimal
 
+# Use default layout for all pages
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
 # Use pretty URLs (/page/ instead of /page.html)
 permalink: pretty
 

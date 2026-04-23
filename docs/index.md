@@ -1,6 +1,6 @@
 ---
 title: Documentation
-layout: page
+layout: default
 nav_order: 1
 ---
 
