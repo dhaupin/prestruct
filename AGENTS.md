@@ -478,3 +478,91 @@ The proxy is additive, not a replacement for build-time prerender.
   last build.
 - The proxy is optional. If `config.proxy.url` is null, the build pipeline is
   unchanged and the proxy files are unused.
+
+---
+
+## Pagefind search in Jekyll docs
+
+The docs site uses Pagefind for client-side search. This section covers
+implementation details and gotchas discovered during integration.
+
+### Why dynamic import
+
+Pagefind's official UI requires bundling or using their pre-built widget.
+Neither works well with Jekyll + GitHub Pages. The solution uses dynamic
+`import()` to load Pagefind at runtime from `/pagefind/pagefind.js`.
+
+```js
+var pagefind = await import('{{ site.baseurl }}/pagefind/pagefind.js');
+await pagefind.init();
+var resp = await pagefind.search(q);
+```
+
+This avoids a build step and works with GitHub Pages' static serve model.
+
+### Workflow integration
+
+The GitHub workflow (`.github/workflows/docs.yml`) downloads and runs Pagefind
+after Jekyll builds:
+
+```yaml
+- name: Download Pagefind
+  run: |
+    VERSION=$(curl -sL "https://api.github.com/repos/Pagefind/pagefind/releases/latest" ...)
+    curl -sL "https://github.com/Pagefind/pagefind/releases/download/..." -o pagefind.tar.gz
+    tar -xzf pagefind.tar.gz
+    rm pagefind.tar.gz
+- name: Index search with Pagefind
+  run: ./pagefind --site _site
+```
+
+### Exclude from Jekyll
+
+Add `exclude: [pagefind*]` to `_config.yml` to prevent Jekyll from copying
+the binary to the build output.
+
+### The ⌘K in search results problem
+
+**Symptom:** Random "⌘K" appearing in search result titles.
+
+**Root cause:** The ⌘K keyboard shortcut indicator was in the header HTML as
+literal text (`<span class="search-bar-shortcut">⌘K</span>`), which Pagefind
+indexed along with the rest of the page content.
+
+**Fix:** Move the shortcut indicator entirely to CSS using pseudo-element:
+
+```css
+.search-bar-shortcut::after {
+  content: "\u2318K";
+}
+```
+
+Then remove the `<span>⌘K</span>` from HTML. This keeps the shortcut visible
+in the rendered search bar but removes it from the indexed content.
+
+### URL handling with baseurl
+
+Pagefind returns URLs with the baseurl prepended. If your docs live at a
+subdirectory (e.g., `/prestruct/`), the returned URLs already include it.
+To avoid doubling:
+
+```js
+var baseurl = '{{ site.baseurl }}';
+var url = data.url && data.url.startsWith(baseurl)
+  ? data.url
+  : baseurl + data.url;
+```
+
+### Security notes
+
+- Search runs entirely client-side in the browser
+- No user input is sent to any server
+- Pagefind processes locally-cached index data (JSON + WASM)
+- The only network request is fetching the index chunks from the same origin
+- No authentication or CORS concerns since everything is static
+
+### Future work
+
+- Add keyboard navigation (arrow keys + Enter) to search results
+- Consider highlighting matched terms in results
+- May need to update AGENTS.md if Pagefind API changes
