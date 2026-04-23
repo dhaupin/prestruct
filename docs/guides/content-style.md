@@ -4,107 +4,61 @@ title: Content Style
 nav_order: 20
 ---
 
-# Content Style
+# Content style
 
-Guidelines for writing prestruct documentation.
+Language, content, tone, and style reference for prestruct.
 
-## Voice & Tone
+## Tone and voice
 
-- **Direct** - Get to the point quickly
-- **Practical** - Show how, not just what
-- **Confident** - State things as facts when possible
-- **Helpful** - Anticipate reader questions
+This is a developer tool. The audience is engineers who are confident with Vite, React, and deployment pipelines.
 
-### Avoid
-- Filler ("In order to", "In this section we will")
-- Passive voice ("can be configured", "is recommended")
-- Jargon without explanation
-- Apologies ("Sorry, but...")
+- **Direct.** Say what a thing does. Skip the build-up.
+- **Honest.** Note limitations plainly. Do not oversell.
+- **Peer-level.** Write as one developer to another. No hand-holding, no condescension.
+- **Dry.** Subtle wit is fine. Enthusiasm is not. No exclamation points unless genuinely required for tone or a warning state.
 
-## Structure
+| Wrong | Right |
+|-------|-------|
+| "Supercharge your SEO!" | "Makes your routes crawlable." |
+| "It's incredibly easy to set up!" | "Takes about 15 minutes." |
+| "Prestruct is amazing because..." | "Prestruct solves X by doing Y." |
+| "Don't worry, it's simple!" | "The only structural change is extracting AppLayout." |
 
-### Headings
-- Use sentence case: "Build optimization" not "Build Optimization"
-- Lead with keywords
-- Front-load meaning: "Deploy to Cloudflare" not "How to Deploy to Cloudflare"
+## Sentence structure
 
-### Paragraphs
-- One idea per paragraph
-- 2-4 sentences typical
-- Lead with the point
+- Short sentences. One idea per sentence.
+- Active voice. "prerender.js renders each route" not "each route is rendered by prerender.js".
+- Present tense for how things work.
+- No throat-clearing openers. Never start with "So," "Well," "Note that," or "As you can see."
 
-### Code Blocks
-- Always specify language: ` ```bash `, ` ```jsx `
-- Include comments for complex steps
-- Show realistic values, not placeholder `foo`, `bar`
+## Headings and labels
 
-### Lists
-- Use for steps or options
-- Use sparingly for prose flow
+- Sentence case everywhere. "How it works" not "How It Works".
+- No title case for everything.
+- Headings should state a fact or outcome, not a category.
+  - Wrong: "Features"
+  - Right: "What you get"
 
 ## Formatting
 
-### Code vs UI
-- **Code**: Monospace, backticks
-- **UI labels**: Regular text
-- **Commands**: In code blocks with shell prompt
+- **Bold** only when the word or phrase genuinely needs to stand out.
+- *Italic* for introducing a term, not for emphasis.
+- `code` for all file names, paths, commands, config keys, prop names, and code snippets.
+- No nested bullet lists.
+- Tables for structured comparisons.
 
-```bash
-npm run build
-```
+## What to avoid
 
-### Emphasis
-- **Bold**: Critical info, warnings
-- *Italic*: Terminology introduction
-- `Code`: File paths, functions, values
+- Em dashes (--). Use a comma, period, or colon.
+- Double hyphens as dash substitutes.
+- Ellipsis (...) except in loading states or truncation.
+- Exclamation points: avoid unless required for warning or critical state.
+- Filler adverbs: "simply", "just", "easily", "basically", "actually".
+- Vague superlatives: "best", "powerful", "robust", "seamless".
 
-### Links
-- Descriptive link text: "See [Troubleshooting](/guides/troubleshooting)" not "click here"
-- Internal links: relative paths
-- External links: full URLs
+## Punctuation
 
-## Common Patterns
-
-### Tutorial Style
-1. Goal statement first
-2. Prerequisites
-3. Step-by-step with code
-4. Verification step
-
-### Reference Style
-- Definition lists for options
-- Tables for comparison
-- Examples for each variant
-
-## What to Avoid
-
-- Repetitive intros ("In this guide...")
-- Generic disclaimers
-- Outdated patterns
-- Contradicting other docs
-
-## Examples
-
-### Good
-```bash
-# Deploy to production
-npm run build
-wrangler pages deploy dist
-```
-
-### Bad
-```bash
-# This is the build command
-# Run this to build your app
-npm run build
-```
-
-## Voice Examples
-
-| Instead of | Use |
-|------------|-----|
-| "You can configure..." | "Configure..." |
-| "It is recommended to..." | "Recommended: ..." |
-| "In this section..." | Omit |
-| "Sorry for the inconvenience" | Omit |
-| "Here is how you can..." | "How to..." |
+- Oxford comma: always include it.
+- No formatted quotes. Use straight quotes.
+- No exclamation points unless genuinely earned.
+- Entity names: Capitalized when first in a sentence or heading.
