@@ -50,6 +50,10 @@ jobs:
         working-directory: docs
         run: bundle exec jekyll build
 
+      - name: Index search with Pagefind
+        working-directory: docs
+        run: ./pagefind --site _site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
