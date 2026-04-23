@@ -52,6 +52,12 @@ nav:
         url: /guides/analytics
       - title: Security
         url: /guides/security
+      - title: Advanced Proxy
+        url: /guides/proxy
+      - title: PWA Guide
+        url: /guides/pwa
+      - title: Images
+        url: /guides/images
   - title: GitHub
     url: https://github.com/dhaupin/prestruct
     external: true
