@@ -1,3 +1,8 @@
+---
+layout: page
+title: Routing & Trailing Slashes
+---
+
 # Routing & Trailing Slashes
 
 Understanding how prestruct handles URL paths and route definitions.

@@ -1,3 +1,8 @@
+---
+layout: page
+title: SEO Guide
+---
+
 # SEO Guide
 
 Prestruct handles technical SEO at build time. This guide covers best practices.
