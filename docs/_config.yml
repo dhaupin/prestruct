@@ -46,6 +46,12 @@ nav:
         url: /guides/structured-data
       - title: Build Optimization
         url: /guides/build-optimization
+      - title: Internationalization
+        url: /guides/i18n
+      - title: Analytics & Monitoring
+        url: /guides/analytics
+      - title: Security
+        url: /guides/security
   - title: GitHub
     url: https://github.com/dhaupin/prestruct
     external: true
