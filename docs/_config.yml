@@ -53,6 +53,8 @@ nav:
     items:
       - title: Examples
         url: /guides/examples
+      - title: Content Style
+        url: /guides/content-style
       - title: Contributing
         url: /guides/contributing
       - title: Changelog
