@@ -1,0 +1,22 @@
+# prestruct docs configuration
+# GitHub Pages will auto-render this with Jekyll
+
+title: prestruct
+description: Static site generation for Cloudflare Pages - Documentation
+show_downloads: false
+google_analytics: 
+
+# Theme - GitHub Pages default
+theme: jekyll-theme-minimal
+
+# Markdown config
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Collections for guides
+collections:
+  guides:
+    output: true
+    permalink: /:path/
