@@ -4,7 +4,6 @@ title: Advanced Islands
 nav_order: 11
 ---
 
-# Advanced Islands
 
 Deep dive into dynamic islands patterns with prestruct.
 

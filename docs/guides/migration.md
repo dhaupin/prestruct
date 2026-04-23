@@ -4,7 +4,6 @@ title: Migration Guide
 nav_order: 10
 ---
 
-# Migration Guide
 
 Moving to prestruct from other solutions.
 

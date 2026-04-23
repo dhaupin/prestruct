@@ -4,7 +4,6 @@ title: Getting Started
 nav_order: 2
 ---
 
-# Getting Started
 
 Build a fully-prerendered React app for Cloudflare Pages in minutes.
 

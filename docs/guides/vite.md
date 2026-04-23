@@ -4,7 +4,6 @@ title: Vite Integration
 nav_order: 7
 ---
 
-# Vite Integration
 
 Setting up Vite 5+ for prestruct.
 

@@ -4,7 +4,6 @@ title: API Reference
 nav_order: 9
 ---
 
-# API Reference
 
 Complete API documentation for prestruct hooks and utilities.
 

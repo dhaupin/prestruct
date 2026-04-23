@@ -4,7 +4,6 @@ title: Structured Data
 nav_order: 13
 ---
 
-# Structured Data
 
 JSON-LD structured data for rich search results.
 
@@ -351,7 +350,6 @@ Use the [Schema Markup Validator](https://validator.schema.org) for comprehensiv
 ### View Generated JSON-LD
 
 ```bash
-# In the built HTML
 grep -A 20 'application/ld+json' dist/index.html
 ```
 

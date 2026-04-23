@@ -4,7 +4,6 @@ title: Configuration
 nav_order: 3
 ---
 
-# Configuration Reference
 
 Complete reference for `ssr.config.js` and environment variables.
 
@@ -121,11 +120,9 @@ Security and caching headers for Cloudflare Pages:
 Cloudflare Pages redirect rules:
 
 ```
-# 301 redirects
 /old-page/ /new-page/ 301
 /legacy/* / 301
 
-# No trailing slash redirect needed - handled by React Router
 ```
 
 ## Complete Example

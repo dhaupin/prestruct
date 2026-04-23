@@ -4,7 +4,6 @@ title: Troubleshooting
 nav_order: 4
 ---
 
-# Troubleshooting
 
 Solutions to common issues when using prestruct.
 
@@ -167,7 +166,6 @@ React Router v6 handles both, but pick one style and stick with it.
 **Solution:** Remove the SPA fallback rule. Once prerendered, every route has its own `index.html`. The fallback causes CF Pages to rewrite to `/index.html`, which then matches the rule again.
 
 ```bash
-# Remove this from _redirects:
 /* /index.html 200
 ```
 

@@ -4,7 +4,6 @@ title: Architecture
 nav_order: 5
 ---
 
-# Architecture
 
 Understanding how prestruct works under the hood.
 

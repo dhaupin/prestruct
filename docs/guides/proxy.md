@@ -4,7 +4,6 @@ title: Advanced Proxy
 nav_order: 20
 ---
 
-# Advanced Proxy
 
 Dynamic rendering for bots using Puppeteer - VPS or Cloudflare Worker.
 

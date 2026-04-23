@@ -3,7 +3,6 @@ layout: default
 title: Performance Optimization
 ---
 
-# Performance Optimization Guide
 
 Optimize your prestruct site for maximum PageSpeed scores.
 

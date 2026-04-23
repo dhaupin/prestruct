@@ -4,7 +4,6 @@ title: Build Optimization
 nav_order: 14
 ---
 
-# Build Optimization
 
 Optimizing the prestruct build for speed and efficiency.
 
@@ -182,7 +181,6 @@ export default defineConfig({
 ### 3. Analyze Bundle
 
 ```bash
-# Use Vite bundle analyzer
 npm install -D rollup-plugin-visualizer
 
 // vite.config.js
@@ -205,9 +203,6 @@ Then open `dist/stats.html` to see what's contributing to bundle size.
 Vite caches node_modules in `.vite/`. Don't exclude it from git:
 
 ```gitignore
-# .gitignore
-# Don't ignore .vite - it speeds up subsequent builds
-# .vite/   ← Remove if you have this!
 ```
 
 ### 2. Incremental Prerendering
@@ -308,7 +303,6 @@ export default defineConfig({
 ### GitHub Actions
 
 ```yaml
-# .github/workflows/build.yml
 name: Build
 
 on: [push]
@@ -354,23 +348,19 @@ jobs:
 ### Add Timing
 
 ```bash
-# In package.json
 {
   "scripts": {
     "build": "time npm run build"
   }
 }
 
-# Or use time npm run build
 ```
 
 ### Profile with Node
 
 ```bash
-# Profile the build
 node --prof npm run build
 
-# View the log
 node --prof-process isolate*.log
 ```
 

@@ -4,7 +4,6 @@ title: Cloudflare Pages
 nav_order: 8
 ---
 
-# Cloudflare Pages Integration
 
 Deploying prestruct sites to Cloudflare Pages.
 
@@ -70,10 +69,8 @@ Update the CSP `connect-src` to include any third-party APIs your app uses.
 Use `public/_redirects` for redirects:
 
 ```
-# 301 permanent redirects
 /old-page/ /new-page/ 301
 
-# 302 temporary redirects
 /beta / 302
 ```
 
