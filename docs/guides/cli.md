@@ -4,13 +4,11 @@ title: CLI Reference
 nav_order: 5
 ---
 
-# CLI Reference
-
 All commands and scripts available in prestruct.
 
-## npm Scripts
+## npm scripts
 
-Defined in `package.json`:
+Run these from your project root:
 
 ```bash
 # Development server (with hot reload)
@@ -32,106 +30,95 @@ npm run lint
 npm run format
 ```
 
-## Build Pipeline
+## Build pipeline
 
-### `npm run build`
-
-Full production build:
-
-1. **Vite build** - Compiles React app to `/dist`
-2. **inject-brand** - Injects prerendered HTML
-3. **Prerender** - Generates static pages for each route
-
-Output goes to `/dist` by default.
-
-### `npm run prerender`
-
-Runs just the prerender step:
+The build runs three steps in sequence:
 
 ```bash
-# Full prerender
+npm run build
+    │
+    ├─► vite build          → JS/CSS bundles in dist/assets/
+    │
+    ├─► inject-brand.js     → Global meta in index.html
+    │
+    └─► prerender.js        → Per-route HTML generation
+```
+
+### prerender only
+
+Run just the prerender step if you've already built:
+
+```bash
 npm run prerender
 
 # Custom config
 npm run prerender -- --config custom-config.js
 ```
 
-Uses `ssr.config.js` by default.
-
 ## Development
 
-### `npm run dev`
+Start local dev server for hot reload (client-side only):
 
-Starts local dev server:
-- Vite dev server on `localhost:5173`
-- Hot module replacement enabled
-- No SSR (client-side only)
-
-### `npm run preview`
+```bash
+npm run dev
+```
 
 Preview built production build:
-- Serves `/dist` locally
-- Simulates Cloudflare Pages environment
+
+```bash
+npm run preview
+```
 
 ## Cloudflare CLI
 
-### wrangler
+Deploy to Cloudflare Pages:
 
 ```bash
-# Deploy to Cloudflare Pages
+# Deploy to production
 wrangler pages deploy dist
 
-# Deploy with branch
+# Create project
 wrangler pages project create my-app
-wrangler pages deploy dist --branch=main
 
 # View deployments
 wrangler pages deployment list
 ```
 
-### Environment Variables
+### Environment variables
 
 ```bash
 # Set for deploy
 CF_PAGES_API_TOKEN=xxx wrangler pages deploy dist
 ```
 
-## Proxy Scripts
+## Proxy scripts
 
-### VPS Proxy
+Run the optional bot proxy:
 
 ```bash
-# Run proxy
+# VPS proxy
 node scripts/proxy.js
 
 # With PM2
 pm2 start scripts/proxy.js --name prestruct
-```
 
-### Worker Deploy
-
-```bash
 # Deploy worker
 wrangler deploy
-
-# Secret management
-wrangler secret put PRESTRUCT_SECRET
 ```
 
-## Build Hooks
+## Build hooks
 
-For automatic rebuilds on git push:
+Trigger automatic rebuilds on git push:
 
 ```bash
-# Cloudflare
-wrangler pages project create my-app
-# Then add hook URL in Cloudflare dashboard
+# Get hook URL from Cloudflare dashboard
+# Add it to your GitHub repo settings → Webhooks
 ```
 
-## Common Issues
+## Common issues
 
 | Issue | Fix |
 |-------|-----|
-| Command not found | Check `package.json` scripts |
+| Command not found | Check package.json scripts |
 | Build fails | Run `npm run build` with debug |
-| Preview not working | Check `/dist` exists |
+| Preview not working | Check dist exists |

@@ -4,15 +4,11 @@ title: Contributing
 nav_order: 16
 ---
 
-# Contributing
+Contributing guidelines for prestruct.
 
-Guide for contributing to prestruct.
+## Getting started
 
-## Getting Started
-
-1. **Fork** the repository
-2. **Clone** your fork
-3. **Create** a feature branch
+Fork the repo, clone it, and create a feature branch:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/prestruct.git
@@ -20,7 +16,9 @@ cd prestruct
 git checkout -b feature/your-feature
 ```
 
-## Development Setup
+## Development setup
+
+Install dependencies and run the build:
 
 ```bash
 # Install dependencies
@@ -33,11 +31,9 @@ npm test
 npm run build
 ```
 
-## Code Style
+## Code style
 
-- Use **ESLint** for JavaScript
-- Use **Prettier** for formatting
-- Follow existing patterns in the codebase
+Use ESLint and Prettier for consistent code:
 
 ```bash
 # Lint
@@ -47,47 +43,34 @@ npm run lint
 npm run format
 ```
 
-## Pull Request Process
+## Pull request process
 
-### Before Submitting
+### Before submitting
 
-1. **Test locally** - Ensure build passes
-2. **Lint** - No errors
-3. **Update docs** - If changing behavior
+Test locally and ensure lint passes:
 
 ```bash
 npm run build && npm run lint
 ```
 
-### PR Guidelines
+### PR guidelines
 
-- Use clear, descriptive title
+- Clear, descriptive title
 - Link related issues
 - Include context in description
 - Keep changes focused
 
-## Reporting Issues
+## Reporting issues
 
-### Bug Reports
+### Bug reports
 
-Include:
-- Steps to reproduce
-- Expected behavior
-- Actual behavior
-- Environment (Node version, OS, etc.)
+Include steps to reproduce, expected vs actual behavior, and environment details.
 
-### Feature Requests
+### Feature requests
 
-Describe:
-- Problem you're solving
-- Proposed solution
-- Alternatives considered
+Describe the problem, proposed solution, and alternatives considered.
 
-## Code of Conduct
-
-Be respectful and constructive. This project follows the Contributor Covenant.
-
-## Commit Messages
+## Commit messages
 
 Use conventional commits:
 
@@ -98,14 +81,6 @@ docs: update documentation
 refactor: restructure code
 chore: maintenance tasks
 ```
-
-## Release Process
-
-Maintainers handle releases:
-1. Update changelog
-2. Bump version
-3. Create release tag
-4. Publish to npm
 
 ## License
 

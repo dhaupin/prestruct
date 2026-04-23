@@ -4,13 +4,11 @@ title: Redirects
 nav_order: 20
 ---
 
-# Redirects
+Managing redirects and headers on Cloudflare Pages.
 
-Managing redirects on Cloudflare Pages.
+## Redirects file
 
-## Cloudflare Pages Redirects
-
-Create `_redirects` file in your project root:
+Create `_redirects` in your project root:
 
 ```
 # Static redirects
@@ -20,39 +18,13 @@ Create `_redirects` file in your project root:
 /blog/*  /articles/:splat  301
 ```
 
-## Common Patterns
+## Trailing slashes
 
-### Trailing Slashes
+Cloudflare Pages handles this automatically. Do not add rules for trailing slashes.
 
-Cloudflare Pages Pretty URLs handles this automatically. Do not add rules for `/path/` → `/path`.
+## Headers file
 
-### HTTPS Only
-
-```toml
-# wrangler.toml
-compatibility_date = "2023-01-01"
-```
-
-### Internationalization
-
-```toml
-/en/*  /en/:splat  200
-/fr/*  /fr/:splat  200
-/de/*  /de/:splat  200
-```
-
-## Headers vs Redirects
-
-| Use Case | Method |
-|----------|--------|
-| Path change | Redirect |
-| CORS setup | Headers |
-| Cache control | Headers |
-| Security headers | Headers |
-
-## Headers File
-
-Create `_headers` in your project root:
+Create `_headers` to set cache and security headers:
 
 ```
 # Cache static assets
@@ -64,34 +36,30 @@ Create `_headers` in your project root:
   Cache-Control: no-cache
 ```
 
-## Security Headers
+## Security headers
 
-```toml
-# _headers
+```
 /*
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 ```
 
-## SPA Fallback
+## SPA fallback
 
-> **Warning:** Remove `/* /index.html 200` after prerendering all routes.
+Remove `/* /index.html 200` after prerendering all routes. Static HTML files handle routes directly.
 
-If all routes are prerendered, you don't need SPA fallback. The static HTML files handle all routes.
+## Test locally
 
-## Testing Redirects
-
-Use `wrangler pages dev` to test locally:
+Use wrangler to test before deploying:
 
 ```bash
 wrangler pages dev dist
-# Visit URLs to test redirects
 ```
 
-## Production
+## Deploy
 
-Deploy updates `_headers` and `_redirects` automatically:
+Deployments automatically upload `_redirects` and `_headers`:
 
 ```bash
 wrangler pages deploy dist

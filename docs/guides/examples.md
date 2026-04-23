@@ -4,24 +4,9 @@ title: Examples
 nav_order: 19
 ---
 
-# Examples
+Real-world usage patterns and project structure.
 
-Real-world projects using prestruct.
-
-## Starter Template
-
-The fastest way to get started:
-
-```bash
-npx create-prestruct-app my-app
-cd my-app
-npm install
-npm run dev
-```
-
-See [Getting Started](/guides/getting-started) for full instructions.
-
-## Project Structure
+## Project structure
 
 Typical prestruct project:
 
@@ -34,8 +19,6 @@ my-app/
 │   │   ├── Home.jsx
 │   │   ├── About.jsx
 │   │   └── Blog.jsx
-│   ├── components/
-│   │   └── Header.jsx
 │   └── islands/
 │       └── Cart.jsx      # Dynamic island component
 ├── scripts/
@@ -43,13 +26,12 @@ my-app/
 │   └── proxy.js          # Optional bot proxy
 ├── ssr.config.js         # Prerender configuration
 ├── wrangler.toml         # Cloudflare Pages config
-├── package.json
-└── vite.config.js
+└── package.json
 ```
 
-## Common Patterns
+## Static site with islands
 
-### Static Site with Islands
+Extract AppLayout from your app to separate the prerenderable portion:
 
 ```jsx
 // AppLayout.jsx - renders at build time
@@ -69,7 +51,9 @@ export default function AppLayout() {
 }
 ```
 
-### Dynamic Island Component
+## Dynamic island component
+
+Wrap client-only components in `<pre-island>` for hydration after load:
 
 ```jsx
 // islands/Cart.jsx
@@ -84,16 +68,17 @@ export default function Cart() {
 }
 ```
 
-Mount in client:
+Mount in client entry:
 
 ```js
 // main.jsx
 import { mountIslands } from './islands'
-
 mountIslands()
 ```
 
 ## Deploy to Cloudflare Pages
+
+Build and deploy:
 
 ```bash
 # Build
@@ -103,16 +88,12 @@ npm run build
 wrangler pages deploy dist
 ```
 
-## With Proxy
+## With proxy
 
 For dynamic routes or frequent content updates:
 
-1. Set `config.proxy.url` in `ssr.config.js`
+1. Set config.proxy.url in ssr.config.js
 2. Deploy proxy worker
 3. Point Cloudflare Pages to proxy URL
 
-See [Proxy Guide](/guides/proxy) for full setup.
-
-## Showcase
-
-Have a project you'd like featured here? Open an issue!
+See [Proxy](/guides/proxy) for full setup.

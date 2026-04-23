@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Routing & Trailing Slashes
+nav_order: 6
 ---
 
+How prestruct handles URL paths and route definitions.
 
-Understanding how prestruct handles URL paths and route definitions.
+## Route configuration
 
-## Route Configuration
-
-Define all prerenderable routes in `ssr.config.js`:
+Define all prerenderable routes in ssr.config.js:
 
 ```js
 module.exports = {
@@ -21,35 +21,23 @@ module.exports = {
 }
 ```
 
-## Trailing Slashes
+## Trailing slashes
 
-**You control trailing slashes** - prestruct passes through whatever you define:
+You control trailing slashes - prestruct passes through whatever you define:
 
 | Route path | Canonical URL |
 |------------|---------------|
 | `/` | `https://example.com/` |
 | `/about/` | `https://example.com/about/` |
 | `/contact/` | `https://example.com/contact/` |
-| `/blog/post` | `https://example.com/blog/post` |
 
-### Recommended Pattern
+Pick one style and stay consistent. Google treats `/about/` and `/about` as the same URL if one redirects to the other.
 
-Most sites use one of these conventions:
-
-1. **Trailing slash (recommended)**: `/about/`, `/projects/`
-2. **No trailing slash**: `/about`, `/projects`
-3. **Root only**: `/` (homepage), others with trailing slash
-
-### SEO Note
-
-Google treats `/about/` and `/about` as the same URL if one redirects to the other. Pick one style and stay consistent.
-
-## Dynamic Routes
+## Dynamic routes
 
 For dynamic content (blog posts, products), prerender at build time:
 
 ```js
-// ssr.config.js
 const posts = ['hello-world', 'another-post', 'third-post']
 
 routes: [
@@ -64,26 +52,23 @@ routes: [
 ]
 ```
 
-## Catch-All Routes
+## Catch-all routes
 
-For dynamic routes that can't be prerendered, use Cloudflare Pages functions:
+For truly dynamic routes that can't be prerendered, use Cloudflare Pages Functions:
 
 ```js
 // functions/[[path]].js
 export async function onRequestGet({ params }) {
   const slug = params.path?.[0]
-  // Fetch from CMS, database, etc.
   return new Response(`Dynamic content for: ${slug}`)
 }
 ```
 
-## 404 Handling
+## 404 handling
 
-Prestruct prerenders a 404 page to `dist/404.html`. Cloudflare Pages serves this for unmatched routes with HTTP 404.
+Prestruct prerenders a 404 page to dist/404.html. Cloudflare Pages serves this for unmatched routes.
 
-### Custom 404 Content
-
-Modify in `prerender.js`:
+Customize in prerender.js:
 
 ```js
 function generate404(html, config) {
@@ -91,57 +76,30 @@ function generate404(html, config) {
     /<title>.*?<\/title>/,
     '<title>Page Not Found | Your Site'
   )
-  // Add custom content to the 404 body
   return html
 }
 ```
 
-## Redirects
+## Best practices
 
-For redirects, configure in `cloudflare-pages.json`:
-
-```json
-{
-  "routes": [
-    { "pattern": "/old-page/", "redirect": "/new-page/" },
-    { "pattern": "/legacy/*", "redirect": "/" }
-  ]
-}
-```
-
-Or use Cloudflare dashboard/Pages redirects.
-
-## Best Practices
-
-1. **Use descriptive paths**: `/projects/creadev-site/` not `/p/cs/`
-2. **Lowercase**: Always use lowercase URLs
-3. **No spaces**: Use hyphens `-` not underscores `_`
-4. **Consistent slashes**: Pick trailing slash or not, stay consistent
-5. **Short paths**: Keep URLs readable and memorable
+- Use descriptive paths: `/projects/prestruct-site/` not `/p/cs/`
+- Lowercase, no spaces
+- Hyphens `-` not underscores `_`
+- Consistent trailing slashes
 
 ## Gotchas
 
-### Route Order Matters
+### Route order matters
 
-Prerender processes routes in order defined in your config. If you have similar paths, define more specific routes first:
+Prerender processes routes in order defined in config. Define more specific routes first:
 
 ```js
-// Correct order
 routes: [
   { path: '/blog/my-post/' },  // Specific first
   { path: '/blog/' },          // General after
 ]
 ```
 
-### Missing Routes = 404
+### Missing routes = 404
 
-Any path not in your route config will serve the 404 page. Make sure to include all pages you want prerendered.
-
-### Dynamic Data at Build Time
-
-Prestruct is SSG - it prerenders at build time. For truly dynamic content (user-specific data, real-time stock prices), use Cloudflare Pages Functions as a fallback.
-
-### ssg.config.js vs ssr.config.js
-
-- `ssr.config.js` - Prerender at build time (SSG), serve static HTML
-- Use whichever matches your build setup (prestruct supports both naming conventions)
+Any path not in your route config will serve the 404 page. Include all pages you want prerendered.

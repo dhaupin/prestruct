@@ -4,50 +4,28 @@ title: Changelog
 nav_order: 17
 ---
 
-# Changelog
+Release history for prestruct.
 
-All notable changes to prestruct.
+## v1.0.0
 
-## [1.0.0] - 2024
+Initial release with complete feature set:
 
-### Added
-- Initial release
+### Core
 - Vite integration for React SSR
 - Prerender pipeline for build-time static generation
 - Cloudflare Pages deployment
 - Islands architecture for dynamic components
-- Proxy for bot rendering (VPS and Worker)
-- Complete documentation
 
 ### Architecture
-- `ssrLoadModule` for SSR rendering
+- ssrLoadModule for SSR rendering
 - BrowserRouter isolation pattern
 - Component islands with lazy mounting
 - Build-time prerendering
 
-### Guides
-- Getting Started
-- Configuration
-- Vite Integration
-- Cloudflare Pages
-- SEO Guide
-- Performance
-- Routing
-- Architecture
-- API Reference
-- Troubleshooting
-- Migration Guide
-- Advanced Islands
-- Structured Data
-- Build Optimization
-- Proxy
+### Documentation
+- 21 guides covering all aspects
+- Getting Started, Configuration, Vite Integration
+- SEO, Performance, Routing, Architecture
+- Troubleshooting, Migration, Advanced Islands
 
----
-
-Older releases will be documented here as they're released.
-
-## Contributing
-
-To see the full history:
-- Git log: `git log --oneline`
-- Releases: https://github.com/dhaupin/prestruct/releases
+See git log for detailed history:
