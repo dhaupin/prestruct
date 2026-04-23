@@ -10,6 +10,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
   
   <style>
 *,*:before,*:after{box-sizing:border-box;margin:0;padding:0}
@@ -85,9 +94,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .prose li{margin-bottom:.5rem}
 .prose a{color:var(--accent);text-decoration:none}
 .prose a:hover{text-decoration:underline}
-.prose code,.prose pre{font-family:var(--mono);font-size:.85em;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--radius);padding:.15em .45em;color:var(--accent)}
-.prose pre{padding:1.25rem 1.5rem;overflow-x:auto;font-size:.82rem;line-height:1.7}
-.prose pre code{background:none;border:none;padding:0}
+.prose pre{position:relative;padding:1.25rem 1.5rem;overflow-x:auto;font-size:.82rem;line-height:1.7;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--radius)}
+.prose pre code{background:none;border:none;padding:0;color:var(--text)}
+.prose :not(pre)>code{font-family:var(--mono);font-size:.85em;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--radius);padding:.15em .45em;color:var(--accent)}
+.prose .code-header{display:flex;justify-content:space-between;align-items:center;padding:.5rem 1rem;background:var(--bg-1);border-bottom:1px solid var(--border);margin:-1.25rem -1.5rem 1rem;border-radius:var(--radius) var(--radius) 0 0;font-family:var(--mono);font-size:.75rem;color:var(--text-2)}
+.prose .copy-btn{background:none;border:none;color:var(--text-2);cursor:pointer;padding:.25rem .5rem;border-radius:var(--radius);font-size:.75rem;font-family:var(--mono)}
+.prose .copy-btn:hover{background:var(--bg-2);color:var(--text)}
+.prose .copy-btn.copied{color:var(--accent)}
 .prose blockquote{background:var(--bg-1);border:1px solid var(--border-2);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;font-size:.9rem;color:var(--text-2);margin:1.5rem 0}
 .prose table{width:100%;border-collapse:collapse;margin:1.5rem 0}
 .prose th,.prose td{border:1px solid var(--border);padding:.75rem 1rem;text-align:left;font-size:.9rem}
@@ -200,6 +213,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
       var next=current==='light'?'dark':'light';
       html.setAttribute('data-theme',next);
       localStorage.setItem('theme',next);
+    });
+    // Code copy buttons
+    document.querySelectorAll('.prose pre').forEach(function(pre){
+      var code=pre.querySelector('code');
+      if(!code)return;
+      var lang=code.className.match(/language-(\w+)/);
+      var header=document.createElement('div');
+      header.className='code-header';
+      header.innerHTML='<span>'+(lang?lang[1]:'code')+'</span><button class="copy-btn">copy</button>';
+      var btn=header.querySelector('.copy-btn');
+      btn.addEventListener('click',function(){
+        navigator.clipboard.writeText(code.textContent).then(function(){
+          btn.textContent='copied!';
+          btn.classList.add('copied');
+          setTimeout(function(){btn.textContent='copy';btn.classList.remove('copied');},2000);
+        });
+      });
+      pre.insertBefore(header,pre.firstChild);
     });
     // Load saved theme or default to light
     var saved=localStorage.getItem('theme');
