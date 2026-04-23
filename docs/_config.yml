@@ -83,3 +83,8 @@ markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+
+# Exclude pagefind binary from Jekyll build (it's downloaded in CI)
+exclude:
+  - pagefind
+  - pagefind-*.tar.gz

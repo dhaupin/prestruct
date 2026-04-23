@@ -61,10 +61,7 @@ jobs:
 
       - name: Index search with Pagefind
         working-directory: docs
-        run: |
-          ls -la _site/
-          ./pagefind --site _site
-          ls -la _site/pagefind/
+        run: ./pagefind --site _site
 
       - name: Upload artifact
         id: upload-artifact
