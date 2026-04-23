@@ -22,7 +22,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .site-header .nav{display:none}
 @media(min-width:601px){
   .site-header .nav{display:flex}
-  .site-header{backdrop-filter:blur(12px);background:rgba(8,8,8,.92)}
+  [data-theme=dark] .site-header{backdrop-filter:blur(12px);background:rgba(8,8,8,.92)}
 }
 @media(max-width:600px){
   .site-header .nav{display:flex;position:absolute;top:52px;left:0;right:0;flex-direction:column;background:var(--bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.5rem 0;z-index:9}
