@@ -503,7 +503,9 @@ This avoids a build step and works with GitHub Pages' static serve model.
 ### Workflow integration
 
 The GitHub workflow (`.github/workflows/docs.yml`) downloads and runs Pagefind
-after Jekyll builds:
+after Jekyll builds. **Uses artifact deploy (`actions/upload-pages-artifact@v3`
++ `actions/deploy-pages@v4`)**, not branch deploy. The peaceiris/gh-pages
+action has a bug that deletes `pagefind/` files during incremental sync.
 
 ```yaml
 - name: Download Pagefind
