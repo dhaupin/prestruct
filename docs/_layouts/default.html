@@ -310,7 +310,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
         for(var i=0;i<resp.results.length&&i<8;i++){
           var r=resp.results[i];
           var data=await r.data();
-          html+='<a href="{{ site.baseurl }}'+data.url+'" class="search-result"><div class="search-result-title">'+data.meta.title+'</div>';
+          // Pagefind returns URLs with baseurl prepended. Check if it already starts with baseurl to avoid doubling.
+          var baseurl='{{ site.baseurl }}';
+          var url=data.url&&data.url.startsWith(baseurl)?data.url:baseurl+data.url;
+          html+='<a href="'+url+'" class="search-result"><div class="search-result-title">'+data.meta.title+'</div>';
           if(data.excerpt)html+='<div class="search-result-excerpt">'+data.excerpt+'</div>';
           html+='</a>';
         }
