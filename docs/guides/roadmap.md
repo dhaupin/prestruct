@@ -6,25 +6,37 @@ nav_order: 18
 
 Planned features and ideas for prestruct.
 
-## P1 - High priority
+## v0.2.4 (In Progress)
 
-- Streaming SSR support
-- Edge SSR for per-request rendering
-- Incremental prerender (skip unchanged routes)
+Done:
+- 21 comprehensive guides
+- Content style guide with briefs rule
+- Mobile nav and layout improvements
 
-## P2 - Medium priority
+WIP:
+- Code cleanup and documentation polish
 
-- CMS integration
-- Dynamic route fetching at build time
+## v0.3.0 (Planned)
+
+### Streaming SSR
+Add support for progressive streaming instead of blocking renderToString.
+
+### Incremental Prerender
+Skip routes that haven't changed since last build.
+
+## P2 - Future
+
+- CMS integration for dynamic routes at build time
 - Image optimization pipeline
 - Sitemap generation
-
-## P3 - Lower priority
-
 - Plugin system
-- Theme templates
+
+## P3 - Ideas
+
 - Component library starter
+- Theme templates
+- More example projects
 
-## Propose features
+## Propose Features
 
-Open an issue to propose new features: https://github.com/dhaupin/prestruct/issues
+Open an issue: https://github.com/dhaupin/prestruct/issues
