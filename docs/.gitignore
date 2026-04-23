@@ -1,0 +1,8 @@
+# Jekyll
+_site/
+.sass-cache/
+.jekyll-cache/
+
+# Pagefind binary (downloaded in CI)
+pagefind
+pagefind-*

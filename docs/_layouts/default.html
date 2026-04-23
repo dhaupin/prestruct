@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
-  
+  <script src="{{ site.baseurl }}/pagefind/pagefind-ui.js"></script>
   <style>
 *,*:before,*:after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#080808;--bg-1:#0e0e0e;--bg-2:#141414;--border:#1e1e1e;--border-2:#2a2a2a;--text:#e2e0db;--text-2:#8a8680;--text-3:#4a4845;--accent:#c8f000;--accent-dim:#8aaa00;--font:"Geist",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--radius:4px;--max:860px}
@@ -78,6 +78,29 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .theme-toggle .icon-sun,.theme-toggle .icon-moon{display:none}
 [data-theme=light] .theme-toggle .icon-sun{display:block}
 [data-theme=dark] .theme-toggle .icon-moon{display:block}
+.search-trigger{display:flex;background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--text-3);cursor:pointer;width:32px;height:32px;align-items:center;justify-content:center;transition:color .15s,border-color .15s}
+.search-trigger:hover{color:var(--text);border-color:var(--text-3)}
+.search-trigger svg{width:14px;height:14px}
+.search-bar{display:none;align-items:center;gap:.5rem;margin-right:.5rem}
+@media(min-width:601px){.search-bar{display:flex}}
+.search-bar-input{display:none;padding:.4rem .75rem;font-size:.8rem;font-family:var(--mono);background:var(--bg-1);color:var(--text);border:1px solid var(--border-2);border-radius:var(--radius);outline:none;width:140px;transition:width .2s,border-color .15s}
+.search-bar-input:focus{border-color:var(--accent);width:180px}
+.search-bar-input::placeholder{color:var(--text-3)}
+.search-bar-shortcut{font-family:var(--mono);font-size:.7rem;color:var(--text-3);padding:.2rem .4rem;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--radius);display:none}
+.search-bar-input:focus+.search-bar-shortcut{display:none}
+.search-bar-input::placeholder+.search-bar-shortcut{display:block}
+.search-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:10vh 1rem}
+.search-modal.open{display:flex}
+.search-modal-content{width:100%;max-width:600px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:5vh}
+.search-input{width:100%;padding:1rem 1.25rem;font-size:1rem;font-family:var(--font);background:var(--bg);color:var(--text);border:none;border-bottom:1px solid var(--border);outline:none}
+.search-input::placeholder{color:var(--text-3)}
+.search-results{padding:0;max-height:60vh;overflow-y:auto}
+.search-result{display:block;padding:1rem 1.25rem;border-bottom:1px solid var(--border);text-decoration:none;transition:background .15s}
+.search-result:hover{background:var(--bg-2);text-decoration:none}
+.search-result-title{font-weight:600;color:var(--text);font-size:.95rem}
+.search-result-excerpt{color:var(--text-2);font-size:.85rem;margin-top:.25rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.search-close{position:absolute;right:1rem;top:1rem;background:none;border:none;color:var(--text-2);cursor:pointer;padding:.5rem}
+.search-close:hover{color:var(--text)}
 .main{flex:1}
 .container{max-width:var(--max);margin:0 auto;padding:0 2rem}
 .page-hero{padding:3.5rem 0 3rem;border-bottom:1px solid var(--border)}
@@ -141,6 +164,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
         <span class="wordmark-slash">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span><span class="wordmark-docs">docs</span>
       </a>
       <div class="header-actions">
+        <div class="search-bar">
+          <input type="text" class="search-bar-input" id="searchBarInput" placeholder="Search..." autocomplete="off">
+          <span class="search-bar-shortcut">⌘K</span>
+        </div>
+        <button class="search-trigger" id="searchTrigger" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
           <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
@@ -196,6 +226,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     </footer>
   </div>
   
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal">
+    <div class="search-modal-content">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search docs..." autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <button class="search-close" id="searchClose" aria-label="Close search">×</button>
+  </div>
+  
   <script>
     document.getElementById('navToggle').addEventListener('click',function(){
       document.getElementById('nav').classList.toggle('open');
@@ -236,6 +275,87 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     var saved=localStorage.getItem('theme');
     if(!saved)html.setAttribute('data-theme','light');
     else if(saved==='light'||saved==='dark')html.setAttribute('data-theme',saved);
+    
+    // Search functionality using Pagefind
+    var searchTrigger=document.getElementById('searchTrigger');
+    var searchModal=document.getElementById('searchModal');
+    var searchInput=document.getElementById('searchInput');
+    var searchResults=document.getElementById('searchResults');
+    var searchClose=document.getElementById('searchClose');
+    var searchBarInput=document.getElementById('searchBarInput');
+    var pagefind=null;
+    
+    function initPagefind(){
+      if(!pagefind){
+        pagefind=new Pagefind({basePath:'{{ site.baseurl }}'});
+      }
+    }
+    
+    function renderResults(q,resultsEl){
+      if(q.length<2){
+        resultsEl.innerHTML='';
+        return;
+      }
+      clearTimeout(searchTimeout);
+      searchTimeout=setTimeout(function(){
+        pagefind.search(q).then(function(resp){
+          if(resp.results.length===0){
+            resultsEl.innerHTML='<div style="padding:1rem 1.25rem;color:var(--text-2)">No results found</div>';
+            return;
+          }
+          var html='';
+          resp.results.slice(0,8).forEach(function(r){
+            html+='<a href="{{ site.baseurl }}'+r.url+'" class="search-result"><div class="search-result-title">'+r.meta.title+'</div>';
+            if(r.excerpt)html+='<div class="search-result-excerpt">'+r.excerpt+'</div>';
+            html+='</a>';
+          });
+          resultsEl.innerHTML=html;
+        });
+      },150);
+    }
+    
+    searchTrigger.addEventListener('click',function(){
+      searchModal.classList.add('open');
+      searchInput.focus();
+      initPagefind();
+    });
+    searchClose.addEventListener('click',function(){
+      searchModal.classList.remove('open');
+    });
+    searchModal.addEventListener('click',function(e){
+      if(e.target===searchModal)searchModal.classList.remove('open');
+    });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&searchModal.classList.contains('open')){
+        searchModal.classList.remove('open');
+      }
+      if((e.metaKey||e.ctrlKey)&&e.key==='k'){
+        e.preventDefault();
+        if(document.activeElement===searchBarInput){
+          searchModal.classList.add('open');
+          searchInput.focus();
+          initPagefind();
+        }else{
+          searchModal.classList.add('open');
+          searchInput.focus();
+          initPagefind();
+        }
+      }
+    });
+    var searchTimeout;
+    searchInput.addEventListener('input',function(){
+      renderResults(this.value,searchResults);
+    });
+    searchBarInput.addEventListener('input',function(){
+      initPagefind();
+      searchModal.classList.add('open');
+      searchInput.value=this.value;
+      searchInput.focus();
+      renderResults(this.value,searchResults);
+    });
+    searchBarInput.addEventListener('focus',function(){
+      initPagefind();
+    });
   </script>
 </body>
 </html>

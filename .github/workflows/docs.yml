@@ -38,6 +38,14 @@ jobs:
         working-directory: docs
         run: bundle install
 
+      - name: Download Pagefind
+        working-directory: docs
+        run: |
+          VERSION=$(curl -sL "https://api.github.com/repos/Pagefind/pagefind/releases/latest" | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')
+          curl -sL "https://github.com/Pagefind/pagefind/releases/download/v${VERSION}/pagefind-v${VERSION}-x86_64-unknown-linux-musl.tar.gz" -o pagefind.tar.gz
+          tar -xzf pagefind.tar.gz
+          rm pagefind.tar.gz
+
       - name: Jekyll build
         working-directory: docs
         run: bundle exec jekyll build
