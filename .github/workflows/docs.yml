@@ -39,6 +39,10 @@ jobs:
           bundler-cache: true
           cache-version: 1
 
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
       - name: Install dependencies
         working-directory: docs
         run: bundle install
