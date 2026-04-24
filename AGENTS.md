@@ -506,6 +506,7 @@ The GitHub workflow (`.github/workflows/docs.yml`) downloads and runs Pagefind
 after Jekyll builds. **Uses artifact deploy (`actions/upload-pages-artifact@v3`
 + `actions/deploy-pages@v4`)**, not branch deploy. The peaceiris/gh-pages
 action has a bug that deletes `pagefind/` files during incremental sync.
+**Always use artifact deploy for docs with search.**
 
 ```yaml
 - name: Download Pagefind
@@ -562,6 +563,21 @@ var url = data.url && data.url.startsWith(baseurl)
 - Pagefind processes locally-cached index data (JSON + WASM)
 - The only network request is fetching the index chunks from the same origin
 - No authentication or CORS concerns since everything is static
+
+## Docs header layout (flexbox ordering)
+
+Desktop layout with wordmark → nav → actions (search/theme):
+
+- Use `order` CSS property to control flex child positions
+- Nav gets `order:1`, actions get `order:2` (actions rightmost)
+- In mobile query, reset nav `order:0`
+- Use `flex-grow:1` + `justify-content:flex-end` on nav to push actions right
+- Mobile uses absolute positioning for hamburger and actions
+
+Submenu accordion behavior:
+- JS closes any open submenu before opening a new one
+- `this.parentElement.parentElement.querySelectorAll('.nav-folder.open')` finds siblings
+- Toggle class: if already open, closes it; if closed, opens it
 
 ### Future work
 

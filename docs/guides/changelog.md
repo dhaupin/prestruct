@@ -18,6 +18,9 @@ Changes since v0.2.2:
 
 ### Documentation
 - 21 guides covering all aspects
+- Header layout: flexbox ordering with wordmark → nav → actions
+- Submenu accordion: close previous before opening new
+- Peaceiris gh-pages bug warning added to AGENTS.md
 - Content style guide with briefs rule
 - CLI Reference, Contributing, Examples guides
 - Changelog, Roadmap, Redirects guides
