@@ -20,20 +20,21 @@ Changes since v0.2.2:
 - Proxy cache key using SHA-256 hash
 - Fix: 404 pages get noindex meta to prevent crawling
 
-### Documentation
+### Docs: Guides
 - Docs: 21 guides covering all aspects
+- Docs: New guides: CLI, Contributing, Examples, Changelog, Roadmap, Redirects
+- Docs: 25+ prestruct-specific guides
+
+### Docs: UI/UX
+- Docs: Pagefind search integration with ⌘K shortcut
+- Docs: Layout: Light/dark mode, dynamic nav, mobile improvements
 - Docs: Header layout: flexbox ordering with wordmark → nav → actions
 - Docs: Submenu accordion: close previous before opening new
-- Docs: Pagefind search integration with ⌘K shortcut
-- Docs: Content style guide with briefs rule
-- Docs: New guides: CLI, Contributing, Examples, Changelog, Roadmap, Redirects
-- Docs: 25+ new prestruct-specific guides
 - Docs: PrismJS syntax highlighting with copy buttons
-- Docs: Layout: Light/dark mode, dynamic nav, mobile improvements
 
-### Infrastructure
-- Docs: GitHub Pages baseurl config
+### Docs: Infrastructure
 - Docs: Jekyll layout fixes
+- Docs: GitHub Pages baseurl config
 - Docs: Artifact deploy instead of branch deploy (peaceiris bug)
 
 ## v0.2.2 (Stable)
