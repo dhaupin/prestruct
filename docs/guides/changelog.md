@@ -26,8 +26,6 @@ Changes since v0.2.2:
 ### Docs: UI/UX
 - Docs: Pagefind search integration with ⌘K shortcut
 - Docs: Theme - menu system, light/dark mode, mobile improvements
-- Docs: Header layout: flexbox ordering with wordmark → nav → actions
-- Docs: Menu - submenu accordion, close previous before opening new
 - Docs: PrismJS syntax highlighting with copy buttons
 
 ### Docs: Infrastructure
