@@ -24,13 +24,13 @@ npm run preview
 
 <div class="guide-cards">
 
-### [Performance →](guides/performance)
+<h4>[Performance →](guides/performance)</h4>
 Core Web Vitals optimization, bundle sizing, image best practices.
 
-### [SEO →](guides/seo)
+<h4>[SEO →](guides/seo)</h4>
 Meta tags, structured data, sitemap, 404 handling, robots directives.
 
-### [Routing →](guides/routing)
+<h4>[Routing →](guides/routing)</h4>
 Trailing slashes, dynamic routes, redirects, route configuration.
 
 </div>

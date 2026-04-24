@@ -28,8 +28,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .app{display:flex;flex-direction:column;min-height:100vh}
 .site-header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between}
 .site-header .nav{display:none}
+.guide-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+.guide-cards h4{font-size:1rem;font-weight:600;margin-bottom:.5rem}
+.guide-cards h4 a{color:var(--text);text-decoration:none}
+.guide-cards h4 a:hover{color:var(--accent)}
+.guide-cards p{font-size:.9rem;color:var(--text-2);line-height:1.5}
 @media(min-width:601px){
   .site-header .nav{display:flex}
+  .site-header .header-actions{flex-shrink:0}
   [data-theme=dark] .site-header{backdrop-filter:blur(12px);background:rgba(8,8,8,.92)}
 }
 @media(max-width:600px){
@@ -183,7 +189,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
       <nav class="nav" id="nav">
         {% for item in site.nav %}
           {% if item.folder %}
-          <div class="nav-folder open">
+          <div class="nav-folder">
             <button class="nav-folder-toggle" onclick="this.parentElement.classList.toggle('open')">{{ item.title }}</button>
             <div class="nav-folder-items">
               {% for subitem in item.items %}
