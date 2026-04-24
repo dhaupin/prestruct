@@ -20,38 +20,38 @@ Changes since v0.2.2:
 - Proxy cache key using SHA-256 hash
 
 ### Documentation
-- 21 guides covering all aspects
-- Header layout: flexbox ordering with wordmark → nav → actions
-- Submenu accordion: close previous before opening new
-- Peaceiris gh-pages bug warning added to AGENTS.md
-- Content style guide with briefs rule
-- CLI Reference, Contributing, Examples guides
-- Changelog, Roadmap, Redirects guides
-- Expanded guides by default
-- Mobile flyout menu fixes
-- PrismJS syntax highlighting with copy buttons
-- Remove duplicate h1 headings
-- Pagefind search integration with ⌘K shortcut
-- baseurl handling for search URLs
-- 15 prestruct-specific guides added
-- 4 more guides: Edge Functions, Design Systems, CI/CD, Multi-site
-- 3 more guides: Proxy, PWA, Images
-- 3 more guides: i18n, Analytics & Monitoring, Security
-- 4 more guides: Advanced Islands, Testing, Structured Data, Build Optimization
+- Docs: 21 guides covering all aspects
+- Docs: Header layout: flexbox ordering with wordmark → nav → actions
+- Docs: Submenu accordion: close previous before opening new
+- Docs: Peaceiris gh-pages bug warning added to AGENTS.md
+- Docs: Content style guide with briefs rule
+- Docs: CLI Reference, Contributing, Examples guides
+- Docs: Changelog, Roadmap, Redirects guides
+- Docs: Expanded guides by default
+- Docs: Mobile flyout menu fixes
+- Docs: PrismJS syntax highlighting with copy buttons
+- Docs: Remove duplicate h1 headings
+- Docs: Pagefind search integration with ⌘K shortcut
+- Docs: baseurl handling for search URLs
+- Docs: 15 prestruct-specific guides added
+- Docs: 4 more guides: Edge Functions, Design Systems, CI/CD, Multi-site
+- Docs: 3 more guides: Proxy, PWA, Images
+- Docs: 3 more guides: i18n, Analytics & Monitoring, Security
+- Docs: 4 more guides: Advanced Islands, Testing, Structured Data, Build Optimization
 
 ### Layout
-- Light mode with toggle switch
-- Dynamic nav from config
-- Mobile burger menu improvements
-- Theme toggle and breakpoint fixes
-- Mobile nav folder items default hidden
-- Backdrop-filter only on dark mode header
+- Docs: Light mode with toggle switch
+- Docs: Dynamic nav from config
+- Docs: Mobile burger menu improvements
+- Docs: Theme toggle and breakpoint fixes
+- Docs: Mobile nav folder items default hidden
+- Docs: Backdrop-filter only on dark mode header
 
 ### Infrastructure
-- GitHub Pages baseurl config
-- Jekyll layout fixes
-- 404 noindex handling
-- Artifact deploy instead of branch deploy (peaceiris bug)
+- Docs: GitHub Pages baseurl config
+- Docs: Jekyll layout fixes
+- Docs: 404 noindex handling
+- Docs: Artifact deploy instead of branch deploy (peaceiris bug)
 
 ## v0.2.2 (Stable)
 
