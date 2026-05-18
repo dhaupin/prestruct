@@ -19,6 +19,8 @@ Changes since v0.2.2:
 - Dynamic islands with client-only rendering
 - Proxy cache key using SHA-256 hash
 - Fix: 404 pages get noindex meta to prevent crawling
+- Fix: usePageMeta adds useLocation to deps for query param navigation
+- Fix: inject-brand title falls back to siteName, only injects description if truthy
 
 ### Docs: Guides
 - Docs: 25+ prestruct guides covering getting started to advanced
