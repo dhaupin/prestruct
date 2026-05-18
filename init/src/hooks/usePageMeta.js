@@ -43,9 +43,11 @@
  */
 
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 export default function usePageMeta({ title, description, path, siteUrl }) {
   const base = siteUrl || import.meta.env?.VITE_SITE_URL || ''
+  const location = useLocation()
 
   useEffect(() => {
     const canonical = `${base}${path === '/' ? '' : path}`
@@ -69,5 +71,5 @@ export default function usePageMeta({ title, description, path, siteUrl }) {
       set('meta[property="og:description"]',                    'content', description)
       set('meta[name="twitter:description"]',                   'content', description)
     }
-  }, [title, description, path, base])
+  }, [title, description, path, base, location])
 }
