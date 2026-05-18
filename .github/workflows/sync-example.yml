@@ -64,10 +64,10 @@ jobs:
           cp init/scripts/prerender.js       example/scripts/prerender.js
           cp init/src/hooks/usePageMeta.js   example/src/hooks/usePageMeta.js
           cp init/src/islands.js             example/src/islands.js
-          # Template files
+          # Template files (main.jsx and AppLayout.jsx are intentionally NOT synced --)
+          # the example site has its own customization needs.
           cp init/src/AppIslands.jsx         example/src/AppIslands.jsx
-          cp init/src/main.jsx               example/src/main.jsx
-          # Note: AppLayout.jsx is intentionally NOT synced -- the example site
+          # Note: AppLayout.jsx and main.jsx are intentionally NOT synced -- the example site
           # has its own routes, nav, and branding that differ from the blank template.
           echo "Synced from ${{ env.VERSION }}"
 
@@ -85,8 +85,7 @@ jobs:
                   example/scripts/prerender.js \
                   example/src/hooks/usePageMeta.js \
                   example/src/islands.js \
-                  example/src/AppIslands.jsx \
-                  example/src/main.jsx
+                  example/src/AppIslands.jsx
           git commit -m "chore: sync example to ${{ env.VERSION }}"
           git push origin HEAD:main
 
