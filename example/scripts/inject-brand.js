@@ -49,8 +49,8 @@ const toReplaceSafe = (value = '') => String(value).replace(/\$/g, '$$$$')
 
 // Homepage meta as the global description fallback
 const homeRoute   = routes.find(r => r.path === '/') || {}
-const title       = `${siteName} | ${tagline}`
-const description = homeRoute.meta?.description ?? ''
+const title       = tagline ? `${siteName} | ${tagline}` : siteName
+const description = homeRoute.meta?.description || null
 const canonical   = `${siteUrl}/`
 
 const titleSafe       = toReplaceSafe(title)
@@ -68,8 +68,10 @@ let html = readFileSync(htmlPath, 'utf8')
 html = html.replace(/<title>.*?<\/title>/s,
   `<title>${titleSafe}</title>`)
 
-html = html.replace(/<meta name="description"[^>]*>/,
-  `<meta name="description" content="${descriptionSafe}" />`)
+if (description) {
+  html = html.replace(/<meta name="description"[^>]*>/,
+    `<meta name="description" content="${descriptionSafe}" />`)
+}
 
 html = html.replace(/<meta name="author"[^>]*>/,
   `<meta name="author" content="${authorSafe}" />`)
