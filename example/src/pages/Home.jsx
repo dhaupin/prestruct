@@ -19,7 +19,7 @@ export default function Home() {
       {/* AI-first hero */}
       <section className="hero">
         <div className="container">
-          <p className="hero-kicker fade-up">AI-first / MIT</p>
+          
           <h1 className="hero-heading fade-up delay-1">
             Your React app<br />
             <em>visible to search engines.</em>
