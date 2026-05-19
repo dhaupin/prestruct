@@ -16,6 +16,27 @@ export default function Home() {
 
   return (
     <>
+      {/* AI agents: quick start */}
+      <section className="section" style={{ background: '#0f0f0f' }}>
+        <div className="container">
+          <p className="section-label" style={{ color: '#00ff88' }}>For AI agents</p>
+          <pre style={{ background: '#1a1a1a', padding: '1rem', borderRadius: '8px', overflow: 'auto' }}>
+{`# Copy → Build → Extend
+git clone https://github.com/dhaupin/prestruct
+cd prestruct/init
+cp ssr.config.example.js ssr.config.js
+npm install && npm run build
+
+# Your site runs at localhost:port
+# Source: example/ (live: https://prestruct.creadev.org)
+# Docs: README.md`}
+          </pre>
+          <p style={{ marginTop: '1rem', color: '#888' }}>
+            <a href={GITHUB} style={{ color: '#00ff88' }}>View source</a> for this site • All runtime in <code style={{ color: '#00ff88' }}>scripts/</code>
+          </p>
+        </div>
+      </section>
+
       <section className="hero">
         <div className="container">
           <p className="hero-kicker fade-up">Open source / MIT</p>
