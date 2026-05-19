@@ -9,6 +9,7 @@ import Home     from './pages/Home.jsx'
 import About    from './pages/About.jsx'
 import Deploy      from './pages/Deploy.jsx'
 import Islands  from './pages/Islands.jsx'
+import Proxy    from './pages/Proxy.jsx'
 import Terms    from './pages/Terms.jsx'
 import Privacy  from './pages/Privacy.jsx'
 import Contact  from './pages/Contact.jsx'
@@ -104,6 +105,7 @@ export default function AppLayout() {
           <NavLink to="/about"     className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>about</NavLink>
           <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>deploy</NavLink>
           <NavLink to="/islands"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>islands</NavLink>
+          <NavLink to="/proxy" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>proxy</NavLink>
           <NavLink to="/contact"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>contact</NavLink>
           <a href={GITHUB} className="nav-github" target="_blank" rel="noopener noreferrer">
               <GitHubIcon size={13} />
@@ -118,6 +120,7 @@ export default function AppLayout() {
           <Route path="/about"   element={<About />} />
           <Route path="/deploy"  element={<Deploy />} />
           <Route path="/islands" element={<Islands />} />
+          <Route path="/proxy" element={<Proxy />} />
           <Route path="/terms"   element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<Contact />} />
@@ -135,6 +138,7 @@ export default function AppLayout() {
             <NavLink to="/about"     className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>about</NavLink>
             <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>deploy</NavLink>
             <NavLink to="/islands"   className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>islands</NavLink>
+          <NavLink to="/proxy" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>proxy</NavLink>
           </nav>
         </div>
         <div className="footer-col">

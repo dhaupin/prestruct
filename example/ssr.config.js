@@ -45,6 +45,15 @@ export default {
       },
     },
     {
+      path:       '/proxy',
+      priority:   '0.8',
+      changefreq: 'daily',
+      meta: {
+        title:       'Bot proxy | Prestruct',
+        description: 'Serve fresh content to bots without edge SSR. Prestruct proxy renders dynamic pages to static HTML for search crawlers.',
+      },
+    },
+    {
       path:       '/terms',
       priority:   '0.5',
       changefreq: 'yearly',
