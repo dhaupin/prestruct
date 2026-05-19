@@ -584,3 +584,59 @@ Submenu accordion behavior:
 - Add keyboard navigation (arrow keys + Enter) to search results
 - Consider highlighting matched terms in results
 - May need to update AGENTS.md if Pagefind API changes
+
+---
+
+## CMS Routes: fetchRoutes() hook
+
+**Pattern:**
+
+```js
+// ssr.config.js
+export default {
+  siteUrl: 'https://example.com',
+  async fetchRoutes() {
+    // Called at build time only
+    // Runs AFTER static routes are loaded
+    // Returns array of route objects
+    
+    const posts = await fetch('https://cms.example.com/api/routes')
+      .then(r => r.json())
+    
+    return posts.map(post => ({
+      path: `/blog/${post.slug}`,
+      priority: '0.6',
+      meta: {
+        title: post.title,
+        description: post.excerpt,
+      },
+    }))
+  },
+}
+```
+
+**How it works:**
+
+1. prerender.js loads ssr.config.js
+2. Checks if `config.fetchRoutes` exists
+3. If defined, calls `await config.fetchRoutes()`
+4. Merges returned routes with static routes
+5. Deduplicates by path (static takes precedence)
+
+**Why this pattern:**
+
+- No extra files or plugins required
+- Config is the hook - clean UI
+- User owns CMS logic (headless-agnostic)
+- Runs at build time only, no runtime overhead
+- Works with any data source (CMS, API, file, database)
+
+**Route merge example:**
+
+```js
+const allRoutes = [...staticRoutes, ...fetchedRoutes]
+const byPath = new Map(allRoutes.map(r => [r.path, r]))
+const routes = [...byPath.values()]
+```
+
+**AI agent tip:** Use fetchRoutes() to pull dynamic routes from headless CMS (Sanity, Contentful, Strapi, etc.) at build time. Renders to static HTML - no runtime CMS calls needed.

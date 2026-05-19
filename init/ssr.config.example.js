@@ -66,6 +66,24 @@ export default {
     // },
   ],
 
+  // === Dynamic Routes (CMS) ===
+  // Optional async hook for routes from a headless CMS.
+  // Runs at build time only - no runtime overhead.
+  // fetchRoutes() merges with static routes above.
+  // Static routes take precedence on duplicates.
+  // async fetchRoutes() {
+  //   const posts = await fetch('https://your-cms.com/api/routes')
+  //     .then(r => r.json())
+  //   return posts.map(post => ({
+  //     path: `/blog/${post.slug}`,
+  //     priority: '0.6',
+  //     meta: {
+  //       title: post.title,
+  //       description: post.excerpt,
+  //     },
+  //   }))
+  // },
+
   // === JSON-LD Structured Data ===
   // Optional function returning schema.org structured data.
   // Return a single object or array of objects.
