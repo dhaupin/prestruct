@@ -25,19 +25,16 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: cd init && npm install
 
       - name: Run unit tests
-        run: npm run test:run
+        run: cd init && npm run test:run
 
       - name: Lint
-        run: npm run lint || echo "Lint errors detected"
+        run: cd init && npm run lint
 
       - name: Build
-        run: npm run build
-
-      - name: Prerender
-        run: npm run prerender || echo "Prerender skipped (no routes configured)"
+        run: cd init && npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
