@@ -1,2 +1,5 @@
 # Environment config - copy ssr.config.example.js to this file
 ssr.config.js
+
+# Prestruct cache (generated at build time)
+.prestruct/cache/

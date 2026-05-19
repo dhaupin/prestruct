@@ -1,5 +1,5 @@
-node_modules/
-dist/
-.env
-.env.local
-.DS_Store
+# Environment config - copy ssr.config.example.js to this file
+ssr.config.js
+
+# Prestruct cache (generated at build time)
+.prestruct/cache/
