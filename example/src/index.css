@@ -1288,3 +1288,10 @@ pre code {
 .trail-note code {
   font-size: 0.75rem;
 }
+
+/* Accordion DSL */
+.accordion { max-width: 800px; margin-top: 2rem }
+.accordion-item { margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem }
+.accordion-q { cursor: pointer; font-weight: 600 }
+.accordion-a { margin-top: 0.5rem; color: var(--text-2) }
+.accordion-a code { font-size: 0.85em; background: var(--bg-2); border: 1px solid var(--border-2); border-radius: var(--radius); padding: 0.15em 0.45em }
