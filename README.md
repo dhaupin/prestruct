@@ -1,400 +1,138 @@
 # Prestruct
 
-A lightweight build-time prerender layer for **Vite + React + Cloudflare Pages** apps.
-
-No framework lock-in. No new build tool. Drop in the release files, wire up a config,
-and your SPA gets fully-rendered static HTML per route, with correct SEO, correct head
-tags, and correct HTTP status codes. Already working and debugged against real CF Pages
-deployments.
-
-This is **build-time prerender**, not edge SSR. Every route is rendered once at deploy
-time and served as a static HTML file. CF Pages handles the rest.
-
-Live: https://prestruct.creadev.org
-
-Docs: https://docs.creadev.org/prestruct
+**AI-first SEO prerender for Vite + React apps.** Drop in, config, build.
 
 ---
 
-## What it does
+## Quick Start
 
-- Prerenders all routes to static HTML at build time using Vite's `ssrLoadModule`
-- Injects per-route `<title>`, `<meta>`, Open Graph, Twitter Card, and canonical tags
-- Generates `sitemap.xml` automatically from your routes config with today's date
-- Generates a `404.html` that CF Pages serves with a real HTTP 404 status
-- Ships a `usePageMeta` hook that keeps head tags in sync on client-side navigation
-- Uses `hydrateRoot` (not `createRoot`) so SSR HTML is reused, no FOUC
-- Supports dynamic islands via `<pre-island>` for client-only content that bypasses the static cache
+```bash
+# Copy the init template
+cp -r init/* your-project/
 
----
-
-## Stack requirements
-
-- Vite 5+
-- React 18+
-- React Router v6 (`BrowserRouter` / `StaticRouter`)
-- Cloudflare Pages
-- Node 18+ (for ESM `import()` in scripts)
-
----
-
-## How it works
-
-```
-npm run build
-  └── vite build                   # produces dist/ with hashed JS/CSS bundles
-  └── node scripts/inject-brand    # injects brand meta into dist/index.html
-  └── node scripts/prerender       # renders each route to dist/route/index.html
+# Customize config
+cp init/ssr.config.example.js ssr.config.js
 ```
 
-The prerender script spins up a Vite dev server, calls `ssrLoadModule` to load your
-`AppLayout` component, wraps it in `StaticRouter` with the target path, renders to
-string, injects route-specific meta, and writes the HTML file.
-
----
-
-## File map
-
-```
-init/                       Release source of truth. Tagged and zipped by CI.
-  scripts/
-    inject-brand.js         Engine: injects global SEO meta into dist/index.html
-    prerender.js            Engine: renders each route to static HTML
-  src/
-    App.jsx                 Template: BrowserRouter wrapper, client entry point
-    AppIslands.jsx          Template: island registry, map names to components
-    AppLayout.jsx           Template: routes + layout, NO BrowserRouter (critical)
-    main.jsx                Template: client entry, hydrateRoot + mountIslands
-    islands.js              Engine: mounts island components into <pre-island> elements
-    hooks/
-      usePageMeta.js        Hook: keeps head tags in sync on client-side navigation
-  public/
-    _headers                Starter security headers and CDN cache rules
-    _redirects              CF Pages redirect rules, SPA fallback intentionally omitted
-  ssr.config.js             Starter config: site identity, routes, JSON-LD
-  index.html                Shell template. Meta injected at build time, not hardcoded
-  package.json              Example build script showing the three-step chain
-  VERSION                   Current release version
-
-example/                    Working starting point and live integration reference.
-  scripts/                  Auto-synced from init/. CI fails if engine files drift.
-  src/hooks/usePageMeta.js  Auto-synced from init/. CI fails if engine files drift.
-  ...                       Site-specific UI. Use it as a reference, not a dependency.
-```
-
-Files marked **Engine** stay identical across apps. Copy them and never edit. CI enforces this by failing when designated `init/` and `example/` engine files differ.
-Files marked **Template** need minor app-specific wiring (see Integration below).
-
----
-
-## Integration into a new app
-
-### 1. Download the release
-
-Grab the latest zip from [GitHub Releases](https://github.com/dhaupin/prestruct/releases).
-It contains a complete starting point: engine scripts, template files, config, shell HTML,
-and CF Pages headers/redirects. Copy the contents into your project root and adjust from there.
-
-The `example/` folder in the repo is a working integration you can reference at any point.
-
-### 2. Create `ssr.config.js` in your project root
-
+Edit `ssr.config.js`:
 ```js
 export default {
-  siteUrl:       'https://yoursite.com',   // no trailing slash
-  siteName:      'Your Site',
-  author:        'Your Org',
-  tagline:       'Your tagline.',
-  ogImage:       'https://yoursite.com/og-image.jpg',
-  keywords:      'keyword one, keyword two',
-  appLayoutPath: '/src/AppLayout.jsx',
+  siteUrl: 'https://yoursite.com',
+  siteName: 'Your Site',
+  routes: [
+    { path: '/', priority: '1.0', meta: { title: 'Home' } },
+    { path: '/about', priority: '0.8', meta: { title: 'About' } },
+  ],
+}
+```
 
+Run `npm run build`. That's it.
+
+---
+
+## Config API
+
+```js
+// ssr.config.js - full reference
+export default {
+  // === Required ===
+  siteUrl: 'https://example.com',
   routes: [
     {
-      path:       '/',
-      priority:   '1.0',
-      changefreq: 'weekly',
-      meta: {
-        title:       'Your Site | Your tagline.',
-        description: 'Homepage description.',
-      },
-    },
-    {
-      path:       '/about',
-      priority:   '0.9',
-      changefreq: 'monthly',
-      meta: {
-        title:       'About | Your Site',
-        description: 'About page description.',
+      path: '/',           // required - must start with /
+      priority: '1.0',    // sitemap priority
+      changefreq: 'monthly', // daily|weekly|monthly|yearly
+      meta: {                      // SEO meta tags
+        title: 'Page Title',
+        description: 'Page description',
+        ogImage: 'https://...',
       },
     },
   ],
 
+  // === Optional ===
+  platform: 'cloudflare',   // cloudflare|vercel|netlify (default: cloudflare)
+  siteName: 'Site Name',
+  author: 'Author Name',
+  tagline: 'Short tagline',
+  ogImage: 'https://example.com/og.png',
+  keywords: 'key, words',
+
+  appLayoutPath: '/src/AppLayout.jsx',  // your component (no BrowserRouter)
+
+  // Dynamic routes from CMS
+  async fetchRoutes() {
+    const posts = await fetch('https://cms.io/api/routes').then(r => r.json())
+    return posts.map(p => ({
+      path: `/blog/${p.slug}`,
+      priority: '0.6',
+      meta: { title: p.title, description: p.excerpt },
+    }))
+  },
+
+  // JSON-LD structured data
   buildJsonLd() {
-    return [
-      {
-        '@context': 'https://schema.org',
-        '@type':    'Organization',
-        name:       'Your Org',
-        url:        'https://yoursite.com',
-      },
-    ]
+    return { '@type': 'WebSite', name: this.siteName }
+  },
+
+  // 404 page
+  notFound: {
+    heading: 'Page not found',
+    body: 'That page does not exist.',
+    primaryCta: { label: 'Go home', href: '/' },
   },
 }
 ```
 
-### 3. Create `AppLayout.jsx` (critical, read this)
-
-**AppLayout must not import BrowserRouter.** This is the single most important rule.
-If BrowserRouter is anywhere in its module graph, every route prerendering as `/`.
-See AGENTS.md for the full explanation.
-
-```jsx
-// AppLayout.jsx -- NO BrowserRouter here, ever
-import { Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
-import Nav from './components/Nav'
-import Footer from './components/Footer'
-import Home from './pages/Home'
-import About from './pages/About'
-
-function ScrollToTop() {
-  const { pathname } = useLocation()
-  useEffect(() => {
-    if (typeof window !== 'undefined') window.scrollTo(0, 0)
-  }, [pathname])
-  return null
-}
-
-export default function AppLayout() {
-  return (
-    <>
-      <ScrollToTop />
-      <Nav />
-      <main>
-        <Routes>
-          <Route path="/"      element={<Home />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </main>
-      <Footer />
-    </>
-  )
-}
-```
-
-Your `App.jsx` wraps it in BrowserRouter for the client:
-
-```jsx
-import { BrowserRouter } from 'react-router-dom'
-import AppLayout from './AppLayout'
-
-export default function App() {
-  return <BrowserRouter><AppLayout /></BrowserRouter>
-}
-```
-
-### 4. Use `usePageMeta` in each page
-
-```jsx
-import usePageMeta from '../hooks/usePageMeta.js'
-
-export default function About() {
-  usePageMeta({
-    siteUrl:     'https://yoursite.com',
-    path:        '/about',
-    title:       'About | Your Site',
-    description: 'About page description.',
-  })
-  // ...
-}
-```
-
-Tip: wrap it in your own thin hook to avoid repeating `siteUrl`:
-
-```js
-// src/hooks/useMeta.js
-import usePageMeta from './usePageMeta.js'
-const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://yoursite.com'
-export default (args) => usePageMeta({ siteUrl: SITE_URL, ...args })
-```
-
-### 5. Update `main.jsx`
-
-The release includes `src/main.jsx`. It handles the hydrate vs create-root decision:
-`hydrateRoot` when SSR content is present (`createRoot` otherwise). Without the
-`hydrateRoot` path you get FOUC on every page load.
-
-Island mounting is handled in `AppLayout`, not in `main.jsx`. `AppLayout` rescans
-for `<pre-island>` nodes on initial render and on route changes, so islands mount
-correctly for both hard loads and SPA navigation.
-
-### 6. Update `package.json`
-
-```json
-{
-  "scripts": {
-    "build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js"
-  }
-}
-```
-
-### 7. Update `index.html` and `public/` files
-
-`index.html`: leave the meta tags as placeholder stubs. `inject-brand.js` writes the
-real values at build time from `ssr.config.js`.
-
-`public/_headers`: update the CSP `connect-src` to include your own domain and any
-third-party fetch targets your app uses.
-
-`public/_redirects`: the SPA fallback (`/* /index.html 200`) is intentionally absent.
-Including it causes an infinite redirect loop on CF Pages once you are prerendering.
-
 ---
 
-## SSR safety rules
-
-These apply to components in AppLayout's module graph (anything AppLayout imports):
-
-**No `window`/`document`/`localStorage` at render time.** These don't exist in Node.
-Access them only inside `useEffect`, or guard with `typeof window !== 'undefined'`.
-
-```js
-// Wrong -- runs during SSR renderToString, throws in Node
-const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark')
-
-// Correct -- typeof window guard
-const [theme, setTheme] = useState(() => {
-  if (typeof window === 'undefined') return 'dark'
-  return localStorage.getItem('theme') || 'dark'
-})
-```
-
-**No inline `<style>` tags in JSX.** React 18 handles them differently between SSR
-and client, causing hydration mismatches. Use external `.css` files or `style={{}}` props.
-
-**No apostrophes in single-quoted JS strings.** In string literals passed as JS values
-(e.g. in `usePageMeta` calls), apostrophes inside single-quoted strings break the parser.
-Use double quotes for any string containing a contraction.
-
-```js
-// Wrong
-usePageMeta({ description: 'We're based in PA.' })
-
-// Correct
-usePageMeta({ description: "We're based in PA." })
-```
-
----
-
-## Dynamic islands
-
-Islands let you punch holes through the prerendered HTML for client-only content.
-The static HTML ships clean -- no user-specific data, no crawler exposure. After the
-app hydrates, `mountIslands()` fills each placeholder with a React component.
-
-Good candidates: cart widgets, recently viewed products, logged-in user state,
-personalization banners, live inventory counts, anything that varies per visitor.
-
-Bad candidates: content you want indexed, anything that needs to be in the sitemap,
-above-the-fold content where FOUC would be noticeable without a fallback.
-
-### Declare an island in JSX
-
-```jsx
-// eager (default) -- mounts immediately after hydration
-<pre-island data-pre-island="recently-viewed" />
-
-// visible -- mounts when scrolled into the viewport
-<pre-island data-pre-island="cart-widget" data-pre-load="visible">
-  <span className="island-loading">Loading cart...</span>
-</pre-island>
-
-// idle -- mounts during browser idle time
-<pre-island data-pre-island="promo-banner" data-pre-load="idle" />
-```
-
-Fallback content inside `<pre-island>` renders in the static HTML and is visible to
-crawlers. It is replaced when the island mounts.
-
-### Register the component
-
-In `src/AppIslands.jsx`:
-
-```js
-import RecentlyViewed from './islands/RecentlyViewed.jsx'
-import CartWidget     from './islands/CartWidget.jsx'
-
-export const islands = {
-  'recently-viewed': RecentlyViewed,
-  'cart-widget':     CartWidget,
-}
-```
-
-Island components receive no props. Read data from `localStorage`, `fetch`, or a
-global store inside the component.
-
-### Load strategies
-
-| `data-pre-load` | When it mounts |
-|-----------------|----------------|
-| `eager` (default) | Immediately after `mountIslands()` runs |
-| `visible` | When the element enters the viewport (`IntersectionObserver`) |
-| `idle` | During browser idle time (`requestIdleCallback`) |
-
----
-
-## Known gotchas
-
-**BrowserRouter isolation.** If AppLayout imports BrowserRouter anywhere in its module
-tree, every route prerenders as `/`. See AGENTS.md for the full root cause analysis.
-
-**`react-router-dom/server.js`.** Node's ESM resolver on CF Pages requires the explicit
-`.js` extension. Use `from 'react-router-dom/server.js'` not `from 'react-router-dom/server'`.
-
-**CF Pages trailing slash.** Do not add redirect rules to strip trailing slashes -- they
-create infinite redirect loops with CF Pages' Pretty URLs feature. React Router v6
-matches both `/about` and `/about/` natively. Leave it alone.
-
-**`$` in meta descriptions.** `String.replace()` treats `$1`, `$2` in replacement strings
-as regex backreferences. Descriptions containing prices like `$120` corrupt injected meta.
-The prerender script escapes these automatically with `.replace(/\$/g, '$$$$')`.
-
-**404 page hydration.** `404.html` uses `id="root-404"` and has its React bundle script
-tag stripped. If it used `id="root"`, `main.jsx` would try to hydrate it, `<Routes>`
-would find no match, and the page would be blank. See AGENTS.md.
-
----
-
-## What this is not
-
-- A full SSR framework (no server, no streaming, no edge runtime)
-- A competitor to Remix, Astro, or TanStack Start
-- Suitable for apps needing per-request SSR (this is build-time only)
-- CMS-aware out of the box (routes are defined statically in config)
-
-The value is that the entire prerender pipeline is ~200 lines of readable Node. You can
-read prerender.js in 10 minutes and know exactly what it does. When something breaks,
-you can fix it. That's the point.
-
----
-
-## Repository QC tests
-
-This repo includes lightweight unit-style checks in `/test` for CI and local validation:
-
-- init/example engine sync guardrails
-- explicit `react-router-dom/server.js` extension enforcement
-- release workflow archive packaging rules (init-only contents)
-
-Run them from repo root:
+## CLI
 
 ```bash
-node --test test/qc.test.mjs
+npm run build           # vite build + prerender
+npm run build --force  # rebuild all (skip cache)
 ```
+
+Incremental: `.prestruct/cache/routes.json` stores rendered HTML. Skip unchanged routes on rebuild.
 
 ---
 
-## License
+## Scripts (for extension)
 
-This software is open source software under the MIT License. Use freely and adapt with credit attributed to https://github.com/dhaupin/prestruct and https://prestruct.creadev.org. Thanks all!
+- `scripts/inject-brand.js` - writes meta tags, platform config (_headers, vercel.json, etc.)
+- `scripts/prerender.js` - renders routes to static HTML
+- `scripts/islands.js` - mounts client-only islands
+
+AI agents: extend via config hooks or import scripts.
+
+---
+
+## Architecture
+
+```
+vite build → inject-brand.js → prerender.js → dist/
+                    ↓
+            ssr.config.js (your config)
+                    ↓
+            .prestruct/cache/ (incremental build)
+```
+
+- Build runs once at deploy time
+- Static HTML served directly (no runtime SSR)
+- CF Pages handles routing
+
+**Read first:** `AGENTS.md` - engineering history, gotchas, decisions.
+
+---
+
+## Stack
+
+- Vite 5+
+- React 18+
+- React Router v6
+- Cloudflare Pages (default)
+- Node 18+
+
+---
+
+_No deps added. No bloat. Config is the API._
