@@ -26,7 +26,11 @@ export default function Home() {
           </h1>
 
           <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
-            <pre className="cb-pre">
+            <div className="cb">
+              <div className="cb-bar">
+                <span className="cb-label">sh</span>
+              </div>
+              <pre className="cb-pre">
 {`# Quick start (AI agents)
 git clone https://github.com/dhaupin/prestruct
 cp init/ssr.config.example.js ssr.config.js
@@ -35,7 +39,8 @@ npm run build
 # Config: ssr.config.js
 # Source: example/ (live)
 # Docs: README.md`}
-            </pre>
+              </pre>
+            </div>
           </div>
 
           <p className="hero-sub fade-up delay-3">
