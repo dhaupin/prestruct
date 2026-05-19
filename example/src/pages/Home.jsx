@@ -17,25 +17,16 @@ export default function Home() {
   return (
     <>
       {/* AI-first hero */}
-      <section className="hero" style={{ background: 'var(--bg-2)', borderBottom: '1px solid var(--text-3)' }}>
+      <section className="hero">
         <div className="container">
-          <p className="hero-kicker fade-up" style={{ color: 'var(--accent)', fontFamily: 'monospace' }}>AI-first / MIT</p>
+          <p className="hero-kicker fade-up">AI-first / MIT</p>
           <h1 className="hero-heading fade-up delay-1">
             Your React app<br />
-            <em style={{ color: 'var(--text)' }}>visible to search engines.</em>
+            <em>visible to search engines.</em>
           </h1>
-          
-          {/* AI copy block */}
+
           <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
-            <pre style={{ 
-              background: 'var(--bg-2)', 
-              border: '1px solid var(--text-3)',
-              padding: '1.5rem', 
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              overflow: 'auto',
-              maxWidth: '600px'
-            }}>
+            <pre className="cb-pre">
 {`# Quick start (AI agents)
 git clone https://github.com/dhaupin/prestruct
 cp init/ssr.config.example.js ssr.config.js
@@ -47,9 +38,9 @@ npm run build
             </pre>
           </div>
 
-          <p className="hero-sub fade-up delay-3" style={{ maxWidth: '600px', marginTop: '1.5rem' }}>
-            Search engines crawl HTML. React apps serve empty shells. Prestruct renders each route to 
-            static HTML at build time — correct SEO, Open Graph, schema.org, cache headers. 
+          <p className="hero-sub fade-up delay-3">
+            Search engines crawl HTML. React apps serve empty shells. Prestruct renders each route to
+            static HTML at build time — correct SEO, Open Graph, schema.org, cache headers.
             No edge runtime. Just a smarter build step.
           </p>
 
@@ -134,12 +125,12 @@ npm run build
       </section>
 
       {/* AI-first FAQ */}
-      <section className="section" style={{ background: 'var(--bg-2)' }}>
+      <section className="section" style={{ background: 'var(--bg-1)' }}>
         <div className="container">
-          <p className="section-label" style={{ color: 'var(--accent)' }}>FAQ (AI-first)</p>
+          <p className="section-label">FAQ (AI-first)</p>
           <div style={{ maxWidth: '800px', marginTop: '2rem' }}>
             <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600' }}>
                 How do I add this to my existing Vite + React app?
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
@@ -148,7 +139,7 @@ npm run build
               </p>
             </details>
             <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600' }}>
                 Does it work with any hosting?
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
@@ -157,7 +148,7 @@ npm run build
               </p>
             </details>
             <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600' }}>
                 How do I add a new route?
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
@@ -166,7 +157,7 @@ npm run build
               </p>
             </details>
             <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600' }}>
                 What about dynamic content (cart, user state)?
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
@@ -175,7 +166,7 @@ npm run build
               </p>
             </details>
             <details>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600' }}>
                 Why not use edge SSR instead?
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
@@ -187,7 +178,7 @@ npm run build
         </div>
       </section>
 
-      {/* Human: Verify yourself */}
+      {/* Verify */}
       <section className="section">
         <div className="container">
           <p className="section-label">Verify it works</p>
@@ -198,7 +189,7 @@ npm run build
         </div>
       </section>
 
-      {/* Human: Islands */}
+      {/* Islands */}
       <section className="section">
         <div className="container">
           <p className="section-label">Dynamic islands</p>
@@ -229,7 +220,7 @@ npm run build
         </div>
       </section>
 
-      {/* Site proof */}
+      {/* Proof */}
       <section className="section">
         <div className="container">
           <p className="section-label">This site is the proof</p>
