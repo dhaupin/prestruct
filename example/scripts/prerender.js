@@ -51,6 +51,44 @@ if (!ROUTES.length) {
   process.exit(0)
 }
 
+// ── Incremental: load cache ────────────────────────────────────────────
+
+const args = process.argv.slice(2)
+const FORCE = args.includes('--force')
+const CLEAN = args.includes('--clean')
+
+const CACHE_FILE = path.join(ROOT, '.prestruct/cache/routes.json')
+
+function readCache() {
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'))
+    }
+  } catch {}
+  return {}
+}
+
+function writeCache(cache) {
+  const dir = path.join(ROOT, '.prestruct/cache')
+  fs.mkdirSync(dir, { recursive: true })
+  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2))
+}
+
+function cleanCache() {
+  fs.writeFileSync(CACHE_FILE, '{}')
+  console.log('[prerender] Cache cleared')
+}
+
+// --clean flag
+if (CLEAN) {
+  cleanCache()
+  process.exit(0)
+}
+
+const cache = readCache()
+const cached = Object.keys(cache).length
+console.log(`[prerender] Cache: ${cached} routes cached${FORCE ? ' (forcing rebuild)' : ''}`)
+
 // ── Meta injection ────────────────────────────────────────────────────────────
 
 function injectMeta(html, meta, routePath) {
@@ -184,6 +222,24 @@ async function prerender() {
     let succeeded   = 0
 
     for (const route of ROUTES) {
+      // Incremental: skip if cached and not --force
+      if (!FORCE && cache[route.path]) {
+        const cachedHtml = cache[route.path].html
+        
+        if (route.path === '/') {
+          fs.writeFileSync(path.join(DIST, 'index.html'), cachedHtml, 'utf-8')
+        } else {
+          const dir = path.join(DIST, route.path.slice(1))
+          fs.mkdirSync(dir, { recursive: true })
+          fs.writeFileSync(path.join(dir, 'index.html'), cachedHtml, 'utf-8')
+        }
+        
+        console.log(`[prerender] ◯ ${route.path} (cached)`)
+        succeeded++
+        continue
+      }
+      
+      // Render fresh
       try {
         const appHtml = renderToString(
           React.createElement(
@@ -200,6 +256,9 @@ async function prerender() {
 
         html = injectMeta(html, route.meta || {}, route.path)
 
+        // Save to cache
+        cache[route.path] = { html, time: Date.now() }
+
         if (route.path === '/') {
           fs.writeFileSync(path.join(DIST, 'index.html'), html, 'utf-8')
         } else {
@@ -214,6 +273,9 @@ async function prerender() {
         console.error(`[prerender] ✗ ${route.path}: ${err.message}`)
       }
     }
+
+    // Save cache
+    writeCache(cache)
 
     // 404.html -- CF Pages serves this for all unmatched routes with HTTP 404
     fs.writeFileSync(path.join(DIST, '404.html'), generate404(shell), 'utf-8')
