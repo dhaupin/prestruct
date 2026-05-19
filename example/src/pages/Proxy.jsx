@@ -18,11 +18,10 @@ export default function Proxy() {
     <>
       <section className="page-hero">
         <div className="container">
-          <p className="page-kicker fade-up">Proxy</p>
-          <h1 className="page-heading fade-up delay-1">Bot proxy for dynamic routes.</h1>
-          <p className="page-sub fade-up delay-2">
-            Prerender covers static routes. But dynamic content - paginated, searched, user-generated - needs
-            on-request rendering. The proxy handles bots, serves static to humans.
+          <h1 className="page-heading fade-up">Bot proxy for dynamic routes.</h1>
+          <p className="page-sub fade-up delay-1">
+            Serve fresh content to search bots without edge SSR.
+            Prerender covers static routes. The proxy renders dynamic pages on request.
           </p>
         </div>
       </section>

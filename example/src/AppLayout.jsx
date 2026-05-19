@@ -138,15 +138,15 @@ export default function AppLayout() {
             <NavLink to="/about"     className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>about</NavLink>
             <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>deploy</NavLink>
             <NavLink to="/islands"   className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>islands</NavLink>
-          <NavLink to="/proxy" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>proxy</NavLink>
+            <NavLink to="/proxy"    className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>proxy</NavLink>
           </nav>
         </div>
         <div className="footer-col">
+          <a href={GITHUB} className="footer-cta" target="_blank" rel="noopener noreferrer">
+            <GitHubIcon size={14} />
+            <span>star on github</span>
+          </a>
           <nav className="footer-nav">
-            <a href={GITHUB} className="footer-link" target="_blank" rel="noopener noreferrer">
-              <GitHubIcon size={13} />
-              <span>github</span>
-            </a>
             <NavLink to="/contact"   className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>contact</NavLink>
             <NavLink to="/privacy"   className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>privacy</NavLink>
             <NavLink to="/terms"     className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>terms</NavLink>
