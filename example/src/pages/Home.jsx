@@ -16,38 +16,43 @@ export default function Home() {
 
   return (
     <>
-      {/* AI agents: quick start */}
-      <section className="section" style={{ background: '#0f0f0f' }}>
+      {/* AI-first hero */}
+      <section className="hero" style={{ background: '#0a0a0a', borderBottom: '1px solid #222' }}>
         <div className="container">
-          <p className="section-label" style={{ color: '#00ff88' }}>For AI agents</p>
-          <pre style={{ background: '#1a1a1a', padding: '1rem', borderRadius: '8px', overflow: 'auto' }}>
-{`# Copy → Build → Extend
-git clone https://github.com/dhaupin/prestruct
-cd prestruct/init
-cp ssr.config.example.js ssr.config.js
-npm install && npm run build
-
-# Your site runs at localhost:port
-# Source: example/ (live: https://prestruct.creadev.org)
-# Docs: README.md`}
-          </pre>
-          <p style={{ marginTop: '1rem', color: '#888' }}>
-            <a href={GITHUB} style={{ color: '#00ff88' }}>View source</a> for this site • All runtime in <code style={{ color: '#00ff88' }}>scripts/</code>
-          </p>
-        </div>
-      </section>
-
-      <section className="hero">
-        <div className="container">
-          <p className="hero-kicker fade-up">Open source / MIT</p>
+          <p className="hero-kicker fade-up" style={{ color: '#00ff88', fontFamily: 'monospace' }}>AI-first / MIT</p>
           <h1 className="hero-heading fade-up delay-1">
-            Your React app,<br />
-            <em>visible to search engines.</em>
+            Your React app<br />
+            <em style={{ color: '#fff' }}>visible to search engines.</em>
           </h1>
-          <p className="hero-sub fade-up delay-2">
-            Search engines crawl HTML. React apps serve an empty shell. Prestruct fixes that:
-            rendering each route to static HTML at build time with correct SEO meta tags, Open Graph, schema.org, and caching headers. No framework migration, no edge runtime, just a smarter build step.
+          
+          {/* AI copy block */}
+          <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
+            <pre style={{ 
+              background: '#111', 
+              border: '1px solid #333',
+              padding: '1.5rem', 
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              overflow: 'auto',
+              maxWidth: '600px'
+            }}>
+{`# Quick start (AI agents)
+git clone https://github.com/dhaupin/prestruct
+cp init/ssr.config.example.js ssr.config.js
+npm run build
+
+# Config: ssr.config.js
+# Source: example/ (live)
+# Docs: README.md`}
+            </pre>
+          </div>
+
+          <p className="hero-sub fade-up delay-3" style={{ maxWidth: '600px', marginTop: '1.5rem' }}>
+            Search engines crawl HTML. React apps serve empty shells. Prestruct renders each route to 
+            static HTML at build time — correct SEO, Open Graph, schema.org, cache headers. 
+            No edge runtime. Just a smarter build step.
           </p>
+
           <div className="hero-actions fade-up delay-3">
             <Link to="/deploy" className="btn btn-primary">Get started</Link>
             <a href={GITHUB} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
@@ -56,114 +61,166 @@ npm install && npm run build
           </div>
 
           <div className="pipeline fade-up delay-4">
-            <p className="pipeline-label">Build pipeline</p>
             <div className="pipeline-steps">
               <div className="pipeline-step">
                 <p className="step-cmd">vite build</p>
-                <p className="step-desc">Hashed JS + CSS bundles to dist/</p>
-              </div>
-              <div className="pipeline-step">
-                <p className="step-cmd">inject-brand.js</p>
-                <p className="step-desc">Global SEO meta into index.html</p>
               </div>
               <div className="pipeline-step">
                 <p className="step-cmd">prerender.js</p>
-                <p className="step-desc">Each route rendered to static HTML</p>
               </div>
               <div className="pipeline-step">
-                <p className="step-cmd">CF Pages deploy</p>
-                <p className="step-desc">Globally cached, correct HTTP status</p>
+                <p className="step-cmd">deploy</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* AI-first features */}
       <section className="section">
         <div className="container">
-          <p className="section-label">What you gain</p>
-          <p className="u-section-intro">
-            The Prestruct engine is a purpose built tool, that delivers SEO server side rendering (for crawlers), while being completely serverless on Cloudflare Pages.
-          </p>
+          <p className="section-label">Features for AI agents</p>
           <div className="benefit-grid">
             <div className="benefit">
-              <p className="benefit-num">rank</p>
-              <h3 className="benefit-title">Crawlable content</h3>
-              <p className="benefit-desc">Every route serves full HTML to bots. No JavaScript execution required. Googlebot, Bingbot, and social crawlers see exactly what a user sees. Your words are in the code that bots see.</p>
+              <p className="benefit-num">01</p>
+              <h3 className="benefit-title">Config-first</h3>
+              <p className="benefit-desc">
+                All SEO, routes, and meta in <code>ssr.config.js</code>. 
+                No coupling to app code. Extend via hooks.
+              </p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">CTR</p>
-              <h3 className="benefit-title">Rich search previews</h3>
-              <p className="benefit-desc">Per-route title, description, and canonical baked into HTML. Your search result shows the right snippet for each page, not a generic site-wide fallback.</p>
+              <p className="benefit-num">02</p>
+              <h3 className="benefit-title">Incremental builds</h3>
+              <p className="benefit-desc">
+                Caches rendered HTML per route. Skip unchanged routes on rebuild. 
+                <code>--force</code> to rebuild all.
+              </p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">share</p>
-              <h3 className="benefit-title">Social cards that work</h3>
-              <p className="benefit-desc">og:title, og:description, og:url, og:image correct on every route. When someone shares your /features page, the card shows features content, not just your homepage organization.</p>
+              <p className="benefit-num">03</p>
+              <h3 className="benefit-title">Dynamic routes</h3>
+              <p className="benefit-desc">
+                <code>fetchRoutes()</code> hook pulls from any CMS at build time. 
+                Renders to static. No runtime calls.
+              </p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">trust</p>
-              <h3 className="benefit-title">Structured data</h3>
-              <p className="benefit-desc">JSON-LD injected from your config into every page head. Organization, WebSite, Product, Article: whatever your app needs to earn rich results.</p>
+              <p className="benefit-num">04</p>
+              <h3 className="benefit-title">Dynamic islands</h3>
+              <p className="benefit-desc">
+                <code>&lt;pre-island&gt;</code> placeholders mount client-only React. 
+                Fallback for crawlers, live data for humans.
+              </p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">speed</p>
-              <h3 className="benefit-title">Correct cache headers</h3>
-              <p className="benefit-desc">Hashed JS/CSS assets cached immutably. HTML revalidates on every request. Users always get fresh content, browsers never re-download unchanged bundles.</p>
+              <p className="benefit-num">05</p>
+              <h3 className="benefit-title">Multi-platform</h3>
+              <p className="benefit-desc">
+                Auto-detects Cloudflare, Vercel, Netlify. Injects correct 
+                headers, redirects, config per host.
+              </p>
             </div>
             <div className="benefit">
-              <p className="benefit-num">zero cost</p>
-              <h3 className="benefit-title">No infrastructure change</h3>
-              <p className="benefit-desc">Prestruct deploys to Cloudflare Pages as static files. No server, no edge worker, no new runtime dependencies. The tradeoff: Build time goes up by about 2 seconds for every 10 prerendered routes.</p>
+              <p className="benefit-num">06</p>
+              <h3 className="benefit-title">Zero deps</h3>
+              <p className="benefit-desc">
+                No new dependencies added to your app. Scripts run standalone. 
+                Extend what you need.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
+      {/* AI-first FAQ */}
+      <section className="section" style={{ background: '#0a0a0a' }}>
+        <div className="container">
+          <p className="section-label" style={{ color: '#00ff88' }}>FAQ (AI-first)</p>
+          <div style={{ maxWidth: '800px', marginTop: '2rem' }}>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+                How do I add this to my existing Vite + React app?
+              </summary>
+              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+                Copy <code>init/</code> scripts to your project. Add prerender to your build script. 
+                Edit <code>ssr.config.js</code> with your routes. That's it.
+              </p>
+            </details>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+                Does it work with any hosting?
+              </summary>
+              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+                Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. 
+                Any static host works — just copy dist/ output.
+              </p>
+            </details>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+                How do I add a new route?
+              </summary>
+              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+                Add it to the <code>routes</code> array in <code>ssr.config.js</code>. 
+                Prerender picks it up on next build. No code changes needed.
+              </p>
+            </details>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+                What about dynamic content (cart, user state)?
+              </summary>
+              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+                Use <code>&lt;pre-island&gt;</code> elements. They mount client-only React after hydration. 
+                Crawlers see fallback content.
+              </p>
+            </details>
+            <details>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+                Why not use edge SSR instead?
+              </summary>
+              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+                Prestruct is static HTML — faster, cheaper, simpler. No edge runtime needed. 
+                Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      {/* Human: Verify yourself */}
       <section className="section">
         <div className="container">
-          <p className="section-label">Verify it yourself</p>
+          <p className="section-label">Verify it works</p>
           <p className="u-section-intro">
-            Every tool below accepts a URL and reports what it finds. Use them on this site
-            or on your own, after integrating Prestruct.
+            See what prerender outputs. Test this site or your own after integrating.
           </p>
           <ToolsBlock />
         </div>
       </section>
-	  
+
+      {/* Human: Islands */}
       <section className="section">
         <div className="container">
           <p className="section-label">Dynamic islands</p>
           <p className="u-section-intro">
-            Prerendered HTML is the same for every visitor. Islands punch holes through it
-            for content that isn't: cart state, recently viewed items, logged-in user
-            widgets. Each island mounts its own React root after hydration. Crawlers see
-            a fallback. Humans see live data.
+            Static HTML is the same for everyone. Islands punch holes for dynamic content — 
+            cart state, user widgets, personalization.
           </p>
           <div className="feature-grid">
             <div className="feature">
               <p className="feature-icon">eager</p>
               <h3 className="feature-title">Immediate</h3>
-              <p className="feature-desc">
-                Mounts right after hydration. For above-the-fold widgets that need to be
-                interactive as soon as possible.
-              </p>
+              <p className="feature-desc">Mounts right after hydration.</p>
             </div>
             <div className="feature">
               <p className="feature-icon">visible</p>
               <h3 className="feature-title">On scroll</h3>
-              <p className="feature-desc">
-                Mounts via <code>IntersectionObserver</code> when the element enters the
-                viewport. Nothing loads until the user reaches it.
-              </p>
+              <p className="feature-desc">IntersectionObserver when in view.</p>
             </div>
             <div className="feature">
               <p className="feature-icon">idle</p>
               <h3 className="feature-title">Background</h3>
-              <p className="feature-desc">
-                Mounts via <code>requestIdleCallback</code> during browser downtime.
-                No competition with paint or interaction.
-              </p>
+              <p className="feature-desc">requestIdleCallback during downtime.</p>
             </div>
           </div>
           <div className="u-mt-2">
@@ -172,23 +229,18 @@ npm install && npm run build
         </div>
       </section>
 
+      {/* Site proof */}
       <section className="section">
         <div className="container">
           <p className="section-label">This site is the proof</p>
           <div className="callout u-mb-15">
-            The repo running at <strong>{SITE_URL}</strong> is the same example app in
-            the <a href={GITHUB} target="_blank" rel="noopener noreferrer">Prestruct GitHub repo</a>.
-            Every page you visit here was prerendered by Prestruct at build time.
-            The widget below fetches and parses the live HTML for the current route so you can
-            see exactly what a search engine or social crawler sees.
+            <strong>{SITE_URL}</strong> is the example app in the 
+            <a href={GITHUB} target="_blank" rel="noopener noreferrer"> Prestruct repo</a>.
+            Build, deploy, inspect — it's all running the same prerender pipeline you're copying.
           </div>
           <ViewSource />
-          <div className="u-mt-2">
-            <Link to="/about" className="btn btn-primary">Learn More</Link>
-          </div>
         </div>
       </section>
-		  
     </>
   )
 }
