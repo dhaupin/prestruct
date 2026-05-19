@@ -14,6 +14,8 @@ cp -r init/* your-project/
 cp init/ssr.config.example.js ssr.config.js
 ```
 
+**Live demo:** https://prestruct.creadev.org → built with prestruct (see `example/`)
+
 Edit `ssr.config.js`:
 ```js
 export default {
