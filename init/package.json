@@ -4,7 +4,12 @@
   "description": "Build-time SEO prerender layer for Vite + React + Cloudflare Pages",
   "type": "module",
   "scripts": {
-    "build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js"
+    "build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "lint": "eslint . --ext js,mjs",
+    "lint:fix": "eslint . --ext js,mjs --fix"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -14,6 +19,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.0"
+    "eslint": "^9.0.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0"
   }
 }
