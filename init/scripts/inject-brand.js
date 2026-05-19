@@ -41,9 +41,20 @@ try {
 }
 
 const {
+  // Platform detection for host-specific config generation
+  // Default: cloudflare (backward compatible)
+  platform = 'cloudflare',
+  // Site identity
   siteUrl, siteName, author, tagline, ogImage, keywords,
   routes = [], buildJsonLd, proxy = {},
 } = config
+
+// Only generate Cloudflare-specific files (_headers, _redirects)
+// Future: vercel gets vercel.json, netlify gets netlify.toml
+if (platform === 'cloudflare') {
+  // _headers and _redirects are copied from init/public/ at build time
+  // This section reserved for any CF-specific injection logic
+}
 
 const toReplaceSafe = (value = '') => String(value).replace(/\$/g, '$$$$')
 
