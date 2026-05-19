@@ -1,14 +1,15 @@
 # Prestruct Roadmap
 
-Done:
-- [x] v0.2.6 Platform detection + MIT onboarding
-- [x] Tests + CI (43 passing)
-- [x] Incremental prerender (--force)
-- [x] fetchRoutes() hook docs
+See [SCOPE.md](./SCOPE.md) for purpose and reach, [README.md](./README.md) for quick start.
 
 ---
 
-## Next (AI agents extend)
+## Docs
+
+- [README.md](./README.md) - Quick start
+- [SCOPE.md](./SCOPE.md) - What it is
+- [AGENTS.md](./AGENTS.md) - AI patterns
+- [CONTENT.md](./CONTENT.md) - Writing style
 
 | Feature | Files | P1/P2 | Notes |
 |---------|-------|------|-------|
