@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // incremental.js
 // Raw incremental prerender - cache HTML per route
 // 
