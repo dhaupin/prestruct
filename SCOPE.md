@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Make your React app visible to search engines. Renders each route to static HTML at build time—with correct meta tags, Open Graph, schema.org, cache headers. No framework migration.
+Make your React app visible to search engines. Renders each route to static HTML at build time-with correct meta tags, Open Graph, schema.org, cache headers. No framework migration.
 
 ## Reach
 

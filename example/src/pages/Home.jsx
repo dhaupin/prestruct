@@ -45,7 +45,7 @@ npm run build
 
           <p className="hero-sub fade-up delay-3">
             Search engines crawl HTML. React apps serve empty shells. Prestruct renders each route to
-            static HTML at build time — correct SEO, Open Graph, schema.org, cache headers.
+            static HTML at build time - correct SEO, Open Graph, schema.org, cache headers.
             No edge runtime. Just a smarter build step.
           </p>
 
@@ -149,7 +149,7 @@ npm run build
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
                 Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. 
-                Any static host works — just copy dist/ output.
+                Any static host works - just copy dist/ output.
               </p>
             </details>
             <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
@@ -175,7 +175,7 @@ npm run build
                 Why not use edge SSR instead?
               </summary>
               <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
-                Prestruct is static HTML — faster, cheaper, simpler. No edge runtime needed. 
+                Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. 
                 Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content.
               </p>
             </details>
@@ -199,7 +199,7 @@ npm run build
         <div className="container">
           <p className="section-label">Dynamic islands</p>
           <p className="u-section-intro">
-            Static HTML is the same for everyone. Islands punch holes for dynamic content — 
+            Static HTML is the same for everyone. Islands punch holes for dynamic content - 
             cart state, user widgets, personalization.
           </p>
           <div className="feature-grid">
@@ -232,7 +232,7 @@ npm run build
           <div className="callout u-mb-15">
             <strong>{SITE_URL}</strong> is the example app in the 
             <a href={GITHUB} target="_blank" rel="noopener noreferrer"> Prestruct repo</a>.
-            Build, deploy, inspect — it's all running the same prerender pipeline you're copying.
+            Build, deploy, inspect - it's all running the same prerender pipeline you're copying.
           </div>
           <ViewSource />
         </div>
