@@ -2,6 +2,7 @@ import usePageMeta from '../hooks/usePageMeta.js'
 import { Link } from 'react-router-dom'
 import ViewSource from '../components/ViewSource.jsx'
 import ToolsBlock from '../components/ToolsBlock.jsx'
+import CodeBlock from '../components/CodeBlock.jsx'
 
 const SITE_URL = 'https://prestruct.creadev.org'
 const GITHUB   = 'https://github.com/dhaupin/prestruct'
@@ -26,11 +27,7 @@ export default function Home() {
           </h1>
 
           <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
-            <div className="cb">
-              <div className="cb-bar">
-                <span className="cb-label">sh</span>
-              </div>
-              <pre className="cb-pre">
+            <CodeBlock lang="sh" label="sh">
 {`# Quick start (AI agents)
 git clone https://github.com/dhaupin/prestruct
 cp init/ssr.config.example.js ssr.config.js
@@ -39,8 +36,7 @@ npm run build
 # Config: ssr.config.js
 # Source: example/ (live)
 # Docs: README.md`}
-              </pre>
-            </div>
+            </CodeBlock>
           </div>
 
           <p className="hero-sub fade-up delay-3">
