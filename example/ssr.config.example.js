@@ -22,14 +22,15 @@ export default {
 
   // === Site Identity ===
   siteUrl:    'https://example.com',
-  siteName:  'Your Site Name',
-  author:    'Your Name',
-  tagline:  'Your tagline here',
-  // ogImage:   'https://example.com/og-image.png',
-  // keywords:  'keyword1, keyword2',
+  siteName:   'Your Site Name',
+  author:     'Your Name',
+  tagline:   'Your tagline - keeps it short',
+  ogImage:    'https://example.com/og-image.png',
+  keywords:  'keyword1, keyword2, keyword3',
 
   // === App ===
-  // appLayoutPath: '/src/AppLayout.jsx',
+  // Path to your AppLayout component (no BrowserRouter, only Routes)
+  appLayoutPath: '/src/AppLayout.jsx',
 
   // === Routes ===
   // Each route gets prerendered to static HTML at build time.
@@ -40,8 +41,9 @@ export default {
       priority:   '1.0',
       changefreq: 'monthly',
       meta: {
-        title:        'Your Site Name',
-        description:  'Your site description for search engines.',
+        title:       'Your Site Name',
+        description: 'Your site description for search engines.',
+        // ogImage:     'https://example.com/og-image.png',  // route-specific OG image
       },
     },
     // {
@@ -49,7 +51,7 @@ export default {
     //   priority:   '0.8',
     //   changefreq: 'monthly',
     //   meta: {
-    //     title:        'About | Your Site Name',
+    //     title:       'About | Your Site Name',
     //     description: 'Learn more about what we do.',
     //   },
     // },
@@ -58,7 +60,7 @@ export default {
     //   priority:   '0.7',
     //   changefreq: 'weekly',
     //   meta: {
-    //     title:        'Blog | Your Site Name',
+    //     title:       'Blog | Your Site Name',
     //     description: 'Latest updates and articles.',
     //   },
     // },
@@ -74,24 +76,41 @@ export default {
   //       '@type':              'WebSite',
   //       name:                 'Your Site Name',
   //       url:                  'https://example.com',
+  //       author: {
+  //         '@type': 'Person',
+  //         name:  'Your Name',
+  //         url:   'https://github.com/yourname',
+  //       },
   //     },
   //   ]
   // },
 
   // === 404 Page ===
   // Custom 404 page content. Prerendered with noindex meta.
-  // notFound: {
-  //   heading:    'Page not found',
-  //   body:      "That page doesn't exist.",
-  //   primaryCta: { label: 'Go home', href: '/' },
-  // },
+  notFound: {
+    heading:    'Page not found',
+    body:       "That page doesn't exist.",
+    primaryCta: { label: 'Go home', href: '/' },
+  },
 
   // === Bot Proxy (optional) ===
   // Proxy renders dynamic routes not in the prerender list.
-  // Runs on: Node.js/Puppeteer (VPS) or Cloudflare Worker.
-  // Set proxy.url to enable:
+  // Works with Node.js/Puppeteer (VPS) or Cloudflare Worker.
   // proxy: {
+  //   // Your proxy server URL (set as env: PRESTRUCT_PROXY_URL)
   //   url:      'https://your-proxy.example.com',
-  //   secret:  'your-secret-from-env',
+  //   // Shared secret (set as env: PRESTRUCT_SECRET)
+  //   secret:  'your-secret',
+  //   // Render a different origin than siteUrl (for local dev, staging)
+  //   targetUrl: 'https://staging.example.com',
+  //   // Bot list for proxy - customize if needed
+  //   botList: [
+  //     'Googlebot',
+  //     'Google-Extended',
+  //     'Bingbot',
+  //     'BingPreview',
+  //     'DuckDuckBot',
+  //     'Slurp',
+  //   ],
   // },
 }
