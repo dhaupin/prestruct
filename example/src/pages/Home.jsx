@@ -17,19 +17,19 @@ export default function Home() {
   return (
     <>
       {/* AI-first hero */}
-      <section className="hero" style={{ background: '#0a0a0a', borderBottom: '1px solid #222' }}>
+      <section className="hero" style={{ background: 'var(--bg-2)', borderBottom: '1px solid var(--text-3)' }}>
         <div className="container">
-          <p className="hero-kicker fade-up" style={{ color: '#00ff88', fontFamily: 'monospace' }}>AI-first / MIT</p>
+          <p className="hero-kicker fade-up" style={{ color: 'var(--accent)', fontFamily: 'monospace' }}>AI-first / MIT</p>
           <h1 className="hero-heading fade-up delay-1">
             Your React app<br />
-            <em style={{ color: '#fff' }}>visible to search engines.</em>
+            <em style={{ color: 'var(--text)' }}>visible to search engines.</em>
           </h1>
           
           {/* AI copy block */}
           <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
             <pre style={{ 
-              background: '#111', 
-              border: '1px solid #333',
+              background: 'var(--bg-2)', 
+              border: '1px solid var(--text-3)',
               padding: '1.5rem', 
               borderRadius: '8px',
               fontSize: '0.875rem',
@@ -134,51 +134,51 @@ npm run build
       </section>
 
       {/* AI-first FAQ */}
-      <section className="section" style={{ background: '#0a0a0a' }}>
+      <section className="section" style={{ background: 'var(--bg-2)' }}>
         <div className="container">
-          <p className="section-label" style={{ color: '#00ff88' }}>FAQ (AI-first)</p>
+          <p className="section-label" style={{ color: 'var(--accent)' }}>FAQ (AI-first)</p>
           <div style={{ maxWidth: '800px', marginTop: '2rem' }}>
-            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
                 How do I add this to my existing Vite + React app?
               </summary>
-              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+              <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
                 Copy <code>init/</code> scripts to your project. Add prerender to your build script. 
                 Edit <code>ssr.config.js</code> with your routes. That's it.
               </p>
             </details>
-            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
                 Does it work with any hosting?
               </summary>
-              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+              <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
                 Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. 
                 Any static host works — just copy dist/ output.
               </p>
             </details>
-            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
                 How do I add a new route?
               </summary>
-              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+              <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
                 Add it to the <code>routes</code> array in <code>ssr.config.js</code>. 
                 Prerender picks it up on next build. No code changes needed.
               </p>
             </details>
-            <details style={{ marginBottom: '1rem', borderBottom: '1px solid #222', paddingBottom: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+            <details style={{ marginBottom: '1rem', borderBottom: '1px solid var(--text-3)', paddingBottom: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
                 What about dynamic content (cart, user state)?
               </summary>
-              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+              <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
                 Use <code>&lt;pre-island&gt;</code> elements. They mount client-only React after hydration. 
                 Crawlers see fallback content.
               </p>
             </details>
             <details>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#fff' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--text)' }}>
                 Why not use edge SSR instead?
               </summary>
-              <p style={{ marginTop: '0.5rem', color: '#888' }}>
+              <p style={{ marginTop: '0.5rem', color: 'var(--text-2)' }}>
                 Prestruct is static HTML — faster, cheaper, simpler. No edge runtime needed. 
                 Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content.
               </p>
