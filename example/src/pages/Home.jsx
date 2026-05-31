@@ -76,7 +76,7 @@ npm run build
           <div className="benefit-grid">
             <div className="benefit">
               <p className="benefit-num">01</p>
-              <h3 className="benefit-title">Config-first</h3>
+              <h2 className="benefit-title">Config-first</h2>
               <p className="benefit-desc">
                 All SEO, routes, and meta in <code>ssr.config.js</code>. 
                 No coupling to app code. Extend via hooks.
@@ -84,7 +84,7 @@ npm run build
             </div>
             <div className="benefit">
               <p className="benefit-num">02</p>
-              <h3 className="benefit-title">Incremental builds</h3>
+              <h2 className="benefit-title">Incremental builds</h2>
               <p className="benefit-desc">
                 Caches rendered HTML per route. Skip unchanged routes on rebuild. 
                 <code>--force</code> to rebuild all.
@@ -92,7 +92,7 @@ npm run build
             </div>
             <div className="benefit">
               <p className="benefit-num">03</p>
-              <h3 className="benefit-title">Dynamic routes</h3>
+              <h2 className="benefit-title">Dynamic routes</h2>
               <p className="benefit-desc">
                 <code>fetchRoutes()</code> hook pulls from any CMS at build time. 
                 Renders to static. No runtime calls.
@@ -100,7 +100,7 @@ npm run build
             </div>
             <div className="benefit">
               <p className="benefit-num">04</p>
-              <h3 className="benefit-title">Dynamic islands</h3>
+              <h2 className="benefit-title">Dynamic islands</h2>
               <p className="benefit-desc">
                 <code>&lt;pre-island&gt;</code> placeholders mount client-only React. 
                 Fallback for crawlers, live data for humans.
@@ -108,7 +108,7 @@ npm run build
             </div>
             <div className="benefit">
               <p className="benefit-num">05</p>
-              <h3 className="benefit-title">Multi-platform</h3>
+              <h2 className="benefit-title">Multi-platform</h2>
               <p className="benefit-desc">
                 Auto-detects Cloudflare, Vercel, Netlify. Injects correct 
                 headers, redirects, config per host.
@@ -116,7 +116,7 @@ npm run build
             </div>
             <div className="benefit">
               <p className="benefit-num">06</p>
-              <h3 className="benefit-title">Zero deps</h3>
+              <h2 className="benefit-title">Zero deps</h2>
               <p className="benefit-desc">
                 No new dependencies added to your app. Scripts run standalone. 
                 Extend what you need.
@@ -177,17 +177,17 @@ npm run build
           <div className="feature-grid">
             <div className="feature">
               <p className="feature-icon">eager</p>
-              <h3 className="feature-title">Immediate</h3>
+              <h2 className="feature-title">Immediate</h2>
               <p className="feature-desc">Mounts right after hydration.</p>
             </div>
             <div className="feature">
               <p className="feature-icon">visible</p>
-              <h3 className="feature-title">On scroll</h3>
+              <h2 className="feature-title">On scroll</h2>
               <p className="feature-desc">IntersectionObserver when in view.</p>
             </div>
             <div className="feature">
               <p className="feature-icon">idle</p>
-              <h3 className="feature-title">Background</h3>
+              <h2 className="feature-title">Background</h2>
               <p className="feature-desc">requestIdleCallback during downtime.</p>
             </div>
           </div>

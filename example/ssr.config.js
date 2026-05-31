@@ -2,7 +2,7 @@ export default {
   siteUrl:       'https://prestruct.creadev.org',
   siteName:      'prestruct',
   author:        'dhaupin',
-  tagline:       'SEO prerendering for Vite + React on Cloudflare Pages',
+  tagline:       'SEO Prerendering for Vite + React on Cloudflare',
   ogImage:       'https://prestruct.creadev.org/og-image.svg',
   keywords:      'vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator',
   appLayoutPath: '/src/AppLayout.jsx',
@@ -13,8 +13,8 @@ export default {
       priority:   '1.0',
       changefreq: 'monthly',
       meta: {
-        title:       'Prestruct | SEO prerendering for Vite + React on Cloudflare Pages',
-        description: 'Make your Vite + React app visible to search engines. Prestruct prerenders each route to static HTML with correct title, description, Open Graph, schema.org, and cache headers.',
+        title:       'Prestruct | SEO Prerendering for Vite + React on Cloudflare',
+        description: 'Make your Vite + React app SEO-friendly. Prestruct prerenders static HTML with correct meta, Open Graph, schema.org, and cache headers.',
       },
     },
     {
