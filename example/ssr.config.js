@@ -133,7 +133,7 @@ export default {
       {
         '@context':    'https://schema.org',
         '@type':       'FAQPage',
-        mainEntity:    this.faqs.map((f) => ({
+        mainEntity:    (this.faqs || []).map((f) => ({
           '@type':          'Question',
           name:             f.q,
           acceptedAnswer: {

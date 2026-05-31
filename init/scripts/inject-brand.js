@@ -121,7 +121,7 @@ const ogTags = `
 
 let jsonLdBlock = ''
 if (typeof buildJsonLd === 'function') {
-  const jsonLdData = buildJsonLd()
+  const jsonLdData = buildJsonLd.call(config)
   if (Array.isArray(jsonLdData) && jsonLdData.length > 0) {
     // Wrap in @graph if multiple objects, or use directly if single
     const payload = jsonLdData.length === 1
