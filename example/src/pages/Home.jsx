@@ -27,6 +27,10 @@ export default function Home() {
             <em>visible to search engines.</em>
           </h1>
 
+          <p className="hero-sub fade-up delay-2">
+            Prestruct is a build-time prerender layer for Vite and React applications. It generates static HTML for every route with correct SEO metadata, schema.org markup, and cache headers, enabling React apps to be fully crawlable and indexed by search engines and AI models without needing server runtime.
+          </p>
+
           <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
             <CodeBlock lang="sh" label="sh">
 {`# Quick start (AI agents)
@@ -41,13 +45,11 @@ npm run build
           </div>
 
           <p className="hero-sub fade-up delay-3">
-            Search engines crawl HTML. React apps serve empty shells. Prestruct renders each route to
-            static HTML at build time - correct SEO, Open Graph, schema.org, cache headers.
-            No edge runtime. Just a smarter build step.
+            Prestruct is built for frontend developers and site maintainers deploying React applications who want reliable SEO without changing their stack.
           </p>
 
           <div className="hero-actions fade-up delay-3">
-            <Link to="/deploy" className="btn btn-primary">Get started</Link>
+            <Link to="/deploy" className="btn btn-primary">Start deploying</Link>
             <a href={GITHUB} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
               View source
             </a>
