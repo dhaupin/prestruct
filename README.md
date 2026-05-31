@@ -36,7 +36,7 @@ Run `npm run build`. That's it.
 
 | Version | Branch | Description |
 |---------|--------|------------|
-| v0.2.6 | `release/v0.2.6` | Latest stable + LEGAL.md |
+| v0.2.6 | `main` | Latest + LEGAL.md |
 | v0.2.4 | `release/v0.2.4` | Stable + LEGAL.md |
 | v0.2.2 | `release/v0.2.2` | Legacy + LEGAL.md |
 

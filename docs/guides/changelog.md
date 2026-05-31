@@ -6,7 +6,14 @@ nav_order: 17
 
 Release history for prestruct.
 
-## v0.2.4 (Development)
+## v0.2.6 (Development)
+
+Changes since v0.2.4:
+
+### Core Features
+- Add ssr.config.example.js with all config options
+
+## v0.2.4 (May 2026)
 
 Changes since v0.2.2:
 
