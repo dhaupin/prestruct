@@ -107,6 +107,60 @@ export default {
           url:     'https://github.com/dhaupin',
         },
       },
+      {
+        '@context':    'https://schema.org',
+        '@type':       'FAQPage',
+        mainEntity: [
+          {
+            '@type':          'Question',
+            name:             'What is Prestruct?',
+            acceptedAnswer: {
+              '@type':    'Answer',
+              text:      'Prestruct is a build-time prerendering tool that converts each route of a Vite + React app into static HTML with proper SEO metadata to improve search engine visibility.',
+            },
+          },
+          {
+            '@type':          'Question',
+            name:             'Who is Prestruct for?',
+            acceptedAnswer: {
+              '@type':    'Answer',
+              text:      'Prestruct is designed for frontend developers and site owners who want to improve SEO for React applications without changing infrastructure or frameworks.',
+            },
+          },
+          {
+            '@type':          'Question',
+            name:             'Does it work with any hosting?',
+            acceptedAnswer: {
+              '@type':    'Answer',
+              text:      'Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Any static host works - just copy dist/ output.',
+            },
+          },
+        ],
+      },
+      {
+        '@context':        'https://schema.org',
+        '@type':           'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type':     'ListItem',
+            position:   1,
+            name:      'Home',
+            item:      'https://prestruct.creadev.org',
+          },
+          {
+            '@type':     'ListItem',
+            position:   2,
+            name:      'Deploy',
+            item:      'https://prestruct.creadev.org/deploy',
+          },
+          {
+            '@type':     'ListItem',
+            position:   3,
+            name:      'Islands',
+            item:      'https://prestruct.creadev.org/islands',
+          },
+        ],
+      },
     ]
   },
 
