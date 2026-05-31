@@ -32,6 +32,20 @@ Run `npm run build`. That's it.
 
 ---
 
+## Releases
+
+| Version | Branch | Description |
+|---------|--------|------------|
+| v0.2.6 | `release/v0.2.6` | Latest stable + LEGAL.md |
+| v0.2.4 | `release/v0.2.4` | Stable + LEGAL.md |
+| v0.2.2 | `release/v0.2.2` | Legacy + LEGAL.md |
+
+**Download:** Use the branch for your version (ZIP download includes LICENSE + LEGAL.md)
+
+**Legal:** By using prestruct, you agree to [LICENSE](./LICENSE) and [LEGAL.md](./LEGAL.md). The Fair-Code license restricts commercial SaaS use.
+
+---
+
 ## Config API
 
 ```js
