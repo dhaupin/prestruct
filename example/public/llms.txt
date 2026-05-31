@@ -1,0 +1,24 @@
+# Prestruct - AI Context
+
+## What is Prestruct?
+Prestruct is a build-time SEO prerendering tool for Vite + React apps deployed on Cloudflare Pages. It generates static HTML per route with correct SEO metadata, schema.org markup, and cache headers without runtime infrastructure changes.
+
+## Target Audience
+Frontend developers and site owners deploying React applications who want reliable SEO and enhanced search visibility without changing their existing stack or infrastructure.
+
+## Key Features
+- Static prerendered HTML per route at build time
+- Correct SEO meta tags injected (title, description)
+- Open Graph and Twitter card metadata
+- schema.org JSON-LD structured data
+- Automatic sitemap.xml generation
+- Immutable asset caching for Cloudflare Pages
+- Dynamic islands for client-only content
+- Bot proxy for dynamic routes
+
+## Pricing
+Open source under MIT license, free to use.
+
+## Links
+- GitHub: https://github.com/dhaupin/prestruct
+- Docs: https://prestruct.creadev.org
