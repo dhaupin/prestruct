@@ -150,14 +150,32 @@ export default {
           {
             '@type':     'ListItem',
             position:   2,
+            name:      'How it works',
+            item:      'https://prestruct.creadev.org/about',
+          },
+          {
+            '@type':     'ListItem',
+            position:   3,
             name:      'Deploy',
             item:      'https://prestruct.creadev.org/deploy',
           },
           {
             '@type':     'ListItem',
-            position:   3,
+            position:   4,
             name:      'Islands',
             item:      'https://prestruct.creadev.org/islands',
+          },
+          {
+            '@type':     'ListItem',
+            position:   5,
+            name:      'Bot proxy',
+            item:      'https://prestruct.creadev.org/proxy',
+          },
+          {
+            '@type':     'ListItem',
+            position:   6,
+            name:      'Get Help',
+            item:      'https://prestruct.creadev.org/contact',
           },
         ],
       },
