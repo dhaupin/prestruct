@@ -7,6 +7,29 @@ export default {
   keywords:      'vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator',
   appLayoutPath: '/src/AppLayout.jsx',
 
+  faqs: [
+    {
+      q: 'How do I add this to my existing Vite + React app?',
+      a: 'Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it.',
+    },
+    {
+      q: 'Does it work with any hosting?',
+      a: 'Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output.',
+    },
+    {
+      q: 'How do I add a new route?',
+      a: 'Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed.',
+    },
+    {
+      q: 'What about dynamic content (cart, user state)?',
+      a: 'Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content.',
+    },
+    {
+      q: 'Why not use edge SSR instead?',
+      a: 'Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content.',
+    },
+  ],
+
   routes: [
     {
       path:       '/',
@@ -110,32 +133,14 @@ export default {
       {
         '@context':    'https://schema.org',
         '@type':       'FAQPage',
-        mainEntity: [
-          {
-            '@type':          'Question',
-            name:             'What is Prestruct?',
-            acceptedAnswer: {
-              '@type':    'Answer',
-              text:      'Prestruct is a build-time prerendering tool that converts each route of a Vite + React app into static HTML with proper SEO metadata to improve search engine visibility.',
-            },
+        mainEntity:    this.faqs.map((f) => ({
+          '@type':          'Question',
+          name:             f.q,
+          acceptedAnswer: {
+            '@type':    'Answer',
+            text:      f.a,
           },
-          {
-            '@type':          'Question',
-            name:             'Who is Prestruct for?',
-            acceptedAnswer: {
-              '@type':    'Answer',
-              text:      'Prestruct is designed for frontend developers and site owners who want to improve SEO for React applications without changing infrastructure or frameworks.',
-            },
-          },
-          {
-            '@type':          'Question',
-            name:             'Does it work with any hosting?',
-            acceptedAnswer: {
-              '@type':    'Answer',
-              text:      'Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Any static host works - just copy dist/ output.',
-            },
-          },
-        ],
+        })),
       },
       {
         '@context':        'https://schema.org',

@@ -4,6 +4,7 @@ import ViewSource from '../components/ViewSource.jsx'
 import ToolsBlock from '../components/ToolsBlock.jsx'
 import CodeBlock from '../components/CodeBlock.jsx'
 import { Accordion, AccordionItem } from '../components/Accordion.jsx'
+import config from '../../ssr.config.js'
 
 const SITE_URL = 'https://prestruct.creadev.org'
 const GITHUB   = 'https://github.com/dhaupin/prestruct'
@@ -12,8 +13,8 @@ export default function Home() {
   usePageMeta({
     siteUrl:     SITE_URL,
     path:        '/',
-    title:       'Prestruct | SEO prerendering for Vite + React on Cloudflare Pages',
-    description: 'Make your Vite + React app visible to search engines. Prestruct prerenders each route to static HTML with correct title, description, Open Graph, schema.org, and cache headers deployed to Cloudflare Pages.',
+    title:       config.routes[0].meta.title,
+    description: config.routes[0].meta.description,
   })
 
   return (
@@ -133,26 +134,11 @@ npm run build
         <div className="container">
           <p className="section-label">FAQ (AI-first)</p>
           <Accordion>
-            <AccordionItem q="How do I add this to my existing Vite + React app?">
-              <p>Copy <code>init/</code> scripts to your project. Add prerender to your build script. 
-                Edit <code>ssr.config.js</code> with your routes. That's it.</p>
-            </AccordionItem>
-            <AccordionItem q="Does it work with any hosting?">
-              <p>Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. 
-                Any static host works - just copy dist/ output.</p>
-            </AccordionItem>
-            <AccordionItem q="How do I add a new route?">
-              <p>Add it to the <code>routes</code> array in <code>ssr.config.js</code>. 
-                Prerender picks it up on next build. No code changes needed.</p>
-            </AccordionItem>
-            <AccordionItem q="What about dynamic content (cart, user state)?">
-              <p>Use <code>&lt;pre-island&gt;</code> elements. They mount client-only React after hydration. 
-                Crawlers see fallback content.</p>
-            </AccordionItem>
-            <AccordionItem q="Why not use edge SSR instead?">
-              <p>Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. 
-                Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content.</p>
-            </AccordionItem>
+            {config.faqs?.map((faq, i) => (
+              <AccordionItem key={i} q={faq.q}>
+                <p>{faq.a}</p>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
       </section>
