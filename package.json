@@ -1,0 +1,30 @@
+{
+  "name": "prestruct",
+  "version": "1.0.0",
+  "description": "**AI-first SEO prerender for Vite + React apps.** Drop in, config, build.",
+  "main": "eslint.config.js",
+  "directories": {
+    "doc": "docs",
+    "example": "example",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhaupin/prestruct.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dhaupin/prestruct/issues"
+  },
+  "homepage": "https://github.com/dhaupin/prestruct#readme"
+}
