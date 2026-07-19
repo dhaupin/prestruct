@@ -53,9 +53,25 @@ const {
   proxy: proxyConfig = {},
 } = config
 
+// Validate required siteUrl
+if (!siteUrl) {
+  console.error('[proxy] siteUrl is required in ssr.config.js')
+  process.exit(1)
+}
+
 const TARGET_URL   = (proxyConfig.targetUrl || siteUrl).replace(/\/$/, '')
+
+// Validate TARGET_URL is a valid URL
+try {
+  new URL(TARGET_URL)
+} catch (err) {
+  console.error('[proxy] Invalid targetUrl:', TARGET_URL)
+  process.exit(1)
+}
+
 const CACHE_DIR    = path.resolve('.prestruct_cache')
 const CACHE_TTL    = 1000 * 60 * 60 * 24   // 24 hours -- adjust if needed
+const MAX_CACHE_SIZE = 500 * 1024 * 1024    // 500MB max cache size
 const PORT         = parseInt(process.env.PORT || '3000', 10)
 const SECRET       = process.env.PRESTRUCT_SECRET || null
 
@@ -91,6 +107,41 @@ function cacheRead(key) {
 
 function cacheWrite(key, html) {
   fs.writeFileSync(cachePath(key), html, 'utf8')
+  // Cleanup if cache exceeds limit
+  cleanupCache()
+}
+
+// Cleanup old/large cache files
+let lastCleanup = 0
+function cleanupCache() {
+  const now = Date.now()
+  // Only run cleanup once per minute max
+  if (now - lastCleanup < 60000) return
+  lastCleanup = now
+  
+  try {
+    const files = fs.readdirSync(CACHE_DIR).map(f => {
+      const p = path.join(CACHE_DIR, f)
+      const stat = fs.statSync(p)
+      return { path: p, size: stat.size, mtime: stat.mtimeMs }
+    })
+    
+    // Calculate total size
+    let totalSize = files.reduce((sum, f) => sum + f.size, 0)
+    
+    // If over limit, remove oldest files
+    if (totalSize > MAX_CACHE_SIZE) {
+      files.sort((a, b) => a.mtime - b.mtime)
+      while (totalSize > MAX_CACHE_SIZE * 0.8 && files.length > 0) {
+        const oldest = files.shift()
+        fs.unlinkSync(oldest.path)
+        totalSize -= oldest.size
+      }
+      console.log('[proxy] Cache cleaned up, removed', files.length, 'files')
+    }
+  } catch (err) {
+    console.warn('[proxy] Cache cleanup failed:', err.message)
+  }
 }
 
 // ── Browser pool (single shared instance) ────────────────────────────────────
@@ -137,6 +188,31 @@ async function render(targetFullUrl) {
 
 const app = express()
 
+// Limit concurrent rendering requests to prevent overwhelming the system
+const MAX_CONCURRENT = 5
+let activeRenders = 0
+const renderQueue = []
+
+async function withRenderLimit(fn) {
+  if (activeRenders < MAX_CONCURRENT) {
+    activeRenders++
+    try {
+      return await fn()
+    } finally {
+      activeRenders--
+      // Process next in queue
+      if (renderQueue.length > 0) {
+        const next = renderQueue.shift()
+        next()
+      }
+    }
+  }
+  // Queue the request
+  return new Promise((resolve) => {
+    renderQueue.push(() => fn().then(resolve))
+  })
+}
+
 // Only GET -- proxying other methods through Puppeteer is meaningless
 app.all('*', (req, res, next) => {
   if (req.method !== 'GET') return res.status(405).send('Method not allowed.')
@@ -177,7 +253,7 @@ app.get('*', async (req, res) => {
   }
 
   try {
-    const html = await render(targetFullUrl)
+    const html = await withRenderLimit(() => render(targetFullUrl))
     cacheWrite(key, html)
     res.setHeader('X-Prestruct-Cache',       'MISS')
     res.setHeader('X-Prestruct-Rendered-At', new Date().toISOString())

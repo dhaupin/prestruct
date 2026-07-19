@@ -49,6 +49,12 @@ const {
   routes = [], buildJsonLd, proxy = {},
 } = config
 
+// Validate required siteUrl
+if (!siteUrl) {
+  console.warn('[inject-brand] siteUrl is required in ssr.config.js -- skipping')
+  process.exit(0)
+}
+
 // Only generate Cloudflare-specific files (_headers, _redirects)
 // Future: vercel gets vercel.json, netlify gets netlify.toml
 if (platform === 'cloudflare') {
@@ -56,11 +62,11 @@ if (platform === 'cloudflare') {
   // This section reserved for any CF-specific injection logic
 }
 
-const toReplaceSafe = (value = '') => String(value).replace(/\$/g, '$$$$')
+const toReplaceSafe = (value) => (value == null ? '' : String(value).replace(/\$/g, '$$$$'))
 
 // Homepage meta as the global description fallback
 const homeRoute   = routes.find(r => r.path === '/') || {}
-const title       = tagline ? `${siteName} | ${tagline}` : siteName
+const title       = siteName ? (tagline ? `${siteName} | ${tagline}` : siteName) : 'Site'
 const description = homeRoute.meta?.description || null
 const canonical   = `${siteUrl}/`
 
@@ -101,21 +107,24 @@ html = html.replace(/\n\s*<!-- Open Graph -->[\s\S]*?<\/script>\s*/g, '\n  ')
 
 // ── Open Graph + Twitter Card ─────────────────────────────────────────────────
 
+// Only include image tags if ogImage is provided
+const imageMeta = ogImage ? `
+    <meta property="og:image"        content="${ogImageSafe}" />
+    <meta name="twitter:image"       content="${ogImageSafe}" />` : ''
+
 const ogTags = `
     <!-- Open Graph -->
     <meta property="og:type"         content="website" />
     <meta property="og:url"          content="${canonicalSafe}" />
     <meta property="og:title"        content="${titleSafe}" />
-    <meta property="og:description"  content="${descriptionSafe}" />
-    <meta property="og:image"        content="${ogImageSafe}" />
+    <meta property="og:description"  content="${descriptionSafe}" />${imageMeta}
     <meta property="og:locale"       content="en_US" />
     <meta property="og:site_name"    content="${siteNameSafe}" />
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card"        content="summary_large_image" />
     <meta name="twitter:title"       content="${titleSafe}" />
-    <meta name="twitter:description" content="${descriptionSafe}" />
-    <meta name="twitter:image"       content="${ogImageSafe}" />`
+    <meta name="twitter:description" content="${descriptionSafe}" />`
 
 // ── JSON-LD ───────────────────────────────────────────────────────────────────
 

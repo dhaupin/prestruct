@@ -46,8 +46,22 @@ const {
   appLayoutPath = '/src/AppLayout.jsx',
 } = config
 
+// Validate required siteUrl
+if (!siteUrl) {
+  console.error('[prerender] siteUrl is required in ssr.config.js')
+  process.exit(0)
+}
+
 if (!ROUTES.length) {
   console.warn('[prerender] No routes defined in ssr.config.js -- skipping')
+  process.exit(0)
+}
+
+// Validate all routes have valid paths
+const invalidRoutes = ROUTES.filter(r => !r.path || !r.path.startsWith('/'))
+if (invalidRoutes.length > 0) {
+  console.error('[prerender] Invalid routes found:', invalidRoutes.map(r => r.path).join(', '))
+  console.error('[prerender] All routes must have a path starting with /')
   process.exit(0)
 }
 
@@ -122,11 +136,22 @@ function injectMeta(html, meta, routePath) {
 
 // ── Sitemap ───────────────────────────────────────────────────────────────────
 
+// Escape XML entities in sitemap URLs
+function escapeXml(unsafe) {
+  if (!unsafe) return ''
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
 function generateSitemap(routes) {
   const now  = new Date().toISOString().split('T')[0]
   const urls = routes.map(r => `
   <url>
-    <loc>${siteUrl}${r.path === '/' ? '' : r.path}</loc>
+    <loc>${escapeXml(siteUrl)}${r.path === '/' ? '' : escapeXml(r.path)}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>${r.changefreq || 'monthly'}</changefreq>
     <priority>${r.priority || '0.5'}</priority>
@@ -218,7 +243,15 @@ async function prerender() {
 
   try {
     const { default: AppLayout } = await vite.ssrLoadModule(appLayoutPath)
-    const shell     = fs.readFileSync(path.join(DIST, 'index.html'), 'utf-8')
+    
+    // Validate dist/index.html exists (vite build may have failed)
+    const indexPath = path.join(DIST, 'index.html')
+    if (!fs.existsSync(indexPath)) {
+      console.error('[prerender] dist/index.html not found -- run vite build first')
+      process.exit(0)
+    }
+    
+    const shell     = fs.readFileSync(indexPath, 'utf-8')
     let succeeded   = 0
 
     for (const route of ROUTES) {

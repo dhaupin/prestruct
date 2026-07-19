@@ -69,6 +69,7 @@ function observe(el, Component) {
     for (const entry of entries) {
       if (entry.isIntersecting) {
         observer.unobserve(el)
+        io.disconnect()  // Clean up the observer after use
         mount(el, Component)
       }
     }
