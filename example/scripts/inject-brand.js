@@ -11,6 +11,7 @@
  *   - Open Graph tags (og:type, og:url, og:title, og:description, og:image, og:site_name)
  *   - Twitter Card tags
  *   - JSON-LD structured data (from config.buildJsonLd())
+ *   - <meta name="deploy-id"> with build identifier
  *
  * If config.proxy.url is set, also updates dist/_headers to add the proxy
  * origin to connect-src. This is done precisely: it finds the existing
@@ -23,9 +24,21 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { join, resolve } from 'path'
+import { execSync } from 'child_process'
 
 const distDir  = resolve('dist')
 const htmlPath = join(distDir, 'index.html')
+
+// Generate deploy ID from git commit hash + short timestamp
+function getDeployId() {
+  try {
+    const hash = execSync('git rev-parse --short HEAD 2>/dev/null', { encoding: 'utf8' }).trim()
+    const ts = Date.now().toString(36).slice(-4)
+    return `${hash}-${ts}`
+  } catch {
+    return `dev-${Date.now().toString(36).slice(-6)}`
+  }
+}
 
 if (!existsSync(htmlPath)) {
   console.warn('[inject-brand] dist/index.html not found -- skipping')
@@ -79,6 +92,18 @@ const ogImageSafe     = toReplaceSafe(ogImage)
 const siteNameSafe    = toReplaceSafe(siteName)
 
 let html = readFileSync(htmlPath, 'utf8')
+
+// ── Deploy ID ───────────────────────────────────────────────────────────────────
+
+const deployId = getDeployId()
+console.log(`  Deploy ID: ${deployId}`)
+
+// Remove previously injected deploy-id (safe to run on rebuild)
+html = html.replace(/<meta name="deploy-id"[^>]*>/g, '')
+
+// Inject deploy-id meta tag
+html = html.replace('</head>', `  <meta name="deploy-id" content="${deployId}" />
+</head>`)
 
 // ── Primary meta ──────────────────────────────────────────────────────────────
 
