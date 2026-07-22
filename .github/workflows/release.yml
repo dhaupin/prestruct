@@ -33,6 +33,9 @@ jobs:
       - name: Write version into init/VERSION
         run: echo "${{ env.VERSION }}" > init/VERSION
 
+      - name: Sync tests to init template
+        run: cp -R tests/. init/tests/
+
       - name: Build release archive
         run: |
           PACKAGE_DIR="prestruct-${{ env.VERSION }}"
