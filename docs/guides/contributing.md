@@ -22,13 +22,14 @@ Install dependencies and run the build:
 
 ```bash
 # Install dependencies
-npm install
+npm install                  # root: for testing
+cd init && npm install      # init: for building
 
 # Run tests
-npm test
+npm test                    # from root
 
 # Build locally
-npm run build
+cd init && npm run build   # from init
 ```
 
 ## Code style
@@ -37,10 +38,10 @@ Use ESLint and Prettier for consistent code:
 
 ```bash
 # Lint
-npm run lint
+cd init && npm run lint
 
 # Format
-npm run format
+cd init && npm run format
 ```
 
 ## Pull request process
@@ -50,7 +51,7 @@ npm run format
 Test locally and ensure lint passes:
 
 ```bash
-npm run build && npm run lint
+cd init && npm run build && cd init && npm run lint
 ```
 
 ### PR guidelines
