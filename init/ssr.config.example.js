@@ -32,6 +32,12 @@ export default {
   // Path to your AppLayout component (no BrowserRouter, only Routes)
   appLayoutPath: '/src/AppLayout.jsx',
 
+  // === Deploy ID ===
+  // Inject a deploy ID meta tag for debugging (visible in page source).
+  // Set deployIdFooter: true to also show in the footer (requires client-side JS).
+  // deployId: true,        // inject <meta name="deploy-id"> (default: true)
+  // deployIdFooter: false, // show in footer (default: false)
+
   // === Routes ===
   // Each route gets prerendered to static HTML at build time.
   // Add your routes here. The home route (/) is required.

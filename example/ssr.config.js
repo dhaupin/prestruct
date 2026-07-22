@@ -8,10 +8,10 @@ export default {
   appLayoutPath: '/src/AppLayout.jsx',
 
   // Deploy ID settings
-  // Enable/disable deploy ID entirely (meta tag + footer display)
+  // Enable/disable deploy ID (meta tag). Footer display is opt-in.
   deployId: true,
   // Show deploy ID in footer (requires deployId: true)
-  deployIdFooter: true,
+  deployIdFooter: false,
 
   faqs: [
     {
