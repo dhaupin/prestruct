@@ -24,11 +24,14 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install init dependencies
         run: cd init && npm install
 
       - name: Run unit tests
-        run: cd init && npm run test:run
+        run: npm run test:run
 
       - name: Lint
         run: cd init && npm run lint
