@@ -1,0 +1,31 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  X-XSS-Protection: 0
+
+  # CSP notes:
+  # - script-src: Cloudflare Insights + Zaraz (zaraz.one, cloudflare.com worker)
+  # - connect-src: same-origin fetch for ViewSource, Cloudflare Insights beacon,
+  #   Cloudflare Zaraz, Google Analytics (stats.g.doubleclick.net, google-analytics.com)
+  # - Zaraz proxies GA through Cloudflare's edge so direct GA domains are also needed
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://prestruct.creadev.org https://cloudflareinsights.com https://stats.g.doubleclick.net https://www.google-analytics.com https://www.googletagmanager.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Resource-Policy: same-origin
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+/site.webmanifest
+  Cache-Control: public, max-age=86400

@@ -22,7 +22,7 @@
  * The site will still deploy as a working SPA without prerendered meta.
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
 import { join, resolve } from 'path'
 import { execSync } from 'child_process'
 
@@ -95,15 +95,33 @@ let html = readFileSync(htmlPath, 'utf8')
 
 // ── Deploy ID ───────────────────────────────────────────────────────────────────
 
-const deployId = getDeployId()
-console.log(`  Deploy ID: ${deployId}`)
+// Check if deploy ID feature is enabled (default: true)
+const deployIdEnabled = config.deployId !== false
+// Check if footer display is enabled (default: true)
+const showFooter = config.deployIdFooter !== false
 
-// Remove previously injected deploy-id (safe to run on rebuild)
-html = html.replace(/<meta name="deploy-id"[^>]*>/g, '')
+if (deployIdEnabled) {
+  const deployId = getDeployId()
+  console.log(`  Deploy ID: ${deployId}`)
 
-// Inject deploy-id meta tag
-html = html.replace('</head>', `  <meta name="deploy-id" content="${deployId}" />
+  // Remove previously injected deploy-id (safe to run on rebuild)
+  html = html.replace(/<meta name="deploy-id"[^>]*>/g, '')
+
+  // Inject deploy-id meta tag
+  html = html.replace('</head>', `  <meta name="deploy-id" content="${deployId}" />
 </head>`)
+
+  if (showFooter) {
+    // Add data attribute to root div for client-side footer display
+    html = html.replace(/<div id="root"/, '<div id="root" data-deploy-id-footer')
+  }
+} else {
+  // Remove any existing deploy-id meta tag if disabled
+  html = html.replace(/<meta name="deploy-id"[^>]*>/g, '')
+  // Remove footer data attribute if present
+  html = html.replace(/ data-deploy-id-footer/g, '')
+  console.log('  Deploy ID: disabled')
+}
 
 // ── Primary meta ──────────────────────────────────────────────────────────────
 
@@ -212,5 +230,39 @@ if (proxy?.url && existsSync(headersPath)) {
   } catch (err) {
     // A bad proxyUrl is a config mistake, not a build-blocker
     console.warn('[inject-brand] CSP update failed:', err.message)
+  }
+}
+
+// ── Inject deploy ID into prerendered route pages ───────────────────────────────
+
+if (deployIdEnabled && showFooter) {
+  // Find all prerendered HTML files in subdirectories
+  const injectFooterAttr = (filePath) => {
+    if (!filePath.endsWith('/index.html')) return
+    const fullPath = join(distDir, filePath)
+    if (!existsSync(fullPath)) return
+
+    let pageHtml = readFileSync(fullPath, 'utf8')
+    // Only add to pages that have the root div (prerendered content)
+    if (!pageHtml.includes('<div id="root"')) return
+
+    // Add data-deploy-id-footer to root div
+    if (!pageHtml.includes('data-deploy-id-footer')) {
+      pageHtml = pageHtml.replace('<div id="root"', '<div id="root" data-deploy-id-footer')
+      writeFileSync(fullPath, pageHtml, 'utf8')
+    }
+  }
+
+  // Scan dist/ for route directories
+  try {
+    const items = readdirSync(distDir, { withFileTypes: true })
+    for (const item of items) {
+      if (item.isDirectory()) {
+        const indexPath = join(item.name, 'index.html')
+        injectFooterAttr(indexPath)
+      }
+    }
+  } catch {
+    // No subdirectories or error scanning
   }
 }

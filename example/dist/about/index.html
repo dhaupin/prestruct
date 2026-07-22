@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>How it works | Prestruct</title>
+  <meta name="description" content="How Prestruct prerenders Vite + React routes to static HTML. The build pipeline, caching strategy, and key architectural decisions explained." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/about" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/about" />
+    <meta property="og:title"        content="How it works | Prestruct" />
+    <meta property="og:description"  content="How Prestruct prerenders Vite + React routes to static HTML. The build pipeline, caching strategy, and key architectural decisions explained." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="How it works | Prestruct" />
+    <meta name="twitter:description" content="How Prestruct prerenders Vite + React routes to static HTML. The build pipeline, caching strategy, and key architectural decisions explained." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a aria-current="page" class="nav-link active" href="/about">about</a><a class="nav-link" href="/deploy">deploy</a><a class="nav-link" href="/islands">islands</a><a class="nav-link" href="/proxy">proxy</a><a class="nav-link" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><section class="page-hero"><div class="container"><p class="page-kicker fade-up">How it works</p><h1 class="page-heading fade-up delay-1">The build pipeline.</h1><p class="page-sub fade-up delay-2">Prestruct adds two Node scripts to your existing Vite build. They run after<!-- --> <code>vite build</code>, take about 2 seconds, and leave you with a<!-- --> <code>dist/</code> that search engines can crawl.</p></div></section><section class="section"><div class="container"><p class="section-label">Step by step</p><div class="steps"><div class="step"><div class="step-num">01</div><div class="step-body"><p class="step-title">vite build</p><p class="step-text">Your standard Vite production build. Produces <code>dist/</code> with content-hashed JS and CSS bundles. <code>dist/index.html</code> is a shell with empty meta placeholders at this point.</p></div></div><div class="step"><div class="step-num">02</div><div class="step-body"><p class="step-title">node scripts/inject-brand.js</p><p class="step-text">Reads your <code>ssr.config.js</code> and writes global title, meta description, Open Graph tags, Twitter Card tags, and JSON-LD schema into<!-- --> <code>dist/index.html</code>. This becomes the shell that step 3 stamps per-route meta on top of.</p></div></div><div class="step"><div class="step-num">03</div><div class="step-body"><p class="step-title">node scripts/prerender.js</p><p class="step-text">Spins up a Vite dev server, loads <code>AppLayout</code> via<!-- --> <code>ssrLoadModule</code>, wraps it in <code>StaticRouter</code> for each route, renders to string, stamps per-route title, description, canonical, and og:url, then writes <code>dist/route/index.html</code>. Also generates <code>404.html</code> with a real HTTP 404 status and a fresh <code>sitemap.xml</code> dated today.</p></div></div><div class="step"><div class="step-num">04</div><div class="step-body"><p class="step-title">Cloudflare Pages deploy</p><p class="step-text">CF uploads only changed files. Each route&#x27;s HTML is served with HTTP 200 and <code>Cache-Control: no-cache</code>, so users always get the latest deploy. Hashed JS/CSS assets get <code>max-age=31536000, immutable</code>.<!-- --> <code>404.html</code> is served automatically with HTTP 404 for unmatched paths.</p></div></div></div></div></section><section class="section"><div class="container"><p class="section-label">Caching strategy</p><div class="feature-grid"><div class="feature"><p class="feature-icon">HTML pages</p><h3 class="feature-title"><code>Cache-Control: no-cache</code></h3><p class="feature-desc">Every HTML file revalidates on each request. Users always get the latest deploy. The revalidation is fast because the content lives on Cloudflare&#x27;s CDN edge.</p></div><div class="feature"><p class="feature-icon">JS + CSS assets</p><h3 class="feature-title">Immutable, 1 year</h3><p class="feature-desc">Vite content-hashes every bundle filename. The hash changes when content changes, so <code>index-DnaYLP7Z.js</code> will never change. Safe to cache forever.</p></div><div class="feature"><p class="feature-icon">404 + sitemap</p><h3 class="feature-title">Short TTL</h3><p class="feature-desc"><code>sitemap.xml</code> and <code>robots.txt</code> cache for 24 hours. Long enough to avoid hammering the origin, short enough to pick up route changes quickly after a deploy.</p></div></div></div></section><section class="section"><div class="container"><p class="section-label">Key technical decisions</p><div class="callout"><strong>Why <code>ssrLoadModule</code> instead of <code>vite build --ssr</code></strong><p>A compiled SSR bundle creates a separate module instance from the client bundle. <code>StaticRouter</code> and <code>Routes</code> end up with different copies of <code>react-router-dom</code>. Location context never propagates, and every route silently renders as the homepage.<!-- --> <code>ssrLoadModule</code> uses Vite&#x27;s unified registry: one instance, one context, correct output.</p></div><div class="callout"><strong>Why <code>AppLayout</code> must never import <code>BrowserRouter</code></strong><p><code>ssrLoadModule</code> executes all imports at load time.<!-- --> <code>BrowserRouter</code> initializes immediately against<!-- --> <code>window.location</code>, which defaults to <code>/</code> in Node. This fires before <code>StaticRouter</code> can set the correct location. Keep <code>BrowserRouter</code> in <code>App.jsx</code> only.</p></div><div class="callout"><strong>Why <code>hydrateRoot</code> instead of <code>createRoot</code></strong><p><code>createRoot</code> replaces the entire DOM on mount, causing a repaint even when the SSR HTML matches perfectly. Users see a flash (FOUC).<!-- --> <code>hydrateRoot</code> attaches React to the existing SSR DOM without touching it. The page the crawler indexed is identical to what the browser paints.</p></div><div class="u-mt-1"><div class="cb"><div class="cb-bar"><span class="cb-label">main.jsx</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">const</span> <!-- -->root<!-- --> <!-- -->=<!-- --> <!-- -->document<!-- -->.<span class="tok-fn">getElementById</span><span class="tok-punct">(</span><span class="tok-str">&#x27;root&#x27;</span><span class="tok-punct">)</span>
+<span class="tok-kw">if</span> <span class="tok-punct">(</span>root<!-- --> <!-- -->&amp;<!-- -->&amp;<!-- --> <!-- -->root<!-- -->.<!-- -->dataset<!-- -->.<!-- -->serverRendered<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->ReactDOM<!-- -->.<span class="tok-fn">hydrateRoot</span><span class="tok-punct">(</span>root<span class="tok-punct">,</span> <!-- -->&lt;<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<!-- -->&lt;<!-- -->App<!-- --> <!-- -->/<!-- -->&gt;<!-- -->&lt;<!-- -->/<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<span class="tok-punct">)</span>
+<span class="tok-punct">}</span> <span class="tok-kw">else</span> <span class="tok-kw">if</span> <span class="tok-punct">(</span>root<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->ReactDOM<!-- -->.<span class="tok-fn">createRoot</span><span class="tok-punct">(</span>root<span class="tok-punct">)</span>.<span class="tok-fn">render</span><span class="tok-punct">(</span>&lt;<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<!-- -->&lt;<!-- -->App<!-- --> <!-- -->/<!-- -->&gt;<!-- -->&lt;<!-- -->/<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<span class="tok-punct">)</span>
+<span class="tok-punct">}</span></code></pre></div></div><div class="u-mt-2"><a class="btn btn-primary" href="/deploy">Ready to integrate</a></div></div></section></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a aria-current="page" class="footer-link active" href="/about">about</a><a class="footer-link" href="/deploy">deploy</a><a class="footer-link" href="/islands">islands</a><a class="footer-link" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a class="footer-link" href="/contact">contact</a><a class="footer-link" href="/privacy">privacy</a><a class="footer-link" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>

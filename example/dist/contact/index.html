@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>Get Help | Prestruct</title>
+  <meta name="description" content="Get help setting up Prestruct - contact the maintainer or open a GitHub issue." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/contact" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/contact" />
+    <meta property="og:title"        content="Get Help | Prestruct" />
+    <meta property="og:description"  content="Get help setting up Prestruct - contact the maintainer or open a GitHub issue." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Get Help | Prestruct" />
+    <meta name="twitter:description" content="Get help setting up Prestruct - contact the maintainer or open a GitHub issue." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a class="nav-link" href="/about">about</a><a class="nav-link" href="/deploy">deploy</a><a class="nav-link" href="/islands">islands</a><a class="nav-link" href="/proxy">proxy</a><a aria-current="page" class="nav-link active" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><div class="page-hero"><div class="container"><div class="page-kicker">help</div><h1 class="page-heading">Get Help</h1><p class="page-sub">Need a hand? Here&#x27;s how to reach us.</p></div><div class="container"><div class="u-mt-2" style="max-width:680px"><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">Email the Maintainer</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">I&#x27;m a real human in the US, not a bot. If you&#x27;re stuck on setup or just want to say hi, feel free to reach out. If you&#x27;re running into errors, include the details below and I&#x27;ll do my best to help.</p><p style="color:var(--accent);line-height:1.7;margin-bottom:1rem"><pre-island data-pre-island="email-island"><span class="island-loading">loading...</span></pre-island></p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">GitHub Issues</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Found a bug or have a feature request? Open an issue on GitHub. Before you do, check if there&#x27;s already one filed.</p><p style="margin-bottom:1rem"><a href="https://github.com/dhaupin/prestruct/issues" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">Open an Issue →</a></p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">GitHub Discussions</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Have a question or want to show off what you built? Join the conversation in Discussions.</p><p style="margin-bottom:1rem"><a href="https://github.com/dhaupin/prestruct/discussions" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">Join the Discussion →</a></p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">What to Include in Your Message</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">The more details you provide, the faster I can help. Please include:</p><ul style="color:var(--text-2);line-height:1.9;padding-left:1.25rem;margin-bottom:1rem"><li>What you&#x27;re trying to set up (the platform/host)</li><li>What your site is running on (Vite + React, framework, etc.)</li><li>The exact error message you&#x27;re seeing</li><li>Any relevant logs or stack traces</li><li>Steps to reproduce the issue</li></ul></section></div></div></div></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a class="footer-link" href="/about">about</a><a class="footer-link" href="/deploy">deploy</a><a class="footer-link" href="/islands">islands</a><a class="footer-link" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a aria-current="page" class="footer-link active" href="/contact">contact</a><a class="footer-link" href="/privacy">privacy</a><a class="footer-link" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#080808"/>
+      <stop offset="100%" stop-color="#0e0e0e"/>
+    </linearGradient>
+    <!-- Accent glow -->
+    <radialGradient id="glow" cx="140" cy="315" r="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c8f000" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#c8f000" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Right glow -->
+    <radialGradient id="glow2" cx="1060" cy="315" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c8f000" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#c8f000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- Subtle grid -->
+  <g stroke="#ffffff" stroke-opacity="0.025" stroke-width="1">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+  </g>
+
+  <!-- Left border accent -->
+  <rect x="0" y="0" width="4" height="630" fill="#c8f000" opacity="0.8"/>
+
+  <!-- Top-left: wordmark -->
+  <text x="56" y="82" font-family="'Geist Mono', ui-monospace, monospace" font-size="22" font-weight="600" fill="#4a4845">[</text>
+  <text x="72" y="82" font-family="'Geist Mono', ui-monospace, monospace" font-size="22" font-weight="600" fill="#e2e0db">pre</text>
+  <text x="115" y="82" font-family="'Geist Mono', ui-monospace, monospace" font-size="22" font-weight="600" fill="#c8f000">struct</text>
+  <text x="211" y="82" font-family="'Geist Mono', ui-monospace, monospace" font-size="22" font-weight="600" fill="#4a4845">]</text>
+
+  <!-- MIT badge -->
+  <rect x="56" y="96" width="52" height="20" rx="3" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="82" y="110" font-family="'Geist Mono', ui-monospace, monospace" font-size="11" fill="#4a4845" text-anchor="middle">MIT</text>
+
+  <!-- Main headline -->
+  <text x="56" y="232" font-family="'Geist', system-ui, sans-serif" font-size="74" font-weight="800" letter-spacing="-2" fill="#e2e0db">Your React app,</text>
+  <text x="56" y="320" font-family="'Geist', system-ui, sans-serif" font-size="74" font-weight="800" letter-spacing="-2" fill="#c8f000">visible to search engines.</text>
+
+  <!-- Sub -->
+  <text x="56" y="386" font-family="'Geist', system-ui, sans-serif" font-size="26" font-weight="400" fill="#8a8680">
+    Build-time prerender for Vite + React on Cloudflare Pages.
+  </text>
+  <text x="56" y="422" font-family="'Geist', system-ui, sans-serif" font-size="26" font-weight="400" fill="#8a8680">
+    Per-route HTML, Open Graph, schema.org, and cache headers.
+  </text>
+
+  <!-- Pipeline pills at bottom -->
+  <!-- pill 1 -->
+  <rect x="56" y="504" width="188" height="52" rx="6" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="150" y="525" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#c8f000" text-anchor="middle">vite build</text>
+  <text x="150" y="544" font-family="'Geist Mono', ui-monospace, monospace" font-size="11" fill="#4a4845" text-anchor="middle">hashed bundles</text>
+
+  <!-- arrow -->
+  <text x="262" y="533" font-family="'Geist Mono', ui-monospace, monospace" font-size="16" fill="#2a2a2a">&#8594;</text>
+
+  <!-- pill 2 -->
+  <rect x="284" y="504" width="188" height="52" rx="6" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="378" y="525" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#c8f000" text-anchor="middle">inject-brand.js</text>
+  <text x="378" y="544" font-family="'Geist Mono', ui-monospace, monospace" font-size="11" fill="#4a4845" text-anchor="middle">global SEO meta</text>
+
+  <!-- arrow -->
+  <text x="490" y="533" font-family="'Geist Mono', ui-monospace, monospace" font-size="16" fill="#2a2a2a">&#8594;</text>
+
+  <!-- pill 3 -->
+  <rect x="512" y="504" width="188" height="52" rx="6" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="606" y="525" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#c8f000" text-anchor="middle">prerender.js</text>
+  <text x="606" y="544" font-family="'Geist Mono', ui-monospace, monospace" font-size="11" fill="#4a4845" text-anchor="middle">static HTML per route</text>
+
+  <!-- arrow -->
+  <text x="718" y="533" font-family="'Geist Mono', ui-monospace, monospace" font-size="16" fill="#2a2a2a">&#8594;</text>
+
+  <!-- pill 4 -->
+  <rect x="740" y="504" width="188" height="52" rx="6" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="834" y="525" font-family="'Geist Mono', ui-monospace, monospace" font-size="12" fill="#c8f000" text-anchor="middle">CF Pages deploy</text>
+  <text x="834" y="544" font-family="'Geist Mono', ui-monospace, monospace" font-size="11" fill="#4a4845" text-anchor="middle">globally cached</text>
+
+  <!-- domain watermark bottom right -->
+  <text x="1144" y="600" font-family="'Geist Mono', ui-monospace, monospace" font-size="16" fill="#2a2a2a" text-anchor="end">prestruct.creadev.org</text>
+</svg>

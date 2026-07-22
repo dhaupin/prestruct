@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>Dynamic islands | Prestruct</title>
+  <meta name="description" content="Punch holes through prerendered HTML for client-only content. Cart widgets, recently viewed, personalization -- served to humans, invisible to crawlers." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/islands" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/islands" />
+    <meta property="og:title"        content="Dynamic islands | Prestruct" />
+    <meta property="og:description"  content="Punch holes through prerendered HTML for client-only content. Cart widgets, recently viewed, personalization -- served to humans, invisible to crawlers." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Dynamic islands | Prestruct" />
+    <meta name="twitter:description" content="Punch holes through prerendered HTML for client-only content. Cart widgets, recently viewed, personalization -- served to humans, invisible to crawlers." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a class="nav-link" href="/about">about</a><a class="nav-link" href="/deploy">deploy</a><a aria-current="page" class="nav-link active" href="/islands">islands</a><a class="nav-link" href="/proxy">proxy</a><a class="nav-link" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><section class="page-hero"><div class="container"><p class="page-kicker fade-up">Dynamic islands</p><h1 class="page-heading fade-up delay-1">Static HTML.<br/><em>Dynamic Components.</em></h1><p class="page-sub fade-up delay-2">Some content shouldn&#x27;t be in the prerendered HTML: cart state, recently viewed products, logged-in user widgets, etc. Islands let you punch those holes through the static page and fill them in the browser, after hydration. It&#x27;s like a window to your app, within a static page.</p></div></section><section class="section"><div class="container"><p class="section-label">The problem islands solve</p><p class="u-section-intro">Prerendered HTML is the same for every visitor. That&#x27;s what makes it fast and crawlable. But some content is inherently per-visitor: what&#x27;s in their cart, which pages they&#x27;ve seen, what they&#x27;ve favorited. You can&#x27;t bake that into static HTML at build time.</p><div class="compare"><div class="compare-row header"><div class="compare-cell"></div><div class="compare-cell">Without islands</div><div class="compare-cell">With islands</div></div><div class="compare-row"><div class="compare-cell label">User-specific content</div><div class="compare-cell bad">Skipped or deferred to a full re-render</div><div class="compare-cell good">Mounted into a placeholder after hydration</div></div><div class="compare-row"><div class="compare-cell label">Crawler exposure</div><div class="compare-cell bad">Dynamic content leaks into static HTML</div><div class="compare-cell good">Fallback text only. Component never runs at build time</div></div><div class="compare-row"><div class="compare-cell label">Load timing</div><div class="compare-cell bad">All or nothing on hydration</div><div class="compare-cell good">eager, visible, or idle per island</div></div><div class="compare-row"><div class="compare-cell label">Hydration risk</div><div class="compare-cell bad">Dynamic content causes SSR mismatch</div><div class="compare-cell good">Islands are outside the hydrated tree</div></div></div></div></section><section class="section"><div class="container"><p class="section-label">How it works</p><div class="steps"><div class="step"><div class="step-num">01</div><div class="step-body"><p class="step-title">Place a <!-- -->&lt;pre-island&gt;<!-- --> in your JSX</p><p class="step-text">The custom element ships in the prerendered HTML as an inert placeholder. Crawlers see the fallback content inside it. React&#x27;s<!-- --> <code>renderToString</code> passes unknown elements through unchanged.</p><div class="u-mt-1"><div class="cb"><div class="cb-bar"><span class="cb-label cb-label--lang">html</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code">&lt;<span class="tok-tag">pre-island</span> <span class="tok-attr">data-pre-island</span>=<span class="tok-val">&quot;cart-widget&quot;</span> <span class="tok-attr">data-pre-load</span>=<span class="tok-val">&quot;visible&quot;</span>&gt;<!-- -->
+  <!-- -->&lt;<span class="tok-tag">span</span> <span class="tok-attr">class</span>=<span class="tok-val">&quot;island-loading&quot;</span>&gt;<!-- -->Loading cart...<!-- -->&lt;/<span class="tok-tag">span</span>&gt;<!-- -->
+<!-- -->&lt;/<span class="tok-tag">pre-island</span>&gt;</code></pre></div></div></div></div><div class="step"><div class="step-num">02</div><div class="step-body"><p class="step-title">Register the component in AppIslands.jsx</p><p class="step-text">One file maps island names to React components. That&#x27;s the entire registry. No config, no decorators, no build plugin.</p><div class="u-mt-1"><div class="cb"><div class="cb-bar"><span class="cb-label">src/AppIslands.jsx</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">import</span> <!-- -->CartWidget<!-- --> <span class="tok-kw">from</span> <span class="tok-str">&#x27;./islands/CartWidget.jsx&#x27;</span>
+<!-- -->
+<span class="tok-kw">export</span> <span class="tok-kw">const</span> <!-- -->islands<!-- --> <!-- -->=<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <span class="tok-str">&#x27;cart-widget&#x27;</span>:<!-- --> <!-- -->CartWidget<span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div></div></div></div><div class="step"><div class="step-num">03</div><div class="step-body"><p class="step-title">mountIslands() does the rest</p><p class="step-text">Called in <code>main.jsx</code> after <code>hydrateRoot</code>. Scans the DOM for <code>pre-island</code> elements, finds the matching component, and calls <code>ReactDOM.createRoot(el).render()</code> into each one. Each island is its own React root, independent of the main tree.</p><div class="u-mt-1"><div class="cb"><div class="cb-bar"><span class="cb-label">src/main.jsx</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">import</span> <span class="tok-punct">{</span> <!-- -->mountIslands<!-- --> <span class="tok-punct">}</span> <span class="tok-kw">from</span> <span class="tok-str">&#x27;./islands.js&#x27;</span>
+<span class="tok-kw">import</span> <span class="tok-punct">{</span> <!-- -->islands<!-- --> <span class="tok-punct">}</span> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-kw">from</span> <span class="tok-str">&#x27;./AppIslands.jsx&#x27;</span>
+<!-- -->
+<span class="tok-cmt">// after hydrateRoot / createRoot:</span>
+<span class="tok-fn">mountIslands</span><span class="tok-punct">(</span>islands<span class="tok-punct">)</span></code></pre></div></div></div></div></div></div></section><section class="section"><div class="container"><p class="section-label">Load strategies</p><p class="u-section-intro">The <code>data-pre-load</code> attribute controls when each island mounts. Match the strategy to the priority of the content.</p><div class="feature-grid"><div class="feature"><p class="feature-icon">eager</p><h3 class="feature-title">Immediate</h3><p class="feature-desc">Default. Mounts right after <code>mountIslands()</code> runs. Use for above-the-fold widgets that need to be interactive quickly.</p></div><div class="feature"><p class="feature-icon">visible</p><h3 class="feature-title">On scroll</h3><p class="feature-desc">Mounts when the element enters the viewport via<!-- --> <code>IntersectionObserver</code>. Use for below-the-fold content that isn&#x27;t needed until the user reaches it.</p></div><div class="feature"><p class="feature-icon">idle</p><h3 class="feature-title">Background</h3><p class="feature-desc">Mounts via <code>requestIdleCallback</code> during browser downtime. Use for low-priority widgets that shouldn&#x27;t compete with paint or interaction.</p></div></div></div></section><section class="section"><div class="container"><p class="section-label">What islands can&#x27;t do</p><div class="callout"><strong>Islands don&#x27;t receive props from the React tree.</strong><p>Each island is a separate <code>ReactDOM.createRoot</code>, outside the main <code>hydrateRoot</code> tree. React context from the parent app doesn&#x27;t reach them. Pass data via <code>data</code> attributes on the element itself, read from <code>localStorage</code>, or fetch from an API.</p></div><div class="callout"><strong>Island content is invisible to crawlers.</strong><p>The component never runs during SSR. Crawlers see the fallback text inside the <code>pre-island</code> element. If you need dynamic content indexed, prerender it into a dedicated route instead.</p></div><div class="callout"><strong>Islands are not a replacement for a server.</strong><p>They&#x27;re browser-only. If your dynamic content requires auth, per-request data, or database access, you need edge SSR or an API endpoint. Islands handle client state, localStorage, and public fetches well. Everything else belongs server-side.</p></div></div></section><section class="section"><div class="container"><p class="section-label">Live demo</p><p class="u-section-intro">The widget below is a <code>pre-island</code> with<!-- --> <code>data-pre-load=&quot;idle&quot;</code>. It tracks which pages you&#x27;ve visited this session using <code>sessionStorage</code>. The prerendered HTML for this page contains none of this -- a fallback line is what the crawler sees. Navigate to a few pages and come back.</p><div class="callout u-mb-15">Right-click this page and choose <strong>View Page Source</strong> to see the raw prerendered HTML. Search for <code>pre-island</code> and you&#x27;ll find the placeholder with the fallback text and nothing else. The session data below was never on the server.</div><pre-island data-pre-island="session-trail" data-pre-load="idle"><p class="island-fallback">Session data loads after hydration.</p></pre-island><div class="u-row u-mt-25"><a href="https://github.com/dhaupin/prestruct" class="btn btn-primary" target="_blank" rel="noopener noreferrer">View source</a><a href="https://github.com/dhaupin/prestruct/blob/main/init/src/islands.js" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">islands.js</a></div></div></section></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a class="footer-link" href="/about">about</a><a class="footer-link" href="/deploy">deploy</a><a aria-current="page" class="footer-link active" href="/islands">islands</a><a class="footer-link" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a class="footer-link" href="/contact">contact</a><a class="footer-link" href="/privacy">privacy</a><a class="footer-link" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>

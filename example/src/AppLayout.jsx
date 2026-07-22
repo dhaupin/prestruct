@@ -66,6 +66,9 @@ function GitHubIcon() {
 function DeployId() {
   const deployId = useMemo(() => {
     if (typeof document === 'undefined') return null
+    // Check if footer display is enabled via data attribute
+    const root = document.getElementById('root')
+    if (!root?.hasAttribute('data-deploy-id-footer')) return null
     const meta = document.querySelector('meta[name="deploy-id"]')
     return meta?.content || null
   }, [])

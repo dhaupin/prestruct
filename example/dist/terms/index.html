@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>Terms of Service | Prestruct</title>
+  <meta name="description" content="Terms of Service for Prestruct - a lightweight build-time prerender layer for Vite + React on Cloudflare Pages." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/terms" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/terms" />
+    <meta property="og:title"        content="Terms of Service | Prestruct" />
+    <meta property="og:description"  content="Terms of Service for Prestruct - a lightweight build-time prerender layer for Vite + React on Cloudflare Pages." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Terms of Service | Prestruct" />
+    <meta name="twitter:description" content="Terms of Service for Prestruct - a lightweight build-time prerender layer for Vite + React on Cloudflare Pages." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a class="nav-link" href="/about">about</a><a class="nav-link" href="/deploy">deploy</a><a class="nav-link" href="/islands">islands</a><a class="nav-link" href="/proxy">proxy</a><a class="nav-link" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><div class="page-hero"><div class="container"><div class="page-kicker">legal</div><h1 class="page-heading">Terms of Service</h1><p class="page-sub">Last updated: 2026</p></div><div class="container"><div class="u-mt-2" style="max-width:680px"><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">1. Acceptance of Terms</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">By accessing and using Prestruct, you accept and agree to be bound by the terms and provision of this agreement.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">2. Use License</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Permission is granted to temporarily use Prestruct for personal or commercial projects. This is the grant of a license, not a transfer of title, and under this license you may not:</p><ul style="color:var(--text-2);line-height:1.9;padding-left:1.25rem;margin-bottom:1rem"><li>Modify or copy the materials</li><li>Use the materials for any commercial purpose or public display</li><li>Attempt to reverse engineer any software contained in Prestruct</li><li>Transfer the materials to another person or &quot;mirror&quot; the materials on any other server</li></ul></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">3. No Warranty</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct is provided &quot;as is&quot; without warranty of any kind, express or implied. We do not warrant that Prestruct will meet your requirements or that its operation will be uninterrupted or error-free.</p><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">We specifically disclaim any implied warranties of merchantability, fitness for a particular purpose, and non-infringement. Your use of Prestruct is at your own risk.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">4. Limitation of Liability</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">In no event shall Prestruct or its authors be liable for any damages arising out of the use or inability to use the materials on Prestruct, even if we have been notified of the possibility of such damages.</p><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">This includes but is not limited to direct, indirect, incidental, punitive, and consequential damages.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">5. We Do Not Review Your Site or Code</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct processes your site during the build process, but we do not review, analyze, or have any visibility into the content of your website, application code, or any data you process through our tools.</p><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">You are solely responsible for ensuring that your website and its content comply with all applicable laws and regulations.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">6. We Do Not Modify or Interfere With Your Site</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct generates static HTML from your build-time code. We do not modify your source code, inject any tracking or analytics, or interfere with the operation of your website in any way.</p><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">The prerendering process is a one-way transformation that produces static output. We have no ongoing access or control over your deployed site.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">7. User Responsibilities</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">You are responsible for:</p><ul style="color:var(--text-2);line-height:1.9;padding-left:1.25rem;margin-bottom:1rem"><li>Ensuring your use of Prestruct complies with all applicable laws</li><li>Maintaining backups of your code and content</li><li>Testing the prerendered output before deployment</li><li>Ensuring your website is accessible and functions correctly after prerendering</li></ul></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">8. Privacy</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct does not collect, store, or process any personal information from users of your website. For more information, please refer to our <a href="/privacy" style="color:var(--accent)">Privacy Policy</a>.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">9. Governing Law</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">These terms and conditions are governed by and construed in accordance with the laws of the United States, and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">10. Termination</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">We may terminate or suspend your access to Prestruct at any time, without prior notice or liability, for any reason, including breach of these Terms.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">11. Trademarks</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">&quot;Prestruct&quot; and the Prestruct logo are trademarks owned by the authors. You may not use these trademarks without prior written permission.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">12. Indemnification</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">You agree to indemnify and hold harmless Prestruct and its authors from any claims, damages, liabilities, costs, or expenses arising from your use of Prestruct or breach of these Terms.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">13. Entire Agreement</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">These Terms constitute the entire agreement between you and us regarding your use of Prestruct and supersede any prior agreements.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">14. Contact</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">If you have any questions about these Terms of Service, please contact us at <a href="https://github.com/dhaupin/prestruct" style="color:var(--accent)">GitHub</a>.</p></section></div></div></div></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a class="footer-link" href="/about">about</a><a class="footer-link" href="/deploy">deploy</a><a class="footer-link" href="/islands">islands</a><a class="footer-link" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a class="footer-link" href="/contact">contact</a><a class="footer-link" href="/privacy">privacy</a><a aria-current="page" class="footer-link active" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>

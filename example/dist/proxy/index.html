@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>Bot proxy | Prestruct</title>
+  <meta name="description" content="Serve fresh content to bots without edge SSR. Prestruct proxy renders dynamic pages to static HTML for search crawlers." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/proxy" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/proxy" />
+    <meta property="og:title"        content="Bot proxy | Prestruct" />
+    <meta property="og:description"  content="Serve fresh content to bots without edge SSR. Prestruct proxy renders dynamic pages to static HTML for search crawlers." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Bot proxy | Prestruct" />
+    <meta name="twitter:description" content="Serve fresh content to bots without edge SSR. Prestruct proxy renders dynamic pages to static HTML for search crawlers." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a class="nav-link" href="/about">about</a><a class="nav-link" href="/deploy">deploy</a><a class="nav-link" href="/islands">islands</a><a aria-current="page" class="nav-link active" href="/proxy">proxy</a><a class="nav-link" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><section class="page-hero"><div class="container"><h1 class="page-heading fade-up">Bot proxy for dynamic routes.</h1><p class="page-sub fade-up delay-1">Serve fresh content to search bots without edge SSR. Prerender covers static routes. The proxy renders dynamic pages on request.</p></div></section><section class="section" style="background:var(--bg-1)"><div class="container"><p class="section-label">Why proxy?</p><div class="benefit-grid"><div class="benefit"><p class="benefit-num">01</p><p class="benefit-title">Build-time misses</p><p class="benefit-desc">Paginated routes, search results, dated content - too many URLs to prerender. Proxy renders on-request.</p></div><div class="benefit"><p class="benefit-num">02</p><p class="benefit-title">Freshness</p><p class="benefit-desc">Content changed since last build? Proxy re-renders and caches. Bots see current pages.</p></div><div class="benefit"><p class="benefit-num">03</p><p class="benefit-title">Bots only</p><p class="benefit-desc">Humans get static HTML from prerender. Only bots hitting uncached dynamic URLs hit proxy.</p></div></div></div></section><section class="section"><div class="container"><p class="section-label">How it works</p><div class="cb"><div class="cb-bar"><span class="cb-label">sh</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-cmt"># Bot hits /blog/page/5</span>
+<span class="tok-cmt"># Not prerendered? → Proxy renders</span>
+<span class="tok-fn"></span>
+<span class="tok-cmt"># 1. Detect botUserAgent</span>
+<span class="tok-cmt"># 2. Fetch targetUrl with Puppeteer</span>
+<span class="tok-cmt"># 3. Cache HTML to KV or disk</span>
+<span class="tok-cmt"># 4. Return with fresh meta</span>
+<span class="tok-fn"></span>
+<span class="tok-cmt"># Config in ssr.config.js</span>
+<span class="tok-fn">proxy:</span> <!-- -->{<!-- -->
+<span class="tok-fn"></span>  <!-- -->url:<!-- --> <!-- -->&#x27;https://my-proxy.example.com&#x27;,<!-- -->
+<span class="tok-fn"></span>  <!-- -->botList:<!-- --> <!-- -->[&#x27;googlebot&#x27;,<!-- --> <!-- -->&#x27;bingbot&#x27;,<!-- --> <!-- -->&#x27;claudebot&#x27;],<!-- -->
+<span class="tok-fn"></span>  <!-- -->cacheTTL:<!-- --> <!-- -->3600,<!-- -->  <!-- -->//<!-- --> <!-- -->seconds<!-- -->
+<span class="tok-fn">}</span></code></pre></div></div></section><section class="section" style="background:var(--bg-1)"><div class="container"><p class="section-label">Implementation</p><div class="accordion"><details class="accordion-item"><summary class="accordion-q">VPS (Node + Puppeteer)</summary><div class="accordion-a"><p>Use <code>scripts/proxy.js</code>. Runs Express with Puppeteer. Works on any VPS with Node 18+.</p></div></details><details class="accordion-item"><summary class="accordion-q">Cloudflare Worker</summary><div class="accordion-a"><p>Use <code>scripts/proxy.worker.js</code> with Browser Rendering API. Requires Workers Paid plan.</p></div></details><details class="accordion-item"><summary class="accordion-q">Cache refresh</summary><div class="accordion-a"><p>Send <code>X-Prestruct-Refresh</code> header with secret to bust cache for a path.</p></div></details></div></div></section><section class="section"><div class="container"><p class="section-label">Enable proxy</p><div class="cb"><div class="cb-bar"><span class="cb-label">ssr.config.js</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">export</span> <span class="tok-kw">default</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->routes<!-- -->:<!-- --> <span class="tok-punct">[</span>.<!-- -->.<!-- -->.<span class="tok-punct">]</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->proxy<!-- -->:<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->url<!-- -->:<!-- --> <span class="tok-str">&#x27;https://your-proxy.workers.dev&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-cmt">// or null to disable</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->botList<!-- -->:<!-- --> <span class="tok-punct">[</span><span class="tok-str">&#x27;googlebot&#x27;</span><span class="tok-punct">,</span> <span class="tok-str">&#x27;bingbot&#x27;</span><span class="tok-punct">,</span> <span class="tok-str">&#x27;claudebot&#x27;</span><span class="tok-punct">,</span> <span class="tok-str">&#x27;perplexitybot&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->targetUrl<!-- -->:<!-- --> <!-- -->process<!-- -->.<!-- -->env<!-- -->.<!-- -->PRESTRUCT_TARGET_URL<span class="tok-punct">,</span>
+<!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div></div></section></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a class="footer-link" href="/about">about</a><a class="footer-link" href="/deploy">deploy</a><a class="footer-link" href="/islands">islands</a><a aria-current="page" class="footer-link active" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a class="footer-link" href="/contact">contact</a><a class="footer-link" href="/privacy">privacy</a><a class="footer-link" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>

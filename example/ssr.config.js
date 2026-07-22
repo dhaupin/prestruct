@@ -7,6 +7,12 @@ export default {
   keywords:      'vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator',
   appLayoutPath: '/src/AppLayout.jsx',
 
+  // Deploy ID settings
+  // Enable/disable deploy ID entirely (meta tag + footer display)
+  deployId: true,
+  // Show deploy ID in footer (requires deployId: true)
+  deployIdFooter: true,
+
   faqs: [
     {
       q: 'How do I add this to my existing Vite + React app?',

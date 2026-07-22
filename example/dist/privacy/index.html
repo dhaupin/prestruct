@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>Privacy Policy | Prestruct</title>
+  <meta name="description" content="Privacy Policy for Prestruct - learn how we handle data in our build-time prerendering tool for Vite + React." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/privacy" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/privacy" />
+    <meta property="og:title"        content="Privacy Policy | Prestruct" />
+    <meta property="og:description"  content="Privacy Policy for Prestruct - learn how we handle data in our build-time prerendering tool for Vite + React." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Privacy Policy | Prestruct" />
+    <meta name="twitter:description" content="Privacy Policy for Prestruct - learn how we handle data in our build-time prerendering tool for Vite + React." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a class="nav-link" href="/about">about</a><a class="nav-link" href="/deploy">deploy</a><a class="nav-link" href="/islands">islands</a><a class="nav-link" href="/proxy">proxy</a><a class="nav-link" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><div class="page-hero"><div class="container"><div class="page-kicker">legal</div><h1 class="page-heading">Privacy Policy</h1><p class="page-sub">Last updated: 2026</p></div><div class="container"><div class="u-mt-2" style="max-width:680px"><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">1. Overview</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct is a build-time prerendering tool. This Privacy Policy explains how we handle data when you use Prestruct to generate static HTML for your Vite + React applications deployed on Cloudflare Pages.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">2. Data We Collect</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem"><strong style="color:var(--text)">Prestruct itself does not collect any personal data.</strong> Prestruct runs as a build-time tool that processes your source code to generate static HTML files. During this process:</p><ul style="color:var(--text-2);line-height:1.9;padding-left:1.25rem;margin-bottom:1rem"><li>We do not collect user information from visitors to your website</li><li>We do not store cookies or similar tracking technologies</li><li>We do not have access to any data submitted through your website</li><li>We do not analyze or monitor your site&#x27;s traffic or usage</li></ul></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">3. Build-Time Processing</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">When you run Prestruct during your build process, it reads your source files and generates static HTML. This processing happens locally on your machine or within your CI/CD environment.</p><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct does not transmit your code, content, or build output to any external servers beyond what you explicitly deploy to Cloudflare Pages.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">4. Third-Party Services</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct itself does not use any third-party analytics or tracking services. However, when you deploy your prerendered site to Cloudflare Pages, Cloudflare&#x27;s own <a href="https://www.cloudflare.com/privacy/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Privacy Policy</a> applies to their hosting services.</p><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">If your website includes third-party services (analytics, ads, embeds), those services may collect data independently. You are responsible for understanding and complying with those services&#x27; privacy practices.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">5. Cookies and Local Storage</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct does not set or use cookies. Your website may use cookies if you implement that functionality in your own code, but that is outside the scope of Prestruct.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">6. Children&#x27;s Privacy</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct is a developer tool and does not knowingly collect personal information from children under 13. If you believe your website using Prestruct may collect data from children, you are responsible for complying with applicable laws like COPPA or GDPR.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">7. Data Security</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Since Prestruct does not collect or store personal data, there is no personal data for us to secure. However, we recommend that you follow best practices for securing your development environment, build pipelines, and deployed websites.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">8. Changes to This Policy</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">We may update this Privacy Policy from time to time. If we make material changes, we will update the &quot;Last updated&quot; date at the top of this page and post the new policy here. We encourage you to review this policy periodically.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">9. Your Rights</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Since we do not collect personal data, there are no personal data rights for us to fulfill. If you have questions about this policy or your rights related to your own website&#x27;s data, please contact us at <a href="https://github.com/dhaupin/prestruct" style="color:var(--accent)">GitHub</a>.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">10. GDPR Compliance</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct processes data locally during your build and does not transmit any personal data outside your environment. For users in the EU/EEA, this means no personal data leaves your controlled build environment. We do not have access to any personal data through Prestruct itself.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">11. CCPA Compliance</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct does not collect personal information from California residents. As a developer tool that runs locally, it is not subject to the California Consumer Privacy Act (CCPA). If you use Prestruct to build a website that collects user data, you are responsible for your own CCPA compliance.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">12. Data Retention</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">Prestruct does not retain any personal data. Build artifacts are static HTML files that you control and deploy. We do not store any of your code, content, or generated HTML on our servers.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">13. Business Transfer</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">In the event of a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction. We will notify you before your data becomes subject to a different privacy policy.</p></section><section class="u-mb-2"><h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text)">14. Contact</h2><p style="color:var(--text-2);line-height:1.7;margin-bottom:1rem">If you have any questions about this Privacy Policy, please contact us at <a href="https://github.com/dhaupin/prestruct" style="color:var(--accent)">GitHub</a>.</p></section></div></div></div></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a class="footer-link" href="/about">about</a><a class="footer-link" href="/deploy">deploy</a><a class="footer-link" href="/islands">islands</a><a class="footer-link" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a class="footer-link" href="/contact">contact</a><a aria-current="page" class="footer-link active" href="/privacy">privacy</a><a class="footer-link" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>

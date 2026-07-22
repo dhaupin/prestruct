@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Primary SEO (populated by inject-brand.js) -->
+  <title>Deploy | Prestruct</title>
+  <meta name="description" content="Add SEO prerendering to your Vite + React app in minutes. Copy three files, write ssr.config.js, update your build script." />
+  <meta name="keywords" content="vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator" />
+  <meta name="author" content="Creadev.org" />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical" href="https://prestruct.creadev.org/deploy" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-Cbxvg-iN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CLI8xQVB.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CJs2SdYa.css">
+  <meta name="deploy-id" content="86a2f71-36fe" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"         content="website" />
+    <meta property="og:url"          content="https://prestruct.creadev.org/deploy" />
+    <meta property="og:title"        content="Deploy | Prestruct" />
+    <meta property="og:description"  content="Add SEO prerendering to your Vite + React app in minutes. Copy three files, write ssr.config.js, update your build script." />
+    <meta property="og:image"        content="https://prestruct.creadev.org/og-image.svg" />
+    <meta name="twitter:image"       content="https://prestruct.creadev.org/og-image.svg" />
+    <meta property="og:locale"       content="en_US" />
+    <meta property="og:site_name"    content="prestruct" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Deploy | Prestruct" />
+    <meta name="twitter:description" content="Add SEO prerendering to your Vite + React app in minutes. Copy three files, write ssr.config.js, update your build script." />
+
+    <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
+    <script type="application/ld+json">
+    {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prestruct",
+      "url": "https://github.com/creadev/prestruct",
+      "description": "Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Per-route static HTML prerendering",
+        "Title, description, Open Graph, Twitter Card injection",
+        "schema.org JSON-LD structured data",
+        "Automatic sitemap.xml generation",
+        "Correct HTTP 404 status for unmatched routes",
+        "Immutable asset caching with Cloudflare Pages"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Creadev.org",
+        "url": "https://github.com/creadev"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I add this to my existing Vite + React app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with any hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I add a new route?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add it to the routes array in ssr.config.js. Prerender picks it up on next build. No code changes needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about dynamic content (cart, user state)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use pre-island elements. They mount client-only React after hydration. Crawlers see fallback content."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not use edge SSR instead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prestruct is static HTML - faster, cheaper, simpler. No edge runtime needed. Build once, deploy everywhere. Good for SEO. Edge SSR is for dynamic per-request content."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://prestruct.creadev.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How it works",
+          "item": "https://prestruct.creadev.org/about"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Deploy",
+          "item": "https://prestruct.creadev.org/deploy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Islands",
+          "item": "https://prestruct.creadev.org/islands"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Bot proxy",
+          "item": "https://prestruct.creadev.org/proxy"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Get Help",
+          "item": "https://prestruct.creadev.org/contact"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+  </head>
+<body>
+  <div id="root" data-deploy-id-footer data-server-rendered="true"><div class="app"><header class="site-header"><a class="header-wordmark" href="/"><span class="wordmark-bracket">[</span>pre<span class="wordmark-accent">struct</span><span class="wordmark-bracket">]</span></a><div class="header-actions"><button class="theme-toggle" aria-label="Toggle theme" disabled=""></button><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></div><nav class="nav"><a class="nav-link" href="/">home</a><a class="nav-link" href="/about">about</a><a aria-current="page" class="nav-link active" href="/deploy">deploy</a><a class="nav-link" href="/islands">islands</a><a class="nav-link" href="/proxy">proxy</a><a class="nav-link" href="/contact">contact</a><a href="https://github.com/dhaupin/prestruct" class="nav-github" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>github</span></a></nav></header><main class="main"><section class="page-hero"><div class="container"><p class="page-kicker fade-up">Deploy</p><h1 class="page-heading fade-up delay-1">Add SEO in minutes.</h1><p class="page-sub fade-up delay-2">Works with any existing Vite + React + React Router v6 app on Cloudflare Pages. The only structural change is extracting AppLayout from App.jsx.</p></div></section><section class="section"><div class="container"><p class="section-label">Requirements</p><div class="feature-grid"><div class="feature"><p class="feature-icon">stack</p><p class="feature-desc">Vite 5+, React 18+, React Router v6, Cloudflare Pages, Node 18+</p></div><div class="feature"><p class="feature-icon">time</p><p class="feature-desc">About 15 minutes. The AppLayout extraction is the only structural change. Everything else is additive.</p></div><div class="feature"><p class="feature-icon">build cost</p><p class="feature-desc">About 2 seconds added to build time for a typical 3-10 route app. Scales linearly with route count.</p></div></div></div></section><section class="section"><div class="container"><p class="section-label">Integration steps</p><div class="quickstart"><div class="qs-block"><p class="qs-label">1. Copy the engine files into your app</p><div class="cb"><div class="cb-bar"><span class="cb-label cb-label--lang">sh</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-fn">cp</span> <!-- -->scripts/prerender.js<!-- -->               <!-- -->your-app/scripts/<!-- -->
+<span class="tok-fn">cp</span> <!-- -->scripts/inject-brand.js<!-- -->            <!-- -->your-app/scripts/<!-- -->
+<span class="tok-fn">cp</span> <!-- -->templates/src/hooks/usePageMeta.js<!-- --> <!-- -->your-app/src/hooks/</code></pre></div></div><div class="qs-block"><p class="qs-label">2. Create ssr.config.js in your project root</p><div class="cb"><div class="cb-bar"><span class="cb-label">ssr.config.js</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">export</span> <span class="tok-kw">default</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->siteUrl<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;https://yoursite.com&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->siteName<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;Your Site&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->author<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;Your Org&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->tagline<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;What your site does.&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->ogImage<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;https://yoursite.com/og-image.jpg&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->keywords<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;keyword one, keyword two&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->appLayoutPath<!-- -->:<!-- --> <span class="tok-str">&#x27;/src/AppLayout.jsx&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->proxy<!-- -->:<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->url<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-kw">null</span><span class="tok-punct">,</span> <span class="tok-cmt">// optional render proxy, e.g. &#x27;https://proxy.yoursite.com&#x27;</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->secret<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-kw">null</span><span class="tok-punct">,</span> <span class="tok-cmt">// set only when you enable proxy cache refresh</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->targetUrl<!-- -->:<!-- --> <span class="tok-kw">null</span><span class="tok-punct">,</span> <span class="tok-cmt">// optional upstream render origin (defaults to siteUrl)</span>
+<!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<!-- -->
+<!-- --> <!-- --> <!-- -->routes<!-- -->:<!-- --> <span class="tok-punct">[</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->path<!-- -->:<!-- --> <span class="tok-str">&#x27;/&#x27;</span><span class="tok-punct">,</span> <!-- -->priority<!-- -->:<!-- --> <span class="tok-str">&#x27;1.0&#x27;</span><span class="tok-punct">,</span> <!-- -->changefreq<!-- -->:<!-- --> <span class="tok-str">&#x27;weekly&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->meta<!-- -->:<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->title<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;Your Site | What your site does.&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->description<!-- -->:<!-- --> <span class="tok-str">&#x27;Homepage description, 50-160 chars.&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->path<!-- -->:<!-- --> <span class="tok-str">&#x27;/about&#x27;</span><span class="tok-punct">,</span> <!-- -->priority<!-- -->:<!-- --> <span class="tok-str">&#x27;0.8&#x27;</span><span class="tok-punct">,</span> <!-- -->changefreq<!-- -->:<!-- --> <span class="tok-str">&#x27;monthly&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->meta<!-- -->:<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->title<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;About | Your Site&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->description<!-- -->:<!-- --> <span class="tok-str">&#x27;About page description.&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <span class="tok-punct">]</span><span class="tok-punct">,</span>
+<!-- -->
+<!-- --> <!-- --> <span class="tok-fn">buildJsonLd</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-kw">return</span> <span class="tok-punct">[</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;@context&#x27;</span>:<!-- --> <span class="tok-str">&#x27;https://schema.org&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;@type&#x27;</span>:<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;Organization&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->name<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;Your Org&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->url<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;https://yoursite.com&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-punct">]</span>
+<!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div><div class="callout u-mt-1"><strong>Apostrophe rule:</strong> use double quotes for strings containing a contraction.<!-- --> <code>&quot;We&#x27;re open Mon-Fri&quot;</code> works. <code>&#x27;We\&#x27;re open Mon-Fri&#x27;</code> breaks the parser.</div></div><div class="qs-block"><p class="qs-label">3. Extract AppLayout from App.jsx</p><div class="callout u-mb-1"><strong>Critical:</strong> AppLayout must never import BrowserRouter, anywhere in its module graph. BrowserRouter initializing at SSR time causes every route to prerender as <code>/</code>.<!-- --> <!-- -->See <a href="/about">how it works</a>.</div><div class="cb"><div class="cb-bar"><span class="cb-label">src/AppLayout.jsx</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-cmt">// NO BrowserRouter here, ever</span>
+<span class="tok-kw">import</span> <span class="tok-punct">{</span> <!-- -->Routes<span class="tok-punct">,</span> <!-- -->Route<span class="tok-punct">,</span> <!-- -->useLocation<!-- --> <span class="tok-punct">}</span> <span class="tok-kw">from</span> <span class="tok-str">&#x27;react-router-dom&#x27;</span>
+<span class="tok-kw">import</span> <span class="tok-punct">{</span> <!-- -->useEffect<!-- --> <span class="tok-punct">}</span> <span class="tok-kw">from</span> <span class="tok-str">&#x27;react&#x27;</span>
+<!-- -->
+<span class="tok-kw">function</span> <span class="tok-fn">ScrollToTop</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <span class="tok-kw">const</span> <span class="tok-punct">{</span> <!-- -->pathname<!-- --> <span class="tok-punct">}</span> <!-- -->=<!-- --> <span class="tok-fn">useLocation</span><span class="tok-punct">(</span><span class="tok-punct">)</span>
+<!-- --> <!-- --> <span class="tok-fn">useEffect</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <!-- -->=<!-- -->&gt;<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-kw">if</span> <span class="tok-punct">(</span><span class="tok-kw">typeof</span> <!-- -->window<!-- --> <!-- -->!<!-- -->=<!-- -->=<!-- --> <span class="tok-str">&#x27;undefined&#x27;</span><span class="tok-punct">)</span> <!-- -->window<!-- -->.<span class="tok-fn">scrollTo</span><span class="tok-punct">(</span><span class="tok-num">0</span><span class="tok-punct">,</span> <span class="tok-num">0</span><span class="tok-punct">)</span>
+<!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">,</span> <span class="tok-punct">[</span>pathname<span class="tok-punct">]</span><span class="tok-punct">)</span>
+<!-- --> <!-- --> <span class="tok-kw">return</span> <span class="tok-kw">null</span>
+<span class="tok-punct">}</span>
+<!-- -->
+<span class="tok-kw">export</span> <span class="tok-kw">default</span> <span class="tok-kw">function</span> <span class="tok-fn">AppLayout</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <span class="tok-kw">return</span> <span class="tok-punct">(</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->ScrollToTop<!-- --> <!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->Nav<!-- --> <!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->Routes<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->Route<!-- --> <!-- -->path<!-- -->=<span class="tok-str">&quot;/&quot;</span> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->element<!-- -->=<span class="tok-punct">{</span>&lt;<!-- -->Home<!-- --> <!-- -->/<!-- -->&gt;<span class="tok-punct">}</span> <!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->Route<!-- --> <!-- -->path<!-- -->=<span class="tok-str">&quot;/about&quot;</span> <!-- -->element<!-- -->=<span class="tok-punct">{</span>&lt;<!-- -->About<!-- --> <!-- -->/<!-- -->&gt;<span class="tok-punct">}</span> <!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->Route<!-- --> <!-- -->path<!-- -->=<span class="tok-str">&quot;*&quot;</span> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->element<!-- -->=<span class="tok-punct">{</span>&lt;<!-- -->NotFound<!-- --> <!-- -->/<!-- -->&gt;<span class="tok-punct">}</span> <!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->/<!-- -->Routes<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->Footer<!-- --> <!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->&lt;<!-- -->/<!-- -->&gt;<!-- -->
+<!-- --> <!-- --> <span class="tok-punct">)</span>
+<span class="tok-punct">}</span></code></pre></div><div class="cb"><div class="cb-bar"><span class="cb-label">src/App.jsx</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-cmt">// BrowserRouter lives ONLY here</span>
+<span class="tok-kw">import</span> <span class="tok-punct">{</span> <!-- -->BrowserRouter<!-- --> <span class="tok-punct">}</span> <span class="tok-kw">from</span> <span class="tok-str">&#x27;react-router-dom&#x27;</span>
+<span class="tok-kw">import</span> <!-- -->AppLayout<!-- --> <span class="tok-kw">from</span> <span class="tok-str">&#x27;./AppLayout&#x27;</span>
+<span class="tok-kw">export</span> <span class="tok-kw">default</span> <span class="tok-kw">function</span> <span class="tok-fn">App</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <span class="tok-kw">return</span> <!-- -->&lt;<!-- -->BrowserRouter<!-- -->&gt;<!-- -->&lt;<!-- -->AppLayout<!-- --> <!-- -->/<!-- -->&gt;<!-- -->&lt;<!-- -->/<!-- -->BrowserRouter<!-- -->&gt;<!-- -->
+<span class="tok-punct">}</span></code></pre></div></div><div class="qs-block"><p class="qs-label">4. Add usePageMeta to each page</p><div class="cb"><div class="cb-bar"><span class="cb-label cb-label--lang">js</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">import</span> <!-- -->usePageMeta<!-- --> <span class="tok-kw">from</span> <span class="tok-str">&#x27;../hooks/usePageMeta.js&#x27;</span>
+<!-- -->
+<span class="tok-kw">export</span> <span class="tok-kw">default</span> <span class="tok-kw">function</span> <span class="tok-fn">About</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <span class="tok-fn">usePageMeta</span><span class="tok-punct">(</span><span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->siteUrl<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;https://yoursite.com&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->path<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;/about&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->title<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;About | Your Site&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- --> <!-- --> <!-- -->description<!-- -->:<!-- --> <span class="tok-str">&#x27;About page description.&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <span class="tok-punct">}</span><span class="tok-punct">)</span>
+<span class="tok-punct">}</span></code></pre></div><p class="u-tip-label">Tip: wrap it to avoid repeating siteUrl</p><div class="cb"><div class="cb-bar"><span class="cb-label">src/hooks/useMeta.js</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">import</span> <!-- -->usePageMeta<!-- --> <span class="tok-kw">from</span> <span class="tok-str">&#x27;./usePageMeta.js&#x27;</span>
+<span class="tok-kw">const</span> <!-- -->SITE<!-- --> <!-- -->=<!-- --> <span class="tok-str">&#x27;https://yoursite.com&#x27;</span>
+<span class="tok-kw">export</span> <span class="tok-kw">default</span> <span class="tok-punct">(</span>args<span class="tok-punct">)</span> <!-- -->=<!-- -->&gt;<!-- --> <span class="tok-fn">usePageMeta</span><span class="tok-punct">(</span><span class="tok-punct">{</span> <!-- -->siteUrl<!-- -->:<!-- --> <!-- -->SITE<span class="tok-punct">,</span> <!-- -->.<!-- -->.<!-- -->.<!-- -->args<!-- --> <span class="tok-punct">}</span><span class="tok-punct">)</span></code></pre></div></div><div class="qs-block"><p class="qs-label">5. Update main.jsx: use hydrateRoot for SSR content</p><div class="cb"><div class="cb-bar"><span class="cb-label cb-label--lang">js</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-kw">const</span> <!-- -->root<!-- --> <!-- -->=<!-- --> <!-- -->document<!-- -->.<span class="tok-fn">getElementById</span><span class="tok-punct">(</span><span class="tok-str">&#x27;root&#x27;</span><span class="tok-punct">)</span>
+<span class="tok-kw">if</span> <span class="tok-punct">(</span>root<!-- --> <!-- -->&amp;<!-- -->&amp;<!-- --> <!-- -->root<!-- -->.<!-- -->dataset<!-- -->.<!-- -->serverRendered<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->ReactDOM<!-- -->.<span class="tok-fn">hydrateRoot</span><span class="tok-punct">(</span>root<span class="tok-punct">,</span> <!-- -->&lt;<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<!-- -->&lt;<!-- -->App<!-- --> <!-- -->/<!-- -->&gt;<!-- -->&lt;<!-- -->/<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<span class="tok-punct">)</span>
+<span class="tok-punct">}</span> <span class="tok-kw">else</span> <span class="tok-kw">if</span> <span class="tok-punct">(</span>root<span class="tok-punct">)</span> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->ReactDOM<!-- -->.<span class="tok-fn">createRoot</span><span class="tok-punct">(</span>root<span class="tok-punct">)</span>.<span class="tok-fn">render</span><span class="tok-punct">(</span>&lt;<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<!-- -->&lt;<!-- -->App<!-- --> <!-- -->/<!-- -->&gt;<!-- -->&lt;<!-- -->/<!-- -->React<!-- -->.<!-- -->StrictMode<!-- -->&gt;<span class="tok-punct">)</span>
+<span class="tok-punct">}</span></code></pre></div></div><div class="qs-block"><p class="qs-label">6. Update package.json build script</p><div class="cb"><div class="cb-bar"><span class="cb-label">package.json</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-str">&quot;build&quot;</span>:<!-- --> <span class="tok-str">&quot;vite build &amp;&amp; node scripts/inject-brand.js &amp;&amp; node scripts/prerender.js&quot;</span></code></pre></div></div><div class="qs-block"><p class="qs-label">7. Optional: enable the render proxy for dynamic bot routes</p><div class="callout u-mb-1">Keep build-time prerendering for static routes, then add the proxy to cover routes not listed in<code> ssr.config.js</code> (search pages, pagination, dynamic IDs, recently changed content). Humans still get your normal Cloudflare Pages site.</div><div class="cb"><div class="cb-bar"><span class="cb-label">ssr.config.js (proxy block)</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code">proxy<!-- -->:<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <!-- -->url<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;https://proxy.yoursite.com&#x27;</span><span class="tok-punct">,</span> <span class="tok-cmt">// VPS or Worker URL</span>
+<!-- --> <!-- --> <!-- -->secret<!-- -->:<!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-str">&#x27;set-the-same-value-as-PRESTRUCT_SECRET&#x27;</span><span class="tok-punct">,</span>
+<!-- --> <!-- --> <!-- -->targetUrl<!-- -->:<!-- --> <span class="tok-kw">null</span><span class="tok-punct">,</span> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <!-- --> <span class="tok-cmt">// defaults to siteUrl</span>
+<!-- --> <!-- --> <!-- -->botList<!-- -->:<!-- --> <!-- --> <!-- --> <span class="tok-punct">[</span><span class="tok-str">&#x27;Googlebot&#x27;</span><span class="tok-punct">,</span> <span class="tok-str">&#x27;bingbot&#x27;</span><span class="tok-punct">]</span><span class="tok-punct">,</span>
+<span class="tok-punct">}</span></code></pre></div><p class="u-tip-label">Use <code>scripts/proxy.js</code> for VPS or <code>scripts/proxy.worker.js</code> for Cloudflare Workers. Full setup: <a href="https://github.com/dhaupin/prestruct/blob/main/README-proxy.md" target="_blank" rel="noopener noreferrer">README-proxy.md</a>.</p></div><div class="qs-block"><p class="qs-label">8. Remove SPA fallback from public/_redirects</p><div class="callout">Remove <code>/* /index.html 200</code> if present. Prestruct gives every route its own HTML file. The SPA fallback creates an infinite redirect loop with Cloudflare Pages&#x27; Pretty URLs feature.</div></div><div class="qs-block"><p class="qs-label">9. Guard any localStorage / window access</p><div class="cb"><div class="cb-bar"><span class="cb-label cb-label--lang">js</span><button class="cb-copy" aria-label="Copy code" title="Copy"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><pre class="cb-pre"><code class="cb-code"><span class="tok-cmt">// Wrong: throws in Node during prerender</span>
+<span class="tok-kw">const</span> <span class="tok-punct">[</span>theme<span class="tok-punct">,</span> <!-- -->setTheme<span class="tok-punct">]</span> <!-- -->=<!-- --> <span class="tok-fn">useState</span><span class="tok-punct">(</span>localStorage<!-- -->.<span class="tok-fn">getItem</span><span class="tok-punct">(</span><span class="tok-str">&#x27;theme&#x27;</span><span class="tok-punct">)</span> <!-- -->|<!-- -->|<!-- --> <span class="tok-str">&#x27;dark&#x27;</span><span class="tok-punct">)</span>
+<!-- -->
+<span class="tok-cmt">// Correct: SSR-safe</span>
+<span class="tok-kw">const</span> <span class="tok-punct">[</span>theme<span class="tok-punct">,</span> <!-- -->setTheme<span class="tok-punct">]</span> <!-- -->=<!-- --> <span class="tok-fn">useState</span><span class="tok-punct">(</span><span class="tok-punct">(</span><span class="tok-punct">)</span> <!-- -->=<!-- -->&gt;<!-- --> <span class="tok-punct">{</span>
+<!-- --> <!-- --> <span class="tok-kw">if</span> <span class="tok-punct">(</span><span class="tok-kw">typeof</span> <!-- -->window<!-- --> <!-- -->=<!-- -->=<!-- -->=<!-- --> <span class="tok-str">&#x27;undefined&#x27;</span><span class="tok-punct">)</span> <span class="tok-kw">return</span> <span class="tok-str">&#x27;dark&#x27;</span>
+<!-- --> <!-- --> <span class="tok-kw">return</span> <!-- -->localStorage<!-- -->.<span class="tok-fn">getItem</span><span class="tok-punct">(</span><span class="tok-str">&#x27;theme&#x27;</span><span class="tok-punct">)</span> <!-- -->|<!-- -->|<!-- --> <span class="tok-str">&#x27;dark&#x27;</span>
+<span class="tok-punct">}</span><span class="tok-punct">)</span></code></pre></div></div></div><div class="u-row u-mt-25"><a href="https://github.com/dhaupin/prestruct" class="btn btn-primary" target="_blank" rel="noopener noreferrer">View full source</a><a href="https://github.com/dhaupin/prestruct/blob/main/AGENTS.md" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">Read AGENTS.md</a><a href="https://github.com/dhaupin/prestruct/blob/main/SCOPE.md" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">Read SCOPE.md</a></div></div></section></main><footer class="site-footer"><div class="footer-col"><div class="footer-brand"><span class="footer-wordmark">[pre<span class="wordmark-accent">struct</span>]</span></div><nav class="footer-nav"><a class="footer-link" href="/">home</a><a class="footer-link" href="/about">about</a><a aria-current="page" class="footer-link active" href="/deploy">deploy</a><a class="footer-link" href="/islands">islands</a><a class="footer-link" href="/proxy">proxy</a></nav></div><div class="footer-col"><a href="https://github.com/dhaupin/prestruct" class="footer-cta" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg><span>star on github</span></a><nav class="footer-nav"><a class="footer-link" href="/contact">contact</a><a class="footer-link" href="/privacy">privacy</a><a class="footer-link" href="/terms">terms</a></nav></div><div class="footer-legal"><span>© <!-- -->2026<!-- --> Prestruct</span><span class="footer-divider">·</span><a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a><span class="footer-divider">·</span><a href="https://creadev.org" class="footer-creadev" target="_blank" rel="noopener noreferrer"><img src="/creadev-logoset-67h.png" alt="Built by Creadev.org" title="Built by Creadev.org" class="footer-badge"/></a></div></footer></div></div>
+</body>
+</html>
