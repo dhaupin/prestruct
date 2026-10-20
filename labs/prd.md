@@ -2,7 +2,7 @@
 
 **Status:** Phase 0 complete (see Section 7)
 **Date:** 2026-10-20
-**Reads first:** [AGENTS.md](../AGENTS.md), [SCOPE.md](../SCOPE.md), [TASKS.md](./TASKS.md)
+**Reads first:** [AGENTS.md](../AGENTS.md), [TASKS.md](./TASKS.md)
 
 ---
 

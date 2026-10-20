@@ -4,9 +4,22 @@ Engineering history and hard-won decisions. Written for an AI agent (or human)
 picking this up cold. Read before touching anything.
 
 **Also read:** `CONTENT.md` before writing any copy, documentation, or code
-comments. It covers tone, voice, formatting, naming, and what to avoid. `SCOPE.md` 
-to organize future patterns and planning. It lays out next steps for the framework, 
-and how we should plan accordingly.
+comments. It covers tone, voice, formatting, naming, and what to avoid.
+`labs/prd.md` is the roadmap -- future patterns and planning live there.
+
+---
+
+## Scope boundaries (inherited from the retired SCOPE.md)
+
+**In scope:** Vite + React apps; Cloudflare Pages first-class (headers,
+redirects, asset caching configured; any static host works on the plain
+dist/ output -- Vercel/Netlify config validates only, no host-file
+generation); React Router v6; static routing (dynamic routes via the
+build-time `fetchRoutes()` hook); client-only dynamic content (islands).
+
+**Out of scope -- do not drift here:** per-request SSR (build-time only);
+server-side frameworks; edge runtime; CMS out of the box (static config or
+fetchRoutes() only).
 
 Every pattern here was debugged against real CF Pages deployments across two
 production apps. Nothing is theoretical.
@@ -347,8 +360,9 @@ ssrLoadModule only works at build time (it spins up a Vite dev server).
 **Incremental prerender.** All routes rerender on every build. For hundreds of routes,
 a smarter system would track file-to-route dependencies and only rerender affected ones.
 
-**CMS-driven routes.** Routes are static config. SCOPE.md P1 covers a `fetchRoutes()`
-async function to pull routes from an API at build time.
+**CMS-driven routes.** No longer future work: `fetchRoutes()` in ssr.config.js
+pulls routes from any API at build time (implemented, tested, documented in
+docs/guides/config.md). Incremental prerender below remains open.
 
 ---
 
