@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { replaceRootDiv, injectMeta, generateSitemap, generate404 } from '../engine/scripts/prerender.js'
+import { replaceRootDiv, injectMeta, generateSitemap, generate404, loadStaticRouter, mergeRoutes } from '../engine/scripts/prerender.js'
 import { validateConfig, formatDiagnostics } from '../engine/scripts/validate-config.js'
 import { toReplaceSafe, generateTitle } from '../engine/scripts/inject-brand.js'
 
@@ -164,5 +164,51 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('&amp;')
     expect(html).toContain('$&')
     expect(html).not.toContain('$& (lost page)$&')
+  })
+})
+
+describe('loadStaticRouter (v6/v7 compat, offline)', () => {
+  it('resolves via the v6 ./server.js subpath first', async () => {
+    const importer = async (m) => {
+      if (m === 'react-router-dom/server.js') return { StaticRouter: 'v6-router' }
+      throw new Error('not reached')
+    }
+    expect(await loadStaticRouter(importer)).toBe('v6-router')
+  })
+
+  it('falls back to the package root when ./server.js is gone (react-router-dom v7)', async () => {
+    const importer = async (m) => {
+      if (m === 'react-router-dom/server.js') throw new Error('ERR_INVALID_PACKAGE_EXPORTS')
+      return { StaticRouter: 'v7-router' }
+    }
+    expect(await loadStaticRouter(importer)).toBe('v7-router')
+  })
+
+  it('errors loudly when neither entry provides StaticRouter', async () => {
+    await expect(loadStaticRouter(async () => ({}))).rejects.toThrow(/Could not load StaticRouter/)
+  })
+})
+
+describe('mergeRoutes (fetchRoutes hook merge contract)', () => {
+  it('appends CMS routes to the static list', () => {
+    const out = mergeRoutes(
+      [{ path: '/' }],
+      [{ path: '/blog/a', }, { path: '/blog/b' }],
+    )
+    expect(out.map(r => r.path)).toEqual(['/', '/blog/a', '/blog/b'])
+  })
+
+  it('static routes take precedence on path collisions (documented dedupe)', () => {
+    const out = mergeRoutes(
+      [{ path: '/about', meta: { title: 'Static' } }],
+      [{ path: '/about', meta: { title: 'CMS' } }],
+    )
+    expect(out).toHaveLength(1)
+    expect(out[0].meta.title).toBe('Static')
+  })
+
+  it('tolerates null-ish fetched input (hook returning nothing)', () => {
+    const out = mergeRoutes([{ path: '/' }], null)
+    expect(out.map(r => r.path)).toEqual(['/'])
   })
 })

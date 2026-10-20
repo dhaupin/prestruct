@@ -324,16 +324,59 @@ async function loadConfig() {
   const { siteUrl } = config
   if (!siteUrl) return null
   return config
-}let config = null
+}
+
+let config = null
+
+// CSS-route merge: the fetchRoutes() hook merges its CMS-driven routes with
+// the static ones. Dedupe by path -- the STATIC entry takes precedence, per
+// the documented merge contract. Pure function so tests can assert the
+// dedupe rules without spinning the whole pipeline.
+export function mergeRoutes(staticRoutes = [], fetchedRoutes) {
+  // Static routes keep both precedence (path collisions) and position
+  // (static first, CMS routes appended). A hook that resolves to nothing
+  // (null/undefined) degrades to the static list unchanged.
+  const out = new Map((staticRoutes ?? []).map(r => [r.path, r]))
+  for (const r of fetchedRoutes ?? []) {
+    if (!out.has(r.path)) out.set(r.path, r)
+  }
+  return [...out.values()]
+}
+
+// StaticRouter loader: react-router-dom's exports map differs by version.
+// v6 exposes the SSR entry as a './server.js' subpath; v7 re-exports
+// StaticRouter from the package root. `importer` is injectable so the v7
+// fallback (and the both-fail case) is testable offline.
+export async function loadStaticRouter(importer = (m) => import(m)) {
+  let StaticRouter
+  try {
+    ;({ StaticRouter } = await importer('react-router-dom/server.js'))
+  } catch {
+    ;({ StaticRouter } = await importer('react-router-dom'))
+  }
+  if (!StaticRouter) {
+    throw new Error('[prerender] Could not load StaticRouter from react-router-dom -- is it installed?')
+  }
+  return StaticRouter
+}
 
 export async function prerender(cfg = config, { force = false, root } = {}) {
   const p = enginePaths(root || ROOT)
   console.log('\n[prerender] Starting static HTML generation...')
 
   const { siteUrl,
-    routes: ROUTES = [],
+    routes: staticRoutes = [],
     appLayoutPath = '/src/AppLayout.jsx',
   } = cfg
+
+  // fetchRoutes() hook: documented in docs/guides/api.md and the config
+  // example. Runs at build time only (never in the browser). Merged with
+  // the static routes; static wins on path collisions.
+  let fetched = []
+  if (typeof cfg.fetchRoutes === 'function') {
+    fetched = (await cfg.fetchRoutes()) || []
+  }
+  const ROUTES = mergeRoutes(staticRoutes, fetched)
 
   if (!ROUTES.length) {
     console.warn('[prerender] No routes defined in ssr.config.js -- skipping')
@@ -346,19 +389,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
   const { createServer }   = await import('vite')
   const { renderToString } = await import('react-dom/server')
   const React              = (await import('react')).default
-  // react-router-dom's exports map differs by version: v6 exposes the SSR
-  // entry as a './server.js' subpath, v7 re-exports StaticRouter from the
-  // package root. Try both so the engine supports the full peer range (>=6).
-  let StaticRouter
-  try {
-    ;({ StaticRouter } = await import('react-router-dom/server.js'))
-  } catch {
-    ;({ StaticRouter } = await import('react-router-dom'))
-  }
-  if (!StaticRouter) {
-    console.error('[prerender] Could not load StaticRouter from react-router-dom -- is it installed?')
-    process.exit(1)
-  }
+  const StaticRouter = await loadStaticRouter()
 
   // Vite dev server in SSR mode.
   // ssrLoadModule resolves all imports through Vite's unified module registry,
