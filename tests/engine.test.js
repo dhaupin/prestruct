@@ -52,6 +52,18 @@ describe('validateConfig', () => {
     expect(errors[0]).toMatch(/siteUrl is required/)
   })
 
+  it('rejects an explicitly empty routes array (hammer finding: 0 routes validated green)', () => {
+    const { ok, errors } = validateConfig({ siteUrl: 'https://x.com', routes: [] })
+    expect(ok).toBe(false)
+    expect(errors.some(e => e.includes('routes is empty'))).toBe(true)
+  })
+
+  it('accepts a subroutes-only list (vite still ships index.html; hammer finding: only ZERO routes is a misconfiguration)', () => {
+    const { ok, errors } = validateConfig({ siteUrl: 'https://x.com', routes: [{ path: '/about', meta: { title: 'A', description: 'B' } }] })
+    expect(ok).toBe(true)
+    expect(errors).toEqual([])
+  })
+
   it('flags route paths not starting with /', () => {
     const { ok, errors } = validateConfig({ siteUrl: 'https://x.com', routes: [{ path: 'about' }] })
     expect(ok).toBe(false)

@@ -34,7 +34,13 @@ export function validateConfig(config) {
   // same dist file twice with different meta (silent SEO corruption).
   if (!Array.isArray(config.routes)) {
     errors.push('routes must be an array (or omitted entirely)')
-  } else if (config.routes.length) {
+  } else if (!config.routes.length) {
+    // Hammer finding (2026-10): an explicitly EMPTY routes array validated as
+    // "valid (0 routes)" -- the build would prerender nothing while reporting
+    // a green configured site. Zero routes is a misconfiguration (route lists
+    // WITHOUT the home route are fine: vite still ships index.html).
+    errors.push('routes is empty -- configure at least one route to prerender')
+  } else {
     config.routes.forEach((route, i) => {
       if (!route || typeof route !== 'object') {
         errors.push(`routes[${i}]: must be an object`)

@@ -42,7 +42,8 @@ export default {
 
   // === Routes ===
   // Each route gets prerendered to static HTML at build time.
-  // Add your routes here. The home route (/) is required.
+  // Add your routes here (at least one; zero routes fails validation).
+  // Subroutes-only lists are fine -- vite still ships index.html.
   routes: [
     {
       path:       '/',
