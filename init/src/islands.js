@@ -97,11 +97,11 @@ function whenIdle(el, Component) {
  * Scans the DOM for <pre-island> elements and mounts the matching
  * React component from the registry into each one.
  *
- * registry -- object mapping island names to React components:
- *   { 'recently-viewed': RecentlyViewed, 'cart-widget': CartWidget }
- *
  * Unregistered island names are skipped with a console warning.
  * Safe to call with an empty registry -- nothing happens.
+ *
+ * @param {Record<string, Function>} [registry={}] - island name -> React component
+ * @returns {void}
  */
 export function mountIslands(registry = {}) {
   if (typeof window === 'undefined') return

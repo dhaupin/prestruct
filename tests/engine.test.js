@@ -212,3 +212,24 @@ describe('mergeRoutes (fetchRoutes hook merge contract)', () => {
     expect(out.map(r => r.path)).toEqual(['/'])
   })
 })
+
+describe('cleanCache', () => {
+  it('removes the cache file so the next build renders fresh', async () => {
+    const { writeFileSync, existsSync, readFileSync, mkdtempSync, rmSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { cleanCache } = await import('../engine/scripts/prerender.js')
+    const dir = mkdtempSync(join(tmpdir(), 'clean-cache-'))
+    const cacheFile = join(dir, 'cache.json')
+    writeFileSync(cacheFile, JSON.stringify({ '/x': { html: 'a' } }))
+    cleanCache({ cacheFile })
+    // Contract: reset-to-empty, not deletion -- a custom cacheFile never
+    // dangles, and the next build treats the empty map as fresh.
+    expect(existsSync(cacheFile)).toBe(true)
+    expect(JSON.parse(readFileSync(cacheFile, 'utf8'))).toEqual({})
+    // idempotent reset
+    cleanCache({ cacheFile })
+    expect(JSON.parse(readFileSync(cacheFile, 'utf8'))).toEqual({})
+    rmSync(dir, { recursive: true, force: true })
+  })
+})

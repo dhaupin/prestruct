@@ -45,6 +45,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
+/** Update the SPA head tags on every route change (see the module head doc). */
 export default function usePageMeta({ title, description, path, siteUrl }) {
   const base = siteUrl || import.meta.env?.VITE_SITE_URL || ''
   const location = useLocation()

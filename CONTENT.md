@@ -43,4 +43,4 @@ Voice, tone, and formatting for AI-first docs.
 
 ---
 
-_Generated: v0.2.6_
+_Generated: v1.0.0_

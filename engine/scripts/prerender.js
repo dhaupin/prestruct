@@ -50,6 +50,12 @@ const ROOT      = path.resolve(__dirname, '..')
 
 // Rooted-path derivation: the npm CLI passes the USER PROJECT's root;
 // deployed template copies call without opts and get their own project root.
+/**
+ * Resolve the engine's working paths from an explicit root.
+ *
+ * @param {string} [root=ROOT] - host project root (defaults to the engine package)
+ * @returns {{root: string, dist: string, cacheDir: string, cacheFile: string}} paths
+ */
 export function enginePaths(root = ROOT) {
   return {
     root,
@@ -63,6 +69,13 @@ export function enginePaths(root = ROOT) {
 // Prevent regex backreference expansion ($1, $2, ...) when dynamic values are
 // used in replacement strings.
 
+/**
+ * Neutralize replacement-pattern characters ($&, $1, ...) so a string can
+ * safely be used as the replacement side of String.prototype.replace().
+ *
+ * @param {string} s - arbitrary generated content
+ * @returns {string} replacement-safe text
+ */
 export function escapeReplacement(s) {
   return String(s || '').replace(/\$/g, '$$$$')
 }
@@ -73,6 +86,12 @@ export function escapeReplacement(s) {
 // a `"` in a description silently breaks the attribute, and a `</title>` in a
 // title injects markup into every baked page. Escape BEFORE $-escaping: the
 // latter only handles replace() semantics.
+/**
+ * Escape HTML-significant characters (& < > " ') for text and attribute contexts.
+ *
+ * @param {string} s - raw meta/OG value
+ * @returns {string} escaped value
+ */
 export function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;')
@@ -96,6 +115,15 @@ export function escapeHtml(s) {
 // the stale-path without running the whole vite pipeline.
 // The helper is exported (not inlined in the loop) so the battery can pin
 // the stale path without running the whole vite pipeline.
+/**
+ * Compute the cache signature for a route render. Covers every input whose
+ * change invalidates the cached HTML: route meta, siteUrl, and the shell.
+ *
+ * @param {{path: string, meta?: object}} route - route definition
+ * @param {string} siteUrl - configured site origin
+ * @param {string} shell - dist/index.html contents
+ * @returns {string} stable hash signature
+ */
 export function cacheSignature(route, siteUrl, shell) {
   return crypto.createHash('sha256').update(JSON.stringify({
     path: route.path,
@@ -106,6 +134,16 @@ export function cacheSignature(route, siteUrl, shell) {
   })).digest('hex')
 }
 
+/**
+ * Whether a cached entry may be reused for a route. Legacy entries (no
+ * signature) always miss to render once and upgrade.
+ *
+ * @param {{sig?: string}} entry - cached entry or undefined
+ * @param {{path: string, meta?: object}} route - current route definition
+ * @param {string} siteUrl - configured site origin
+ * @param {string} shell - current dist/index.html contents
+ * @returns {boolean} true when the cache may be reused
+ */
 export function cacheEntryValid(entry, route, siteUrl, shell) {
   if (!entry || typeof entry !== 'object' || typeof entry.html !== 'string') return false
   // Legacy entries predate signatures: treat as stale once, rerender, and
@@ -120,6 +158,16 @@ export function cacheEntryValid(entry, route, siteUrl, shell) {
 // matcher therefore matches <div id="root">, <div id="root" ...attrs>, and
 // carries existing attrs into the SSR output so they survive prerendering.
 
+/**
+ * Swap the shell's root div for one stamped with data-server-rendered and
+ * carrying the prerendered markup. Uses a function replacer so $-shaped
+ * content in appHtml stays literal.
+ *
+ * @param {string} shell - dist/index.html contents
+ * @param {string} appHtml - renderToString output for the route
+ * @returns {string} full HTML document for the route
+ * @throws when the shell has no root div
+ */
 export function replaceRootDiv(shell, appHtml) {
   const match = shell.match(/<div id="root"([^>]*)><\/div>/)
   if (!match) {
@@ -139,6 +187,18 @@ export function replaceRootDiv(shell, appHtml) {
 
 // ── Meta injection ────────────────────────────────────────────────────────────
 
+/**
+ * Stamp per-route title/description/canonical/OG onto prerendered HTML.
+ * Derives the canonical URL from siteUrl + routePath (no trailing slash for
+ * the home route) and falls back to the global ogImage.
+ *
+ * @param {string} html - prerendered document
+ * @param {{title?: string, description?: string, ogImage?: string}} meta - route meta
+ * @param {string} routePath - '/'-prefixed route path
+ * @param {string} siteUrl - configured site origin (no trailing slash)
+ * @param {?string} globalOgImage - config-level ogImage fallback
+ * @returns {string} updated html
+ */
 export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
   const title   = escapeReplacement(escapeHtml(meta.title))
   const desc    = escapeReplacement(escapeHtml(meta.description))
@@ -167,6 +227,12 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
 
 // ── Incremental cache ─────────────────────────────────────────────────────────
 
+/**
+ * Read the incremental cache map from disk (empty object when absent/corrupt).
+ *
+ * @param {{cacheFile?: string}} [opts] - explicit cache file path override
+ * @returns {Record<string, {html: string, time: number, sig?: string}>} cache map
+ */
 export function readCache({ cacheFile = enginePaths().cacheFile } = {}) {
   try {
     if (fs.existsSync(cacheFile)) {
@@ -176,11 +242,26 @@ export function readCache({ cacheFile = enginePaths().cacheFile } = {}) {
   return {}
 }
 
+/**
+ * Persist the incremental cache map (creating the cache dir as needed).
+ *
+ * @param {Record<string, object>} cache - route-keyed cached entries
+ * @param {{cacheDir?: string, cacheFile?: string}} [opts] - path overrides
+ * @returns {void}
+ */
 export function writeCache(cache, { cacheDir = enginePaths().cacheDir, cacheFile = enginePaths().cacheFile } = {}) {
   fs.mkdirSync(cacheDir, { recursive: true })
   fs.writeFileSync(cacheFile, JSON.stringify(cache, null, 2))
 }
 
+/**
+ * Reset the incremental cache. Contract: reset-to-empty (writes `{}`), never
+ * deletion -- a custom cacheFile's directory is created if missing so the
+ * file never dangles, and the next build treats the empty map as fresh.
+ *
+ * @param {{cacheFile?: string}} [opts] - explicit cache file path override
+ * @returns {void}
+ */
 export function cleanCache({ cacheFile = enginePaths().cacheFile } = {}) {
   // Directory is derived from the file path so a custom cacheFile can never
   // point at a directory that was not created.
@@ -191,6 +272,14 @@ export function cleanCache({ cacheFile = enginePaths().cacheFile } = {}) {
 
 // ── Sitemap ───────────────────────────────────────────────────────────────────
 
+/**
+ * Generate robots.txt when config.robots is opted in; otherwise null so the
+ * author's own public/robots.txt is left untouched. The Sitemap: line points
+ * at the freshly written sitemap.
+ *
+ * @param {object} config - full ssr.config.js export
+ * @returns {?string} robots.txt contents, or null when not opted in
+ */
 export function generateRobots(config) {
   const cfg = config?.robots || null
   // No config.robots = existing public/robots.txt stays authorable; we never
@@ -219,6 +308,12 @@ export function generateRobots(config) {
     : `${cfgBody.trimEnd()}\n`
 }
 
+/**
+ * Escape XML-significant characters for sitemap/RSS payloads.
+ *
+ * @param {string} unsafe - raw value
+ * @returns {string} XML-safe value
+ */
 export function escapeXml(unsafe) {
   if (!unsafe) return ''
   return String(unsafe)
@@ -229,6 +324,14 @@ export function escapeXml(unsafe) {
     .replace(/'/g, '&apos;')
 }
 
+/**
+ * Build sitemap.xml from the merged route list, XML-escaped, no trailing
+ * slash on the home URL.
+ *
+ * @param {Array<{path: string}>} routes - merged route definitions
+ * @param {string} siteUrl - configured site origin
+ * @returns {string} sitemap.xml contents
+ */
 export function generateSitemap(routes, siteUrl) {
   const now  = new Date().toISOString().split('T')[0]
   const urls = routes.map(r => `
@@ -246,6 +349,15 @@ export function generateSitemap(routes, siteUrl) {
 // The React bundle script tag is stripped -- no JS loads at all on 404 pages.
 // See AGENTS.md for the full explanation.
 
+/**
+ * Render the static 404 page: id="root-404" (never hydrated), noindex,
+ * stripped React bundle tag, build tag stamp.
+ *
+ * @param {string} shell - dist/index.html contents
+ * @param {object} config - full ssr.config.js export
+ * @param {string} siteUrl - configured site origin
+ * @returns {string} 404.html contents
+ */
 export function generate404(shell, config, siteUrl) {
   const notFoundConfig = config.notFound || {}
   // User-supplied notFound values: html-escaped before they land in markup
@@ -332,6 +444,15 @@ let config = null
 // the static ones. Dedupe by path -- the STATIC entry takes precedence, per
 // the documented merge contract. Pure function so tests can assert the
 // dedupe rules without spinning the whole pipeline.
+/**
+ * Merge static + fetchRoutes() CMS routes: dedupe by path with the static
+ * entry winning collisions; fetched routes are appended in order. A nullish
+ * fetched list degrades to the static list unchanged.
+ *
+ * @param {Array<{path: string}>} [staticRoutes=[]] - config routes
+ * @param {?Array<{path: string}>} [fetchedRoutes] - hook result
+ * @returns {Array<{path: string}>} merged route list
+ */
 export function mergeRoutes(staticRoutes = [], fetchedRoutes) {
   // Static routes keep both precedence (path collisions) and position
   // (static first, CMS routes appended). A hook that resolves to nothing
@@ -347,6 +468,14 @@ export function mergeRoutes(staticRoutes = [], fetchedRoutes) {
 // v6 exposes the SSR entry as a './server.js' subpath; v7 re-exports
 // StaticRouter from the package root. `importer` is injectable so the v7
 // fallback (and the both-fail case) is testable offline.
+/**
+ * Load StaticRouter across the react-router-dom peer range: v6 exposes the
+ * SSR entry as './server.js'; v7 re-exports it from the package root.
+ *
+ * @param {(m: string) => Promise<any>} [importer] - injectable importer (tests)
+ * @returns {Promise<Function>} the StaticRouter component
+ * @throws when neither entry provides StaticRouter
+ */
 export async function loadStaticRouter(importer = (m) => import(m)) {
   let StaticRouter
   try {
@@ -360,6 +489,17 @@ export async function loadStaticRouter(importer = (m) => import(m)) {
   return StaticRouter
 }
 
+/**
+ * Run the full build-time prerender: ssrLoadModule the host's AppLayout,
+ * render each route through StaticRouter, stamp route meta, and write
+ * dist/<route>/index.html, 404.html, sitemap.xml, robots.txt, and the
+ * cache-stats snapshot. Library-safe: returns a summary, never process.exit.
+ *
+ * @param {object} [cfg=config] - full ssr.config.js export
+ * @param {{force?: boolean, root?: string}} [opts] - force rerender; host root
+ * @returns {?{total: number, succeeded: number, failed: number, cached: number, failures: Array}} render summary
+ *          (null when skipped: no config, no dist shell, or zero routes)
+ */
 export async function prerender(cfg = config, { force = false, root } = {}) {
   const p = enginePaths(root || ROOT)
   console.log('\n[prerender] Starting static HTML generation...')
@@ -532,6 +672,12 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 // Only runs when executed directly (node scripts/prerender.js) -- never on
 // import. prerender() itself does not load ssr.config.js; the CLI wrapper does.
 
+/**
+ * True when this module was executed directly (node scripts/prerender.js);
+ * library importers never trigger the CLI wrapper.
+ *
+ * @returns {boolean}
+ */
 export function isMainExecute() {
   try {
     return import.meta.url === pathToFileURL(process.argv[1] || '').href

@@ -49,6 +49,13 @@ import { validateConfig, formatDiagnostics } from './validate-config.js'
 
 // ── Replacement safety ────────────────────────────────────────────────────────
 
+/**
+ * Neutralize replacement-pattern characters ($&, $1, ...) so user copy can
+ * safely be used as a String.replace() replacement string.
+ *
+ * @param {string} value - raw brand/config value
+ * @returns {string} replacement-safe text
+ */
 export function toReplaceSafe(value) {
   return (value == null ? '' : String(value).replace(/\$/g, '$$$$'))
 }
@@ -58,6 +65,13 @@ export function toReplaceSafe(value) {
 // a description silently breaks the attribute, and `</title>` in a title
 // injects markup onto every page. applied BEFORE toReplaceSafe, which only
 // handles replace() $-semantics.
+/**
+ * Escape HTML-significant characters for attribute contexts (quotes, angle
+ * brackets, ampersands).
+ *
+ * @param {string} value - raw value
+ * @returns {string} attribute-safe value
+ */
 export function escapeHtmlAttr(value) {
   return String(value == null ? '' : value)
     .replace(/&/g, '&amp;')
@@ -69,6 +83,14 @@ export function escapeHtmlAttr(value) {
 
 // ── Title generation ─────────────────────────────────────────────────────────
 
+/**
+ * Compose the SEO title as "siteName | tagline" with the tagline trimmed
+ * when absent.
+ *
+ * @param {string} siteName - configured site name
+ * @param {string} tagline - configured tagline
+ * @returns {string} composed title
+ */
 export function generateTitle(siteName, tagline) {
   return siteName ? (tagline ? `${siteName} | ${tagline}` : siteName) : 'Site'
 }
@@ -92,6 +114,17 @@ function defaultGetDeployId() {
 //   distDir : absolute path to the build output (defaults ./dist)
 //   getDeployId : injectable for tests; defaults to git-hash generator
 
+/**
+ * Stamp the global brand meta into dist/index.html: title, description, OG,
+ * Twitter card, JSON-LD, deploy-id, canonical, keywords. Idempotent on
+ * rebuild (previously injected blocks are replaced). Library-safe: returns,
+ * never exits.
+ *
+ * @param {object} config - full ssr.config.js export
+ * @param {string} [distDir=resolve('dist')] - build output directory
+ * @param {{getDeployId?: Function, projectRoot?: string}} [opts] - injection hooks
+ * @returns {void}
+ */
 export function injectBrand(config, distDir = resolve('dist'), { getDeployId = defaultGetDeployId, projectRoot } = {}) {
   const {
     platform = 'cloudflare',
@@ -288,6 +321,14 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
 // Replaces the BOT_LIST array literal inside scripts/proxy.worker.js with
 // config.proxy.botList. Idempotent: no write when the content is identical.
 // Returns true if the file was found and is in sync (written or already equal).
+/**
+ * Rewrite config.proxy.botList entries into the wire files that ship so the
+ * scaffolded VPS/Worker proxies stay in parity with the config.
+ *
+ * @param {object} config - full ssr.config.js export
+ * @param {string} projectRoot - project root containing the wire files
+ * @returns {void}
+ */
 export function syncProxyBotList(config, projectRoot) {
   const proxy = (config && config.proxy) || {}
   const botList = proxy.botList
@@ -333,6 +374,12 @@ export function syncProxyBotList(config, projectRoot) {
 // ── CLI entry ────────────────────────────────────────────────────────────────
 // Only runs when executed directly (node scripts/inject-brand.js) -- never on import.
 
+/**
+ * True when this module was executed directly (node scripts/inject-brand.js);
+ * library importers never trigger the CLI wrapper.
+ *
+ * @returns {boolean}
+ */
 export function isMainExecute() {
   try {
     return import.meta.url === pathToFileURL(process.argv[1] || '').href

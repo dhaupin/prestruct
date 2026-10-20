@@ -67,6 +67,28 @@ export default {
 The proxy pipeline reads two more values from the environment...
 see [Bot-Render Proxy](/prestruct/guides/proxy) for the full deployment story.
 
+## fetchRoutes() hook (build-time CMS routes)
+
+Add an async `fetchRoutes()` to `ssr.config.js` and the prerender merges its
+result with your static routes at build time -- never in the browser:
+
+```js
+async fetchRoutes() {
+  const posts = await fetch('https://your-cms.com/api/routes').then(r => r.json())
+  return posts.map(post => ({
+    path: `/blog/${post.slug}`,
+    priority: '0.6',
+    meta: { title: post.title, description: post.excerpt },
+  }))
+}
+```
+
+Merge contract: static and fetched routes are deduped by `path`, with the
+**static entry winning collisions**; fetched routes are appended after the
+static ones. Returning nothing (or an empty list) leaves the static routes
+unchanged. Runs once per build; a hook that throws fails the prerender like
+any other render input.
+
 ## Route Configuration
 
 Each route in the `routes` array supports:

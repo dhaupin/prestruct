@@ -14,10 +14,27 @@ const CHANGEFREQS = ['daily', 'weekly', 'monthly', 'yearly']
 
 // Identity helper: `import { defineConfig } from 'prestruct'` for type-aware
 // ssr.config.js files. No preprocessing -- config is passed through.
+/**
+ * Identity helper: `import { defineConfig } from 'prestruct'` for type-aware
+ * ssr.config.js files. Passes the config straight through.
+ *
+ * @template T
+ * @param {T} config - the config object
+ * @returns {T} the same config object
+ */
 export function defineConfig(config) {
   return config
 }
 
+/**
+ * Validate the ssr.config.js shape and emit structured diagnostics.
+ * Shape checks: siteUrl form, route paths (leading slash, traversal guard),
+ * priority/changefreq values, meta objects, duplicate paths, empty lists,
+ * platform and appLayoutPath know-values. Never throws, never exits.
+ *
+ * @param {object} config - full ssr.config.js export
+ * @returns {{ok: boolean, errors: string[]}} diagnostics consumable by callers
+ */
 export function validateConfig(config) {
   const errors = []
   if (!config || typeof config !== 'object') {
@@ -89,6 +106,12 @@ export function validateConfig(config) {
 }
 
 // Structured one-liner format callers print for each diagnostic
+/**
+ * Format diagnostics as the printed one-liners (`[prestruct] config: <msg>`).
+ *
+ * @param {string[]} errors - raw diagnostic messages
+ * @returns {string[]} prefixed one-liner strings
+ */
 export function formatDiagnostics(errors) {
   return errors.map(e => `[prestruct] config: ${e}`)
 }
