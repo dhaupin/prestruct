@@ -87,7 +87,7 @@ proxy: {
           <p className="section-label">Implementation</p>
           <Accordion>
             <AccordionItem q="VPS (Node + Puppeteer)">
-              <p>Use <code>scripts/proxy.js</code>. Runs Express with Puppeteer. Works on any VPS with Node 18+.</p>
+              <p>Use <code>scripts/proxy.js</code>. Runs Express with Puppeteer. Works on any VPS with Node 20+.</p>
             </AccordionItem>
             <AccordionItem q="Cloudflare Worker">
               <p>Use <code>scripts/proxy.worker.js</code> with Browser Rendering API. Requires Workers Paid plan.</p>

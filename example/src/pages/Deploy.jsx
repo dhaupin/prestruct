@@ -99,8 +99,9 @@ npx prestruct init   # scaffolds scripts/ + template files, never clobbers
   },
 }`}</CodeBlock>
               <div className="callout u-mt-1">
-                <strong>Apostrophe rule:</strong> use double quotes for strings containing a contraction.{' '}
-                <code>"We're open Mon-Fri"</code> works. <code>{'\'We\\\'re open Mon-Fri\''}</code> breaks the parser.
+                <strong>Apostrophe rule:</strong> prefer double quotes for strings containing a contraction.{' '}
+                <code>"We're open Mon-Fri"</code> is the safe form. The <code>\&apos;</code> escape technically parses,{' '}
+                but it is error-prone to maintain - one missed backslash and the build breaks.
               </div>
             </div>
 

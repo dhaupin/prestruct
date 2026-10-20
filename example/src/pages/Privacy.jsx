@@ -65,7 +65,7 @@ export default function Privacy() {
               4. Third-Party Services
             </h2>
             <p style={{ color: 'var(--text-2)', lineHeight: '1.7', marginBottom: '1rem' }}>
-              Prestruct itself does not use any third-party analytics or tracking services. However, when you deploy your prerendered site to Cloudflare Pages, Cloudflare's own <a href="https://www.cloudflare.com/privacy/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Privacy Policy</a> applies to their hosting services.
+              Prestruct itself does not use any third-party analytics or tracking services. However, when you deploy your prerendered site to Cloudflare Pages, Cloudflare's own <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Privacy Policy</a> applies to their hosting services.
             </p>
             <p style={{ color: 'var(--text-2)', lineHeight: '1.7', marginBottom: '1rem' }}>
               If your website includes third-party services (analytics, ads, embeds), those services may collect data independently. You are responsible for understanding and complying with those services' privacy practices.

@@ -16,7 +16,7 @@ export default {
   faqs: [
     {
       q: 'How do I add this to my existing Vite + React app?',
-      a: 'Copy init/ scripts to your project. Add prerender to your build script. Edit ssr.config.js with your routes. That is it.',
+      a: 'Run npx prestruct init (or copy the scripts out of the repo if you want the dep-free route). Then edit ssr.config.js with your routes and run prestruct build. That is it.',
     },
     {
       q: 'Does it work with any hosting?',

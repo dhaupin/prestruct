@@ -27,10 +27,10 @@ const TOOLS = [
     href: `https://search.google.com/test/rich-results?url=${ENC}`,
   },
   {
-    label: 'google',
-    name: 'Mobile-friendly test',
-    desc: "Checks mobile usability and reports any issues Google's crawler would flag.",
-    href: `https://search.google.com/test/mobile-friendly?url=${ENC}`,
+    label: 'html standards',
+    name: 'W3C HTML validator',
+    desc: 'Checks your prerendered HTML against the W3C spec - catches tag nesting and attribute errors a prerenderer can introduce.',
+    href: `https://validator.w3.org/nu/?doc=${ENC}`,
   },
   {
     label: 'open graph',
@@ -54,7 +54,7 @@ const TOOLS = [
     label: 'performance',
     name: 'PageSpeed Insights',
     desc: "Google's Lighthouse-based performance and Core Web Vitals audit. Run on mobile and desktop.",
-    href: `https://pagespeed.web.dev/report?url=${ENC}`,
+    href: `https://pagespeed.web.dev/analysis?url=${ENC}`,
   },
   {
     label: 'security',

@@ -61,6 +61,9 @@ npx prestruct build       # validate -> vite build -> inject -> prerender
                 <p className="step-cmd">vite build</p>
               </div>
               <div className="pipeline-step">
+                <p className="step-cmd">inject-brand.js</p>
+              </div>
+              <div className="pipeline-step">
                 <p className="step-cmd">prerender.js</p>
               </div>
               <div className="pipeline-step">
