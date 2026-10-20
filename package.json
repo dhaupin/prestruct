@@ -19,7 +19,10 @@
   "files": [
     "bin/",
     "engine/",
-    "init/"
+    "init/",
+    "!init/node_modules",
+    "!init/dist",
+    "!init/.prestruct"
   ],
   "scripts": {
     "test": "vitest",

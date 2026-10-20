@@ -139,6 +139,34 @@ export function cleanCache({ cacheFile = enginePaths().cacheFile } = {}) {
 
 // ── Sitemap ───────────────────────────────────────────────────────────────────
 
+export function generateRobots(config) {
+  const cfg = config?.robots || null
+  // No config.robots = existing public/robots.txt stays authorable; we never
+  // touch dist/robots.txt in that case.
+  if (!cfg) return null
+
+  const cfgBool    = cfg === true
+  const cfgBody    = typeof cfg === 'string' ? cfg : (cfg.body || '')
+  const cfgSitemap = cfgBool || (cfg && typeof cfg === 'object' ? cfg.sitemap !== false : true)
+  const siteUrl    = (config.siteUrl || '').replace(/\/$/, '')
+
+  if (cfgBool) {
+    const lines = [
+      'User-agent: *',
+      'Allow: /',
+    ]
+    if (cfgSitemap && siteUrl) {
+      lines.push('', `Sitemap: ${siteUrl}/sitemap.xml`)
+    }
+    return lines.join('\n') + '\n'
+  }
+
+  // Custom body; sitemap pointer appended unless { sitemap: false }
+  return cfgSitemap && siteUrl
+    ? `${cfgBody.trimEnd()}\n\nSitemap: ${siteUrl}/sitemap.xml\n`
+    : `${cfgBody.trimEnd()}\n`
+}
+
 function escapeXml(unsafe) {
   if (!unsafe) return ''
   return String(unsafe)
@@ -352,6 +380,29 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     // sitemap.xml -- overwrites the static one in public/ with today's date
     fs.writeFileSync(path.join(p.dist, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl), 'utf-8')
     console.log('[prerender] ✓ /sitemap.xml')
+
+    // robots.txt -- opt-in only (config.robots): without it the author-owned
+    // public/robots.txt (if any) is untouched. Generated after sitemap so the
+    // Sitemap: line points at a file that was just (re-)written.
+    const robots = generateRobots(cfg || config)
+    if (robots !== null) {
+      fs.writeFileSync(path.join(p.dist, 'robots.txt'), robots, 'utf-8')
+      console.log('[prerender] ✓ /robots.txt')
+    }
+
+    // Cache stats -- static-sites-safe monitor: a JSON snapshot beside dist/
+    // (Intentionally not a runtime endpoint; static hosts serve files, not
+    // processes. Follows the PRD "static-sites-safe option preferred" note.)
+    const stats = {
+      generatedAt: new Date().toISOString(),
+      routeCount: ROUTES.length,
+      succeeded,
+      cached: Object.keys(cache).length,
+      force,
+      routes: ROUTES.map(r => ({ path: r.path, cached: Boolean(cache[r.path]) })),
+    }
+    fs.mkdirSync(path.join(p.dist, '.prestruct'), { recursive: true })
+    fs.writeFileSync(path.join(p.dist, '.prestruct', 'status.json'), JSON.stringify(stats, null, 2), 'utf-8')
 
     console.log(`[prerender] Done. ${succeeded}/${ROUTES.length} pages rendered.\n`)
 

@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { describe, it, expect, afterEach } from 'vitest'
-import { syncProxyBotList } from '../engine/scripts/inject-brand.js'
+import { syncProxyBotList, injectBrand } from '../engine/scripts/inject-brand.js'
 
 /**
  * inject-brand.js tests
@@ -118,6 +118,76 @@ describe('syncProxyBotList', () => {
 
     expect(syncProxyBotList(config, root)).toBe(true)
     expect(workerContentOf(root)).toContain("'evil\\'bot',")
+  })
+})
+
+describe('injectBrand title replacement (tarball e2e regression)', () => {
+  // Mirrors the init/ shell: a build-instruction comment carries the literal
+  // text '<title>,'; the real tag sits further down. A dotall `s` flag on the
+  // title regex used to pair the comment fragment with the real closing tag,
+  // eating the comment closer and landing the replacement on the wrong spot.
+  // Caught live by the fresh-project tarball e2e on the packed package.
+  function makeDist(root) {
+    mkdirSync(join(root, 'dist'), { recursive: true })
+    writeFileSync(join(root, 'dist', 'index.html'), `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!--
+    Shell template. Do not add brand meta here directly.
+      title, description, author, keywords, canonical,
+      Open Graph, Twitter Card, JSON-LD.
+  -->
+  <title>Site</title>
+  <meta name="description" content="" />
+  <meta name="keywords"    content="" />
+  <meta name="author"      content="" />
+  <link rel="canonical"    href="https://yoursite.com/" />
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
+`, 'utf8')
+  }
+
+  const config = {
+    siteUrl: 'https://e2e.test',
+    siteName: 'E2E Trap',
+    author: 'E2E',
+    routes: [],
+  }
+
+  it('replaces only the real title tag and preserves the comment tree', () => {
+    const root = makeTempProject()
+    makeDist(root)
+
+    injectBrand(config, join(root, 'dist'), { getDeployId: () => 'test-id' })
+    const html = readFileSync(join(root, 'dist', 'index.html'), 'utf8')
+
+    expect(html).toContain('<title>E2E Trap</title>')
+    expect(html).not.toContain('<title>Site</title>')
+    expect(html).toContain('Shell template. Do not add brand meta here directly.')
+    // Exactly one title element -- the comment fragment must never start a
+    // cross-line match that eats the pre-existing closer
+    expect(html.match(/<title>/g)).toHaveLength(1)
+  })
+
+  it('does not touch the title when the shell comment still carries <title>,', () => {
+    const root = makeTempProject()
+    makeDist(root)
+    // Restore the exact init/ shell comment shape that used to be a trap
+    const path = join(root, 'dist', 'index.html')
+    writeFileSync(path, readFileSync(path, 'utf8').replace(
+      'title, description', '<title>, description'), 'utf8')
+
+    injectBrand(config, join(root, 'dist'), { getDeployId: () => 'test-id' })
+    const html = readFileSync(path, 'utf8')
+
+    // The old buggy regex matched the comment prose; not anymore
+    expect(html).toContain('<title>E2E Trap</title>')
+    expect(html).not.toContain('<title>Site</title>')
+    expect(html).toContain('Shell template. Do not add brand meta here directly.')
   })
 })
 

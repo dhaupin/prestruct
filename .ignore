@@ -1,0 +1,43 @@
+# .ignore - ripgrep/search-tool exclusions for agent tooling
+#
+# NOT a .gitignore replacement: git tracking is governed by .gitignore.
+# This file exists because repo-wide text search was drowning in machine noise
+# (41k-line lockfile, vendored copies, generated output). Structural dirs are
+# also excluded to make code search surgical.
+#
+# Keep in mind what an exclusion here HIDES from grep/search tooling:
+#   - package-lock.json     - dependency diffs won't match text search
+#   - init/, example/       - find generated copies via scripts/sync-engine.mjs,
+#                             not text search (they are engine/ duplicates)
+#   - docs/                 - edit docs directly; search them with -g '!none'
+#                             tricks if needed or remove their line below
+# Everything under an entry is excluded recursively.
+
+# Dependency store
+node_modules/
+
+# Lockfile: 41k lines of registry hashes, zero signal for code search
+package-lock.json
+
+# Generated deploy targets (byte-identical copies of engine/ - single source
+# of truth is engine/, regenerate via node scripts/sync-engine.mjs)
+example/
+init/
+
+# Build output
+dist/
+
+# Docs site output (Jekyll build)
+docs/_site/
+
+# Test artifacts
+coverage/
+.vite/
+
+# Binary/logo assets
+horcrux/
+
+# OS/editor noise (belt and braces; .gitignore already covers these)
+.git/
+Thumbs.db
+.DS_Store

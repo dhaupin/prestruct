@@ -147,7 +147,13 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
 
   // ── Primary meta ───────────────────────────────────────────────────────────
 
-  html = html.replace(/<title>.*?<\/title>/s,
+  // Title regex deliberately has no dotall 's' flag: shells can carry the
+  // string '<title>' inside HTML comments (build instructions), and a dotall
+  // match would pair that comment fragment with the REAL closing </title> far
+  // below -- corrupting the comment tree and landing the replacement in the
+  // wrong place. Single-line matching means fake occurrences without a
+  // matching closer are skipped automatically. Caught by the tarball e2e pass.
+  html = html.replace(/<title>[^<]*<\/title>/,
     `<title>${titleSafe}</title>`)
 
   if (description) {

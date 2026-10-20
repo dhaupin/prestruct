@@ -22,8 +22,8 @@ See [SCOPE.md](./SCOPE.md) for purpose and reach, [README.md](./README.md) for q
 | Per-route og:image | meta.ogImage per route | P1 | Done |
 | Worker bot list sync | inject-brand syncs config.proxy.botList into proxy.worker.js | P1 | Done |
 | pm2/systemd starters | init/ecosystem.cjs, init/scripts/prestruct-proxy.service | P1 | Done |
-| Robots.txt generation | inject in prerender | P2 | Not started |
-| Cache stats endpoint | GET /_prestruct/status | P2 | Not started |
+| Robots.txt generation | inject in prerender | P2 | Done -- opt-in via config.robots; author-owned public/robots.txt untouched otherwise |
+| Cache stats endpoint | dist/.prestruct/status.json (static) | P2 | Done -- JSON snapshot per build, static-sites-safe |
 | NPM package | package.json with bin | P1 | Built but unpublished (v1.0.0 dormant) |
 
 ---

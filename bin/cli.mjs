@@ -41,8 +41,10 @@ prestruct -- build-time SEO prerender for Vite + React
 
   prestruct init [dir]     Scaffold the template into dir (default: cwd).
                            Existing files are never clobbered.
-  prestruct build          Full pipeline: validate -> vite build -> inject
-                           meta -> prerender routes.
+  prestruct build [--force] [--clean]
+                           Full pipeline: validate -> vite build -> inject
+                           meta -> prerender routes. --force rerenders all
+                           routes; --clean clears the incremental cache first.
   prestruct validate       Validate ssr.config.js (exit 1 on bad config).
   prestruct clean          Clear the prerender route cache.
   prestruct help           This text.
@@ -144,7 +146,18 @@ async function cmdBuild(args) {
 
   run('npx --no-install vite build')
   injectBrand(config, path.join(workdir, 'dist'))
-  await prerender(config, { root: workdir })
+
+  // Forward --force/--clean through to the engine's incremental prerender.
+  // Found live by tarball e2e: without this pass-through, engine accepted the
+  // force flag but CLI silently dropped it -- "◯ / (cached)" under --force,
+  // which shipped stale static HTML and made users reach for rm -rf.
+  const force = args.includes('--force') || args.includes('-f')
+  if (args.includes('--clean')) {
+    const p = enginePaths(path.resolve(workdir))
+    cleanCache({ cacheFile: p.cacheFile })
+    console.log('[prestruct] prerender cache cleared (--clean)')
+  }
+  await prerender(config, { root: workdir, force })
 }
 
 // ── validate / clean ──────────────────────────────────────────────────────────

@@ -1,10 +1,52 @@
 import { describe, it, expect } from 'vitest'
+import { generateRobots } from '../engine/scripts/prerender.js'
 
 /**
  * prerender.js tests
  * 
  * Tests the route parsing and prerendering logic.
  */
+
+describe('generateRobots (P2: opt-in generation)', () => {
+  const siteUrl = 'https://example.com'
+  const config = body => ({ siteUrl, ...body })
+
+  it('returns null without config.robots - author-owned robots.txt untouched', () => {
+    expect(generateRobots(config({}))).toBe(null)
+    expect(generateRobots(config({ robots: false }))).toBe(null)
+    expect(generateRobots(null)).toBe(null)
+  })
+
+  it('generates a default block with the sitemap pointer when robots: true', () => {
+    const text = generateRobots(config({ robots: true }))
+
+    expect(text).toContain('User-agent: *')
+    expect(text).toContain('Allow: /')
+    expect(text).toContain(`Sitemap: ${siteUrl}/sitemap.xml`)
+  })
+
+  it('appends the sitemap pointer to a custom body', () => {
+    const text = generateRobots(config({ robots: { body: 'User-agent: GPTBot\nDisallow: /private\n' } }))
+
+    expect(text).toContain('User-agent: GPTBot')
+    expect(text).toContain('Disallow: /private')
+    expect(text).toContain(`Sitemap: ${siteUrl}/sitemap.xml`)
+  })
+
+  it('honors sitemap: false for a body-only robots.txt', () => {
+    const text = generateRobots(config({ robots: { body: 'User-agent: *\nDisallow: /\n', sitemap: false } }))
+
+    expect(text).not.toContain('Sitemap:')
+    expect(text).toContain('Disallow: /')
+  })
+
+  it('strips the trailing slash from siteUrl in the sitemap pointer', () => {
+    const text = generateRobots({ siteUrl: 'https://example.com/', robots: true })
+
+    expect(text).toContain('Sitemap: https://example.com/sitemap.xml')
+    expect(text).not.toContain('sitemap.xmlx')
+  })
+})
 
 // Helper: escapeReplacement (from prerender.js)
 const escapeReplacement = (s) => String(s || '').replace(/\$/g, '$$$$')

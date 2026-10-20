@@ -1,0 +1,10 @@
+# npm pack exclusion for the init/ template directory.
+#
+# npm pack uses DISK state (a pass-4/7 lesson): the root package.json files
+# whitelist includes init/, so everything on disk under it ships -- including
+# 13MB of node_modules and build output from example-templating work done in
+# this tree. host installs only need the template source, never deps or build
+# artifacts; a real user project regenerates both itself.
+node_modules/
+dist/
+.prestruct/

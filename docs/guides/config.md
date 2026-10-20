@@ -207,6 +207,47 @@ export default {
 }
 ```
 
+## robots.txt (opt-in)
+
+Prestruct never touches `dist/robots.txt` unless you opt in: an existing
+`public/robots.txt` (CF Pages copies it through) stays authorable. Enable
+generation in `ssr.config.js`:
+
+```js
+// ssr.config.js
+robots: true,                       // minimal block + Sitemap pointer
+// robots: false,                   // (default) leave dist/robots.txt alone
+// robots: {
+//   body:   'User-agent: GPTBot\nDisallow: /private\n',
+//   sitemap: true,                  // default true; append Sitemap: line
+// }
+```
+
+When enabled, prerender writes `dist/robots.txt` after `sitemap.xml` so the
+`Sitemap:` pointer always references a fresh file.
+
+## Cache stats (static monitor)
+
+Every successful `prestruct build` writes a JSON snapshot to
+`dist/.prestruct/status.json`:
+
+```json
+{
+  "generatedAt": "2026-10-20T15:36:30.400Z",
+  "routeCount": 1,
+  "succeeded": 1,
+  "cached": 1,
+  "force": false,
+  "routes": [{ "path": "/", "cached": true }]
+}
+```
+
+Useful in CI or a deploy health-check step: `cat dist/.prestruct/status.json | jq .succeeded`. The file is intentionally static (no runtime endpoint), so it
+is safe on static hosts per the PRD note "static-sites-safe option preferred".
+
+`--force` rerenders all routes; `--clean` clears the incremental cache first.
+The snapshot always reflects the latest run, not an accumulation.
+
 ## Deploy ID
 
 Every build stamps a deploy identifier into the HTML:
