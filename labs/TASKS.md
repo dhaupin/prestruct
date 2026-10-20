@@ -542,3 +542,69 @@ behavioral logic deterministically.
 
 **Verified:** vitest 102/102 (was 82; +20 proxy tests); sync check 5/5;
 `node --check` on all touched js; harness OVERALL PASS exit 0.
+
+---
+
+## Pass 12 - Docs side quest setup: vant-frame port + docs-audit suite wired
+
+The docs side quest, setup phase. Docs were stale (jekyll-theme-minimal frame,
+pre-package install story, missing pages pattern); per owner direction the
+frame now matches dhaupin/vant/docs and carries vant's docs-audit suite.
+
+**Frame ported from vant (re verified how vant ACTUALLY works via research
+first):**
+
+- docs/_layouts/default.html - custom layout (sidebar from site.data.nav,
+  Pagefind modal + Cmd+K, dark mode, copy buttons, Prism). Vant-brand strings
+  replaced (title/desc/favicon/github links/license); pagefind + brand paths
+  use site.baseurl; search result URLs guarded against /prestruct doubling
+  (the baseurl gotcha is already in AGENTS.md from the pre-Jekyll docs).
+- docs/Gemfile - jekyll ~> 4.3 + jekyll-redirect-from only; theme gem gone.
+- docs/_config.yml - vant shape (no theme, no defaults block; every page
+  carries layout via frontmatter).
+- docs/_data/nav.yml - the freestruct menu layer: 6 sections / 23 pages.
+  Vant's _plugins/nav_generator.rb was NOT ported: research showed vant's own
+  layout consumes site.data.nav while the generator writes site.config['nav']
+  - a vestigial mismatch, not a feature.
+- All 23 docs pages retrofitted with the 5-field frontmatter contract
+  (version/permalink/layout/title/nav_order); nav_order collisions from the
+  old config partially deduped (proxy 15, redirects 12).
+- docs.yml workflow: UNCHANGED (Jekyll + Pagefind + artifact deploy) -
+  bundler-cache picks up the new Gemfile automatically.
+
+**Docs-audit suite ported + adapted (scripts/check-*.cjs, wired as
+lint:docs + lint:claims, run in test.yml CI):**
+
+- Port gotcha caught live: repo is "type": "module", so the ported CommonJS
+  .js scripts died at first run; renamed .cjs. Vant-package-shaped
+  assumptions (bin/vant.js, ./lib requires, /vant baseurl) retrained onto
+  prestruct truth: bin/cli.mjs case-dispatch, engine/init/example module
+  refs, /prestruct permalinks.
+- fiction-signatures = THIS repo's audit history made mechanical: 0.2.6
+  stale version, npx degit install story, bare react-router-dom/server,
+  the SPA-fallback /index.html 200 rule, vite build --ssr (banned approach),
+  jekyll-theme-minimal (dead frame). Negation + FICTION-OK escape valves.
+- check-language.cjs ported verbatim (docs/ + labs/ + .github/ + root meta
+  scripts, longest-run >= 3 per Unicode script block) - our own mid-session
+  language drift history makes this one earned, not borrowed.
+
+**Findings fixed (the first audit cycle):** frontmatter x47 -> PASS;
+links x4 -> PASS; style x44 (16 untagged fences, 20 emoji-in-prose, 5
+trailing-whitespace) -> PASS; stale npx degit quick starts on docs/index +
+getting-started -> package-era; bare SPA-fallback example in troubleshooting
+-> removed-path example; 3 lesson-quotes in architecture.md documented via
+FICTION-OK waivers. Suite final: 6/6 gates PASS.
+
+**Cross-repo bugs filed on dhaupin/freestruct (the jekyll/freestruct stack
+research turned up):**
+
+- freestruct#7 - README says v0.3.0 while package.json/CHANGELOG say 0.3.2,
+  and no tags/releases exist to verify either.
+- freestruct#8 - README config example is invalid YAML (nested site/twitter/
+  og keys lost their indentation).
+- (freestruct#2 - packaging/unpublished-npm was already open; not duplicated.)
+
+**Verified:** lint:docs PASS (style/links/frontmatter/language/truthfulness),
+lint:claims PASS, vitest 102/102, sync check 5/5. No ruby/bundle in the
+workspace, so the Jekyll build itself is validated by the docs.yml CI job,
+not locally (documented limitation).

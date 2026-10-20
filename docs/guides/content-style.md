@@ -2,6 +2,8 @@
 layout: default
 title: Content Style
 nav_order: 20
+version: 1.0.0
+permalink: /guides/content-style
 ---
 
 Language, content, tone, and style reference for prestruct.
@@ -43,12 +45,44 @@ Every section, code block, and list needs a one-line brief before it.
 
 The brief explains *why*, not *what*. It sets context before diving in.
 
-- Wrong: "Steps:" → [list]
-- Wrong: "```bash" → [code without intro]
-- Right: "Build the project:" → ```bash
-- Right: "Use this when the server needs to stay warm:" → [configuration]
+- Wrong: "Steps:" -> [list]
+- Wrong: "```bash" -> [code without intro]
+- Right: "Build the project:" -> ```bash
+- Right: "Use this when the server needs to stay warm:" -> [configuration]
 
 Briefs are not required for short pages. Use judgment. If a section needs setup, add one.
+
+## Frontmatter (every page, enforced)
+
+Every docs page carries all five fields. `scripts/check-docs-frontmatter.cjs` gates
+CI on this; a page missing `layout:` silently renders as raw HTML with no site
+chrome (Jekyll has no defaults block, so there is no fallback).
+
+```yaml
+---
+version: 1.0.0        # version the page content reflects
+permalink: /guides/x  # starts with / - the site links by permalink
+layout: default
+title: Page Title
+nav_order: 10         # integer; controls sidebar position via _data/nav.yml
+---
+```
+
+## Code blocks
+
+- Every opening fence carries a language tag (`bash`, `js`, `yaml`, `text`).
+  ASCII diagrams and directory trees are `text`. Enforced by
+  `scripts/check-docs-style.cjs`.
+- Every code block needs a 1-sentence brief before it (see Briefs).
+- Never use numbered lists (`1. 2. 3.`) inside code blocks. Use dashes.
+- Bullets use `-`, never `*`.
+- Links are descriptive ("see docs/guides/config.md"), never "click here".
+- Markdown is the source of truth: root docs link INTO `docs/`, not the other way around.
+
+## Structure and flow
+
+- Never open a section with "This section covers...". Write the content instead.
+- Every section header gets a 1-2 sentence intro: what it is and why you need it.
 
 ## Formatting
 
@@ -66,6 +100,7 @@ Briefs are not required for short pages. Use judgment. If a section needs setup,
 - Exclamation points: avoid unless required for warning or critical state.
 - Filler adverbs: "simply", "just", "easily", "basically", "actually".
 - Vague superlatives: "best", "powerful", "robust", "seamless".
+- AI clichés: "delve into", "leverage", "unlock", "empower", "journey", "realm", "game-changer", "cutting-edge", "revolutionary", "we're excited to". Say what you mean.
 
 ## Punctuation
 

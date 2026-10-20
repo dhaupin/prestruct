@@ -2,6 +2,8 @@
 layout: default
 title: Cloudflare Pages
 nav_order: 8
+version: 1.0.0
+permalink: /guides/cloudflare
 ---
 
 
@@ -22,7 +24,7 @@ scripts/prerender.js`). Both produce identical `dist/` output.
 ## Quick Deploy
 
 1. Push your code to GitHub
-2. Go to [Cloudflare Dashboard → Pages](https://dash.cloudflare.com/pages)
+2. Go to [Cloudflare Dashboard -> Pages](https://dash.cloudflare.com/pages)
 3. Click "Connect to Git"
 4. Select your repository
 5. Configure build settings:
@@ -58,7 +60,7 @@ only Pages-side change is nothing.
 
 Prestruct includes `public/_headers` with these security policies:
 
-```
+```text
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
@@ -78,7 +80,7 @@ Update the CSP `connect-src` to include any third-party APIs your app uses.
 
 Use `public/_redirects` for redirects:
 
-```
+```text
 /old-page/ /new-page/ 301
 
 /beta / 302
@@ -89,14 +91,14 @@ Use `public/_redirects` for redirects:
 ## Pretty URLs
 
 Cloudflare Pages Pretty URLs automatically handles trailing slashes:
-- `/about` → serves `/about/index.html`
-- `/about/` → serves `/about/index.html`
+- `/about` -> serves `/about/index.html`
+- `/about/` -> serves `/about/index.html`
 
 No redirect rules needed - just be consistent in your `ssr.config.js` route paths.
 
 ## Custom Domains
 
-1. Go to Cloudflare Dashboard → Pages → Your project → Custom domains
+1. Go to Cloudflare Dashboard -> Pages -> Your project -> Custom domains
 2. Click "Set up a custom domain"
 3. Enter your domain
 4. Create a CNAME record pointing to yourPages subdomain
@@ -158,7 +160,7 @@ export async function onRequestGet({ params }) {
 
 ### Cloudflare Analytics
 
-Dashboard → Analytics → Pages
+Dashboard -> Analytics -> Pages
 
 ### Cloudflare Speed
 
@@ -167,7 +169,7 @@ https://dash.cloudflare.com/{zone}/speed
 
 ### Error Logs
 
-Dashboard → Cloudflare Pages → Your project → Deployment logs
+Dashboard -> Cloudflare Pages -> Your project -> Deployment logs
 
 ## Limits
 

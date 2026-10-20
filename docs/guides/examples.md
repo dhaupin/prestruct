@@ -2,6 +2,8 @@
 layout: default
 title: Examples
 nav_order: 19
+version: 1.0.0
+permalink: /guides/examples
 ---
 
 Real-world usage patterns and project structure.
@@ -10,7 +12,7 @@ Real-world usage patterns and project structure.
 
 Typical prestruct project:
 
-```
+```text
 my-app/
 ├── src/
 │   ├── App.jsx           # Main app with BrowserRouter

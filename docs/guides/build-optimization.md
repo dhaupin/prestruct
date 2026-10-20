@@ -2,6 +2,8 @@
 layout: default
 title: Build Optimization
 nav_order: 14
+version: 1.0.0
+permalink: /guides/build-optimization
 ---
 
 
@@ -9,7 +11,7 @@ Optimizing the prestruct build for speed and efficiency.
 
 ## Build Process Overview
 
-```
+```text
 npm run build
     │
     ├─► vite build          → JS/CSS bundles in dist/assets/

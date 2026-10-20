@@ -2,6 +2,8 @@
 layout: default
 title: API Reference
 nav_order: 9
+version: 1.0.0
+permalink: /guides/api
 ---
 
 

@@ -2,6 +2,8 @@
 layout: default
 title: Changelog
 nav_order: 17
+version: 1.0.0
+permalink: /guides/changelog
 ---
 
 Release history for prestruct.
@@ -33,7 +35,7 @@ Changes since v0.2.2:
 - Docs: 25+ prestruct guides covering getting started to advanced
 
 ### Docs: UI/UX
-- Docs: Pagefind search integration with ⌘K shortcut
+- Docs: Pagefind search integration with Cmd+K shortcut
 - Docs: Theme - menu system, light/dark mode, mobile improvements
 - Docs: PrismJS syntax highlighting with copy buttons
 

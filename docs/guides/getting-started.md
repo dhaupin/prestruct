@@ -2,6 +2,8 @@
 layout: default
 title: Getting Started
 nav_order: 2
+version: 1.0.0
+permalink: /guides/getting-started
 ---
 
 
@@ -15,12 +17,14 @@ Build a fully-prerendered React app for Cloudflare Pages in minutes.
 
 ## Quick Start
 
-### 1. Create Your Project
+### 1. Add prestruct to Your Project
+
+In an existing Vite + React project:
 
 ```bash
-npx degit dhaupin/prestruct/example my-prestruct-app
-cd my-prestruct-app
-npm install
+npm i -D prestruct
+npx prestruct init          # scaffolds ssr.config.example.js + starter files
+cp ssr.config.example.js ssr.config.js
 ```
 
 ### 2. Configure Your Site
@@ -172,7 +176,7 @@ Opens your prerendered site at `http://localhost:4173`.
 ### 7. Deploy to Cloudflare Pages
 
 1. Push your code to GitHub
-2. Go to Cloudflare Dashboard → Pages
+2. Go to Cloudflare Dashboard -> Pages
 3. Connect your GitHub repository
 4. Set build settings:
    - **Build command:** `npm run build`
@@ -182,7 +186,7 @@ Opens your prerendered site at `http://localhost:4173`.
 
 ## Project Structure
 
-```
+```text
 my-app/
 ├── ssr.config.js          # Your config (routes, meta, schema)
 ├── package.json           # Build: "vite build && node scripts/inject-brand.js && node scripts/prerender.js"
@@ -220,6 +224,6 @@ my-app/
 
 ## Next Steps
 
-- [Configuration Reference →](/prestruct/guides/config)
-- [SEO Guide →](/prestruct/guides/seo)
-- [Performance →](/prestruct/guides/performance)
+- [Configuration Reference](/prestruct/guides/config)
+- [SEO Guide](/prestruct/guides/seo)
+- [Performance](/prestruct/guides/performance)

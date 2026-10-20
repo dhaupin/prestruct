@@ -2,6 +2,8 @@
 layout: default
 title: Structured Data
 nav_order: 13
+version: 1.0.0
+permalink: /guides/structured-data
 ---
 
 

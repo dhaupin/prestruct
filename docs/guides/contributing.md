@@ -2,6 +2,8 @@
 layout: default
 title: Contributing
 nav_order: 16
+version: 1.0.0
+permalink: /guides/contributing
 ---
 
 Contributing guidelines for prestruct.
@@ -75,7 +77,7 @@ Describe the problem, proposed solution, and alternatives considered.
 
 Use conventional commits:
 
-```
+```text
 feat: add new feature
 fix: resolve bug
 docs: update documentation

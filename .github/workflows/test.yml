@@ -33,6 +33,11 @@ jobs:
       - name: Run unit tests
         run: npm run test:run
 
+      # Docs audit suite (ported from dhaupin/vant): frontmatter, links,
+      # style, language, truthfulness, fiction signatures.
+      - name: Docs audit
+        run: npm run lint:docs && npm run lint:claims
+
       - name: Lint
         run: cd init && npm run lint
 

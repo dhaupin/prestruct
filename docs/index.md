@@ -1,7 +1,9 @@
 ---
-title: Documentation
+title: prestruct Documentation
 layout: default
-nav_order: 1
+nav_order: 0
+version: 1.0.0
+permalink: /
 ---
 
 
@@ -14,10 +16,11 @@ nav_order: 1
 ## Getting Started
 
 ```bash
-npx degit dhaupin/prestruct/example my-site
-cd my-site && npm install
-npm run build
-npm run preview
+# In an existing Vite + React project
+npm i -D prestruct
+npx prestruct init          # never clobbers existing files
+cp ssr.config.example.js ssr.config.js
+npx prestruct build
 ```
 
 ## Guides
@@ -25,17 +28,17 @@ npm run preview
 <div class="guide-cards">
 
 <a href="guides/performance" class="guide-card">
-<h4>Performance →</h4>
+<h4>Performance</h4>
 Core Web Vitals optimization, bundle sizing, image best practices.
 </a>
 
 <a href="guides/seo" class="guide-card">
-<h4>SEO →</h4>
+<h4>SEO</h4>
 Meta tags, structured data, sitemap, 404 handling, robots directives.
 </a>
 
 <a href="guides/routing" class="guide-card">
-<h4>Routing →</h4>
+<h4>Routing</h4>
 Trailing slashes, dynamic routes, redirects, route configuration.
 </a>
 
@@ -44,13 +47,13 @@ Trailing slashes, dynamic routes, redirects, route configuration.
 ## Why Cloudflare Pages?
 
 - **Free** - Unlimited requests, sites, and bandwidth
-- **Edge** - 300+ global data centers  
+- **Edge** - 300+ global data centers
 - **Zero config** - Git push to deploy
 - **Security** - Automatic HSTS, CSP, and more
 
 ## Project Structure
 
-```
+```text
 my-site/
 ├── ssr.config.js      # Route config, meta, schema
 ├── public/            # Static assets

@@ -2,6 +2,8 @@
 layout: default
 title: Roadmap
 nav_order: 18
+version: 1.0.0
+permalink: /guides/roadmap
 ---
 
 Planned features and ideas for prestruct.

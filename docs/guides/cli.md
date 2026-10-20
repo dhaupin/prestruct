@@ -2,6 +2,8 @@
 layout: default
 title: CLI Reference
 nav_order: 5
+version: 1.0.0
+permalink: /guides/cli
 ---
 
 All commands and scripts available in prestruct.

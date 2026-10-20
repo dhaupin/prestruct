@@ -1,7 +1,9 @@
 ---
 layout: default
 title: Troubleshooting
-nav_order: 4
+nav_order: 16
+version: 1.0.0
+permalink: /guides/troubleshooting
 ---
 
 
@@ -13,7 +15,7 @@ Solutions to common issues when using prestruct.
 
 **Cause:** Node's ESM resolver requires explicit `.js` extension on CF Pages.
 
-**Solution:** Use `react-router-dom/server.js` (with `.js` extension):
+**Solution:**Use `react-router-dom/server.js` (with `.js` extension):
 
 ```js
 // Wrong
@@ -35,7 +37,7 @@ Same as above - add the `.js` extension.
 
 **Cause:** Code is accessing `window`, `document`, or `localStorage` during SSR render.
 
-**Solution:** Guard browser-only code:
+**Solution:**Guard browser-only code:
 
 ```jsx
 // Wrong
@@ -118,7 +120,7 @@ useEffect(() => {
 
 **Cause:** `AppLayout.jsx` imports `BrowserRouter` somewhere in its module graph.
 
-**Solution:** 
+**Solution:**
 1. Create a separate `AppLayout.jsx` that NEVER imports `BrowserRouter`
 2. Only import `Routes`, `Route`, `useLocation`
 3. Wrap in `BrowserRouter` in your `App.jsx`
@@ -145,7 +147,7 @@ export default function App() {
 
 **Cause:** Mismatch between route path and desired URL.
 
-**Solution:** Be consistent in your `ssr.config.js`:
+**Solution:**Be consistent in your `ssr.config.js`:
 
 ```js
 // If you want /about/ (with trailing slash)
@@ -165,8 +167,10 @@ React Router v6 handles both, but pick one style and stick with it.
 
 **Solution:** Remove the SPA fallback rule. Once prerendered, every route has its own `index.html`. The fallback causes CF Pages to rewrite to `/index.html`, which then matches the rule again.
 
-```bash
-/* /index.html 200
+```text
+# _redirects after prerendering - keep only rules that map paths with no
+# prerendered file. The line /index.html 200 must be gone entirely.
+/status/* /status.html 301
 ```
 
 ---
@@ -177,7 +181,7 @@ React Router v6 handles both, but pick one style and stick with it.
 
 **Cause:** Meta tags in both `index.html` and injected by prestruct.
 
-**Solution:** Remove meta tags from your `index.html` - let prestruct inject them:
+**Solution:**Remove meta tags from your `index.html` - let prestruct inject them:
 
 ```html
 <!-- Remove these from index.html -->
@@ -211,7 +215,7 @@ html = html.replace(
 
 **Cause:** `String.replace()` interprets `$1`, `$2` as regex backreferences.
 
-**Solution:** Prestruct automatically escapes `$` with `$$$$`. If manually replacing, do the same:
+**Solution:**Prestruct automatically escapes `$` with `$$$$`. If manually replacing, do the same:
 
 ```js
 const desc = description.replace(/\$/g, '$$$$')
@@ -232,7 +236,7 @@ const desc = description.replace(/\$/g, '$$$$')
 
 **Cause:** Missing `_redirects` file or incorrect configuration.
 
-**Solution:** Ensure `public/_redirects` exists (even if empty). Cloudflare Pages needs it to enable routing.
+**Solution:**Ensure `public/_redirects` exists (even if empty). Cloudflare Pages needs it to enable routing.
 
 ---
 
@@ -240,7 +244,7 @@ const desc = description.replace(/\$/g, '$$$$')
 
 **Cause:** Asset paths don't match what's in your `dist/`.
 
-**Solution:** Check that your Vite config outputs to `dist/` and that paths in HTML match the hashed filenames.
+**Solution:**Check that your Vite config outputs to `dist/` and that paths in HTML match the hashed filenames.
 
 ---
 
@@ -261,7 +265,7 @@ const desc = description.replace(/\$/g, '$$$$')
 
 **Cause:** Wrong or missing secret token.
 
-**Solution:** 
+**Solution:**
 1. Set `PRESTRUCT_SECRET` in Cloudflare wrangler.toml or secrets
 2. Send the header: `x-prestruct-refresh: your-secret`
 

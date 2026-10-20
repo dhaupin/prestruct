@@ -2,6 +2,8 @@
 layout: default
 title: Vite Integration
 nav_order: 7
+version: 1.0.0
+permalink: /guides/vite
 ---
 
 
@@ -69,7 +71,7 @@ export default defineConfig({
 
 After `npm run build`, your `dist/` should look like:
 
-```
+```text
 dist/
 ├── index.html              # Shell with global meta
 ├── about/
@@ -145,7 +147,7 @@ const SITE_URL = import.meta.env.VITE_SITE_URL
 
 Place static assets in `public/`:
 
-```
+```text
 public/
 ├── favicon.ico
 ├── og-image.png

@@ -1,7 +1,9 @@
 ---
 layout: default
-title: Routing & Trailing Slashes
+title: Routing and Trailing Slashes
 nav_order: 6
+version: 1.0.0
+permalink: /guides/routing
 ---
 
 How prestruct handles URL paths and route definitions.

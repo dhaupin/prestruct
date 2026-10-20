@@ -2,6 +2,8 @@
 layout: default
 title: Performance Optimization
 nav_order: 7
+version: 1.0.0
+permalink: /guides/performance
 ---
 
 Optimizing your prestruct site for maximum PageSpeed scores.

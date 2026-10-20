@@ -1,7 +1,9 @@
 ---
 layout: default
-title: Advanced Proxy
-nav_order: 20
+title: Bot-Render Proxy
+nav_order: 15
+version: 1.0.0
+permalink: /guides/proxy
 ---
 
 
@@ -12,13 +14,13 @@ Dynamic rendering for bots using Puppeteer - VPS or Cloudflare Worker.
 The proxy handles requests that weren't prerendered at build time:
 
 - **Dynamic routes** - Blog posts fetched from CMS
-- **Search results** - `/search?q=...` 
+- **Search results** - `/search?q=...`
 - **User-specific pages** - Can't prerender
 - **Frequent updates** - Stock prices, live data
 
 ## Architecture
 
-```
+```text
 Request
    │
    ├─► Bot? ──► Puppeteer ──► Rendered HTML ──► Cache ──► Response

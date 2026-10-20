@@ -28,7 +28,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "sync": "node scripts/sync-engine.mjs",
-    "sync:check": "node scripts/sync-engine.mjs check"
+    "sync:check": "node scripts/sync-engine.mjs check",
+    "lint:docs": "node scripts/check-docs-style.cjs && node scripts/check-docs-links.cjs && node scripts/check-docs-frontmatter.cjs && node scripts/check-language.cjs && node scripts/check-docs-truthfulness.cjs",
+    "lint:claims": "node scripts/check-fiction-signatures.cjs"
   },
   "engines": {
     "node": ">=18"

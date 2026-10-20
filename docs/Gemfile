@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
-gem "json", "~> 2.6"
+# Custom _layouts/default.html carries the presentation layer (sidebar, search,
+# dark mode) - no theme gem. Same stack as dhaupin/vant's docs.
 gem "jekyll", "~> 4.3"
+gem "jekyll-redirect-from"
 gem "kramdown-parser-gfm"
-gem "jekyll-theme-minimal"

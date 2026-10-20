@@ -2,6 +2,8 @@
 layout: default
 title: Migration Guide
 nav_order: 10
+version: 1.0.0
+permalink: /guides/migration
 ---
 
 
@@ -288,7 +290,7 @@ scaffold + copy forward:
 
    If keeping Astro with React:
    - Add `prestruct` as prerendering layer
-   
+
    If converting to pure React:
    ```bash
    npm uninstall astro @astrojs/react
@@ -304,7 +306,7 @@ scaffold + copy forward:
    const { title } = Astro.props
    ---
    <h1>{title}</h1>
-   
+
    <!-- React component -->
    export default function Heading({ title }) {
      return <h1>{title}</h1>
@@ -318,7 +320,7 @@ scaffold + copy forward:
    // In Astro frontmatter
    const data = await fetch('https://api.example.com').then(r => r.json())
    ---
-   
+
    <!-- In React - do this in ssr.config.js or build script -->
    ```
 

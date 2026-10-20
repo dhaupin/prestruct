@@ -1,90 +1,37 @@
 # prestruct docs configuration
-# GitHub Pages will auto-render this with Jekyll
-
+# Frame ported from dhaupin/vant docs (the freestruct menu layer):
+#   - presentation lives in _layouts/default.html (no theme gem)
+#   - nav lives in _data/nav.yml (single source; the layout reads site.data.nav)
+#   - every page carries the 5 frontmatter fields (see scripts/check-docs-frontmatter.js)
+#     and links by its permalink (see scripts/check-docs-links.js)
 title: prestruct
-description: Static site generation for Cloudflare Pages - Documentation
+description: Build-time SEO prerender for Vite + React - Documentation
 baseurl: "/prestruct"
 url: "https://docs.creadev.org"
 show_downloads: false
 
-# Navigation structure
-nav:
-  - title: Home
-    url: /
-  - title: Getting Started
-    url: /guides/getting-started
-  - title: Guides
-    folder: guides
-    items:
-      - title: Configuration
-        url: /guides/config
-      - title: Vite Integration
-        url: /guides/vite
-      - title: CLI Reference
-        url: /guides/cli
-      - title: Cloudflare Pages
-        url: /guides/cloudflare
-      - title: Redirects
-        url: /guides/redirects
-      - title: SEO Guide
-        url: /guides/seo
-      - title: Performance
-        url: /guides/performance
-      - title: Routing
-        url: /guides/routing
-      - title: Architecture
-        url: /guides/architecture
-      - title: API Reference
-        url: /guides/api
-      - title: Troubleshooting
-        url: /guides/troubleshooting
-      - title: Migration Guide
-        url: /guides/migration
-      - title: Advanced Islands
-        url: /guides/advanced-islands
-      - title: Structured Data
-        url: /guides/structured-data
-      - title: Build Optimization
-        url: /guides/build-optimization
-      - title: Advanced Proxy
-        url: /guides/proxy
-  - title: Community
-    folder: community
-    items:
-      - title: Examples
-        url: /guides/examples
-      - title: Content Style
-        url: /guides/content-style
-      - title: Contributing
-        url: /guides/contributing
-      - title: Changelog
-        url: /guides/changelog
-      - title: Roadmap
-        url: /guides/roadmap
-  - title: GitHub
-    url: https://github.com/dhaupin/prestruct
-    external: true
+markdown: kramdown
+highlighter: rouge
 
-# Theme - GitHub Pages default
-theme: jekyll-theme-minimal
-
-# Use default layout for all pages
-defaults:
-  - scope:
-      path: ""
-    values:
-      layout: default
-
-# Use pretty URLs (/page/ instead of /page.html)
+# Pretty URLs (/page/ with trailing slash); page frontmatter permalinks override
 permalink: pretty
 
-# Markdown config
-markdown: kramdown
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - pagefind
+  - pagefind-*.tar.gz
+
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    default_lang: plaintext
+    css_class: 'highlight'
+  toc_levels: [1, 2, 3, 4, 5, 6]
+  auto_ids: true
+  auto_id_prefix: ''
 
-# Exclude pagefind binary from Jekyll build (it's downloaded in CI)
-exclude:
-  - pagefind
-  - pagefind-*.tar.gz
+plugins:
+  - jekyll-redirect-from

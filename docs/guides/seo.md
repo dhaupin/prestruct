@@ -1,6 +1,9 @@
 ---
 layout: default
 title: SEO Guide
+nav_order: 4
+version: 1.0.0
+permalink: /guides/seo
 ---
 
 

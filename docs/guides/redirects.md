@@ -1,7 +1,9 @@
 ---
 layout: default
 title: Redirects
-nav_order: 20
+nav_order: 12
+version: 1.0.0
+permalink: /guides/redirects
 ---
 
 Managing redirects and headers on Cloudflare Pages.
@@ -10,7 +12,7 @@ Managing redirects and headers on Cloudflare Pages.
 
 Create `_redirects` in your project root:
 
-```
+```text
 # Static redirects
 /source  /destination  301
 
@@ -26,7 +28,7 @@ Cloudflare Pages handles this automatically. Do not add rules for trailing slash
 
 Create `_headers` to set cache and security headers:
 
-```
+```text
 # Cache static assets
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
@@ -38,7 +40,7 @@ Create `_headers` to set cache and security headers:
 
 ## Security headers
 
-```
+```text
 /*
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff

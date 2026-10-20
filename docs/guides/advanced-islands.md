@@ -2,6 +2,8 @@
 layout: default
 title: Advanced Islands
 nav_order: 11
+version: 1.0.0
+permalink: /guides/advanced-islands
 ---
 
 
@@ -11,7 +13,7 @@ Deep dive into dynamic islands patterns with prestruct.
 
 Islands punch holes through prerendered HTML for client-only content. The static HTML renders with fallback content (visible to crawlers), then React hydrates and replaces it.
 
-```
+```text
 Build Time                              Client Time
 ────────────                             ───────────
 <pre-island>Hello</pre-island>    →     <pre-island>Hello</pre-island>
@@ -277,9 +279,9 @@ Islands have special behavior during prerendering:
 3. **Component never runs** - Island JSX is not executed at build time
 
 This means:
-- ✅ Crawlers see fallback content (good for SEO)
-- ✅ No private data in static HTML
-- ✅ Islands load independently after hydration
+- Crawlers see fallback content (good for SEO)
+- No private data in static HTML
+- Islands load independently after hydration
 
 ## Styling Islands
 

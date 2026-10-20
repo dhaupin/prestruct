@@ -2,6 +2,8 @@
 layout: default
 title: Configuration
 nav_order: 3
+version: 1.0.0
+permalink: /guides/config
 ---
 
 
@@ -101,7 +103,7 @@ Each route in the `routes` array supports:
 
 Security and caching headers for Cloudflare Pages:
 
-```
+```text
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
@@ -119,7 +121,7 @@ Security and caching headers for Cloudflare Pages:
 
 Cloudflare Pages redirect rules:
 
-```
+```text
 /old-page/ /new-page/ 301
 /legacy/* / 301
 

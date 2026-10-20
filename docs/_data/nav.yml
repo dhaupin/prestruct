@@ -1,0 +1,73 @@
+# freestruct menu layer (single nav source; layout reads site.data.nav)
+# URLs are deployment paths (baseurl-prefixed). Order roughly follows
+# a new user's arc: start -> core theory -> deployment -> reference -> meta.
+#
+# The linters hold this file honest:
+#   - scripts/check-docs-links.js  : every /prestruct/... URL must match a
+#     page frontmatter permalink
+#   - scripts/check-docs-frontmatter.js : every page it lists must carry all
+#     5 frontmatter fields
+
+- title: Start
+  items:
+    - title: Home
+      url: /prestruct/
+    - title: Getting Started
+      url: /prestruct/guides/getting-started
+    - title: Configuration
+      url: /prestruct/guides/config
+    - title: CLI Reference
+      url: /prestruct/guides/cli
+
+- title: Core Concepts
+  items:
+    - title: Architecture
+      url: /prestruct/guides/architecture
+    - title: Routing
+      url: /prestruct/guides/routing
+    - title: SEO
+      url: /prestruct/guides/seo
+    - title: Structured Data
+      url: /prestruct/guides/structured-data
+    - title: Islands
+      url: /prestruct/guides/advanced-islands
+    - title: Vite Integration
+      url: /prestruct/guides/vite
+
+- title: Deployment
+  items:
+    - title: Cloudflare Pages
+      url: /prestruct/guides/cloudflare
+    - title: Redirects and Headers
+      url: /prestruct/guides/redirects
+    - title: Bot-Render Proxy
+      url: /prestruct/guides/proxy
+
+- title: Optimizing
+  items:
+    - title: Performance
+      url: /prestruct/guides/performance
+    - title: Build Optimization
+      url: /prestruct/guides/build-optimization
+
+- title: Reference
+  items:
+    - title: API
+      url: /prestruct/guides/api
+    - title: Examples
+      url: /prestruct/guides/examples
+    - title: Migration Guide
+      url: /prestruct/guides/migration
+    - title: Troubleshooting
+      url: /prestruct/guides/troubleshooting
+
+- title: Project
+  items:
+    - title: Content Style
+      url: /prestruct/guides/content-style
+    - title: Contributing
+      url: /prestruct/guides/contributing
+    - title: Roadmap
+      url: /prestruct/guides/roadmap
+    - title: Changelog
+      url: /prestruct/guides/changelog

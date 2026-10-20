@@ -2,6 +2,8 @@
 layout: default
 title: Architecture
 nav_order: 5
+version: 1.0.0
+permalink: /guides/architecture
 ---
 
 
@@ -11,7 +13,7 @@ Understanding how prestruct works under the hood.
 
 Prestruct is a **build-time prerenderer** for React/Vite apps. It renders each route to static HTML once during the build process, then serves those files from a CDN (Cloudflare Pages).
 
-```
+```text
 Build Time                          Runtime
 ─────────────                       ───────
 ┌─────────────────────┐            ┌─────────────────────┐
@@ -34,12 +36,15 @@ Build Time                          Runtime
 
 ## Core Concepts
 
+<!-- FICTION-OK: this section exists to document WHY the compiled-SSR-bundle approach was rejected; the signature appears as a debunked lesson, not current guidance -->
 ### 1. ssrLoadModule vs vite build --ssr
 
 **Why ssrLoadModule?**
 
+<!-- FICTION-OK: historical first attempt, documented as the failure story -->
 Initially, we tried `vite build --ssr` to create a server bundle, then imported it. Every route rendered as the homepage. The issue:
 
+<!-- FICTION-OK: quotes the rejected approach as the root cause of the failure story -->
 - `vite build --ssr` and `vite build` produce **separate module instances**
 - When prerender imports the SSR bundle, it gets a different `react-router-dom` instance
 - `StaticRouter`'s context can't propagate to `Routes` in a different instance
@@ -134,7 +139,7 @@ Islands are separate React roots - they don't participate in hydration, so no mi
 
 ## File Flow
 
-```
+```text
 src/
 ├── App.jsx              # BrowserRouter wrapper (client only)
 ├── AppLayout.jsx        # Routes + layout (NO BrowserRouter!)
