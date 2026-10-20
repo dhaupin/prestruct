@@ -12,6 +12,12 @@
 const PLATFORMS = ['cloudflare', 'vercel', 'netlify']
 const CHANGEFREQS = ['daily', 'weekly', 'monthly', 'yearly']
 
+// Identity helper: `import { defineConfig } from 'prestruct'` for type-aware
+// ssr.config.js files. No preprocessing -- config is passed through.
+export function defineConfig(config) {
+  return config
+}
+
 export function validateConfig(config) {
   const errors = []
   if (!config || typeof config !== 'object') {

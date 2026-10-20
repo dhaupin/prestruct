@@ -40,6 +40,10 @@ import { fileURLToPath, pathToFileURL } from 'url'
 
 import { validateConfig, formatDiagnostics } from './validate-config.js'
 
+// Root-package re-export: `import { defineConfig } from 'prestruct'`
+// (binding stays out of this file's scope to avoid an unused-import)
+export { defineConfig } from './validate-config.js'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT      = path.resolve(__dirname, '..')
 
@@ -248,7 +252,19 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
   const { createServer }   = await import('vite')
   const { renderToString } = await import('react-dom/server')
   const React              = (await import('react')).default
-  const { StaticRouter }   = await import('react-router-dom/server.js')
+  // react-router-dom's exports map differs by version: v6 exposes the SSR
+  // entry as a './server.js' subpath, v7 re-exports StaticRouter from the
+  // package root. Try both so the engine supports the full peer range (>=6).
+  let StaticRouter
+  try {
+    ;({ StaticRouter } = await import('react-router-dom/server.js'))
+  } catch {
+    ;({ StaticRouter } = await import('react-router-dom'))
+  }
+  if (!StaticRouter) {
+    console.error('[prerender] Could not load StaticRouter from react-router-dom -- is it installed?')
+    process.exit(1)
+  }
 
   // Vite dev server in SSR mode.
   // ssrLoadModule resolves all imports through Vite's unified module registry,

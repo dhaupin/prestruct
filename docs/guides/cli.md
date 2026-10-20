@@ -6,6 +6,37 @@ nav_order: 5
 
 All commands and scripts available in prestruct.
 
+## prestruct CLI
+
+The `prestruct` package ships an executable. It runs from any directory that contains a Vite app plus a `ssr.config.js`:
+
+```bash
+# Scaffold never-clobber starter files (ssr.config.js, public/_headers, src/AppLayout.jsx, ...)
+# Existing files are never overwritten -- safe to run on an existing project.
+npx prestruct init
+
+# Validate ssr.config.js only: prints errors line-by-line, exits 1 on the first bad config
+npx prestruct validate
+
+# Full pipeline: validate -> vite build -> inject-brand -> prerender
+npx prestruct build
+
+# Clear the prerender cache for the current project (optional maintenance)
+npx prestruct clean
+```
+
+To use these as npm scripts instead, add prestruct to `devDependencies` and wire it up:
+
+```json
+{
+  "scripts": {
+    "build": "prestruct build"
+  }
+}
+```
+
+Note: the scaffolded `init/` app still uses the raw `node` npm-script forms (below); the CLI is the packaged one-entry-point equivalent.
+
 ## npm scripts
 
 Run these from your project root:
@@ -122,3 +153,5 @@ Trigger automatic rebuilds on git push:
 | Command not found | Check package.json scripts |
 | Build fails | Run `npm run build` with debug |
 | Preview not working | Check dist exists |
+| `prestruct: command not found` | Install the package locally (`npm i -D prestruct`) or run via `npx` |
+| `validate` outputs nothing | That means the config is fine; it prints errors only when something is wrong |

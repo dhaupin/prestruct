@@ -207,6 +207,37 @@ export default {
 }
 ```
 
+## Deploy ID
+
+Every build stamps a deploy identifier into the HTML:
+
+| Config key | Default | Effect |
+|------------|---------|--------|
+| `deployId` | `true` | Injects `<meta name="deploy-id" content="<short-hash>-<ts>">` into `dist/index.html`. Set `false` to disable. |
+| `deployIdFooter` | `false` (opt-in) | Adds `data-deploy-id-footer` to the root div so client-side JS can render the deploy ID in your footer. Requires client-side code that reads the attribute (see the example `AppLayout.jsx`). The attribute survives prerendering -- footer display and prerendering do not conflict. |
+
+Minimal footer implementation:
+
+```js
+// In AppLayout.jsx (client-side)
+const root = document.getElementById('root')
+const deployId = root?.hasAttribute('data-deploy-id-footer')
+  ? document.querySelector('meta[name="deploy-id"]')?.content
+  : null
+```
+
+## Environment variables
+
+| Variable | Effect |
+|----------|--------|
+| `PRESTRUCT_STRICT=1` | Build fails (exit 1) on config-validation diagnostics instead of degrading to an SPA deploy. Off by default -- Cloudflare Pages deployments never break on a bad config -- intended for local/CI runs where you want to catch mistakes. |
+
+Diagnostics are always printed line-by-line as `[prestruct] config: <message>`, so a bad config is never invisible even in non-strict mode. Validate outside a build with the CLI:
+
+```bash
+npx prestruct validate
+```
+
 ## TypeScript Support
 
 If using TypeScript, create a `ssr.config.ts`:
