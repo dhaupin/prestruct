@@ -80,6 +80,16 @@ environments but not CF Pages.
 
 **The fix:** Always `from 'react-router-dom/server.js'` with the extension.
 
+**Boundary discovered later (tarball e2e, 2026-10):** that subpath only exists in
+react-router-dom v6. A fresh host install pulls v7 by default, where
+`./server.js` is gone from the exports map and prerender dies with
+`ERR_INVALID_PACKAGE_EXPORTS` -- silently for users if the error surfaces during
+a CI build. The engine now tries `react-router-dom/server.js` first (v6) and
+falls back to importing `StaticRouter` from the package root (v7), erroring with
+a clear message if neither resolves. Rule: the peer range is `>=6`, so every
+react-router-dom import path in engine code must survive both majors. Test
+against an installed v7, not an assumed one.
+
 ---
 
 ## hydrateRoot vs createRoot: FOUC
@@ -640,3 +650,54 @@ const routes = [...byPath.values()]
 ```
 
 **AI agent tip:** Use fetchRoutes() to pull dynamic routes from headless CMS (Sanity, Contentful, Strapi, etc.) at build time. Renders to static HTML - no runtime CMS calls needed.
+
+---
+
+## The npm package: host-project execution, not self-hosted deps
+
+Since Phase 2 the repo root is the npm package shape (version 1.0.0 exists in
+`package.json` but is **unpublished by owner decision** -- see
+`.github/workflows/publish.yml`, dormant until the first `v*` tag).
+
+- **`files` whitelist:** only `bin/`, `engine/`, `init/` ship in the tarball.
+  `example/` is deliberately excluded -- it is repo documentation, not payload.
+- **peerDependencies** (`react`, `react-dom`, `react-router-dom`, `vite`)
+  resolve from the HOST project's node_modules. Nothing is bundled. The engine
+  must never invoke `vite build --ssr` assumptions about its own deps.
+- **Host-mode prerender:** the canonical call is
+  `prerender(config, { root: workdir })`. `root` points at the user project so
+  `ssrLoadModule` resolves their `AppLayout.jsx` against THEIR module registry
+  -- same ssrLoadModule rule as above, one level out. The npm scripts inside
+  the scaffolded `init/` app (`node scripts/prerender.js`) are just the
+  copy-shipped convenience form of the same mechanics.
+- **CLI surface:** `bin/cli.mjs` gives `prestruct init | build | validate |
+  clean`. `init` never clobbers (copy-if-absent, prints `create`/`skip`).
+  `build` = validate -> `npx --no-install vite build` -> inject-brand ->
+  prerender.
+
+**Lesson: never destructure a boolean.** `report(config)` returns a boolean
+`ok`. The first CLI wrote `const { ok } = report(config)` -- destructuring a
+boolean yields `{}`, so `ok === undefined`, `else process.exit(1)` ran with
+EMPTY diagnostics: validate failed wordlessly. Three runs, no output, exit 1.
+Found only via `--trace-exit` + side-file write probes (console probes are
+blind when stdout is the thing lying). Rule: match destructure shape to return
+shape -- `validateConfig` returns `{ok, errors}`, `report` returns a bool.
+
+**Lesson: gitignore anchoring.** An ignore pattern with an embedded slash
+(`.prestruct/cache/`) is root-anchored, so it silently ignored only
+`<root>/.prestruct/cache` and never nested `example/.prestruct/cache` -- the
+example's route cache got committed by a `git add -A`. Fix: leading-slash-none,
+slash-containing patterns anchored; use `**/.prestruct/cache/`. It ships
+because a nested workspace hit it first.
+
+### Sync discipline (CI-enforced)
+
+`engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check
+mode in CI). Touch an engine file, never edit the deployed copies, always
+follow with a sync run. `qc.test.mjs` fails on drift -- that check IS the
+generator's proof of execution.
+
+**Crosslinks:** [README](./README.md) for quick start, docs site under
+`docs/` (deploy: `docs/guides/cloudflare.md`, proxy: `README-proxy.md`,
+CLI: `docs/guides/cli.md`, config: `docs/guides/config.md`), pass log in
+`labs/TASKS.md`.

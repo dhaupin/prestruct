@@ -1,143 +1,128 @@
 # Prestruct
 
-**AI-first SEO prerender for Vite + React apps.** Drop in, config, build.
+**Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`,
+build, inject meta, prerender every route to static HTML. No framework
+migration, no runtime SSR.
 
 ---
 
 ## Quick Start
 
 ```bash
-# Copy the init template
-cp -r init/* your-project/
-
-# Customize config
-cp init/ssr.config.example.js ssr.config.js
+# In an existing Vite + React project:
+npm i -D prestruct
+npx prestruct init          # never clobbers existing files
+cp ssr.config.example.js ssr.config.js   # then edit siteUrl + routes
+npx prestruct build
 ```
 
-**Live demo:** https://prestruct.creadev.org → built with prestruct (see `example/`)
+Build runs the whole pipeline: validate -> `vite build` -> inject meta ->
+prerender routes. Output lands in `dist/` with one `index.html` per route,
+`sitemap.xml`, and `404.html`.
 
-Edit `ssr.config.js`:
+**Live demo:** https://prestruct.creadev.org (built with prestruct; source in
+`example/`).
+
+Prefer raw npm scripts over the CLI? The `init/` template scaffolds
+`scripts/prerender.js` + `scripts/inject-brand.js` you can wire into
+`package.json` directly -- see [docs/guides/cli.md](./docs/guides/cli.md).
+
+---
+
+## Config
+
 ```js
+// ssr.config.js
 export default {
   siteUrl: 'https://yoursite.com',
   siteName: 'Your Site',
   routes: [
-    { path: '/', priority: '1.0', meta: { title: 'Home' } },
-    { path: '/about', priority: '0.8', meta: { title: 'About' } },
-  ],
-}
-```
-
-Run `npm run build`. That's it.
-
----
-
-## Releases
-
-| Version | Branch | Description |
-|---------|--------|------------|
-| v0.2.6 | `main` | Latest + LEGAL.md |
-| v0.2.4 | `release/v0.2.4` | Stable + LEGAL.md |
-| v0.2.2 | `release/v0.2.2` | Legacy + LEGAL.md |
-
-**Download:** Use the branch for your version (ZIP download includes LICENSE + LEGAL.md)
-
-**Legal:** By using prestruct, you agree to [LICENSE](./LICENSE) and [LEGAL.md](./LEGAL.md). The Fair-Code license restricts commercial SaaS use.
-
----
-
-## Config API
-
-```js
-// ssr.config.js - full reference
-export default {
-  // === Required ===
-  siteUrl: 'https://example.com',
-  routes: [
     {
-      path: '/',           // required - must start with /
-      priority: '1.0',    // sitemap priority
-      changefreq: 'monthly', // daily|weekly|monthly|yearly
-      meta: {                      // SEO meta tags
-        title: 'Page Title',
-        description: 'Page description',
-        ogImage: 'https://...',
+      path: '/',
+      priority: '1.0',
+      meta: {
+        title: 'Home | Your Site',
+        description: 'Homepage description (150-160 chars).',
       },
     },
+    { path: '/about', priority: '0.8', meta: { title: 'About | Your Site' } },
   ],
-
-  // === Optional ===
-  platform: 'cloudflare',   // cloudflare|vercel|netlify (default: cloudflare)
-  siteName: 'Site Name',
-  author: 'Author Name',
-  tagline: 'Short tagline',
-  ogImage: 'https://example.com/og.png',
-  keywords: 'key, words',
-
-  appLayoutPath: '/src/AppLayout.jsx',  // your component (no BrowserRouter)
-
-  // Dynamic routes from CMS
-  async fetchRoutes() {
-    const posts = await fetch('https://cms.io/api/routes').then(r => r.json())
-    return posts.map(p => ({
-      path: `/blog/${p.slug}`,
-      priority: '0.6',
-      meta: { title: p.title, description: p.excerpt },
-    }))
-  },
-
-  // JSON-LD structured data
-  buildJsonLd() {
-    return { '@type': 'WebSite', name: this.siteName }
-  },
-
-  // 404 page
-  notFound: {
-    heading: 'Page not found',
-    body: 'That page does not exist.',
-    primaryCta: { label: 'Go home', href: '/' },
-  },
 }
 ```
+
+Full reference (platform, islands, JSON-LD, `fetchRoutes()`, deployId footer,
+`PRESTRUCT_STRICT`): [docs/guides/config.md](./docs/guides/config.md).
 
 ---
 
 ## CLI
 
 ```bash
-npm run build           # vite build + prerender
-npm run build --force  # rebuild all (skip cache)
+npx prestruct init      # scaffold template files, never clobber
+npx prestruct build     # validate -> vite build -> inject -> prerender
+npx prestruct validate  # check ssr.config.js; exit 1 on bad config
+npx prestruct clean     # clear the prerender route cache
 ```
 
-Incremental: `.prestruct/cache/routes.json` stores rendered HTML. Skip unchanged routes on rebuild.
-
----
-
-## Scripts (for extension)
-
-- `scripts/inject-brand.js` - writes meta tags, platform config (_headers, vercel.json, etc.)
-- `scripts/prerender.js` - renders routes to static HTML
-- `scripts/islands.js` - mounts client-only islands
-
-AI agents: extend via config hooks or import scripts.
+Incremental builds: `.prestruct/cache/` stores rendered HTML; unchanged routes
+are skipped on rebuild unless the shell changes. Fix a config mistake silently?
+Rebuild with a validation pass first (`npx prestruct validate` prints errors
+line-by-line).
 
 ---
 
 ## Architecture
 
 ```
-vite build → inject-brand.js → prerender.js → dist/
-                    ↓
-            ssr.config.js (your config)
-                    ↓
-            .prestruct/cache/ (incremental build)
+ssr.config.js
+      │
+      ▼
+prestruct build (or npm run build in the template)
+      │
+      ├─ validate        structured [prestruct] diagnostics
+      ├─ vite build      JS/CSS bundles in dist/assets/
+      ├─ inject-brand    meta + OG + JSON-LD into dist/index.html
+      └─ prerender       vite.ssrLoadModule per route -> static HTML
 ```
 
-- Build runs once at deploy time
-- Static HTML served directly (no runtime SSR)
-- CF Pages handles routing
+Static HTML is served directly at deploy time (Cloudflare Pages default). No
+runtime SSR. Client-only dynamic content mounts into `<pre-island>` elements
+after hydration.
 
-**Read first:** `AGENTS.md` - engineering history, gotchas, decisions.
+---
+
+## Repo layout (this monorepos the npm package)
+
+| Path | Purpose |
+|------|---------|
+| `engine/` | Single source of truth for `prerender.js`, `inject-brand.js`, `validate-config.js`, islands + usePageMeta. |
+| `bin/cli.mjs` | The `prestruct` executable (init/build/validate/clean). |
+| `init/` | Project template `prestruct init` scaffolds, including `scripts/proxy.js` (VPS) and `proxy.worker.js` (Cloudflare Worker). |
+| `example/` | Working demo site (8 routes), kept byte-identical to engine via `scripts/sync-engine.mjs`. |
+| `docs/` | Full docs site, AGENTS-built with Pagefind. |
+| `tests/` | vitest battery, including the engine sync contract test. |
+
+If you touch `engine/`, run `node scripts/sync-engine.mjs` or CI will fail the
+byte-identical check. Details in [AGENTS.md](./AGENTS.md).
+
+---
+
+## Bot proxy (optional, additive)
+
+Prerendered HTML covers every route in `ssr.config.js`. Everything else serves
+the SPA shell. The optional render proxy intercepts bots and serves live
+Puppeteer HTML for the rest -- deploy it on a cheap VPS
+([README-proxy.md](./README-proxy.md), Option A: Node + Puppeteer) or as a
+Cloudflare Worker with Browser Rendering (Option B). Humans always get static
+CF Pages output; the two layers stack, they don't replace each other.
+
+---
+
+## Deploy
+
+- Cloudflare Pages: [docs/guides/cloudflare.md](./docs/guides/cloudflare.md)
+  (`npm run build`, output `dist/`, Node 18+).
+- Any static host works too: `dist/` is a plain static folder.
 
 ---
 
@@ -145,10 +130,31 @@ vite build → inject-brand.js → prerender.js → dist/
 
 - Vite 5+
 - React 18+
-- React Router v6
-- Cloudflare Pages (default)
+- React Router v6 (v7 works -- engine falls back to the package root when the
+  `./server.js` subpath is absent)
+- Cloudflare Pages default; any static host otherwise
 - Node 18+
 
 ---
 
-_No deps added. No bloat. Config is the API._
+## Publishing state
+
+`package.json` is at 1.0.0 but **not tagged and not published**. `publish.yml`
+(OIDC trusted publishing on `v*` tags) is wired and dormant -- it
+fires nothing until the first tag exists, by owner decision. When it fires,
+provenance is automatic and no stored npm token is needed.
+
+**Legal:** using prestruct means agreeing to [LICENSE](./LICENSE) and
+[LEGAL.md](./LEGAL.md). Fair-Code: commercial SaaS use is restricted.
+
+---
+
+## Read next
+
+- [AGENTS.md](./AGENTS.md) -- engineering history, gotchas, hard rules.
+- [SCOPE.md](./SCOPE.md) -- what's in/out.
+- [PLAN.md](./PLAN.md) -- roadmap.
+- [docs/](./docs/index.md) -- full site (SEO, routing, islands, proxy,
+  Cloudflare).
+
+_No runtime deps added. Config is the API._

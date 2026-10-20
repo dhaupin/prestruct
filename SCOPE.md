@@ -43,17 +43,26 @@ See [PLAN.md](./PLAN.md) for roadmap.
 
 | File | Purpose |
 |------|---------|
-| `scripts/prerender.js` | Renders routes to static HTML |
-| `scripts/inject-brand.js` | Injects SEO meta |
-| `src/islands.js` | Mounts dynamic islands |
-| `src/hooks/usePageMeta.js` | Client meta sync |
-| `ssr.config.js` | Your config |
+| `engine/scripts/prerender.js` | Renders routes to static HTML (single source) |
+| `engine/scripts/inject-brand.js` | Injects SEO meta (single source) |
+| `engine/scripts/validate-config.js` | Structured config diagnostics + `defineConfig` |
+| `bin/cli.mjs` | `prestruct init/build/validate/clean` |
+| `engine/src/islands.js` | Mounts dynamic islands |
+| `engine/src/hooks/usePageMeta.js` | Client meta sync |
+| `ssr.config.js` | Your config (host project) |
+
+Deployed copies of engine files live in `init/` and `example/`, kept
+byte-identical by `scripts/sync-engine.mjs` (run it after touching `engine/`).
 
 ---
 
 ## Docs
 
 - [README.md](./README.md) - Quick start
+- [README-proxy.md](./README-proxy.md) - Bot proxy deploy (VPS / CF Worker)
+- [docs/guides/cloudflare.md](./docs/guides/cloudflare.md) - Pages deploy
+- [docs/guides/cli.md](./docs/guides/cli.md) - CLI reference
+- [docs/guides/config.md](./docs/guides/config.md) - Config reference
 - [PLAN.md](./PLAN.md) - Roadmap
 - [AGENTS.md](./AGENTS.md) - AI agent patterns
 - [CONTENT.md](./CONTENT.md) - Writing conventions

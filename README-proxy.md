@@ -3,6 +3,12 @@
 The proxy is an optional addition to the Prestruct build pipeline. It adds
 dynamic bot-time rendering on top of the existing build-time prerender.
 
+`npx prestruct init` scaffolds all the proxy files (`scripts/proxy.js`,
+`scripts/proxy.worker.js`, `proxy.package.json`, `wrangler.toml`) into your
+project, so on a scaffolded project you can skip the file-copying steps below.
+See also: [docs/guides/cloudflare.md](docs/guides/cloudflare.md) for the Pages
+side of the setup.
+
 **Without the proxy:** bots get the static prerendered HTML from Cloudflare Pages.
 This covers every route listed in `ssr.config.js`. Routes not in that list serve
 the SPA shell with no prerendered content.
@@ -42,7 +48,8 @@ Any Linux VPS works. The proxy needs:
 
 ### 2. Copy files to the server
 
-Copy these files to your VPS (structure can be flat):
+Copy these files to your VPS (structure can be flat). On a scaffolded project
+they already exist, created by `npx prestruct init`:
 ```
 scripts/proxy.js
 ssr.config.js

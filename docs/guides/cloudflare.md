@@ -7,6 +7,11 @@ nav_order: 8
 
 Deploying prestruct sites to Cloudflare Pages.
 
+Build command is either the CLI (`npm run build` with `prestruct build` as the
+script, see [cli.md](./cli.md)) or the scaffolded three-step script from the
+template (`vite build && node scripts/inject-brand.js && node
+scripts/prerender.js`). Both produce identical `dist/` output.
+
 ## Why Cloudflare Pages?
 
 - **Free tier**: Unlimited requests, sites, and bandwidth
@@ -23,7 +28,7 @@ Deploying prestruct sites to Cloudflare Pages.
 5. Configure build settings:
    - **Build command:** `npm run build`
    - **Build output directory:** `dist`
-   - **Node.js version:** `18`
+   - **Node.js version:** `20` (any >= 18 works; 20 is the safe default)
 6. Click "Save and Deploy"
 
 ## Configuration
@@ -34,15 +39,20 @@ In Cloudflare Pages settings, add:
 
 | Variable | Value |
 |----------|-------|
-| `PRODUCTION` | `true` |
-| `NODE_VERSION` | `18` |
+| `NODE_VERSION` | `20` |
+
+Set `PRESTRUCT_STRICT=1` if you want the Pages build to FAIL on config
+diagnostics instead of degrading to an SPA deploy (default off -- Pages
+deployments never break on a bad `ssr.config.js`). Config errors are printed
+as `[prestruct] config: ...` lines either way.
 
 ### For Proxy Support
 
-If using the proxy feature, add these in Cloudflare:
-
-1. **PRESTRUCT_TARGET_URL**: Your origin URL (e.g., `https://api.example.com`)
-2. **PRESTRUCT_SECRET**: Your auth secret (add as a secret, not variable)
+The bot proxy is a separate deployment (VPS or Worker), not a Pages setting --
+see [README-proxy.md](../../README-proxy.md) for the full VPS / Cloudflare
+Worker runbook. Pages only cares once it exists: `inject-brand.js` then adds
+the proxy origin to `connect-src` in `dist/_headers` automatically, so the
+only Pages-side change is nothing.
 
 ## Security Headers
 
@@ -95,19 +105,14 @@ Cloudflare handles SSL automatically.
 
 ## Cache Invalidation
 
-### Automatic
+Cloudflare automatically purges the Pages cache on every redeploy -- there is
+nothing to configure. `dist/` HTML files carry no long-lived cache headers, so
+browsers revalidate against the current deploy.
 
-Cloudflare automatically purges cache when you redeploy.
-
-### Manual
-
-Send a cache-busting request:
-
-```bash
-curl -H "x-prestruct-refresh: your-secret" https://your-domain.com/path
-```
-
-Requires `PRESTRUCT_SECRET` to be set.
+The `x-prestruct-refresh` header you may have seen in the docs is the RENDER
+PROXY's cache-bust endpoint, not a Pages feature. It flushes cached bot
+renders on the VPS/Worker proxy -- see
+[README-proxy.md](../../README-proxy.md).
 
 ## Troubleshooting
 
@@ -171,9 +176,8 @@ Dashboard → Cloudflare Pages → Your project → Deployment logs
 - **File size**: 100MB per file
 - **Deployments**: Unlimited
 
-## Best Practices
+## Next steps
 
-1. **Use a monorepo?** Set the root directory in Pages settings
-2. **Environment-specific config:** Use different `ssr.config.js` via environment
-3. **Preview deployments:** Cloudflare creates preview URLs for PRs
-4. **Branch protection:** Configure in GitHub, not Cloudflare
+- [Config reference](./config.md) -- routes, meta, islands, JSON-LD
+- [CLI reference](./cli.md) -- prestruct init/build/validate/clean
+- [Bot proxy](../../README-proxy.md) -- dynamic-route coverage for bots
