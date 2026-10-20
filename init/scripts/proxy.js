@@ -81,7 +81,10 @@ export function secretMatches(headerValue) {
 export function isBot(ua) {
   if (!ua) return false
   const lower = String(ua).toLowerCase()
-  return BOT_LIST.some(token => lower.includes(token))
+// Live-fire fix (2026-10): tokens were matched against the lowercased UA
+// but kept their own case -- "Googlebot" never matched "googlebot" inside a
+// real UA string, so every configured bot got a 302. Lowercase both sides.
+  return BOT_LIST.some(token => lower.includes(String(token).toLowerCase()))
 }
 
 // ── Cache helpers ─────────────────────────────────────────────────────────────
@@ -233,13 +236,16 @@ export async function withRenderLimit(fn) {
 
 const app = express()
 
-// Only GET -- proxying other methods through Puppeteer is meaningless
-app.all('*', (req, res, next) => {
+// Live-fire fix (2026-10): the wildcard routes (`app.all('*')` /
+// `app.get('*')`) belong to Express 4 only -- Express 5 (what a bare
+// `npm install express` resolves today) rejects `*` at app construction
+// with path-to-regexp's "Missing parameter name" PathError, so the proxy
+// crashed before serving anything. A pathless app.use() middleware gives
+// identical catch-all behavior on both majors.
+export async function proxyHandler(req, res, next) {
+  // Only GET -- proxying other methods through Puppeteer is meaningless
   if (req.method !== 'GET') return res.status(405).send('Method not allowed.')
-  next()
-})
 
-app.get('*', async (req, res) => {
   const ua  = req.headers['user-agent'] || ''
   const bot = isBot(ua)
 
@@ -284,7 +290,9 @@ app.get('*', async (req, res) => {
     // Fall through to the live site rather than serving an error page to the bot
     return res.redirect(302, targetFullUrl)
   }
-})
+}
+
+app.use(proxyHandler)
 
 // ── Configuration + startup ──────────────────────────────────────────────────
 // createProxyApp binds a validated config to the shared app and returns it, so

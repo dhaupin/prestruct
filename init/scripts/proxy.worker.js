@@ -79,7 +79,11 @@ const BOT_LIST = [
 export function isBot(ua) {
   if (!ua) return false
   const lower = String(ua).toLowerCase()
-  return BOT_LIST.some(token => lower.includes(token))
+// Live-fire fix (2026-10): tokens were matched against the lowercased UA
+// but kept their own case -- "Googlebot" never matched "googlebot" inside a
+// real UA string, so every configured bot got a redirect. Lowercase both
+// sides (mirrors the same fix in proxy.js).
+  return BOT_LIST.some(token => lower.includes(String(token).toLowerCase()))
 }
 
 export function cacheKey(url) {

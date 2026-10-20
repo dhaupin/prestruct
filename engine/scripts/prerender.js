@@ -391,6 +391,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
     const shell     = fs.readFileSync(indexPath, 'utf-8')
     let succeeded   = 0
+    const failures  = []
     const cache     = readCache({ cacheFile: p.cacheFile })
 
     console.log(`[prerender] Cache: ${Object.keys(cache).length} routes cached${force ? ' (forcing rebuild)' : ''}`)
@@ -445,6 +446,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         succeeded++
       } catch (err) {
         console.error(`[prerender] ✗ ${route.path}: ${err.message}`)
+        failures.push({ path: route.path, message: err.message })
       }
     }
 
@@ -484,6 +486,12 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
     console.log(`[prerender] Done. ${succeeded}/${ROUTES.length} pages rendered.\n`)
 
+    // Structured result -- callers (CLI, tests) need the failure count to
+    // decide the exit code. Live-fire (2026-10): every prerendering route
+    // is a silent-empty-page site; prerender used to end on a green ✓ while
+    // the routes errorred out. Return, never process.exit: library-safety.
+    return { total: ROUTES.length, succeeded, cached: ROUTES.length - succeeded, failed: failures.length, failures }
+
   } finally {
     await vite.close()
   }
@@ -509,14 +517,25 @@ async function main() {
     cleanCache()
     process.exit(0)
   }
-  await prerender(config, { force: args.includes('--force') })
+  const result = await prerender(config, { force: args.includes('--force') })
+  // A partially-rendered build ships empty HTML for the failed routes and
+  // (pre-SPA-fallback-removal) nothing at all on deep paths. That deploy is
+  // broken, not degraded -- make the failure real so CI and CF Pages builds
+  // surface it instead of "(0/2 pages rendered)" riding through green.
+  if (result && result.failed > 0) {
+    console.error(`[prerender] FATAL: ${result.failed}/${result.total} route(s) failed to prerender:`)
+    for (const f of result.failures) console.error(`[prerender]   ${f.path}: ${f.message}`)
+    process.exit(1)
+  }
 }
 
 if (isMainExecute()) {
   main().catch(err => {
-    // Fail gracefully -- log the error but exit 0 so CF Pages deploy continues
-    // as a plain SPA rather than failing entirely
-    console.warn('[prerender] Fatal -- deploying as SPA:', err.message)
-    process.exit(0)
+    // Fail loudly. Historically this exited 0 "so the SPA keeps deploying" --
+    // but the SPA fallback redirect rule is removed once prerendering is in
+    // place (AGENTS.md: _redirects), so a silent pass-through ships a site
+    // where deep routes 404 in production. A failed build must fail the build.
+    console.error('[prerender] Fatal:', err)
+    process.exit(1)
   })
 }

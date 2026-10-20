@@ -162,7 +162,15 @@ async function cmdBuild(args) {
     cleanCache({ cacheFile: p.cacheFile })
     console.log('[prestruct] prerender cache cleared (--clean)')
   }
-  await prerender(config, { root: workdir, force })
+  const result = await prerender(config, { root: workdir, force })
+  // Engine prerender() returns { total, succeeded, failed, failures }.
+  // Live-fire (2026-10): a route that fails to render still exits 0 -- the
+  // broken deploy rides through green. Match the engine's new contract:
+  // failures are a failed build.
+  if (result && result.failed > 0) {
+    console.error(`[prestruct] prerender failed for ${result.failed}/${result.total} route(s) -- failing build`)
+    process.exit(1)
+  }
 }
 
 // ── validate / clean ──────────────────────────────────────────────────────────

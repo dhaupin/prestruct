@@ -25,7 +25,10 @@ import { useEffect } from 'react'
 import { mountIslands } from './islands.js'
 import { islands }      from './AppIslands.jsx'
 
-// Replace these with your actual components and pages
+// Replace these with your actual components and pages. A live-fire check
+// (2026-10): uncommenting a <Route> whose import is still commented makes
+// prerender die with "X is not defined" per route. Rule: only ever uncomment
+// a <Route> line AFTER its import line is uncommented too.
 // import Nav from './components/Nav'
 // import Footer from './components/Footer'
 // import Home from './pages/Home'
