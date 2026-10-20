@@ -14,7 +14,8 @@
  * Deployment:
  *   1. Copy this file and ssr.config.js to your VPS.
  *   2. `npm install express puppeteer` (puppeteer downloads Chromium automatically).
- *   3. Set PRESTRUCT_SECRET env var to match config.proxy.secret.
+ *   3. Set PRESTRUCT_SECRET env var to the shared secret. It is an env var
+ *      only -- no config key feeds it. Unset secret = refresh feature off.
  *   4. `node scripts/proxy.js` -- or use pm2 / systemd to keep it alive
  *      (ecosystem.cjs and scripts/prestruct-proxy.service ship alongside).
  *   5. Reverse-proxy port 3000 (or $PORT) with nginx/caddy for TLS.
