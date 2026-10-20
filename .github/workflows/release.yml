@@ -33,6 +33,9 @@ jobs:
       - name: Write version into init/VERSION
         run: echo "${{ env.VERSION }}" > init/VERSION
 
+      - name: Write version into init/package.json
+        run: node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('init/package.json','utf8'));p.version='${{ env.VERSION }}'.replace(/^v/,'');fs.writeFileSync('init/package.json',JSON.stringify(p,null,2)+'\\n')"
+
       - name: Sync tests to init template
         run: cp -R tests/. init/tests/
 

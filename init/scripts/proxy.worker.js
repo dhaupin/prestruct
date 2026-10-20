@@ -112,22 +112,41 @@ export default {
       return Response.redirect(targetFullUrl, 302)
     }
 
-    // Cache refresh check
+    // Cache refresh check. Subtle-timing-safe: XOR every byte of two SHA-256
+    // digests (fixed length), so response timing reveals nothing about the
+    // secretWorkers cannot import node:crypto -- the XOR form is the standard
+    // Workers-compatible constant-time compare.
     const SECRET       = env.PRESTRUCT_SECRET || null
     const refreshToken = request.headers.get('x-prestruct-refresh')
-    const forceRefresh = SECRET && refreshToken === SECRET
+    let forceRefresh = false
+    if (SECRET && refreshToken) {
+      const enc     = new TextEncoder()
+      const a       = enc.encode(SECRET)
+      const b       = enc.encode(refreshToken)
+      let diff      = a.length ^ b.length
+      const len     = Math.max(a.length, b.length)
+      if (len > 0) {  // avoid a zero-length loop branch; both are >= 1 byte here
+        for (let i = 0; i < len; i++) {
+          diff |= (a[i % a.length] || 0) ^ (b[i % b.length] || 0)
+        }
+      }
+      forceRefresh = diff === 0
+    }
 
     const TTL = parseInt(env.CACHE_TTL_SECONDS || '86400', 10)
     const key = cacheKey(requestUrl.pathname + requestUrl.search)
 
-    // Try KV cache first
+    // Try KV cache first (payload is the {html, cachedAt} JSON we now store)
     if (!forceRefresh) {
-      const cached = await env.CACHE.get(key, { type: 'text' })
-      if (cached) {
-        return new Response(cached, {
+      const cachedRaw = await env.CACHE.get(key, { type: 'text' })
+      if (cachedRaw) {
+        let cached = { html: cachedRaw, cachedAt: 'unknown' }
+        try { cached = JSON.parse(cachedRaw) } catch {}
+        return new Response(cached.html, {
           headers: {
             'Content-Type':            'text/html; charset=utf-8',
             'X-Prestruct-Cache':       'HIT',
+            'X-Prestruct-Rendered-At': String(cached.cachedAt || 'unknown'),
           },
         })
       }
@@ -161,8 +180,10 @@ export default {
       }
     }
 
-    // Store in KV with TTL
-    await env.CACHE.put(key, html, { expirationTtl: TTL })
+    // Store in KV with TTL. JSON-encode with the render timestamp so the hit
+    // path can report a real X-Prestruct-Rendered-At (the old form cached the
+    // bare HTML and reported a stale/absent date on every HIT).
+    await env.CACHE.put(key, JSON.stringify({ html, cachedAt: new Date().toISOString() }), { expirationTtl: TTL })
 
     return new Response(html, {
       headers: {

@@ -169,6 +169,20 @@ New warts found during reconciliation (handled in Phase 1, no behavior change no
 | W8 | **Footer opt-in breaks prerender matching** | When `deployIdFooter: true`, inject-brand rewrites `<div id="root"` into `<div id="root" data-deploy-id-footer`, so prerender.js's `shell.replace('<div id="root"></div>', ...)` no longer matches and every route prerenders as an empty shell. Latent today (both configs use `deployIdFooter: false`). Prerender's root-div matcher should tolerate extra attributes. |
 | W9 | **inject-brand footer-scan ordering is wrong** | The final dist-subdirectory scan in inject-brand runs before prerender.js creates the route pages, so the scan finds nothing on a clean build. Harmless but misleading; fold into prerender.js root-div handling in Phase 1. |
 
+Status after passes 5-10 (closeout ledger -- evidence above is historical):
+
+| Wart | Status |
+|---|---|
+| W1 engine drift | CLOSED -- engine/ single source, sync-engine generater + CI check |
+| W2 engine inside template | CLOSED -- engine/ at repo root ships as the npm package |
+| W3 version sprawl | CLOSED (reopened once more after the 1.0.0 npm-shape move, reclosed pass 10: root == init/package.json == init/VERSION, pinned by a qc test; release workflow stamps all template version files from the tag) |
+| W4 silent exit-0 | CLOSED -- PRESTRUCT_STRICT=1 flag, default off |
+| W5 incremental.js stub | CLOSED -- stub deleted, cache logic lives in prerender.js |
+| W6 triplicated meta logic | CLOSED-BY-DESIGN -- three writers remain but each owns a distinct HTML surface (global brand vs per-route meta vs 404); shared exports cover the overlap |
+| W7 non-portable example config | CLOSED -- deployId/deployIdFooter are engine config flags |
+| W8 footer attr breaks prerender | CLOSED -- replaceRootDiv is attribute-tolerant AND carries attrs forward |
+| W9 dead footer-scan ordering | CLOSED -- folded into prerender.js root-div handling (no dist-subdir scan remains in inject-brand) |
+
 Phase 3 (post-Phase-2 pass): Worker bot-list sync + pm2/systemd starters landed
 (see Section 4); open questions in Section 6 answered as resolved. Engine,
 init/, and example/ byte-identical; full vitest battery green.

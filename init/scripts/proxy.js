@@ -75,6 +75,17 @@ const MAX_CACHE_SIZE = 500 * 1024 * 1024    // 500MB max cache size
 const PORT         = parseInt(process.env.PORT || '3000', 10)
 const SECRET       = process.env.PRESTRUCT_SECRET || null
 
+// Cache refresh -- only honoured when a secret is configured and matches.
+// Compare is constant-time: hash both sides to fixed length and use
+// timingSafeEqual, so response timing cannot leak the secret one byte at a
+// time.
+const SECRET_SHA256 = SECRET ? crypto.createHash('sha256').update(SECRET).digest() : null
+function secretMatches(headerValue) {
+  if (!SECRET_SHA256 || headerValue == null) return false
+  const provided = crypto.createHash('sha256').update(String(headerValue)).digest()
+  return crypto.timingSafeEqual(SECRET_SHA256, provided)
+}
+
 // ── Bot detection ─────────────────────────────────────────────────────────────
 
 const BOT_LIST = proxyConfig.botList || []
@@ -200,16 +211,22 @@ async function withRenderLimit(fn) {
       return await fn()
     } finally {
       activeRenders--
-      // Process next in queue
+      // Process next in queue. The queued callback recurses into
+      // withRenderLimit rather than calling fn() directly: the old form
+      // skipped the acquire, so after the first overflow renders ran with
+      // zero active accounting -- i.e. UNBOUNDED concurrency again under
+      // sustained bot load, which is exactly the queue's job to prevent.
+      // Recursion is safe here: we just freed a slot, so the queue branch
+      // cannot be reached again.
       if (renderQueue.length > 0) {
         const next = renderQueue.shift()
         next()
       }
     }
   }
-  // Queue the request
-  return new Promise((resolve) => {
-    renderQueue.push(() => fn().then(resolve))
+  // Queue the request; rejection must propagate to the waiting caller
+  return new Promise((resolve, reject) => {
+    renderQueue.push(() => { withRenderLimit(fn).then(resolve, reject) })
   })
 }
 
@@ -240,7 +257,7 @@ app.get('*', async (req, res) => {
 
   // Cache refresh -- only honoured when a secret is configured and matches
   const refreshHeader = req.headers['x-prestruct-refresh']
-  const forceRefresh  = SECRET && refreshHeader === SECRET
+  const forceRefresh  = secretMatches(refreshHeader)
 
   const key    = cacheKey(req.url)
   const cached = forceRefresh ? null : cacheRead(key)

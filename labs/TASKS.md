@@ -426,3 +426,51 @@ priority unescaped (closed-value validation upstream). Logged here so the
 next audit doesn't re-open them.
 
 CLI state: local commit only this pass -- push on request as usual.
+
+## Pass 10 - Issue ledger closed out; proxy vulns patched; versions unified (2026-10-20)
+
+**Ledger question answered: yes -- all tracked prestruct issues are now fixed
+and closed.** Full tally below; the PRD wart table gained a closeout ledger so
+the next reader stops asking. Note W3 had silently REOPENED after the 1.0.0
+npm-shape move (root 1.0.0 vs init/package.json + VERSION stuck at 0.2.6);
+recovered this pass and pinned closed with a CI test.
+
+**Security/edge fixes (proxy pair -- init-owned copy-in files, not engine
+contract):**
+
+1. **VPS proxy render queue skipped acquisition (DoS, P1).**
+   `withRenderLimit` queued overflow requests as bare `fn()` calls: the first
+   freed slot decremented activeRenders, then the queued fn ran WITHOUT re-
+   acquiring -- activeRenders under-counted, concurrency became unbounded
+   again exactly under sustained bot load (the browser-pool OOM scenario the
+   limit exists for). Queued callbacks now recurse into withRenderLimit (safe:
+   the queue branch cannot recurse twice) and rejections propagate to the
+   waiting caller (previously swallowed, leaving the caller's promise forever
+   pending - a second latent bug in the same line).
+2. **Timing-safe secret compare in BOTH proxies.** The x-prestruct-refresh
+   header compare was `===` against PRESTRUCT_SECRET; response-time differences
+   gated on the first differing byte enable byte-by-byte secret recovery.
+   VPS: SHA-256 both sides + crypto.timingSafeEqual. Worker (no node:crypto):
+   XOR over both encoded secrets' full byte length.
+3. **Worker HIT responses now carry X-Prestruct-Rendered-At** (KV stores
+   {html, cachedAt} JSON; legacy bare-HTML cache rows parse-fail into a
+   safe fallback because KV rows live < 24h TTL). Header was previously
+   missing on hit -- the one VPS/Worker parity gap the audit found.
+4. **Worker comment cleanup** of the timing-safe block avoided a truncated
+   sentence ("secretWorkers").
+
+**Version unification (W3 reclosed):** root package.json, init/package.json,
+init/VERSION now all 1.0.0; release.yml stamps init/package.json (JSON
+rewrite, not just the text VERSION append) plus init/VERSION from the tag;
+qc.test.mjs pins all three equal -- the drift that reopened W3 can no
+longer land silently (battery: 82/82 with the new test).
+
+**Walk of remaining proxy surface considered and cleared (logged so the next
+audit skips them):** URL-concat cannot pivot origin (absolute-form request
+URLs become a PATH on the target host); express 405 gate runs before the GET
+handler; VPS HIT carries mtime-based Rendered-At (parity now true on both
+proxies); KV put shares TTL with bot-served rows; CSP injection in
+inject-brand only touches connect-src with an origin allow-list pattern.
+
+**Verified:** node --check on both proxy files; vitest 82/82; sync check 5/5
+byte-identical (proxy files intentionally outside the contract list).

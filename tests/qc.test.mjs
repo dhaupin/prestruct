@@ -65,6 +65,19 @@ test('code imports react-router-dom/server.js with explicit extension', () => {
   expect(offenders).toEqual([])
 })
 
+test('version story is single-sourced (root pkg == init pkg == init/VERSION)', () => {
+  // W3 lesson, permanently closed: version sprawl between the npm package and
+  // the template drifted before. The release workflow stamps init/VERSION and
+  // init/package.json from the tag; this pin fails loudly if anything else
+  // moves one of the three files alone.
+  const rootVersion   = JSON.parse(readFileSync('package.json', 'utf8')).version
+  const initVersion   = JSON.parse(readFileSync('init/package.json', 'utf8')).version
+  const stampVersion  = readFileSync('init/VERSION', 'utf8').trim()
+
+  expect(initVersion).toBe(rootVersion)
+  expect(stampVersion).toBe(rootVersion)
+})
+
 test('release workflow packages only init starter files', () => {
   const workflow = readFileSync('.github/workflows/release.yml', 'utf8')
 
