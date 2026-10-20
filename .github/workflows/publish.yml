@@ -1,8 +1,12 @@
 # publish.yml
 # -----------
 # npm Trusted Publishing (OIDC) -- releases publish on version tags ONLY.
-# There is no NPM_TOKEN secret stored anywhere; provenance is generated
-# automatically because the repo is public and repository.url matches.
+# There is no NPM_TOKEN secret stored anywhere. Provenance: TRUSTED-PUBLISHER
+# runs (this workflow) generate attestations automatically per npm docs
+# (docs.npmjs.com/trusted-publishers). The one-time MANUAL bootstrap publish
+# from a dev machine carries no provenance -- no OIDC root exists there -- and
+# does not need one; don't add publishConfig.provenance to package.json, it
+# would break that bootstrap (sigstore cert needs a CI OIDC identity).
 #
 # DORMANT BY DESIGN: this fires on `v*` tags, which do not exist yet. The
 # first publish must be done manually once (bootstrap -- OIDC cannot create
