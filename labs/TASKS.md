@@ -186,3 +186,43 @@ not block. Queued for Phase 1.
 3. Then the stability sweep for the engine (PRD phase 2 gate for v1.0.0):
    docs guides refresh (config.md / cli.md refresh + footer semantics), CI
    green, brain + TASKS updated. Only then discuss tagging/publishing v1.0.0.
+
+## Pass 5 - Docs refresh: README/AGENTS/deploy guides crosslinked to reality (2026-10-20)
+
+**Done:**
+
+- README.md rewritten (pre-package era text was 90% stale): npm package quick
+  start (prestruct init/build/validate/clean), engine monorepo layout table,
+  captive CLI section removed (v0.2.6 release table gone), dormant publish
+  state stated plainly, crosslinks to docs/, README-proxy, AGENTS, SCOPE, PLAN.
+- AGENTS.md: react-router-dom/server.js section now records the v7 package-root
+  fallback + "test against installed v7" rule (from the tarball e2e pass). New
+  section "The npm package: host-project execution, not self-hosted deps"
+  (peerDeps contract, prerender(config,{root}), CLI surface, report-boolean and
+  gitignore-anchoring lessons, sync discipline, crosslink block).
+- docs/guides/cloudflare.md (the de-facto deploy.md): CLI/3-step-script build
+  mention, Node 20 default + PRESTRUCT_STRICT, removed the WRONG cache hint
+  (curl x-prestruct-refresh against the Pages domain - that header flushes the
+  RENDER PROXY cache, not Pages), Pages-vs-proxy boundary clarified, condensed
+  best practices into next-steps crosslinks.
+- README-proxy.md: notes that npx prestruct init already scaffolds the proxy
+  files. SCOPE.md Key Files moved off dead scripts/ paths to engine/ + bin/;
+  PLAN.md Docs section unmangled (footer had been glued to the link list).
+
+**Verified:** relative-link sweep across the six touched files - every .md
+target resolves (two checker false-positives in cloudflare.md were sibling
+guides, correct relative to the file). Commit: f279122 (6 files, +280/-185).
+
+**Learned:**
+
+- "deploy.md's" in repo vocabulary = README-proxy.md (VPS/Worker) +
+  docs/guides/cloudflare.md (Pages). They flank different halves of deploy and
+  must stay crosslinked or readers route through the Pages guide for lines
+  that belong to the proxy.
+- Code-first lesson from CONTENT.md pays: the new README is shorter than the
+  old one despite covering MORE (CLI, package, layout table).
+
+**Setup for next pass:**
+
+1. CF Pages deploy of docs/ (no Pagefind in the Pages build today).
+2. When it is ever time to publish: tag flow per publish.yml runbook only.
