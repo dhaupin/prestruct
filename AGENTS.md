@@ -690,6 +690,37 @@ example's route cache got committed by a `git add -A`. Fix: leading-slash-none,
 slash-containing patterns anchored; use `**/.prestruct/cache/`. It ships
 because a nested workspace hit it first.
 
+**Lesson: npm pack uses DISK state, not git.** The `files` whitelist entry
+`init/` also ships whatever is on disk inside it -- a dirty workspace's
+`init/node_modules` (37MB of transitive deps from templating work) and
+`init/dist/` got into the tarball as 4,007 files, and would keep shipping to
+every CI install. Fix: BOTH levers -- `files` accepts negation patterns
+(`"!init/node_modules"`), AND a nested `init/.npmignore` lists the same
+directories. Belt and braces: `files` is the contract, `.npmignore` is the
+backstop, and the pack should be verified with `tar -tzf <tgz> | wc -l` (35
+files / ~57KB is the expected size, not 17MB).
+
+**Lesson: title-regex dotall trap.** The build's title replacement was
+`/<title>.*?<\/title>/s` -- the `s` (dotall) flag lets the match cross line
+boundaries. The `init/` shell carries the literal text `<title>,` inside a
+build-instruction comment; the regex paired that comment fragment with the
+REAL closing `</title>` far below, eating the comment closer and landing the
+replacement in the wrong place on every `prestruct init` deploy (the example
+build was blind to it -- its shell's first literal `<title>` IS the real tag).
+Fix: no `s` flag, `[^<]*` single-line matching -- a fake title in prose has no
+closing tag on its own line, so the matcher auto-skips it. Rule: never use
+dotall on a regex that replaces an HTML tag; shell prose (in comments like
+`<!-- title, description, ... -->`) is the built-in trap.
+
+**Lesson: CLI-to-engine flag pass-through.** The engine accepted
+`--force`/`--clean` (`prerender(cfg, {force})`, `cleanCache()`) but `bin/cli.mjs`
+only passed `{root}` in the call site for `prestruct build`: `--force` was
+silently ignored ("(cached)" + stale HTML shipped), `--clean` was a no-op.
+Caught by the tarball e2e (fresh-project, real npm morphology) -- a repo-shape
+test could not see it because the CLI lived in a different module instance.
+Rule: any engine option reachable from a CLI surface needs the args-to-options
+pass-through verified via an installed-package run, not a repo run.
+
 ### Sync discipline (CI-enforced)
 
 `engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check

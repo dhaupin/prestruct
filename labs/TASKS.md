@@ -331,3 +331,45 @@ and npx installs stop transferring闲置 MB of node_modules.
 .npmignore both; title-regex comment trap; CLI flag pass-through linter);
 then the still-open P2: refresh docs/guides/migration.md after the engine
 extraction, if the doc's claims drift further from reality.
+
+## Pass 8 - AGENTS lessons verified + pushed; migration.md refreshed (2026-10-20)
+
+**Done:**
+
+- **Pushed** all 7 accumulated local commits to origin/main (14695c6.c7bfc83.
+  e60d0b0.f279122.5438363.1ffb2c0.4fe5ce3 -> 4fe5ce3 live at HEAD).
+- **AGENTS.md gained 3 pass-7 lessons** under the npm package section:
+  1. npm pack uses DISK state, not git -- files-whitelist covers whatever sits
+     on disk under it; fix pattern is files-negation + nested .npmignore +
+     `tar -tzf | wc -l` as the size gate (35 files / 57KB expected, not 17MB).
+  2. Title-regex dotall trap -- never dotall a regex that replaces an HTML
+     tag; shell prose (comments carrying `<title>,`) pairs with the real
+     closing tag cross-line and corrupts the head. `[^<]*` single-line is
+     comment-proof.
+  3. CLI-to-engine flag pass-through -- engine-accepted options reachable from
+     the CLI need an installed-package verification; repo-shape tests use a
+     different module instance and cannot see the gap (found live: `--force`
+     silently no-op'd through `prestruct build`).
+- **docs/guides/migration.md refreshed** against current reality:
+  - New first section "From prestruct v0.1 / v0.2 (older layouts)" -- the
+    upgrade path the PRD asked for: CLI install, init never-clobber semantics,
+    a habit-vs-reality table (engine single source, PRESTRUCT_STRICT,
+    deployIdFooter config flag, robots opt-in, build-managed Worker bot list),
+    and `--clean` guidance for stale incremental caches.
+  - CRA steps now lead with `npm i -D prestruct` + `npx prestruct init` and
+    `build: "prestruct build"`, keeping the hand-copy 3-step script as an
+    explicit dep-free escape hatch.
+  - "Common migration patterns" dynamic-data block switched from a hand-rolled
+    routes assembly to `fetchRoutes()` (matching docs/guides/config.md).
+  - "After Migration" checklist now lists validate + cache-stats watch; PRD
+    P2 "docs: migration guide from v0.1" item is DONE.
+
+**Verified:** sync check 5/5 byte-identical; vitest 75/75 (battery green);
+link hygiene intact (migration.md references docs/guides/config.md as
+prose, all fenced blocks balanced after repair of a missing code-fence close
+and a stray list item found during self-review).
+
+**Now open:** P2 leftovers are cleared through robots.txt + cache stats +
+migration guide. Remaining aspirational work per PLAN: none pending; next
+natural step when the owner decides is to tag v1.0.0 and let the dormant
+publish workflow fire.
