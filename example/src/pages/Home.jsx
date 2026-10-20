@@ -34,14 +34,13 @@ export default function Home() {
 
           <div className="fade-up delay-2" style={{ marginTop: '2rem' }}>
             <CodeBlock lang="sh" label="sh">
-{`# Quick start (AI agents)
-git clone https://github.com/dhaupin/prestruct
-cp init/ssr.config.example.js ssr.config.js
-npm run build
+{`# Quick start
+npm i -D prestruct
+npx prestruct init        # scaffolds scripts/ + ssr.config.example.js, never clobbers
+cp ssr.config.example.js ssr.config.js
+npx prestruct build       # validate -> vite build -> inject -> prerender
 
-# Config: ssr.config.js
-# Source: example/ (live)
-# Docs: README.md`}
+# Docs: README.md + docs/ in the repo`}
             </CodeBlock>
           </div>
 
@@ -111,10 +110,10 @@ npm run build
             </div>
             <div className="benefit">
               <p className="benefit-num">05</p>
-              <h2 className="benefit-title">Multi-platform</h2>
+              <h2 className="benefit-title">Honest 404s</h2>
               <p className="benefit-desc">
-                Auto-detects Cloudflare, Vercel, Netlify. Injects correct 
-                headers, redirects, config per host.
+                Every unmatched route serves a prerendered <code>404.html</code> with
+                a real HTTP 404 status and a <code>noindex</code> robots directive.
               </p>
             </div>
             <div className="benefit">

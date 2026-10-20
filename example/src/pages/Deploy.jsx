@@ -51,10 +51,11 @@ export default function Deploy() {
           <div className="quickstart">
 
             <div className="qs-block">
-              <p className="qs-label">1. Copy the engine files into your app</p>
-              <CodeBlock lang="sh">{`cp scripts/prerender.js               your-app/scripts/
-cp scripts/inject-brand.js            your-app/scripts/
-cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</CodeBlock>
+              <p className="qs-label">1. Add prestruct to your app</p>
+              <CodeBlock lang="sh">{`npm i -D prestruct
+npx prestruct init   # scaffolds scripts/ + template files, never clobbers
+# Dep-free alternative: copy scripts/prerender.js + scripts/inject-brand.js
+# and src/hooks/usePageMeta.js out of the repo yourself.`}</CodeBlock>
             </div>
 
             <div className="qs-block">
@@ -67,11 +68,7 @@ cp templates/src/hooks/usePageMeta.js your-app/src/hooks/`}</CodeBlock>
   ogImage:       'https://yoursite.com/og-image.jpg',
   keywords:      'keyword one, keyword two',
   appLayoutPath: '/src/AppLayout.jsx',
-  proxy: {
-    url:       null, // optional render proxy, e.g. 'https://proxy.yoursite.com'
-    secret:    null, // set only when you enable proxy cache refresh
-    targetUrl: null, // optional upstream render origin (defaults to siteUrl)
-  },
+  // optional render proxy (see step 7); auth is the PRESTRUCT_SECRET env var
 
   routes: [
     {
@@ -190,10 +187,11 @@ if (root && root.dataset.serverRendered) {
               </div>
               <CodeBlock lang="js" label="ssr.config.js (proxy block)">{`proxy: {
   url:       'https://proxy.yoursite.com', // VPS or Worker URL
-  secret:    'set-the-same-value-as-PRESTRUCT_SECRET',
   targetUrl: null,                         // defaults to siteUrl
   botList:   ['Googlebot', 'bingbot'],
-}`}</CodeBlock>
+}
+// Cache-refresh auth is the PRESTRUCT_SECRET env var on the proxy host,
+// never a config key. Unset secret = refresh disabled entirely.`}</CodeBlock>
               <p className="u-tip-label">
                 Use <code>scripts/proxy.js</code> for VPS or <code>scripts/proxy.worker.js</code> for Cloudflare Workers.
                 Full setup: <a href={`${GITHUB}/blob/main/README-proxy.md`} target="_blank" rel="noopener noreferrer">README-proxy.md</a>.

@@ -36,6 +36,7 @@
 
 import fs   from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import { fileURLToPath, pathToFileURL } from 'url'
 
 import { validateConfig, formatDiagnostics } from './validate-config.js'
@@ -79,6 +80,38 @@ export function escapeHtml(s) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
+}
+
+// ── Cache-entry validity (stale-cache fix) ─────────────────────────────────
+// The old skip was path-keyed only: `if (!force && cache[route.path])` — a
+// changed shell (new vite asset hashes, meta edits, deploy-id) or changed
+// route meta did NOT invalidate, and the loop happily rewrote yesterday's
+// HTML over today's build. Real fix: every cache entry carries a
+// signature over every rendered input — the shell, the siteUrl, and the
+// route's own meta/ogImage — and a hit only counts when the signature
+// matches. Entries written before signatures exist (no `sig` field) count
+// as stale and get rerendered once, then upgraded in place.
+//
+// The helper is exported (not inlined in the loop) so the battery can pin
+// the stale-path without running the whole vite pipeline.
+// The helper is exported (not inlined in the loop) so the battery can pin
+// the stale path without running the whole vite pipeline.
+export function cacheSignature(route, siteUrl, shell) {
+  return crypto.createHash('sha256').update(JSON.stringify({
+    path: route.path,
+    siteUrl,
+    meta: route.meta ?? null,
+    ogImage: route.ogImage ?? null,
+    shell,
+  })).digest('hex')
+}
+
+export function cacheEntryValid(entry, route, siteUrl, shell) {
+  if (!entry || typeof entry !== 'object' || typeof entry.html !== 'string') return false
+  // Legacy entries predate signatures: treat as stale once, rerender, and
+  // the write below upgrades them in place.
+  if (!entry.sig) return false
+  return entry.sig === cacheSignature(route, siteUrl, shell)
 }
 
 // ── Root-div injection (W8 fix) ───────────────────────────────────────────────
@@ -376,8 +409,11 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         ? path.join(p.dist, 'index.html')
         : path.join(p.dist, route.path.slice(1), 'index.html')
 
-      // Incremental: skip if cached and not --force
-      if (!force && cache[route.path]) {
+      // Incremental: skip ONLY on a valid cache entry -- the old bare
+      // path-keyed check rewrote stale HTML over fresh builds whenever the
+      // shell or route meta changed. cacheEntryValid sees signatures over
+      // every rendered input; legacy entries (no sig) render once.
+      if (!force && cacheEntryValid(cache[route.path], route, siteUrl, shell)) {
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         fs.writeFileSync(distPath, cache[route.path].html, 'utf-8')
         console.log(`[prerender] ◯ ${route.path} (cached)`)
@@ -399,8 +435,8 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         let html = replaceRootDiv(shell, appHtml)
         html = injectMeta(html, route.meta || {}, route.path, siteUrl, cfg.ogImage)
 
-        // Save to cache
-        cache[route.path] = { html, time: Date.now() }
+        // Save to cache with a signature over exactly these rendered inputs
+        cache[route.path] = { html, time: Date.now(), sig: cacheSignature(route, siteUrl, shell) }
 
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         fs.writeFileSync(distPath, html, 'utf-8')

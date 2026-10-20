@@ -20,7 +20,7 @@ export default {
     },
     {
       q: 'Does it work with any hosting?',
-      a: 'Yes. Auto-detects Cloudflare Pages, Vercel, or Netlify. Injects correct platform config. Any static host works - just copy dist/ output.',
+      a: 'Cloudflare Pages is the first-class host - the build ships headers, redirects, and immutable asset caching for it. Any static host works too: dist/ is a plain folder of static HTML files.',
     },
     {
       q: 'How do I add a new route?',
@@ -117,7 +117,7 @@ export default {
         '@context':           'https://schema.org',
         '@type':              'SoftwareApplication',
         name:                 'Prestruct',
-        url:                  'https://github.com/creadev/prestruct',
+        url:                  'https://github.com/dhaupin/prestruct',
         description:          'Build-time SEO prerender layer for Vite + React apps on Cloudflare Pages. Per-route HTML, correct meta, schema.org, sitemap, and cache headers.',
         applicationCategory:  'DeveloperApplication',
         operatingSystem:      'Any',
@@ -127,69 +127,20 @@ export default {
           'Title, description, Open Graph, Twitter Card injection',
           'schema.org JSON-LD structured data',
           'Automatic sitemap.xml generation',
-          'Correct HTTP 404 status for unmatched routes',
-          'Immutable asset caching with Cloudflare Pages',
+          'noindexed 404 pages',
+          'Opt-in robots.txt generation',
+          'Incremental prerender cache with --force / --clean',
         ],
         author: {
           '@type': 'Person',
-          name:    'Creadev.org',
-          url:     'https://github.com/creadev',
+          name:    'dhaupin',
+          url:     'https://github.com/dhaupin',
         },
       },
-      {
-        '@context':    'https://schema.org',
-        '@type':       'FAQPage',
-        mainEntity:    (this.faqs || []).map((f) => ({
-          '@type':          'Question',
-          name:             f.q,
-          acceptedAnswer: {
-            '@type':    'Answer',
-            text:      f.a,
-          },
-        })),
-      },
-      {
-        '@context':        'https://schema.org',
-        '@type':           'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type':     'ListItem',
-            position:   1,
-            name:      'Home',
-            item:      'https://prestruct.creadev.org',
-          },
-          {
-            '@type':     'ListItem',
-            position:   2,
-            name:      'How it works',
-            item:      'https://prestruct.creadev.org/about',
-          },
-          {
-            '@type':     'ListItem',
-            position:   3,
-            name:      'Deploy',
-            item:      'https://prestruct.creadev.org/deploy',
-          },
-          {
-            '@type':     'ListItem',
-            position:   4,
-            name:      'Islands',
-            item:      'https://prestruct.creadev.org/islands',
-          },
-          {
-            '@type':     'ListItem',
-            position:   5,
-            name:      'Bot proxy',
-            item:      'https://prestruct.creadev.org/proxy',
-          },
-          {
-            '@type':     'ListItem',
-            position:   6,
-            name:      'Get Help',
-            item:      'https://prestruct.creadev.org/contact',
-          },
-        ],
-      },
+      // FAQPage would need per-route JSON-LD: the accordion shows on Home
+      // only, and buildJsonLd has no path argument to scope it. FAQ schema
+      // claims from pages that don't show FAQs would be fiction, so only
+      // the product-level SoftwareApplication ships site-wide.
     ]
   },
 

@@ -1,24 +1,30 @@
 # Prestruct - AI Context
 
 ## What is Prestruct?
-Prestruct is a build-time SEO prerendering tool for Vite + React apps deployed on Cloudflare Pages. It generates static HTML per route with correct SEO metadata, schema.org markup, and cache headers without runtime infrastructure changes.
+Prestruct is a build-time SEO prerendering tool for Vite + React apps deployed on Cloudflare Pages. It generates static HTML per route with correct SEO metadata, schema.org markup, and cache headers without runtime infrastructure changes. This site (prestruct.creadev.org) IS the example app in the repo - every page you see is produced by the same prerender pipeline the tool ships.
 
 ## Target Audience
 Frontend developers and site owners deploying React applications who want reliable SEO and enhanced search visibility without changing their existing stack or infrastructure.
 
 ## Key Features
 - Static prerendered HTML per route at build time
-- Correct SEO meta tags injected (title, description)
-- Open Graph and Twitter card metadata
-- schema.org JSON-LD structured data
-- Automatic sitemap.xml generation
+- Correct SEO meta tags injected (title, description, canonical, OG, Twitter)
+- schema.org JSON-LD structured data (site-wide, build-time)
+- Automatic sitemap.xml generation and a noindexed 404 page with a real HTTP 404
+- Opt-in robots.txt generation (config.robots)
+- Incremental prerender cache: unchanged routes are skipped on rebuild (--force / --clean)
+- `prestruct` CLI: init / build / validate / clean (npm package, never clobbers existing files)
 - Immutable asset caching for Cloudflare Pages
-- Dynamic islands for client-only content
-- Bot proxy for dynamic routes
+- Dynamic islands for client-only content (pre-island elements)
+- Bot proxy for dynamic routes (VPS Node/Puppeteer or Cloudflare Worker)
 
-## Pricing
-Open source under MIT license, free to use.
+## Hosting
+Cloudflare Pages is the first-class host (headers, redirects, immutable caching ship configured). Any static host works: dist/ is a plain folder of static HTML.
+
+## Licensing
+LICENSE is MIT; LEGAL.md adds Fair-Code restrictions: commercial SaaS use is restricted.
 
 ## Links
 - GitHub: https://github.com/dhaupin/prestruct
-- Docs: https://prestruct.creadev.org
+- Docs: https://docs.creadev.org/prestruct/
+- Issues: https://github.com/dhaupin/prestruct/issues

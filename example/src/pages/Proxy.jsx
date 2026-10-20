@@ -62,17 +62,22 @@ export default function Proxy() {
 {`# Bot hits /blog/page/5
 # Not prerendered? → Proxy renders
 
-# 1. Detect botUserAgent
-# 2. Fetch targetUrl with Puppeteer
-# 3. Cache HTML to KV or disk
-# 4. Return with fresh meta
+# 1. Detect bot from the User-Agent (config.proxy.botList)
+# 2. Humans: 302 redirect to the live site -- they never reach the proxy
+# 3. Bots: render targetUrl with Puppeteer (VPS) / Browser Rendering (Worker)
+# 4. Cache the HTML (disk on VPS, KV on the Worker) and serve it
 
-# Config in ssr.config.js
+# Render responses self-describe: X-Prestruct-Cache: HIT|MISS and
+# X-Prestruct-Rendered-At. Concurrency is bounded (5 parallel renders).
+
+# Config in ssr.config.js (the build only uses proxy.url to widen CSP)
 proxy: {
   url: 'https://my-proxy.example.com',
   botList: ['googlebot', 'bingbot', 'claudebot'],
-  cacheTTL: 3600,  // seconds
-}`}
+}
+# TTLs live on the proxy host, not here:
+#   VPS: CACHE_TTL constant in scripts/proxy.js (24h)
+#   Worker: CACHE_TTL_SECONDS var in wrangler.toml (default 86400)`}
           </CodeBlock>
         </div>
       </section>
@@ -88,7 +93,7 @@ proxy: {
               <p>Use <code>scripts/proxy.worker.js</code> with Browser Rendering API. Requires Workers Paid plan.</p>
             </AccordionItem>
             <AccordionItem q="Cache refresh">
-              <p>Send <code>X-Prestruct-Refresh</code> header with secret to bust cache for a path.</p>
+              <p>GET the target path with an <code>x-prestruct-refresh</code> header matching <code>PRESTRUCT_SECRET</code> (env var on the proxy host) to bust the cache for that path. With no secret set, refresh is disabled entirely -- unset never means allow-all.</p>
             </AccordionItem>
           </Accordion>
         </div>
@@ -104,7 +109,8 @@ proxy: {
     url: 'https://your-proxy.workers.dev',
     // or null to disable
     botList: ['googlebot', 'bingbot', 'claudebot', 'perplexitybot'],
-    targetUrl: process.env.PRESTRUCT_TARGET_URL,
+    // targetUrl: only when the proxy renders a different origin
+    // (staging, localhost, WordPress origin). Defaults to siteUrl.
   },
 }`}
           </CodeBlock>
