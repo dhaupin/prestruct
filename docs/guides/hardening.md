@@ -31,8 +31,11 @@ The config deliberately runs two failure conditions as contracts, not accidents:
 
 Attack packs live in [`packs/`](https://github.com/dhaupin/prestruct/tree/main/packs)
 - self-contained probe modules the crashtest harness loads against a live
-target (see `packs/README.md`). The repo's own pack,
-`packs/public/prestruct-proxy`, pins four contracts on the proxy pair:
+target (see `packs/README.md`). Since crashtest v0.3 packs are the one
+extension surface: a pack directory is self-contained, an adopting repo
+points its config's `packs:` knob at it - one line, and rows still label
+the source pack. The repo's own pack, `packs/public/prestruct-proxy`, pins
+four contracts on the proxy pair:
 
 | Shape | Contract |
 |---|---|
@@ -44,6 +47,9 @@ target (see `packs/README.md`). The repo's own pack,
 Packs are vocabulary-driven: route names, method matrices, and env wiring come
 from the host config's `moduleCtx`, so a pack runs against any wiring. A
 missing arm becomes a `REFUSED` skip row - always visible, never a false pass.
+Adoption into another repo is one config line
+(`packs: ['/abs/path/to/prestruct/packs']`) plus the `moduleCtx` vocabulary;
+see `packs/README.md` for the exact block.
 
 ## Reading a hardening report
 

@@ -43,6 +43,13 @@ export default {
       botList: ['Googlebot', 'Bingbot'],
     },
   },
-  packs: true,
+  // Crashtest v0.3+ pack model: the run root's own packs/public/ and
+  // packs/local/ are discovered automatically — `packs: true` is that
+  // default spelled out. An ADOPTING repo (any other repo running crashtest
+  // against prestruct as a target) needs exactly one line instead:
+  //   packs: ['/abs/path/to/prestruct/packs']   // whole checkout
+  // or, once the pack ships as an npm package, its installed dir. Labels
+  // still carry the source: rows read pack:public/prestruct-proxy.
+  packs: ['./packs'],
   seed: 0xC0FFEE,
 }

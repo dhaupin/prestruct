@@ -11,6 +11,35 @@ from the host config (`moduleCtx`), never hardcoded in the pack.
 crosslinked to [`crashtest.config.js`](../crashtest.config.js), which arms it
 against this repo's own deployed copies.
 
+## Adopting this pack in another repo (crashtest v0.3+)
+
+Packs are the one extension surface: a pack directory is self-contained
+(manifest + entry scenario module; optional bundled `plugins` imports live
+in the pack manifest). An adopting repo needs exactly one line - no shims,
+no per-scenario config; loaded rows still label their source:
+
+```js
+// crashtest.config.js in the adopting run root
+export default {
+  routes: buildRoutes(),
+  packs: ['/abs/path/to/prestruct/packs'],   // whole checkout, or one pack dir
+  moduleCtx: {
+    'prestruct-proxy': {                     // vocabulary: route surface names
+      vps: 'app',
+      worker: 'worker',
+      botList: ['Googlebot', 'Bingbot'],
+    },
+  },
+}
+```
+
+`packs/public/` + `packs/local/` under the run root are also discovered
+automatically (`packs: true`); the `packs:` knob accepts absolute paths and
+npm-installed pack dirs. Inventory from a run root with `npx crashtest packs`
+(or `--json` for the machine blob); un-armed vocabulary degrades to
+`REFUSED`-skip rows that name the missing `moduleCtx` key - never a false
+positive.
+
 | Shape | Contract |
 |---|---|
 | `method-contract-walk` | every non-GET method is a clean 405 on both runtimes |
