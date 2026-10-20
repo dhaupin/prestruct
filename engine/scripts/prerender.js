@@ -66,6 +66,21 @@ export function escapeReplacement(s) {
   return String(s || '').replace(/\$/g, '$$$$')
 }
 
+// HTML attribute/text escaping for values landed in the baked HTML by
+// injectMeta and generate404. Route meta titles/descriptions/OG images are
+// operator config today, but CSM-fed configs interpolate third-party data --
+// a `"` in a description silently breaks the attribute, and a `</title>` in a
+// title injects markup into every baked page. Escape BEFORE $-escaping: the
+// latter only handles replace() semantics.
+export function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // ── Root-div injection (W8 fix) ───────────────────────────────────────────────
 // Attribute-tolerant: inject-brand.js may add its own attrs to the root div
 // (e.g. data-deploy-id-footer when config.deployIdFooter is true). This
@@ -92,10 +107,10 @@ export function replaceRootDiv(shell, appHtml) {
 // ── Meta injection ────────────────────────────────────────────────────────────
 
 export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
-  const title   = escapeReplacement(meta.title)
-  const desc    = escapeReplacement(meta.description)
-  const ogImage = escapeReplacement(meta.ogImage || globalOgImage || '')
-  const url     = escapeReplacement(`${siteUrl}${routePath === '/' ? '' : routePath}`)
+  const title   = escapeReplacement(escapeHtml(meta.title))
+  const desc    = escapeReplacement(escapeHtml(meta.description))
+  const ogImage = escapeReplacement(escapeHtml(meta.ogImage || globalOgImage || ''))
+  const url     = escapeReplacement(escapeHtml(`${siteUrl}${routePath === '/' ? '' : routePath}`))
 
   if (title) {
     html = html.replace(/<title>[^<]*<\/title>/,                                     `<title>${title}</title>`)
@@ -187,8 +202,8 @@ export function generateSitemap(routes, siteUrl) {
   <url>
     <loc>${escapeXml(siteUrl)}${r.path === '/' ? '' : escapeXml(r.path)}</loc>
     <lastmod>${now}</lastmod>
-    <changefreq>${r.changefreq || 'monthly'}</changefreq>
-    <priority>${r.priority || '0.5'}</priority>
+    <changefreq>${escapeXml(r.changefreq || 'monthly')}</changefreq>
+    <priority>${escapeXml(r.priority || '0.5')}</priority>
   </url>`).join('')
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}\n</urlset>`
 }
@@ -348,6 +363,15 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     console.log(`[prerender] Cache: ${Object.keys(cache).length} routes cached${force ? ' (forcing rebuild)' : ''}`)
 
     for (const route of ROUTES) {
+      // Defense in depth for the validator's path rules: at this point write
+      // happens for real -- anything that could escape dist/ is refused, not
+      // path-joined. Validation diagnostics already flagged it; the loop
+      // still skips silently-uncaught otherwise.
+      if (route.path.includes('..') || route.path.includes('\\')) {
+        console.error(`[prerender] ✗ ${route.path}: refusing path outside dist/ (contains ".." or backslash)`)
+        continue
+      }
+
       const distPath = route.path === '/'
         ? path.join(p.dist, 'index.html')
         : path.join(p.dist, route.path.slice(1), 'index.html')

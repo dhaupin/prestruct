@@ -43,6 +43,13 @@ export function validateConfig(config) {
       if (typeof route.path !== 'string' || !route.path.startsWith('/')) {
         errors.push(`routes[${i}].path: missing or does not start with "/"`)
       }
+      // Path traversal guard: prerender writes dist/<path>/index.html. A
+      // '..' or backslash segment escapes dist/ (and on POSIX could land
+      // outside the project root entirely). Route paths are URL paths --
+      // they never need either.
+      if (typeof route.path === 'string' && (route.path.includes('..') || route.path.includes('\\'))) {
+        errors.push(`routes[${i}].path: "${route.path}" contains ".." or backslash -- route paths cannot escape dist/`)
+      }
       if (route.priority !== undefined && !/^(0?\.\d+|1(\.0+)?)$/.test(String(route.priority))) {
         errors.push(`routes[${i}].priority: "${route.priority}" is not a number between 0 and 1`)
       }

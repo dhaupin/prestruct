@@ -53,6 +53,20 @@ export function toReplaceSafe(value) {
   return (value == null ? '' : String(value).replace(/\$/g, '$$$$'))
 }
 
+// HTML attribute/text escaping for values landed in the shell's head tags.
+// Meta values go into content="..." attributes (and <title> text): a `"` in
+// a description silently breaks the attribute, and `</title>` in a title
+// injects markup onto every page. applied BEFORE toReplaceSafe, which only
+// handles replace() $-semantics.
+export function escapeHtmlAttr(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // ── Title generation ─────────────────────────────────────────────────────────
 
 export function generateTitle(siteName, tagline) {
@@ -105,13 +119,13 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   const description = homeRoute.meta?.description || null
   const canonical   = `${siteUrl}/`
 
-  const titleSafe       = toReplaceSafe(title)
-  const descriptionSafe = toReplaceSafe(description)
-  const authorSafe      = toReplaceSafe(author)
-  const keywordsSafe    = toReplaceSafe(keywords)
-  const canonicalSafe   = toReplaceSafe(canonical)
-  const ogImageSafe     = toReplaceSafe(ogImage)
-  const siteNameSafe    = toReplaceSafe(siteName)
+  const titleSafe       = toReplaceSafe(escapeHtmlAttr(title))
+  const descriptionSafe = toReplaceSafe(escapeHtmlAttr(description))
+  const authorSafe      = toReplaceSafe(escapeHtmlAttr(author))
+  const keywordsSafe    = toReplaceSafe(escapeHtmlAttr(keywords))
+  const canonicalSafe   = toReplaceSafe(escapeHtmlAttr(canonical))
+  const ogImageSafe     = toReplaceSafe(escapeHtmlAttr(ogImage))
+  const siteNameSafe    = toReplaceSafe(escapeHtmlAttr(siteName))
 
   let html = readFileSync(htmlPath, 'utf8')
 
@@ -210,7 +224,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
       jsonLdBlock = `
     <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
     <script type="application/ld+json">
-    ${JSON.stringify(payload, null, 2)}
+    ${JSON.stringify(payload, null, 2).replace(/</g, '\\u003c')}
     </script>`
     }
   }
