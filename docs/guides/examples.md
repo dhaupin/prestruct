@@ -125,9 +125,9 @@ For dynamic routes or frequent content updates:
    serving static HTML to humans; the two layers stack, they don't replace
    each other
 
-See [Bot-Render Proxy](/guides/proxy) for full setup.
+See [Bot-Render Proxy](/prestruct/guides/proxy) for full setup.
 
 ## Next steps
 
-- [Advanced Islands](/guides/advanced-islands) - the dynamic-island patterns in depth
-- [Migration Guide](/guides/migration) - porting an existing app in
+- [Advanced Islands](/prestruct/guides/advanced-islands) - the dynamic-island patterns in depth
+- [Migration Guide](/prestruct/guides/migration) - porting an existing app in

@@ -357,5 +357,5 @@ document.querySelectorAll('.cart-widget')
 
 ## Next steps
 
-- [API Reference](/guides/api) - `mountIslands` + `<pre-island>` attribute contract
-- [Examples](/guides/examples) - island usage in a full project shape
+- [API Reference](/prestruct/guides/api) - `mountIslands` + `<pre-island>` attribute contract
+- [Examples](/prestruct/guides/examples) - island usage in a full project shape

@@ -10,7 +10,7 @@ permalink: /guides/cloudflare
 Deploying prestruct sites to Cloudflare Pages.
 
 Build command is either the CLI (`npm run build` with `prestruct build` as the
-script, see [cli.md](./cli.md)) or the scaffolded three-step script from the
+script, see [CLI Reference](/prestruct/guides/cli)) or the scaffolded three-step script from the
 template (`vite build && node scripts/inject-brand.js && node
 scripts/prerender.js`). Both produce identical `dist/` output.
 
@@ -51,7 +51,7 @@ as `[prestruct] config: ...` lines either way.
 ### For Proxy Support
 
 The bot proxy is a separate deployment (VPS or Worker), not a Pages setting --
-see [README-proxy.md](../../README-proxy.md) for the full VPS / Cloudflare
+see [README-proxy.md](https://github.com/dhaupin/prestruct/blob/main/README-proxy.md) for the full VPS / Cloudflare
 Worker runbook. Pages only cares once it exists: `inject-brand.js` then adds
 the proxy origin to `connect-src` in `dist/_headers` automatically, so the
 only Pages-side change is nothing.
@@ -114,7 +114,7 @@ browsers revalidate against the current deploy.
 The `x-prestruct-refresh` header you may have seen in the docs is the RENDER
 PROXY's cache-bust endpoint, not a Pages feature. It flushes cached bot
 renders on the VPS/Worker proxy -- see
-[README-proxy.md](../../README-proxy.md).
+[README-proxy.md](https://github.com/dhaupin/prestruct/blob/main/README-proxy.md).
 
 ## Troubleshooting
 
@@ -180,6 +180,6 @@ Dashboard -> Cloudflare Pages -> Your project -> Deployment logs
 
 ## Next steps
 
-- [Config reference](./config.md) -- routes, meta, islands, JSON-LD
-- [CLI reference](./cli.md) -- prestruct init/build/validate/clean
-- [Bot proxy](../../README-proxy.md) -- dynamic-route coverage for bots
+- [Config reference](/prestruct/guides/config) -- routes, meta, islands, JSON-LD
+- [CLI reference](/prestruct/guides/cli) -- prestruct init/build/validate/clean
+- [Bot proxy](/prestruct/guides/proxy) -- dynamic-route coverage for bots

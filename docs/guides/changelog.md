@@ -80,5 +80,5 @@ Full release notes: https://github.com/dhaupin/prestruct/releases
 
 ## Next steps
 
-- [Roadmap](/guides/roadmap) - what is planned next
-- [Contributing](/guides/contributing) - how to get a change in
+- [Roadmap](/prestruct/guides/roadmap) - what is planned next
+- [Contributing](/prestruct/guides/contributing) - how to get a change in

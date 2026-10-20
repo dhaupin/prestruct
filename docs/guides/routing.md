@@ -103,5 +103,5 @@ Any path not in your route config will serve the 404 page. Include all pages you
 
 ## Next steps
 
-- [Redirects](/guides/redirects) - `_redirects` and the SPA-fallback loop
-- [Config Reference](/guides/config) - `routes`, `notFound`, per-route meta
+- [Redirects](/prestruct/guides/redirects) - `_redirects` and the SPA-fallback loop
+- [Config Reference](/prestruct/guides/config) - `routes`, `notFound`, per-route meta

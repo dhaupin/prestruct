@@ -2,7 +2,7 @@
 
 > **⚖️ This document provides legally binding terms for using, forking, and building upon Prestruct.**
 
-> **Last Updated: 2026-05-31** | **Version: 1.0** | **[Prestruct](https://github.com/creadev/prestruct)**
+> **Last Updated: 2026-10-20** | **Version: 1.1** | **[Prestruct](https://github.com/dhaupin/prestruct)**
 
 ---
 
@@ -173,7 +173,7 @@ If Prestruct contributes to academic research, please cite:
 
 ```
 Prestruct (Version [x.y.z]). AI-first SEO Prerender for Vite + React.
-Available at: https://github.com/creadev/prestruct
+Available at: https://github.com/dhaupin/prestruct
 ```
 
 ---

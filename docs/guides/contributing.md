@@ -101,7 +101,7 @@ By contributing, you agree that your contributions ship under both.
 ## Docs contributions
 
 Writing or editing a guide? Follow the
-[Content Style](/guides/content-style) rules and run the truth gates before
+[Content Style](/prestruct/guides/content-style) rules and run the truth gates before
 opening the PR:
 
 - every `npx prestruct <verb>` in prose must route to `bin/cli.mjs` -- the

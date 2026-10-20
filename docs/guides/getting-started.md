@@ -224,8 +224,9 @@ my-app/
 | `VITE_SITE_URL` | Base URL used by `usePageMeta` when no explicit `siteUrl` is passed | From ssr.config.js |
 
 The only other prestruct env var is `PRESTRUCT_STRICT=1`, which fails the build
-on config errors instead of downgrading to an SPA deploy. See the
-[CLI Reference](/guides/cli).
+on config errors. Off by default -- diagnostics print, the build continues with
+the valid routes. Prerender failures always exit 1 regardless. See the
+[CLI Reference](/prestruct/guides/cli).
 
 ## Next Steps
 

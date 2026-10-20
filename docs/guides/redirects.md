@@ -72,5 +72,5 @@ wrangler pages deploy dist
 
 ## Next steps
 
-- [Routing](/guides/routing) - route paths and trailing-slash behavior
-- [Cloudflare Pages](/guides/cloudflare) - full deployment walkthrough
+- [Routing](/prestruct/guides/routing) - route paths and trailing-slash behavior
+- [Cloudflare Pages](/prestruct/guides/cloudflare) - full deployment walkthrough

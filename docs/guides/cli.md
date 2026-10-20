@@ -13,19 +13,30 @@ All commands and scripts available in prestruct.
 The `prestruct` package ships an executable. It runs from any directory that contains a Vite app plus a `ssr.config.js`:
 
 ```bash
-# Scaffold never-clobber starter files (ssr.config.js, public/_headers, src/AppLayout.jsx, ...)
+# Scaffold never-clobber starter files (ssr.config.example.js, public/_headers, src/AppLayout.jsx, ...)
 # Existing files are never overwritten -- safe to run on an existing project.
-npx prestruct init
+# Activate the config after scaffolding: cp ssr.config.example.js ssr.config.js
+npx prestruct init [dir]
 
 # Validate ssr.config.js only: prints every diagnostic line-by-line, exits 1 on a bad config
 npx prestruct validate
 
 # Full pipeline: validate -> vite build -> inject-brand -> prerender
+# --force rerenders all routes; --clean clears the incremental cache first
 npx prestruct build
 
 # Clear the prerender cache for the current project (optional maintenance)
 npx prestruct clean
+
+# Show the command reference
+npx prestruct help
 ```
+
+Install is NOT a CLI verb: `npm install` / `git clone` unwraps the package; the
+verbs the package ships are exactly `init`, `build`, `validate`, `clean`, and
+`help`. All commands except `help` accept a positional `[dir]` (explicit
+workdir); without one they walk up from the current directory until they find
+`ssr.config.js`.
 
 To use these as npm scripts instead, add prestruct to `devDependencies` and wire it up:
 
@@ -146,6 +157,6 @@ Trigger automatic rebuilds on git push:
 
 ## Next steps
 
-- [Getting Started](/guides/getting-started) - first build from zero
-- [Config Reference](/guides/config) - every `ssr.config.js` key
-- [Troubleshooting](/guides/troubleshooting) - the failure modes behind these commands
+- [Getting Started](/prestruct/guides/getting-started) - first build from zero
+- [Config Reference](/prestruct/guides/config) - every `ssr.config.js` key
+- [Troubleshooting](/prestruct/guides/troubleshooting) - the failure modes behind these commands

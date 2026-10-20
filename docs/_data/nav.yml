@@ -1,11 +1,11 @@
-# freestruct menu layer (single nav source; layout reads site.data.nav)
+# prestruct docs nav (single nav source; layout reads site.data.nav)
 # URLs are deployment paths (baseurl-prefixed). Order roughly follows
 # a new user's arc: start -> core theory -> deployment -> reference -> meta.
 #
 # The linters hold this file honest:
-#   - scripts/check-docs-links.js  : every /prestruct/... URL must match a
+#   - scripts/check-docs-links.cjs   : every /prestruct/... URL must match a
 #     page frontmatter permalink
-#   - scripts/check-docs-frontmatter.js : every page it lists must carry all
+#   - scripts/check-docs-frontmatter.cjs : every page it lists must carry all
 #     5 frontmatter fields
 
 - title: Start
@@ -42,6 +42,8 @@
       url: /prestruct/guides/redirects
     - title: Bot-Render Proxy
       url: /prestruct/guides/proxy
+    - title: Hardening & Packs
+      url: /prestruct/guides/hardening
 
 - title: Optimizing
   items:

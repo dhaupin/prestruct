@@ -65,7 +65,7 @@ export default {
 ```
 
 The proxy pipeline reads two more values from the environment...
-see [Bot-Render Proxy](/guides/proxy) for the full deployment story.
+see [Bot-Render Proxy](/prestruct/guides/proxy) for the full deployment story.
 
 ## Route Configuration
 
@@ -97,7 +97,7 @@ description, OG, and Twitter tags) and are re-applied on SPA navigation by
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_SITE_URL` | Base URL read by `usePageMeta` when no explicit siteUrl is passed | `https://staging.example.com` |
-| `PRESTRUCT_STRICT=1` | Fail (exit 1) on config-validation diagnostics instead of degrading to an SPA deploy | - |
+| `PRESTRUCT_STRICT=1` | Fail (exit 1) on config-validation diagnostics; off by default, where diagnostics only print and the build continues | - |
 
 ### Proxy runtime (set where the proxy runs, not in the Pages app)
 
@@ -263,6 +263,11 @@ Every successful `prestruct build` writes a JSON snapshot to
 Useful in CI or a deploy health-check step: `cat dist/.prestruct/status.json | jq .succeeded`. The file is intentionally static (no runtime endpoint), so it
 is safe on static hosts per the PRD note "static-sites-safe option preferred".
 
+Field note: `cached` is the TOTAL number of entries in the incremental cache
+file, and each route's `cached: true` means "a cache entry exists for this
+route" -- not that the current run served it from cache. Under `--force`
+everything is rerendered regardless.
+
 `--force` rerenders all routes; `--clean` clears the incremental cache first.
 The snapshot always reflects the latest run, not an accumulation.
 
@@ -289,7 +294,7 @@ const deployId = root?.hasAttribute('data-deploy-id-footer')
 
 | Variable | Effect |
 |----------|--------|
-| `PRESTRUCT_STRICT=1` | Build fails (exit 1) on config-validation diagnostics instead of degrading to an SPA deploy. Off by default -- Cloudflare Pages deployments never break on a bad config -- intended for local/CI runs where you want to catch mistakes. |
+| `PRESTRUCT_STRICT=1` | Build fails (exit 1) on config-validation diagnostics. Off by default -- diagnostics only print and a Cloudflare Pages build continues with the valid routes -- intended for local/CI runs where you want to catch mistakes. |
 
 Diagnostics are always printed line-by-line as `[prestruct] config: <message>`, so a bad config is never invisible even in non-strict mode. Validate outside a build with the CLI:
 

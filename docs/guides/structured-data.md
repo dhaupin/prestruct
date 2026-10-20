@@ -332,31 +332,37 @@ Canonical URLs in schema should match page URLs.
 
 ## Advanced: Conditional Schema
 
-For per-route schemas, extend the prerender script:
+Ground truth first: `config.buildJsonLd()` receives **no arguments** --
+inject-brand calls it once per build and injects the result into every
+prerendered page. It cannot vary per route by itself.
+
+For per-route schemas, extend the prerender script (site-wide types still come
+from `buildJsonLd`; the per-route map is your own addition):
 
 ```js
-// In prerender.js - modify the main render loop
+// In prerender.js - inside the per-route render loop, after injectMeta
 const routeSchemas = {
-  '/': ['Organization', 'WebSite'],
-  '/about/': ['Organization'],
-  '/blog/': ['BlogPosting'],
+  '/':      ['Organization', 'WebSite'],
+  '/about': ['Organization'],
+  '/blog':  ['BlogPosting'],
 }
 
-for (const route of ROUTES) {
-  // ... render logic
-  
-  // Add route-specific JSON-LD
-  const schemaTypes = routeSchemas[route.path] || []
-  if (schemaTypes.length > 0) {
-    const ldJson = buildJsonLd(route.path, schemaTypes)
-    if (ldJson) {
-      html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(ldJson)}</script></head>`)
-    }
-  }
+const types = routeSchemas[route.path] || []
+if (types.length > 0) {
+  html = html.replace(
+    '</head>',
+    `<script type="application/ld+json">${JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': types.map(t => ({ '@type': t }))
+    })}</script></head>`
+  )
 }
 ```
 
+Same caveat as the BlogPosting section above: per-route JSON-LD must describe
+only the page it appears on, or Google may reject it.
+
 ## Next steps
 
-- [SEO Guide](/guides/seo) - meta tags, canonicals, sitemap behavior
-- [Config Reference](/guides/config) - `buildJsonLd` in context of the whole config
+- [SEO Guide](/prestruct/guides/seo) - meta tags, canonicals, sitemap behavior
+- [Config Reference](/prestruct/guides/config) - `buildJsonLd` in context of the whole config

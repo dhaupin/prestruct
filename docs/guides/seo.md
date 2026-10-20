@@ -111,7 +111,7 @@ export default {
 
 The returned object(s) are injected as `<script type="application/ld+json">
 into every page. `buildJsonLd` is called with no arguments and cannot vary by
-route -- see [Structured Data](/guides/structured-data) for the full set of
+route -- see [Structured Data](/prestruct/guides/structured-data) for the full set of
 types and the per-route limitation.
 
 ## Sitemap
@@ -184,6 +184,6 @@ If your canonical URL has a trailing slash but users access without (or vice ver
 
 ## Next steps
 
-- [Structured Data](/guides/structured-data) - JSON-LD patterns and validation
-- [Redirects](/guides/redirects) - `_redirects`/`_headers` on Cloudflare Pages
-- [Routing](/guides/routing) - route paths, trailing slashes, 404s
+- [Structured Data](/prestruct/guides/structured-data) - JSON-LD patterns and validation
+- [Redirects](/prestruct/guides/redirects) - `_redirects`/`_headers` on Cloudflare Pages
+- [Routing](/prestruct/guides/routing) - route paths, trailing slashes, 404s

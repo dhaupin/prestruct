@@ -247,7 +247,7 @@ export default function CartWidget() {
 ```js
 export default {
   siteUrl: 'https://example.com',  // No trailing slash
-  appLayoutPath: '/src/AppLayout.jsx',
+  appLayoutPath: '/src/AppLayout.jsx',  // Optional -- this exact path is the engine default
   routes: [
     {
       path: '/',
@@ -314,7 +314,7 @@ export default {
 }
 ```
 
-See the [full config reference](/guides/config) for every key, including
+See the [full config reference](/prestruct/guides/config) for every key, including
 `platform`, `deployId`, `deployIdFooter`, and `fetchRoutes()`.
 
 ---
@@ -326,7 +326,7 @@ See the [full config reference](/guides/config) for every key, including
 | Variable | Description |
 |----------|-------------|
 | `VITE_SITE_URL` | Base URL used by usePageMeta when no explicit siteUrl is passed |
-| `PRESTRUCT_STRICT=1` | Fail the build (exit 1) on config diagnostics instead of degrading to an SPA deploy |
+| `PRESTRUCT_STRICT=1` | Fail the build (exit 1) on config diagnostics; off by default, diagnostics print and the build continues with the valid routes |
 
 ### Proxy Runtime (set where the proxy runs, not in the Pages app)
 
@@ -338,5 +338,5 @@ See the [full config reference](/guides/config) for every key, including
 
 ## Next steps
 
-- [Config Reference](/guides/config) - the full `ssr.config.js` surface
-- [Advanced Islands](/guides/advanced-islands) - the patterns behind the `mountIslands` contract
+- [Config Reference](/prestruct/guides/config) - the full `ssr.config.js` surface
+- [Advanced Islands](/prestruct/guides/advanced-islands) - the patterns behind the `mountIslands` contract

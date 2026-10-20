@@ -112,6 +112,16 @@ if (root.dataset.serverRendered) {
 
 The `data-server-rendered` attribute is added by the prerender script.
 
+#### The 404 page never hydrates
+
+The generated `404.html` uses `<div id="root-404">` instead of `id="root"`,
+and the React bundle `<script>` tag is stripped from it. The client entry never
+finds a matching `root` div, so no hydration attempt happens at all. This is a
+deliberate three-part fix, not an accident: hydrating the 404 would make React
+Router mount `<Routes>` against the unmatched URL, render nothing, and land the
+user on a blank page with a hydration error. The 404 is pure static HTML -
+Cloudflare Pages serves it with a genuine HTTP 404 status, no JS needed.
+
 ---
 
 ### 4. Dynamic Islands

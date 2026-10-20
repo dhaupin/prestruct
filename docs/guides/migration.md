@@ -383,5 +383,5 @@ Most UI libraries work with prestruct. Test for:
 
 ## Next steps
 
-- [Getting Started](/guides/getting-started) - the full walkthrough for a clean start
-- [Examples](/guides/examples) - target project shapes
+- [Getting Started](/prestruct/guides/getting-started) - the full walkthrough for a clean start
+- [Examples](/prestruct/guides/examples) - target project shapes

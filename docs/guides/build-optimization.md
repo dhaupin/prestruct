@@ -114,7 +114,9 @@ npx prestruct build --clean  # clear the cache first, then build
 ```
 
 The build also writes `dist/.prestruct/status.json` (route count, succeeded,
-cached, per-route status) -- readable in CI as a cheap build health check.
+cached-entry total, per-route cache-entry flags) -- readable in CI as a cheap
+build health check. It reports cache-file presence, not which routes were
+served from cache on this run.
 
 ### 5. Cache Expensive Data
 
@@ -351,5 +353,5 @@ node --prof-process isolate*.log
 
 ## Next steps
 
-- [Performance](/guides/performance) - what ships to browsers
-- [CLI Reference](/guides/cli) - `--force` / `--clean` build flags
+- [Performance](/prestruct/guides/performance) - what ships to browsers
+- [CLI Reference](/prestruct/guides/cli) - `--force` / `--clean` build flags

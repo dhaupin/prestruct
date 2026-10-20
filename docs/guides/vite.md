@@ -196,5 +196,5 @@ The complete build script runs three commands:
 
 ## Next steps
 
-- [CLI Reference](/guides/cli) - `prestruct build` wraps this whole pipeline
-- [Troubleshooting](/guides/troubleshooting) - hydration, prerender, and asset failures
+- [CLI Reference](/prestruct/guides/cli) - `prestruct build` wraps this whole pipeline
+- [Troubleshooting](/prestruct/guides/troubleshooting) - hydration, prerender, and asset failures

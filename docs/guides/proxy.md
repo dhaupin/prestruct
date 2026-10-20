@@ -90,9 +90,20 @@ PORT=3000 node scripts/proxy.js
 
 ### 4. Process Manager
 
+Two starters ship in the scaffold (`npx prestruct init`):
+
 ```bash
+# pm2 (ecosystem.cjs ships configured)
 pm2 start scripts/proxy.js --name prestruct-proxy
+
+# or systemd (scripts/prestruct-proxy.service ships configured)
+sudo cp scripts/prestruct-proxy.service /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now prestruct-proxy
 ```
+
+The scaffold keeps a shared, warm Puppeteer browser per AGENTS.md: pages
+open/close per request, the browser process stays pooled; on `disconnected`
+the reference clears and the next request respawns it.
 
 ## Cloudflare Worker Deployment
 
@@ -204,5 +215,5 @@ async function getBrowser() {
 
 ## Next steps
 
-- [Cloudflare Pages](/guides/cloudflare) - the Pages side of the split
-- [Redirects](/guides/redirects) - headers and redirects the build owns
+- [Cloudflare Pages](/prestruct/guides/cloudflare) - the Pages side of the split
+- [Redirects](/prestruct/guides/redirects) - headers and redirects the build owns

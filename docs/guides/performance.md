@@ -103,5 +103,5 @@ Use `font-display: swap` to show text immediately:
 
 ## Next steps
 
-- [Build Optimization](/guides/build-optimization) - faster builds, incremental cache
-- [Advanced Islands](/guides/advanced-islands) - defer client-only work until it is needed
+- [Build Optimization](/prestruct/guides/build-optimization) - faster builds, incremental cache
+- [Advanced Islands](/prestruct/guides/advanced-islands) - defer client-only work until it is needed

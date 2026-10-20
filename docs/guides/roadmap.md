@@ -46,5 +46,5 @@ Open an issue: https://github.com/dhaupin/prestruct/issues
 
 ## Next steps
 
-- [Changelog](/guides/changelog) - what each release landed
-- [Contributing](/guides/contributing) - PR setup and gates
+- [Changelog](/prestruct/guides/changelog) - what each release landed
+- [Contributing](/prestruct/guides/contributing) - PR setup and gates

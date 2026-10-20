@@ -232,13 +232,15 @@ const desc = description.replace(/\$/g, '$$$$')
 
 ### Site shows "404" for all routes
 
-**Cause:** `dist/` lacks per-route HTML -- the build stopped after `vite build`
-or prerender failed silently (its exit code is still 0 by default).
+**Cause:** `dist/` lacks per-route HTML -- the build stopped after `vite build`,
+or prerendering failed: the CLI now exits 1 and lists every failed route, so
+this usually shows up as a failed build, not as a silently-deployed 404.
 
 **Solution:**
 1. Check `dist/about/index.html` (etc.) exists after a local build
-2. Run `npx prestruct validate` -- mistakes print as `[prestruct] config:`
-   lines but still exit 0; set `PRESTRUCT_STRICT=1` to make them fatal
+2. Run `npx prestruct validate` -- it exits 1 on a bad config and prints every
+   diagnostic line-by-line. (Non-strict *build* runs only print diagnostics;
+   set `PRESTRUCT_STRICT=1` to make them fatal there.)
 3. `public/_redirects` is NOT required for routing on Cloudflare Pages
 
 ---
@@ -315,8 +317,8 @@ console.log('Server content:', document.getElementById('root').innerHTML.substri
 
 ## Next steps
 
-- [Config Reference](/guides/config) - avoid the config-shaped failures above
-- [Migration Guide](/guides/migration) - moving from another setup
+- [Config Reference](/prestruct/guides/config) - avoid the config-shaped failures above
+- [Migration Guide](/prestruct/guides/migration) - moving from another setup
 
 ## Getting Help
 
