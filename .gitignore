@@ -9,8 +9,10 @@ node_modules/
 # Build output (any workspace: init/, example/, user projects)
 dist/
 
-# Prerender incremental cache (generated at build time)
-.prestruct/cache/
+# Prerender incremental cache (generated at build time; the `**` anchors the
+# pattern to any depth - the earlier `.prestruct/cache/` form was root-anchored
+# and silently missed nested workspaces like example/)
+**/.prestruct/cache/
 
 # Test tooling
 coverage/
