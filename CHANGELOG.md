@@ -67,7 +67,7 @@ records only what cherry-pickers must act on.
   fails if `example/` has drifted.
 - **Version single-sourced at `0.2.6`** in root `package.json` and `init/package.json`.
 
-### Shipped in this release line (from PLAN.md current list)
+### Shipped in this release line (roadmap now at labs/prd.md)
 
 - AI-first example homepage (`example/`, live at prestruct.creadev.org)
 - Platform detection via `config.platform` (cloudflare | vercel | netlify)

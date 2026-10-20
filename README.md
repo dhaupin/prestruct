@@ -153,7 +153,7 @@ provenance is automatic and no stored npm token is needed.
 
 - [AGENTS.md](./AGENTS.md) -- engineering history, gotchas, hard rules.
 - [SCOPE.md](./SCOPE.md) -- what's in/out.
-- [PLAN.md](./PLAN.md) -- roadmap.
+- [labs/prd.md](./labs/prd.md) -- roadmap.
 - [docs/](./docs/index.md) -- full site (SEO, routing, islands, proxy,
   Cloudflare).
 

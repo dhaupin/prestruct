@@ -16,7 +16,7 @@ Make your React app visible to search engines. Renders each route to static HTML
 - **Cloudflare Pages first-class**: headers, redirects, immutable asset caching ship configured; any static host works on the plain dist/ output
 - **Optional proxy**: Bot-only rendering (VPS or CF Worker)
 
-See [PLAN.md](./PLAN.md) for roadmap.
+See [labs/prd.md](./labs/prd.md) for roadmap.
 
 ---
 
@@ -63,6 +63,6 @@ byte-identical by `scripts/sync-engine.mjs` (run it after touching `engine/`).
 - [docs/guides/cloudflare.md](./docs/guides/cloudflare.md) - Pages deploy
 - [docs/guides/cli.md](./docs/guides/cli.md) - CLI reference
 - [docs/guides/config.md](./docs/guides/config.md) - Config reference
-- [PLAN.md](./PLAN.md) - Roadmap
+- [labs/prd.md](./labs/prd.md) - Roadmap
 - [AGENTS.md](./AGENTS.md) - AI agent patterns
 - [CONTENT.md](./CONTENT.md) - Writing conventions
