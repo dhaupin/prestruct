@@ -17,12 +17,13 @@ my-app/
 ├── src/
 │   ├── App.jsx           # Main app with BrowserRouter
 │   ├── AppLayout.jsx     # Layout component (no BrowserRouter)
-│   ├── routes/
+│   ├── pages/
 │   │   ├── Home.jsx
 │   │   ├── About.jsx
 │   │   └── Blog.jsx
-│   └── islands/
-│       └── Cart.jsx      # Dynamic island component
+│   ├── islands/
+│   │   └── CartWidget.jsx  # Dynamic island component
+│   ├── AppIslands.jsx      # Island registry
 ├── scripts/
 │   ├── prerender.js      # Build-time prerender
 │   └── proxy.js          # Optional bot proxy
@@ -55,27 +56,50 @@ export default function AppLayout() {
 
 ## Dynamic island component
 
-Wrap client-only components in `<pre-island>` for hydration after load:
+The component is mounted INTO the placeholder after hydration -- it never
+lives inside the `<pre-island>` JSX (that would render at build time):
 
 ```jsx
-// islands/Cart.jsx
-export default function Cart() {
+// src/islands/CartWidget.jsx
+export default function CartWidget() {
   const [items, setItems] = useState([])
-  
-  return (
-    <pre-island data-pre-load="visible">
-      <CartWidget items={items} />
-    </pre-island>
-  )
+  useEffect(() => {
+    setItems(JSON.parse(localStorage.getItem('cart') || '[]'))
+  }, [])
+  if (!items.length) return null
+  return <div>{items.length} items</div>
 }
 ```
 
-Mount in client entry:
+Expose it through the registry, use the placeholder in pages:
 
-```js
-// main.jsx
-import { mountIslands } from './islands'
-mountIslands()
+```jsx
+// src/AppIslands.jsx
+import CartWidget from './islands/CartWidget.jsx'
+export const islands = { 'cart-widget': CartWidget }
+```
+
+```jsx
+// In any page -- fallback content is what crawlers see
+<pre-island data-pre-island="cart-widget" data-pre-load="visible">
+  <div className="skeleton">Loading cart...</div>
+</pre-island>
+```
+
+Mount from AppLayout's route-change effect:
+
+```jsx
+// src/AppLayout.jsx
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { mountIslands } from './islands.js'
+import { islands } from './AppIslands.jsx'
+
+const { pathname } = useLocation()
+useEffect(() => {
+  const timer = setTimeout(() => mountIslands(islands), 0)
+  return () => clearTimeout(timer)
+}, [pathname])
 ```
 
 ## Deploy to Cloudflare Pages
@@ -94,8 +118,16 @@ wrangler pages deploy dist
 
 For dynamic routes or frequent content updates:
 
-1. Set config.proxy.url in ssr.config.js
-2. Deploy proxy worker
-3. Point Cloudflare Pages to proxy URL
+1. Set `config.proxy.url` in ssr.config.js (the build then widens the CSP
+   `connect-src` allow-list with that origin)
+2. Deploy the proxy itself: VPS Node/Puppeteer, or Cloudflare Worker
+3. Route bot traffic to it ahead of Pages (DNS/proxy fronting) -- Pages keeps
+   serving static HTML to humans; the two layers stack, they don't replace
+   each other
 
-See [Proxy](/guides/proxy) for full setup.
+See [Bot-Render Proxy](/guides/proxy) for full setup.
+
+## Next steps
+
+- [Advanced Islands](/guides/advanced-islands) - the dynamic-island patterns in depth
+- [Migration Guide](/guides/migration) - porting an existing app in

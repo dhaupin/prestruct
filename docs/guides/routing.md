@@ -13,7 +13,7 @@ How prestruct handles URL paths and route definitions.
 Define all prerenderable routes in ssr.config.js:
 
 ```js
-module.exports = {
+export default {
   siteUrl: 'https://example.com',
   routes: [
     { path: '/', meta: {...} },
@@ -29,7 +29,7 @@ You control trailing slashes - prestruct passes through whatever you define:
 
 | Route path | Canonical URL |
 |------------|---------------|
-| `/` | `https://example.com/` |
+| `/` | `https://example.com` |
 | `/about/` | `https://example.com/about/` |
 | `/contact/` | `https://example.com/contact/` |
 
@@ -68,17 +68,16 @@ export async function onRequestGet({ params }) {
 
 ## 404 handling
 
-Prestruct prerenders a 404 page to dist/404.html. Cloudflare Pages serves this for unmatched routes.
+Prestruct prerenders a 404 page to dist/404.html with a `noindex` robots
+directive. Cloudflare Pages serves it for unmatched routes.
 
-Customize in prerender.js:
+Customize via `ssr.config.js` -- no code edits required:
 
 ```js
-function generate404(html, config) {
-  html = html.replace(
-    /<title>.*?<\/title>/,
-    '<title>Page Not Found | Your Site'
-  )
-  return html
+notFound: {
+  heading: 'Page not found',
+  body: "That page doesn't exist.",
+  primaryCta: { label: 'Go home', href: '/' },
 }
 ```
 
@@ -91,17 +90,18 @@ function generate404(html, config) {
 
 ## Gotchas
 
-### Route order matters
+### Config order does not affect matching
 
-Prerender processes routes in order defined in config. Define more specific routes first:
-
-```js
-routes: [
-  { path: '/blog/my-post/' },  // Specific first
-  { path: '/blog/' },          // General after
-]
-```
+Each configured route renders independently, and React Router v6 ranks
+candidates by specificity score, not array order. Order only affects
+sitemap and build log ordering. Route specificity lives in your
+`src/AppLayout.jsx` `<Routes>` tree, not in `ssr.config.js`.
 
 ### Missing routes = 404
 
 Any path not in your route config will serve the 404 page. Include all pages you want prerendered.
+
+## Next steps
+
+- [Redirects](/guides/redirects) - `_redirects` and the SPA-fallback loop
+- [Config Reference](/guides/config) - `routes`, `notFound`, per-route meta

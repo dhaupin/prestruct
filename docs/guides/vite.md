@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Vite Integration
-nav_order: 7
+nav_order: 22
 version: 1.0.0
 permalink: /guides/vite
 ---
@@ -15,31 +15,26 @@ Prestruct uses Vite's `ssrLoadModule` API to load your app in Node for prerender
 
 ## Basic Setup
 
-### vite.config.js
+The template's `vite.config.js` is deliberately minimal -- no `server` block,
+no custom `build` output (Vite's defaults already emit hashed bundles to
+`dist/assets/`):
 
 ```js
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default {
   plugins: [react()],
-  build: {
-    outDir: 'dist',
-    rollupOptions: {
-      output: {
-        // Ensure consistent asset naming
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
-    }
-  },
-  // Required for ssrLoadModule
-  server: {
-    middlewareMode: true
-  }
-})
+}
 ```
+
+The plugin matters: without `@vitejs/plugin-react`, JSX compiles through
+esbuild's classic runtime, which expects an in-scope `React` binding. Under
+`ssrLoadModule` that surfaces as `React is not defined` per route and prerender
+silently degrades to the SPA fallback.
+
+Do NOT add `server: { middlewareMode: true }` to your own config -- prerender
+spins up its own middleware-mode Vite dev server internally; your config's
+`server` settings only affect your own `vite dev` runs.
 
 ## SSR-Specific Configuration
 
@@ -89,20 +84,21 @@ dist/
 
 ## Development
 
-### Hot Module Replacement
+### Local dev server
 
-Vite provides HMR for development:
+The template has no `dev` npm script; run Vite directly:
 
 ```bash
-npm run dev
+npx vite
 ```
 
-This starts the Vite dev server at `http://localhost:5173`.
+Vite dev server at `http://localhost:5173` (SPA only -- prerendered output is
+not re-rendered here).
 
 ### Preview Prerendered Build
 
 ```bash
-npm run preview
+npx vite preview
 ```
 
 Serves the `dist/` folder at `http://localhost:4173`.
@@ -197,3 +193,8 @@ The complete build script runs three commands:
 1. **vite build**: Creates JS/CSS bundles
 2. **inject-brand.js**: Injects global meta into index.html
 3. **prerender.js**: Renders each route to static HTML
+
+## Next steps
+
+- [CLI Reference](/guides/cli) - `prestruct build` wraps this whole pipeline
+- [Troubleshooting](/guides/troubleshooting) - hydration, prerender, and asset failures

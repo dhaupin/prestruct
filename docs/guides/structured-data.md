@@ -199,50 +199,18 @@ buildJsonLd() {
 
 ### Article/BlogPosting
 
-```js
-// In your blog post component
-usePageMeta({
-  path: '/blog/my-post/',
-  title: 'My Blog Post',
-  description: 'A great article about something interesting',
-})
+Blog postings usually need per-route fields (headline, datePublished,
+`@id`) -- and prestruct calls `buildJsonLd()` with **no arguments**, so it
+cannot vary by route. Two honest options:
 
-// In ssr.config.js - you'll need to customize based on current route
-buildJsonLd(path) {
-  if (path.startsWith('/blog/')) {
-    return [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: 'My Blog Post',
-        image: ['https://example.com/blog/hero.jpg'],
-        datePublished: '2024-01-15T10:00:00Z',
-        dateModified: '2024-01-15T12:00:00Z',
-        author: {
-          '@type': 'Person',
-          name: 'John Doe',
-          url: 'https://example.com/about/john'
-        },
-        publisher: {
-          '@type': 'Organization',
-          name: 'Acme Corp',
-          logo: {
-            '@type': 'ImageObject',
-            url: 'https://example.com/logo.png'
-          }
-        },
-        mainEntityOfPage: {
-          '@type': 'WebPage',
-          '@id': 'https://example.com/blog/my-post/'
-        }
-      }
-    ]
-  }
-  // ... other types
-}
-```
-
-Note: Prestruct doesn't currently support per-route JSON-LD. For this, you'd need to extend the prerender script.
+1. **Site-wide blog metadata only:** omit `BlogPosting` from `ssr.config.js`
+   and extend the prerender script (see
+   [Advanced](#advanced-conditional-schema) below) to inject per-post JSON-LD
+   with real post fields.
+2. **Static placeholder:** a `BlogPosting` list inside `buildJsonLd()` would
+   render the same object on every page -- wrong for Google's article markup,
+   which must describe only the page it appears on. Do not ship per-route
+   schema as site-wide JSON-LD.
 
 ### Person
 
@@ -303,37 +271,30 @@ buildJsonLd() {
 
 ## BreadcrumbList
 
-For pages with breadcrumbs:
+Breadcrumb entries are per-route, so `buildJsonLd()`'s no-argument contract
+means prestruct cannot generate them for you either. Same options as
+BlogPosting above: keep the site-wide JSON-LD clean of breadcrumbs and inject
+them per-route in a prerender extension, where the route path is actually
+known. The mapping logic for reference:
 
 ```js
-buildJsonLd(routePath) {
-  // Build breadcrumbs based on current path
-  const breadcrumbs = []
-  
-  if (routePath === '/') {
-    return []
-  }
-  
+// Inside a prerender extension -- routePath is available there,
+// never inside buildJsonLd().
+function breadcrumbLd(routePath, siteUrl) {
   const parts = routePath.split('/').filter(Boolean)
   let url = ''
-  
-  parts.forEach((part, index) => {
+  const crumbs = parts.map((part, index) => {
     url += '/' + part
-    breadcrumbs.push({
+    return {
       '@type': 'ListItem',
       position: index + 1,
       name: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' '),
-      item: `https://example.com${url}/`
-    })
-  })
-  
-  return [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: breadcrumbs
+      item: `${siteUrl}${url}/`
     }
-  ]
+  })
+  return crumbs.length
+    ? [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs }]
+    : []
 }
 ```
 
@@ -394,3 +355,8 @@ for (const route of ROUTES) {
   }
 }
 ```
+
+## Next steps
+
+- [SEO Guide](/guides/seo) - meta tags, canonicals, sitemap behavior
+- [Config Reference](/guides/config) - `buildJsonLd` in context of the whole config

@@ -100,23 +100,21 @@ export default function AppLayout() {
 }
 ```
 
-### 4. Parallel Route Processing
+### 4. Use the Built-In Incremental Cache
 
-Modify prerender.js for parallel rendering:
+Prerender already skips unchanged routes: rendered HTML and its inputs are
+cached in `.prestruct/cache/`, and unchanged routes report `◯ path (cached)`
+instead of rendering again. Rebuilds only RERENDER routes whose inputs (or
+the HTML shell) changed.
 
-```js
-// In prerender.js - replace the for loop
-import { promisePool } from 'promise-pool'
-
-const concurrency = 4 // Adjust based on CPU
-
-await promisePool(
-  routes.map(route => async () => {
-    // ... render logic for this route
-  }),
-  concurrency
-)
+```bash
+npx prestruct build          # incremental
+npx prestruct build --force  # rerender everything, keep the cache file
+npx prestruct build --clean  # clear the cache first, then build
 ```
+
+The build also writes `dist/.prestruct/status.json` (route count, succeeded,
+cached, per-route status) -- readable in CI as a cheap build health check.
 
 ### 5. Cache Expensive Data
 
@@ -207,54 +205,20 @@ Vite caches node_modules in `.vite/`. Don't exclude it from git:
 ```gitignore
 ```
 
-### 2. Incremental Prerendering
+### 2. Incremental Prerendering Is Built In
 
-For large sites, implement incremental builds:
+No hand-rolled cache is needed -- see section
+[4. Use the Built-In Incremental Cache](#4-use-the-built-in-incremental-cache)
+above. The cache invalidates on rendered-input changes automatically; `--clean`
+resets it when in doubt.
 
-```js
-// scripts/incremental-prerender.js
-import fs from 'fs'
-import path from 'path'
+### 3. Keep the Vite Server in One Build, Not Across Builds
 
-const DIST = path.join(process.cwd(), 'dist')
-const CACHE_FILE = '.prerender-cache.json'
-
-function getCache() {
-  if (!fs.existsSync(CACHE_FILE)) return {}
-  return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'))
-}
-
-function updateCache(route, hash) {
-  const cache = getCache()
-  cache[route] = hash
-  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2))
-}
-
-async function shouldPrerender(route) {
-  const cache = getCache()
-  const currentHash = getRouteHash(route) // Your hashing logic
-  return cache[route] !== currentHash
-}
-```
-
-### 3. Cache Vite SSR Build
-
-The prerender script creates a Vite server each time. For faster rebuilds:
-
-```js
-// Keep the server warm between builds
-let viteServer = null
-
-async function getVite() {
-  if (!viteServer) {
-    const { createServer } = await import('vite')
-    viteServer = await createServer({ /* config */ })
-  }
-  return viteServer
-}
-```
-
-Note: This is complex and may cause stale module issues. Test thoroughly.
+Within one `prestruct build`, the SSR Vite dev server is created once and
+reused for every route (that is the ssrLoadModule contract). DO NOT persist a
+module-registry across builds -- stale `ssr.config.js` and app-module state
+between builds is exactly the class of silent wrongness the incremental cache
+exists to avoid.
 
 ## Build Output Optimization
 
@@ -382,4 +346,10 @@ node --prof-process isolate*.log
 2. **SSD storage** - Prerendering does lots of I/O
 3. **RAM** - More memory = faster builds
 4. **Disable antivirus** - Can slow file operations
-5. **Use -j flag** `npm run build -j` - Parallel builds not directly supported but you can optimize the script
+5. **Cache node_modules in CI** - The install is usually the slowest step
+6. **Reduce route count** - One render per unique path is the floor cost
+
+## Next steps
+
+- [Performance](/guides/performance) - what ships to browsers
+- [CLI Reference](/guides/cli) - `--force` / `--clean` build flags

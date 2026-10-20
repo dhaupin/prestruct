@@ -270,7 +270,7 @@ Use conditional rendering to show islands only when needed:
 )}
 ```
 
-##岛在 SSR
+## Islands and SSR
 
 Islands have special behavior during prerendering:
 
@@ -285,28 +285,33 @@ This means:
 
 ## Styling Islands
 
-Since islands mount into empty elements, style the fallback too:
+Since islands mount into empty elements, style the fallback too. Use an
+external CSS file (or `style={{}}` props) -- inline `<style>` strings inside
+JSX are hoisted to `<head>` during SSR but stay in-tree on the client, which
+is a hydration mismatch (the same flash/unstyled issue as any re-render):
 
 ```jsx
+/* src/islands/cart.css */
+.island-skeleton { padding: 1rem; }
+.skeleton-line {
+  height: 1rem;
+  background: #eee;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+}
+.skeleton-line.short { width: 60%; }
+```
+
+```jsx
+import './islands/cart.css'
+
 <pre-island data-pre-island="cart-widget">
-  <div className="cart-placeholder">
+  <div className="island-skeleton">
     <span className="skeleton-line"></span>
     <span className="skeleton-line short"></span>
   </div>
 </pre-island>
-
-<style>{`
-  .cart-placeholder { padding: 1rem; }
-  .skeleton-line { 
-    height: 1rem; 
-    background: #eee; 
-    margin-bottom: 0.5rem;
-    border-radius: 4px;
-  }
-  .short { width: 60%; }
-`}</style>
 ```
-
 ## Debugging Islands
 
 ### Check if island mounted
@@ -349,3 +354,8 @@ document.querySelectorAll('.cart-widget')
 2. **Use `idle` for chat widgets** - Low priority
 3. **Keep islands small** - They're separate React roots with overhead
 4. **Skip islands for cached data** - If data doesn't change, render statically
+
+## Next steps
+
+- [API Reference](/guides/api) - `mountIslands` + `<pre-island>` attribute contract
+- [Examples](/guides/examples) - island usage in a full project shape

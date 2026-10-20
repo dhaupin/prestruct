@@ -3,17 +3,19 @@
  * =============
  * Copy this file to your project root as ssr.config.js, then customize.
  * 
- * The platform field determines which hosting provider generates host-specific
- * config files (_headers, _redirects for Cloudflare; vercel.json for Vercel; 
- * netlify.toml for Netlify). Default is Cloudflare.
+ * The platform field selects host behavior. Cloudflare (default) is the only
+ * fully supported platform today: the template ships public/_headers and
+ * public/_redirects, and inject-brand appends the proxy origin to the CSP
+ * allow-list when proxy.url is set. 'vercel' and 'netlify' pass config
+ * validation but no host-specific files are generated yet.
  * 
  * IMPORTANT: This file is gitignored. It's your environment-specific config.
  * Copy ssr.config.example.js to ssr.config.js and customize for your site.
  * 
  * Platform options:
- *   - cloudflare  = default, generates _headers and _redirects
- *   - vercel      = generates vercel.json
- *   - netlify     = generates netlify.toml
+ *   - cloudflare  = default (only platform with generated/templated host files)
+ *   - vercel      = accepted in config; no file generation yet
+ *   - netlify     = accepted in config; no file generation yet
  */
 
 export default {
@@ -121,10 +123,11 @@ export default {
   // Proxy renders dynamic routes not in the prerender list.
   // Works with Node.js/Puppeteer (VPS) or Cloudflare Worker.
   // proxy: {
-  //   // Your proxy server URL (set as env: PRESTRUCT_PROXY_URL)
+  //   // Your proxy server URL. Signals the build to widen the CSP
+  //   // connect-src allow-list with this origin.
   //   url:      'https://your-proxy.example.com',
-  //   // Shared secret (set as env: PRESTRUCT_SECRET)
-  //   secret:  'your-secret',
+  //   // Cache-refresh shared secret is an env var, not config:
+  //   // PRESTRUCT_SECRET (unset = refresh feature disabled entirely).
   //   // Render a different origin than siteUrl (for local dev, staging)
   //   targetUrl: 'https://staging.example.com',
   //   // Bot list for proxy - customize if needed

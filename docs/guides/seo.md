@@ -25,7 +25,7 @@ Prestruct prerenders each route to static HTML with:
 Define routes in `ssr.config.js`:
 
 ```js
-module.exports = {
+export default {
   siteUrl: 'https://example.com',
   siteName: 'Example',
   ogImage: 'https://example.com/og-image.png',
@@ -68,41 +68,51 @@ module.exports = {
 
 ### Canonical URLs
 
-Prestruct automatically generates canonical URLs based on your route paths. For trailing slashes:
+Canonical is `siteUrl` + the route path, minus the trailing slash on `/`:
 
 ```js
-// Route with trailing slash
+// Route path written with a trailing slash
 { path: '/about/' }
 // Generates: <link rel="canonical" href="https://example.com/about/" />
 
-// Root stays naked
+// Root is the bare site origin (no trailing slash)
 { path: '/' }
-// Generates: <link rel="canonical" href="https://example.com/" />
+// Generates: <link rel="canonical" href="https://example.com" />
 ```
+
+`usePageMeta` computes the same value client-side on SPA navigation, so the
+canonical never flips between SSR and client.
 
 ## Structured Data (JSON-LD)
 
 Add schema.org data in `ssr.config.js`:
 
 ```js
-module.exports = {
+export default {
   // ...other config
-  schema: {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Example Inc',
-    url: 'https://example.com',
-    logo: 'https://example.com/logo.png',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+1-555-1234',
-      contactType: 'customer service'
-    }
+  buildJsonLd() {
+    return [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Example Inc',
+        url: 'https://example.com',
+        logo: 'https://example.com/logo.png',
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: '+1-555-1234',
+          contactType: 'customer service'
+        }
+      }
+    ]
   }
 }
 ```
 
-This injects a `<script type="application/ld+json">` into every page.
+The returned object(s) are injected as `<script type="application/ld+json">
+into every page. `buildJsonLd` is called with no arguments and cannot vary by
+route -- see [Structured Data](/guides/structured-data) for the full set of
+types and the per-route limitation.
 
 ## Sitemap
 
@@ -172,11 +182,8 @@ This is correct behavior - don't remove it unless you want 404s indexed.
 
 If your canonical URL has a trailing slash but users access without (or vice versa), you may see duplicate content warnings. Choose one style in your route definitions and stay consistent.
 
-### Environment Variables
+## Next steps
 
-Prestruct uses different behavior based on `PRODUCTION` environment:
-
-- **Development**: Non-bot visitors redirected to local dev server
-- **Production**: Full prerendered content served
-
-Ensure `PRODUCTION=true` is set in Cloudflare Pages settings.
+- [Structured Data](/guides/structured-data) - JSON-LD patterns and validation
+- [Redirects](/guides/redirects) - `_redirects`/`_headers` on Cloudflare Pages
+- [Routing](/guides/routing) - route paths, trailing slashes, 404s

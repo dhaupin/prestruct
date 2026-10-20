@@ -167,11 +167,13 @@ This runs three steps:
 
 ### 6. Preview Locally
 
+The template has no `preview` npm script; run Vite's preview server directly:
+
 ```bash
-npm run preview
+npx vite preview
 ```
 
-Opens your prerendered site at `http://localhost:4173`.
+Serves `dist/` at `http://localhost:4173`.
 
 ### 7. Deploy to Cloudflare Pages
 
@@ -219,8 +221,11 @@ my-app/
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VITE_SITE_URL` | Production site URL | From ssr.config.js |
-| `PRODUCTION` | Enable production mode | `false` |
+| `VITE_SITE_URL` | Base URL used by `usePageMeta` when no explicit `siteUrl` is passed | From ssr.config.js |
+
+The only other prestruct env var is `PRESTRUCT_STRICT=1`, which fails the build
+on config errors instead of downgrading to an SPA deploy. See the
+[CLI Reference](/guides/cli).
 
 ## Next Steps
 

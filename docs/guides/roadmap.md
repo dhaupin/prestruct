@@ -6,31 +6,32 @@ version: 1.0.0
 permalink: /guides/roadmap
 ---
 
-Planned features and ideas for prestruct.
+Planned features and ideas for prestruct. The package is at 1.0.0
+(unpublished -- `publish.yml` waits on the first `v*` tag).
 
-## v0.2.4 (In Progress)
+## Shipped (1.0.0 state)
 
-Done:
-- 21 comprehensive guides
-- Content style guide with briefs rule
-- Mobile nav and layout improvements
+- CLI (`init` / `build` / `validate` / `clean`) with incremental prerender
+- Incremental route cache (`.prestruct/cache/`) + per-build status snapshot
+- Sitemap + opt-in robots.txt generation
+- `fetchRoutes()` build-time CMS hook
+- Islands architecture and the optional bot proxy pair (VPS + Worker)
 
-WIP:
-- Code cleanup and documentation polish
-
-## v0.3.0 (Planned)
+## Planned
 
 ### Streaming SSR
-Add support for progressive streaming instead of blocking renderToString.
+Progressive streaming instead of blocking `renderToString`. Only matters once
+per-request rendering exists -- build-time prerender does not need it.
 
-### Incremental Prerender
-Skip routes that haven't changed since last build.
+### Vercel / Netlify platform support
+`platform: 'vercel' | 'netlify'` currently validates but generates no
+`vercel.json` / `netlify.toml` (cloudflare is the only fully supported
+platform).
 
 ## P2 - Future
 
-- CMS integration for dynamic routes at build time
 - Image optimization pipeline
-- Sitemap generation
+- Smarter incremental invalidation (file-level route dependencies)
 - Plugin system
 
 ## P3 - Ideas
@@ -42,3 +43,8 @@ Skip routes that haven't changed since last build.
 ## Propose Features
 
 Open an issue: https://github.com/dhaupin/prestruct/issues
+
+## Next steps
+
+- [Changelog](/guides/changelog) - what each release landed
+- [Contributing](/guides/contributing) - PR setup and gates

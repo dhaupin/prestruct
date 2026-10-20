@@ -64,14 +64,17 @@ cp init/scripts/proxy.js ./scripts/
 
 ### 2. Configure
 
+The proxy reads config from `../ssr.config.js` (relative to the copy in
+`scripts/`), so it must live next to the same config drive your build. The
+auth secret is an env var -- there is no `secret` config key:
+
 ```js
 // ssr.config.js
 export default {
   siteUrl: 'https://example.com',
   proxy: {
     url: 'https://proxy.example.com',
-    targetUrl: 'https://origin.example.com',
-    secret: process.env.PRESTRUCT_SECRET,
+    targetUrl: 'https://origin.example.com',   // optional
     botList: ['googlebot', 'bingbot'],
   }
 }
@@ -80,9 +83,9 @@ export default {
 ### 3. Run
 
 ```bash
-export PRESTRUCT_SECRET=your-secret
-export PORT=3000
-node scripts/proxy.js
+export PRESTRUCT_SECRET=your-secret   # unset = cache refresh disabled
+cd /path/to/project                   # ssr.config.js must be ../ssr.config.js
+PORT=3000 node scripts/proxy.js
 ```
 
 ### 4. Process Manager
@@ -120,14 +123,28 @@ wrangler deploy
 
 ## Caching
 
-### Cache Key
-SHA-256 of URL path + query string.
+### Cache key
+
+Different per runtime:
+
+- **VPS**: SHA-256 of the full request path + query string (filesystem-safe,
+  collision-resistant).
+- **Worker**: `prestruct:` prefix + percent-encoded path + query (KV, 512-byte
+  key limit).
 
 ### TTL
-- VPS: 24 hours default (configurable)
-- Worker: Set via `CACHE_TTL_SECONDS`
 
-### Cache Busting
+- **VPS**: fixed 24h constant (`CACHE_TTL` in scripts/proxy.js -- edit the
+  constant to change it). Cache dir relocates via `PRESTRUCT_CACHE_DIR`; total
+  cache caps at 500MB with oldest-first eviction.
+- **Worker**: `CACHE_TTL_SECONDS` in wrangler.toml `[vars]`, default 86400.
+
+### Cache busting
+
+GET the target path with the `x-prestruct-refresh` header matching
+`PRESTRUCT_SECRET`. A matched header skips the cache read (next response is
+`X-Prestruct-Cache: MISS`); Worker KV propagation to all edges may take a few
+seconds:
 
 ```bash
 curl -H "x-prestruct-refresh: your-secret" \
@@ -146,9 +163,17 @@ proxy: {
 
 ## Security
 
-- Requires matching `PRESTRUCT_SECRET` for cache refresh
-- Only GET requests processed
-- URL validation before Puppeteer
+- Cache refresh requires matching `PRESTRUCT_SECRET` (constant-time compare:
+  hash + `timingSafeEqual` on the VPS, full-length XOR on the Worker). Unset
+  secret = refresh disabled entirely, never allow-all.
+- Only GET requests are processed; others get 405.
+- Target URL is validated before Puppeteer (HTTP/HTTPS schemes only).
+- Every render sends `X-Prestruct-Proxy: true` to the origin so the target can
+  identify proxy traffic.
+
+Render responses self-describe via headers: `X-Prestruct-Cache: HIT|MISS` and
+`X-Prestruct-Rendered-At` (render timestamp). On render failure the proxy
+falls through to a 302 to the live site so bots never receive an error page.
 
 ## Browser Pooling
 
@@ -176,3 +201,8 @@ async function getBrowser() {
 | Navigation timeout | Check targetUrl, increase timeout |
 | Cache not invalidating | Verify PRESTRUCT_SECRET matches |
 | Worker cold starts | Consider paid plan |
+
+## Next steps
+
+- [Cloudflare Pages](/guides/cloudflare) - the Pages side of the split
+- [Redirects](/guides/redirects) - headers and redirects the build owns

@@ -31,7 +31,7 @@ scaffold + copy forward:
    | Failures exit 0 silently on CF Pages | Same, plus `PRESTRUCT_STRICT=1` for local/CI runs that exit 1 on bad config |
    | Example app has bespoke feature forks (`deployIdFooter`) | Config flags on the shared engine (`deployIdFooter: true` is opt-in) |
    | Static `public/robots.txt` only | Optional build-time robots.txt via `config.robots` (see docs/guides/config.md) |
-   | Bot list maintained in two places (VPS proxy + Worker proxy) | One place: `config.proxy.botList`; build embeds it into `proxy.worker.js` automatically |
+   | Bot list maintained in two places (VPS proxy + Worker proxy) | One place: `config.proxy.botList`. When `proxy.url` is set AND `botList` is non-empty, inject-brand syncs it into `scripts/proxy.worker.js` (a bare `config.proxy.botList` alone does nothing; the sync is skipped if the Worker file is absent) |
 
 3. **Rebuild with a fresh incremental cache:**
    ```bash
@@ -375,8 +375,13 @@ Most UI libraries work with prestruct. Test for:
 
 ## After Migration
 
-1. **Test locally**: `npm run preview`
+1. **Test locally**: `npx vite preview` serves `dist/` at :4173
 2. **Validate the config**: `npx prestruct validate` (catches mistakes before CI does)
 3. **Check SEO**: Verify meta tags, sitemap, canonical URLs, robots.txt
 4. **Watch the cache stats snapshot**: `dist/.prestruct/status.json` reports the last build's route render status
 5. **Lighthouse audit**: Should score 90+ on all metrics
+
+## Next steps
+
+- [Getting Started](/guides/getting-started) - the full walkthrough for a clean start
+- [Examples](/guides/examples) - target project shapes

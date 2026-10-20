@@ -1,7 +1,7 @@
 ---
 layout: default
 title: CLI Reference
-nav_order: 5
+nav_order: 21
 version: 1.0.0
 permalink: /guides/cli
 ---
@@ -17,7 +17,7 @@ The `prestruct` package ships an executable. It runs from any directory that con
 # Existing files are never overwritten -- safe to run on an existing project.
 npx prestruct init
 
-# Validate ssr.config.js only: prints errors line-by-line, exits 1 on the first bad config
+# Validate ssr.config.js only: prints every diagnostic line-by-line, exits 1 on a bad config
 npx prestruct validate
 
 # Full pipeline: validate -> vite build -> inject-brand -> prerender
@@ -39,29 +39,25 @@ To use these as npm scripts instead, add prestruct to `devDependencies` and wire
 
 Note: the scaffolded `init/` app still uses the raw `node` npm-script forms (below); the CLI is the packaged one-entry-point equivalent.
 
-## npm scripts
+## Template npm scripts
 
-Run these from your project root:
+The `init/` template ships exactly these. `prestruct build` is a packaged
+re-run of the same `npm run build` pipeline:
 
-```bash
-# Development server (with hot reload)
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build locally
-npm run preview
-
-# Run prerender manually
-npm run prerender
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
+```jsonc
+{
+  "build":    "vite build && node scripts/inject-brand.js && node scripts/prerender.js",
+  "test":     "vitest",
+  "test:run": "vitest run",
+  "test:ui":  "vitest --ui",
+  "lint":     "eslint . --ext js,mjs",
+  "lint:fix": "eslint . --ext js,mjs --fix"
+}
 ```
+
+There is no `dev` / `preview` / `prerender` npm script in the template. Run
+`npx vite dev` / `npx vite preview` directly if you want a local server; the
+prerender step only ever runs as part of `build` (or `npx prestruct build`).
 
 ## Build pipeline
 
@@ -77,30 +73,20 @@ npm run build
     └─► prerender.js        → Per-route HTML generation
 ```
 
-### prerender only
+`prestruct build` adds a fourth step first:
 
-Run just the prerender step if you've already built:
-
-```bash
-npm run prerender
-
-# Custom config
-npm run prerender -- --config custom-config.js
+```text
+prestruct build
+    │
+    ├─► validate-config.js  → structured [prestruct] diagnostics
+    ├─► vite build
+    ├─► inject-brand.js
+    └─► prerender.js
 ```
 
-## Development
-
-Start local dev server for hot reload (client-side only):
-
-```bash
-npm run dev
-```
-
-Preview built production build:
-
-```bash
-npm run preview
-```
+Config loading is fixed in every entry point: `ssr.config.js` from the
+invocation directory (or the nearest parent that has one). There is currently
+no `--config` / `--dir` flag.
 
 ## Cloudflare CLI
 
@@ -157,3 +143,9 @@ Trigger automatic rebuilds on git push:
 | Preview not working | Check dist exists |
 | `prestruct: command not found` | Install the package locally (`npm i -D prestruct`) or run via `npx` |
 | `validate` outputs nothing | That means the config is fine; it prints errors only when something is wrong |
+
+## Next steps
+
+- [Getting Started](/guides/getting-started) - first build from zero
+- [Config Reference](/guides/config) - every `ssr.config.js` key
+- [Troubleshooting](/guides/troubleshooting) - the failure modes behind these commands

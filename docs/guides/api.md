@@ -218,24 +218,11 @@ Mounts during browser idle time using `requestIdleCallback`. Falls back to `setT
 
 ### Props
 
-Island components receive **no props** by default. To pass data:
+`mountIslands()` renders each registry component with **no props** --
+`ReactDOM.createRoot(el).render(React.createElement(Component))` -- and they
+cannot access React context from the main tree. To pass data:
 
-**Option 1: Read from element**
-
-```jsx
-// HTML
-<pre-island data-pre-island="product-card" data-product-id="123" />
-
-// Component
-export default function ProductCard() {
-  const el = document.currentScript?.previousElementSibling
-  const productId = el?.dataset.productId
-  
-  // Fetch data using productId
-}
-```
-
-**Option 2: Use global state/localStorage**
+**Option 1: Use global state / localStorage**
 
 ```jsx
 export default function CartWidget() {
@@ -285,14 +272,12 @@ export default {
   routes: [
     {
       path: '/',
-      priority: '1.0',         // Sitemap priority (string!)
-      changefreq: 'weekly',   // Sitemap change frequency
+      priority: '1.0',         // Sitemap priority (number or string)
+      changefreq: 'weekly',   // daily | weekly | monthly | yearly
       meta: {
         title: 'Home | Example',
         description: '...',
-        ogImage: '/custom-og.png',  // Optional override
-        noindex: false,             // Add noindex meta
-        canonical: '/',             // Explicit canonical URL
+        ogImage: '/custom-og.png',  // Optional per-route OG image override
       }
     }
   ],
@@ -309,15 +294,28 @@ export default {
     ]
   },
   
-  // Proxy configuration (optional)
+  // Bot proxy (optional) -- cache-refresh auth is the PRESTRUCT_SECRET env
+  // var, never config. Unset secret = refresh disabled, not allow-all.
   proxy: {
     url: 'https://proxy.example.com',
-    targetUrl: 'https://origin.example.com',
-    secret: 'your-secret',
+    targetUrl: 'https://origin.example.com',   // optional
     botList: ['googlebot', 'bingbot']
+  },
+
+  // Opt-in robots.txt generation (false = public/robots.txt stays untouched)
+  robots: true,
+
+  // Custom 404 content (prerendered with noindex, always)
+  notFound: {
+    heading: 'Page not found',
+    body: "That page doesn't exist.",
+    primaryCta: { label: 'Go home', href: '/' },
   }
 }
 ```
+
+See the [full config reference](/guides/config) for every key, including
+`platform`, `deployId`, `deployIdFooter`, and `fetchRoutes()`.
 
 ---
 
@@ -327,13 +325,18 @@ export default {
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_SITE_URL` | Production URL (used by usePageMeta) |
-| `NODE_ENV` | Set to `production` for builds |
+| `VITE_SITE_URL` | Base URL used by usePageMeta when no explicit siteUrl is passed |
+| `PRESTRUCT_STRICT=1` | Fail the build (exit 1) on config diagnostics instead of degrading to an SPA deploy |
 
-### Runtime (Cloudflare)
+### Proxy Runtime (set where the proxy runs, not in the Pages app)
 
 | Variable | Description |
 |----------|-------------|
-| `PRODUCTION` | Set to `true` for production |
-| `PRESTRUCT_SECRET` | Auth secret for proxy cache refresh |
-| `PRESTRUCT_TARGET_URL` | Target URL for proxy |
+| `PRESTRUCT_SECRET` | Shared secret for the x-prestruct-refresh cache bust |
+| `PRESTRUCT_TARGET_URL` | Worker-only: origin the proxy renders |
+| `PRESTRUCT_CACHE_DIR` | VPS-only: relocate the render cache directory (default `.prestruct_cache`) |
+
+## Next steps
+
+- [Config Reference](/guides/config) - the full `ssr.config.js` surface
+- [Advanced Islands](/guides/advanced-islands) - the patterns behind the `mountIslands` contract

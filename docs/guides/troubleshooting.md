@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Troubleshooting
-nav_order: 16
+nav_order: 23
 version: 1.0.0
 permalink: /guides/troubleshooting
 ---
@@ -195,19 +195,17 @@ React Router v6 handles both, but pick one style and stick with it.
 
 ---
 
-### 404 pages being indexed
+### Changing 404 robots behavior
 
-**This is expected behavior.** Prestruct adds `noindex` to 404 pages to prevent them from appearing in search results.
+The 404 page ALWAYS carries:
 
-If you want 404s indexed, you can override in `prerender.js`:
-
-```js
-// In generate404 function
-html = html.replace(
-  '<meta name="robots" content="noindex, nofollow" />',
-  '' // Remove noindex
-)
+```html
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
 ```
+
+There is no config switch for this (404s should not rank). If you genuinely
+need different behavior, edit `scripts/prerender.js` in your own project
+(template copies are user-owned, engine files are not).
 
 ---
 
@@ -234,9 +232,14 @@ const desc = description.replace(/\$/g, '$$$$')
 
 ### Site shows "404" for all routes
 
-**Cause:** Missing `_redirects` file or incorrect configuration.
+**Cause:** `dist/` lacks per-route HTML -- the build stopped after `vite build`
+or prerender failed silently (its exit code is still 0 by default).
 
-**Solution:**Ensure `public/_redirects` exists (even if empty). Cloudflare Pages needs it to enable routing.
+**Solution:**
+1. Check `dist/about/index.html` (etc.) exists after a local build
+2. Run `npx prestruct validate` -- mistakes print as `[prestruct] config:`
+   lines but still exit 0; set `PRESTRUCT_STRICT=1` to make them fatal
+3. `public/_redirects` is NOT required for routing on Cloudflare Pages
 
 ---
 
@@ -250,34 +253,40 @@ const desc = description.replace(/\$/g, '$$$$')
 
 ## Proxy Issues
 
-### Proxy returns 502 Bad Gateway
+### Proxy returns 502 Bad Gateway / render failures
 
-**Cause:** Target URL is unreachable or timing out.
+**Cause:** Target URL unreachable or timing out.
 
 **Check:**
-1. `PRESTRUCT_TARGET_URL` is set correctly
+1. Worker: `PRESTRUCT_TARGET_URL` var; VPS: `config.proxy.targetUrl` (falls
+   back to `config.siteUrl`)
 2. Target server is running and accessible
 3. No firewall blocking the request
 
+On unrenderable targets both runtimes fall through to a 302 to the live site
+rather than 5xx.
+
 ---
 
-### Proxy authentication fails
+### Proxy cache-bust quietly ignored
 
-**Cause:** Wrong or missing secret token.
+**Cause:** `PRESTRUCT_SECRET` not set where the proxy runs (wrangler secret on
+the Worker, env var on the VPS) or the `x-prestruct-refresh` header value does
+not match.
 
-**Solution:**
-1. Set `PRESTRUCT_SECRET` in Cloudflare wrangler.toml or secrets
-2. Send the header: `x-prestruct-refresh: your-secret`
+**Note:** an UNSET secret never means "allow all" -- refresh is disabled
+entirely, and each runtime warns about it on boot. Compare is constant-time in
+both runtimes.
 
 ---
 
 ## Debugging Tips
 
-### Enable verbose logging
+### Watch the build's own diagnostics
 
-```bash
-DEBUG=prestruct:* npm run build
-```
+Prerender logs per-route status (`✓ / route`, `◯ / route (cached)`) and any
+`[prestruct] config:` validation lines -- no debug flag needed. To fail on
+diagnostics in CI: `PRESTRUCT_STRICT=1`.
 
 ### Check prerendered output
 
@@ -303,6 +312,11 @@ console.log('Server content:', document.getElementById('root').innerHTML.substri
 ```
 
 ---
+
+## Next steps
+
+- [Config Reference](/guides/config) - avoid the config-shaped failures above
+- [Migration Guide](/guides/migration) - moving from another setup
 
 ## Getting Help
 

@@ -20,40 +20,48 @@ git checkout -b feature/your-feature
 
 ## Development setup
 
-Install dependencies and run the build:
+Install dependencies and run the test battery:
 
 ```bash
-# Install dependencies
-npm install                  # root: for testing
-cd init && npm install      # init: for building
+npm install                  # root: peer deps + dev tooling
 
-# Run tests
-npm test                    # from root
+npm run test:run             # vitest battery (root)
+```
 
-# Build locally
-cd init && npm run build   # from init
+The repo-level truth gates (run these after any docs or engine change):
+
+```bash
+npm run lint:docs            # docs style + links + frontmatter + truthfulness
+npm run lint:claims          # fiction-signature scan
+npm run sync:check           # engine -> init -> example byte-identity
+                            # (CI fails on drift; run `npm run sync` after engine edits)
+```
+
+Build the template app locally:
+
+```bash
+node bin/cli.mjs init /tmp/prestruct-test && cd /tmp/prestruct-test
+npm install && npx prestruct build
 ```
 
 ## Code style
 
-Use ESLint and Prettier for consistent code:
+The `init/` template apps use ESLint:
 
 ```bash
-# Lint
-cd init && npm run lint
-
-# Format
-cd init && npm run format
+cd init && npm install && npm run lint       # --fix to autofix
 ```
+
+There is no Prettier/formatter step in the repo.
 
 ## Pull request process
 
 ### Before submitting
 
-Test locally and ensure lint passes:
+Test locally and make sure the gates pass:
 
 ```bash
-cd init && npm run build && cd init && npm run lint
+npm run test:run && npm run lint:docs && npm run lint:claims && npm run sync:check
 ```
 
 ### PR guidelines
@@ -87,4 +95,18 @@ chore: maintenance tasks
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under MIT.
+LICENSE is MIT; LEGAL.md adds Fair-Code restrictions on commercial SaaS use.
+By contributing, you agree that your contributions ship under both.
+
+## Docs contributions
+
+Writing or editing a guide? Follow the
+[Content Style](/guides/content-style) rules and run the truth gates before
+opening the PR:
+
+- every `npx prestruct <verb>` in prose must route to `bin/cli.mjs` -- the
+  verbs are `init`, `build`, `validate`, `clean`, `help`
+- every `./engine/...`-style module reference must resolve on disk
+- claims of behavior need engine backing (see
+  `scripts/check-docs-truthfulness.cjs` and `scripts/check-fiction-signatures.cjs`
+  for the mechanical definitions)

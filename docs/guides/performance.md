@@ -100,3 +100,8 @@ Use `font-display: swap` to show text immediately:
   font-display: swap;
 }
 ```
+
+## Next steps
+
+- [Build Optimization](/guides/build-optimization) - faster builds, incremental cache
+- [Advanced Islands](/guides/advanced-islands) - defer client-only work until it is needed

@@ -6,14 +6,21 @@ version: 1.0.0
 permalink: /guides/changelog
 ---
 
-Release history for prestruct.
+Release history for prestruct. Commit history is the detailed source
+(`git log --oneline`); the npm package sits at **1.0.0** and is not published
+yet -- `publish.yml` stays dormant until the first `v*` tag.
 
-## v0.2.6 (Development)
+## 1.0.0 (repo state)
 
-Changes since v0.2.4:
-
-### Core Features
-- Add ssr.config.example.js with all config options
+- npm package shape: `bin/cli.mjs` (`init` / `build` / `validate` / `clean`),
+  `engine/` single-source scripts synced into `init/` + `example/`
+- CLI realizes `--force` / `--clean` pass-through (engine already accepted
+  them; the CLI previously dropped both silently)
+- Incremental prerender cache (`.prestruct/cache/`) + per-build
+  `dist/.prestruct/status.json` snapshot + opt-in `config.robots` generation
+- Bot proxy pair (VPS + Worker) with constant-time cache-refresh secret
+  compare and a bounded render-concurrency queue
+- 22 guides under `docs/` with Pagefind search
 
 ## v0.2.4 (May 2026)
 
@@ -32,7 +39,7 @@ Changes since v0.2.2:
 - Fix: inject-brand title falls back to siteName, only injects description if truthy
 
 ### Docs: Guides
-- Docs: 25+ prestruct guides covering getting started to advanced
+- Docs: prestruct guide set covering getting started to advanced
 
 ### Docs: UI/UX
 - Docs: Pagefind search integration with Cmd+K shortcut
@@ -70,3 +77,8 @@ git log --oneline
 ```
 
 Full release notes: https://github.com/dhaupin/prestruct/releases
+
+## Next steps
+
+- [Roadmap](/guides/roadmap) - what is planned next
+- [Contributing](/guides/contributing) - how to get a change in

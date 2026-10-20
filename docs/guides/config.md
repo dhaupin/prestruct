@@ -55,13 +55,17 @@ export default {
   
   // === Optional: Proxy Configuration ===
   proxy: {
-    url: 'https://proxy.example.com',    // Proxy server URL
-    targetUrl: 'https://target.com',     // Origin to render
-    secret: 'your-secret-token',         // Auth secret
+    url: 'https://proxy.example.com',    // Proxy server URL (gates the CSP update)
+    targetUrl: 'https://target.com',     // Origin to render (optional)
     botList: ['googlebot', 'bingbot'],   // User-agents to proxy
+    // Auth secret is an ENV VAR, not config: PRESTRUCT_SECRET.
+    // Unset secret = cache-refresh disabled entirely (feature off, not open).
   }
 }
 ```
+
+The proxy pipeline reads two more values from the environment...
+see [Bot-Render Proxy](/guides/proxy) for the full deployment story.
 
 ## Route Configuration
 
@@ -69,35 +73,47 @@ Each route in the `routes` array supports:
 
 ```js
 {
-  path: '/about/',                    // Route path (required)
-  priority: '0.8',                    // Sitemap priority (string!)
-  changefreq: 'monthly',              // Options: always, hourly, daily, weekly, monthly, never
+  path: '/about/',                    // Route path (required, must start with /; unique)
+  priority: '0.8',                    // Sitemap priority, number or string, 0-1 (default 0.5)
+  changefreq: 'monthly',              // Options: daily, weekly, monthly, yearly (default monthly)
   meta: {
     title: 'About | Example',         // Page title
     description: 'About page desc',   // Meta description
-    ogImage: '/about-og.jpg',         // Optional: override default ogImage
-    noindex: false,                   // Optional: add noindex meta
-    canonical: '/about/',             // Optional: explicit canonical URL
+    ogImage: '/about-og.jpg',         // Optional: override config.ogImage for this route
   }
 }
 ```
 
+`meta.title` and `meta.description` land in every route's baked HTML (title,
+description, OG, and Twitter tags) and are re-applied on SPA navigation by
+`usePageMeta`. There are no per-route `noindex` or `canonical` overrides:
+404 pages carry noindex automatically, and canonical URLs are derived from
+`siteUrl` + the route path.
+
 ## Environment Variables
 
-### Build Time
+### Build time
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `VITE_SITE_URL` | Override site URL | `https://staging.example.com` |
-| `NODE_ENV` | Node environment | `production` |
+| `VITE_SITE_URL` | Base URL read by `usePageMeta` when no explicit siteUrl is passed | `https://staging.example.com` |
+| `PRESTRUCT_STRICT=1` | Fail (exit 1) on config-validation diagnostics instead of degrading to an SPA deploy | - |
 
-### Runtime (Cloudflare Pages)
+### Proxy runtime (set where the proxy runs, not in the Pages app)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `PRODUCTION` | Enable production mode | `true` |
-| `PRESTRUCT_SECRET` | Proxy auth secret | (set in Cloudflare) |
-| `PRESTRUCT_TARGET_URL` | Proxy target URL | `https://origin.example.com` |
+| `PRESTRUCT_SECRET` | Shared secret for the x-prestruct-refresh cache bust | (wrangler secret) |
+| `PRESTRUCT_TARGET_URL` | Worker-only: origin to render (replaces config) | `https://origin.example.com` |
+
+## Platform
+
+`platform` selects host behavior. One value is fully supported today:
+
+| Value | Status |
+|-------|--------|
+| `cloudflare` (default) | Template ships `public/_headers` + `public/_redirects`; inject-brand appends the proxy origin to the CSP allow-list when `config.proxy.url` is set. |
+| `vercel` / `netlify` | Accepted by config validation, but no host-config generation is implemented yet. `vercel.json` / `netlify.toml` are NOT emitted -- do not configure these platforms expecting generated files. |
 
 ## File: public/_headers
 

@@ -42,6 +42,21 @@ Meta tags, structured data, sitemap, 404 handling, robots directives.
 Trailing slashes, dynamic routes, redirects, route configuration.
 </a>
 
+<a href="guides/config" class="guide-card">
+<h4>Config</h4>
+Full `ssr.config.js` reference: routes, meta, islands, JSON-LD, proxy.
+</a>
+
+<a href="guides/getting-started" class="guide-card">
+<h4>Getting Started</h4>
+From an empty Vite app to a deployed prerendered site in minutes.
+</a>
+
+<a href="guides/cli" class="guide-card">
+<h4>CLI</h4>
+`prestruct init / build / validate / clean` and the template npm scripts.
+</a>
+
 </div>
 
 ## Why Cloudflare Pages?
