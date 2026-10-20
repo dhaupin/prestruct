@@ -104,6 +104,11 @@ function cmdInit(args) {
   function walk(dir) {
     for (const entry of fs.readdirSync(dir)) {
       if (entry === 'node_modules' || entry === 'dist' || entry === '.prestruct') continue
+      // .npmignore belongs to the PACKAGE tarball build (excludes init's local
+      // node_modules/dist from npm pack), not to scaffolded apps. Shipping it
+      // into a user project would silently prune THEIR files if they ever
+      // npm-pack their own package.
+      if (entry === '.npmignore') continue
       const src = path.join(dir, entry)
       const dest = path.join(target, path.relative(templateRoot, src))
       const st = fs.statSync(src)

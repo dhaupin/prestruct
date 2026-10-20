@@ -50,7 +50,9 @@ export default function usePageMeta({ title, description, path, siteUrl }) {
   const location = useLocation()
 
   useEffect(() => {
-    const canonical = `${base}${path === '/' ? '' : path}`
+    // Without a base URL a computed canonical would be relative ("/about"),
+    // which is not a canonical URL -- skip rather than write a wrong tag.
+    const canonical = base ? `${base}${path === '/' ? '' : path}` : ''
 
     const set = (selector, attr, value) => {
       const el = document.querySelector(selector)

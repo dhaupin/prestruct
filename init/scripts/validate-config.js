@@ -29,7 +29,9 @@ export function validateConfig(config) {
     errors.push('siteUrl is required and must start with http:// or https://')
   }
 
-  // routes: array of route objects
+  // routes: array of route objects; duplicate paths are an error because two
+  // routes with the same path would collide in the cache key AND write the
+  // same dist file twice with different meta (silent SEO corruption).
   if (!Array.isArray(config.routes)) {
     errors.push('routes must be an array (or omitted entirely)')
   } else if (config.routes.length) {
@@ -49,6 +51,15 @@ export function validateConfig(config) {
       }
       if (route.meta !== undefined && (typeof route.meta !== 'object' || route.meta === null)) {
         errors.push(`routes[${i}].meta: must be an object like { title, description }`)
+      }
+    })
+    const seen = new Set()
+    config.routes.forEach((route, i) => {
+      if (route && typeof route === 'object' && typeof route.path === 'string') {
+        if (seen.has(route.path)) {
+          errors.push(`routes[${i}].path: duplicate path "${route.path}" (first seen earlier) -- every path must be unique`)
+        }
+        seen.add(route.path)
       }
     })
   }

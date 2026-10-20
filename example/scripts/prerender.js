@@ -79,9 +79,13 @@ export function replaceRootDiv(shell, appHtml) {
   }
   const existing = match[1].replace(/\s+$/, '')
   const attrs = existing ? `${existing} data-server-rendered="true"` : ' data-server-rendered="true"'
+  // appHtml MUST be $-escaped: it is okay for route content to contain
+  // "$1"/"$&"-shaped text (prices, code samples, quotes) and the second
+  // argument to replace() would expand those into capture references,
+  // mangling the SSR output. Same lesson as the $120 meta-description bug.
   return shell.replace(
     /<div id="root"[^>]*><\/div>/,
-    `<div id="root"${attrs}>${appHtml}</div>`
+    () => `<div id="root"${attrs}>${appHtml}</div>`
   )
 }
 
@@ -167,7 +171,7 @@ export function generateRobots(config) {
     : `${cfgBody.trimEnd()}\n`
 }
 
-function escapeXml(unsafe) {
+export function escapeXml(unsafe) {
   if (!unsafe) return ''
   return String(unsafe)
     .replace(/&/g, '&amp;')
@@ -196,11 +200,16 @@ export function generateSitemap(routes, siteUrl) {
 
 export function generate404(shell, config, siteUrl) {
   const notFoundConfig = config.notFound || {}
-  const heading        = notFoundConfig.heading        || 'Page not found.'
-  const body           = notFoundConfig.body           || "That page doesn't exist -- or it moved."
-  const primaryLabel   = notFoundConfig.primaryCta?.label  || 'Go home'
-  const primaryHref    = notFoundConfig.primaryCta?.href   || '/'
-  const siteName       = config.siteName || 'Site'
+  // User-supplied notFound values: html-escaped before they land in markup
+  // (a <script> in a heading would ship working JS otherwise) AND
+  // $$-escaped where they appear in replacement strings ("$&" in a heading
+  // would otherwise pull the matched tag text into the output).
+  const heading        = escapeXml(notFoundConfig.heading        || 'Page not found.')
+  const body           = escapeXml(notFoundConfig.body           || "That page doesn't exist -- or it moved.")
+  const primaryLabel   = escapeXml(notFoundConfig.primaryCta?.label  || 'Go home')
+  const primaryHref    = escapeXml(notFoundConfig.primaryCta?.href   || '/')
+  const siteName       = escapeXml(config.siteName || 'Site')
+  const v              = escapeReplacement
 
   const bodyLines = [
     '<div id="root-404">',
@@ -212,19 +221,25 @@ export function generate404(shell, config, siteUrl) {
     '</div>',
   ]
 
-  let html = shell.replace(/<div id="root"[^>]*><\/div>/, bodyLines.join('\n'))
-  html = html.replace(/<title>[^<]*<\/title>/,       `<title>Page Not Found | ${siteName}</title>`)
+  // Function replacer: bodyLines carry user text; string-form replacement
+  // would expand $-sequences (same trap as replaceRootDiv).
+  let html = shell.replace(/<div id="root"[^>]*><\/div>/, () => bodyLines.join('\n'))
+  html = html.replace(/<title>[^<]*<\/title>/,               () => `<title>Page Not Found | ${siteName}</title>`)
   html = html.replace(
     /(<meta\s+name="description"\s+content=")[^"]*(")/s,
-    `$1The page you were looking for does not exist.$2`
+    () => `$1The page you were looking for does not exist.$2`
   )
   html = html.replace(
     /(<meta\s+property="og:title"\s+content=")[^"]*(")/s,
-    `$1Page Not Found | ${siteName}$2`
+    () => `$1Page Not Found | ${siteName}$2`
+  )
+  html = html.replace(
+    /(<meta\s+name="twitter:title"\s+content=")[^"]*(")/s,
+    () => `$1Page Not Found | ${siteName}$2`
   )
   html = html.replace(
     /(<link\s+rel="canonical"\s+href=")[^"]*(")/s,
-    `$1${siteUrl}/$2`
+    () => `$1${v(siteUrl)}/$2`
   )
   // noindex -- 404 pages should not appear in search results
   html = html.replace(
@@ -274,7 +289,10 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
   if (!ROUTES.length) {
     console.warn('[prerender] No routes defined in ssr.config.js -- skipping')
-    process.exit(0)
+    // Library-safety: never process.exit from a callable function -- callers
+    // (tests, host CLI) would lose control of their own process. The CLI's
+    // wrapper reports exit 0 naturally when this returns.
+    return
   }
 
   const { createServer }   = await import('vite')
@@ -320,7 +338,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     const indexPath = path.join(p.dist, 'index.html')
     if (!fs.existsSync(indexPath)) {
       console.error('[prerender] dist/index.html not found -- run vite build first')
-      process.exit(0)
+      return
     }
 
     const shell     = fs.readFileSync(indexPath, 'utf-8')

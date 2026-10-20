@@ -373,3 +373,56 @@ and a stray list item found during self-review).
 migration guide. Remaining aspirational work per PLAN: none pending; next
 natural step when the owner decides is to tag v1.0.0 and let the dormant
 publish workflow fire.
+
+## Pass 9 - Edge-case sweep: 6 defects found + fixed, E2E-proven (2026-10-20)
+
+**Method:** line audit of all engine files (prerender.js, inject-brand.js,
+validate-config.js, islands.js, usePageMeta.js) plus bin/cli.mjs cross-checked
+against AGENTS.md's standing lessons; every fix got a regression test, and the
+library-shape fixes got a tarball E2E confirmation through the real CLI.
+
+**Fixed (all engine/ root, synced to init/ + example/):**
+
+1. **replaceRootDiv $-expansion (the big one).** SSR output containing
+   "$1"/"$&"-shaped text -- prices, code samples, quotes -- was a replacement
+   string to String.replace and would expand into capture-group references,
+   mangling prerendered HTML (same class as the documented $120 meta bug, but
+   it hit EVERY route with a literal dollar sequence). Function-form replacer
+   now; unit test + tarball E2E proof: route rendering "Price: $120 -- ref: $&"
+   ships intact (pre-fix that $& duplicated the whole app markup inline).
+2. **generate404 user-text injection + $-expansion.** notFound.heading/body/
+   label/href/siteName went into markup raw (a <script> heading shipped
+   working JS) and into string replacements (an $& heading rewrote the
+   matched tag). Now: escapeXml on every user value before markup,
+   function-form replacers in every replace() call. 2 tests.
+3. **generate404's root-div replacer was string-form too** -- caught by the
+   new $& test before it could ship. Converted with the rest.
+4. **validate-config: duplicate route paths now error.** Two routes with the
+   same path collide in the incremental cache key and double-write the same
+   dist file with different meta (silent SEO corruption). Trailing-slash
+   variants are correctly treated as distinct. 2 tests.
+5. **syncProxyBotList $-tokens.** config.proxy.botList entries shaped like
+   "$&" expanded inside the string replacer; function form keeps tokens
+   literal. 1 test.
+6. **prerender() process.exit(0) in library-called paths (no-routes, missing
+   dist).** A callable function must never kill the host process (test
+   runners / host CLI lose control). Both now return; CLI behavior is
+   unchanged (build still completes, exit 0, same log lines).
+7. **bin/cli.mjs init walk no longer ships .npmignore into user projects**
+   (it belongs to the package tarball, not scaffolded apps -- a user's own
+   npm-pack would prune their files). Proven in the E2E: scaffold contains
+   no .npmignore.
+8. **usePageMeta empty-base canonical guard.** Without siteUrl/VITE_SITE_URL
+   the computed canonical was relative ("/about") and would be written as a
+   non-canonical href; guarded to skip when base is empty.
+
+**Tests:** 75 -> 81 (6 regressions). Battery green, sync 5/5 byte-identical.
+
+**Not fixed (considered, fine as-is):** islands.js visible-strategy leaves an
+IntersectionObserver attached if a visible island is removed pre-intersect
+(browser-only, GC'd with the element); generateRobots writes cfg.body raw to
+robots.txt (plain-text file, no HTML injection surface); sitemap changefreq/
+priority unescaped (closed-value validation upstream). Logged here so the
+next audit doesn't re-open them.
+
+CLI state: local commit only this pass -- push on request as usual.

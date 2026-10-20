@@ -27,6 +27,16 @@ describe('replaceRootDiv (W8: attribute-tolerant)', () => {
   it('throws when the shell has no root div', () => {
     expect(() => replaceRootDiv('<html></html>', 'x')).toThrow(/not found in shell/)
   })
+
+  it('preserves $-shaped SSR content literally (function replacer)', () => {
+    // Route content may legitimately contain "$1", "$&", "$120"... The old
+    // string-form replacement expanded those as regex references, mangling
+    // the SSR output. A function replacer is literal.
+    const shell = '<html><div id="root"></div></html>'
+    const out = replaceRootDiv(shell, '<p>Price: $120 &amp; ref $&</p>')
+    expect(out).toContain('<p>Price: $120 &amp; ref $&</p>')
+    expect(out).toContain('data-server-rendered="true"')
+  })
 })
 
 describe('validateConfig', () => {
@@ -58,6 +68,24 @@ describe('validateConfig', () => {
   it('flags unknown platform', () => {
     const { ok } = validateConfig({ siteUrl: 'https://x.com', routes: [], platform: 'heroku' })
     expect(ok).toBe(false)
+  })
+
+  it('flags duplicate route paths (cache-key and dist collision)', () => {
+    const { ok, errors } = validateConfig({
+      siteUrl: 'https://x.com',
+      routes: [{ path: '/' }, { path: '/about' }, { path: '/about' }],
+    })
+    expect(ok).toBe(false)
+    expect(errors.some(e => e.includes('duplicate path "/about"'))).toBe(true)
+  })
+
+  it('accepts distinct route paths', () => {
+    const { ok, errors } = validateConfig({
+      siteUrl: 'https://x.com',
+      routes: [{ path: '/' }, { path: '/about' }, { path: '/about/' }],
+    })
+    expect(ok).toBe(true)
+    expect(errors).toHaveLength(0) // trailing-slash variant is a distinct path
   })
 
   it('formats diagnostics with the prestruct prefix', () => {
@@ -104,5 +132,25 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('Page Not Found | Test')
     expect(html).toContain('noindex')
     expect(html).not.toContain('<script type="module"')
+  })
+
+  it('html-escapes user-supplied notFound text (no script injection into static HTML)', () => {
+    const shell = `<html><head><title>x</title></head><div id="root"></div></html>`
+    const html = generate404(shell, {
+      siteName: 'Test',
+      notFound: { heading: '<script>alert(1)</script>', body: 'Try <img src=x onerror=1>', primaryCta: { label: '"quoted"', href: '/a?x=1&y=2' } },
+    }, siteUrl)
+    expect(html).not.toContain('<script>alert')
+    expect(html).toContain('&lt;script&gt;')
+    expect(html).toContain('&quot;quoted&quot;')
+    expect(html).toContain('/a?x=1&amp;y=2')
+  })
+
+  it('keeps $-shaped notFound text literal (no regex-reference expansion)', () => {
+    const shell = `<html><head><title>x</title></head><div id="root"></div></html>`
+    const html = generate404(shell, { siteName: 'Test', notFound: { heading: '$& (lost page)' } }, siteUrl)
+    expect(html).toContain('&amp;')
+    expect(html).toContain('$&')
+    expect(html).not.toContain('$& (lost page)$&')
   })
 })

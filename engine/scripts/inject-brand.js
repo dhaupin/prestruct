@@ -298,7 +298,10 @@ export function syncProxyBotList(config, projectRoot) {
       return false
     }
 
-    const next = worker.replace(regex, replacement)
+    // Function form replacer: a string second-arg would expand "$&"-shaped
+    // patterns inside bot tokens (replace() special sequences). A function
+    // replacer treats the computed replacement literally.
+    const next = worker.replace(regex, () => replacement)
     if (next !== worker) {
       writeFileSync(workerPath, next, 'utf8')
       console.log(`[inject-brand] BOT_LIST synced from ssr.config.js (${botList.length} bots) -> scripts/proxy.worker.js`)

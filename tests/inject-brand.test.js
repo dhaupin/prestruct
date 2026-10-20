@@ -119,6 +119,17 @@ describe('syncProxyBotList', () => {
     expect(syncProxyBotList(config, root)).toBe(true)
     expect(workerContentOf(root)).toContain("'evil\\'bot',")
   })
+
+  it('keeps $-shaped bot tokens literal (function replacer, no $-expansion)', () => {
+    const root = makeTempProject()
+    const config = { proxy: { url: 'https://x.example.com', botList: ['$&', 'googlebot'] } }
+
+    expect(syncProxyBotList(config, root)).toBe(true)
+    const worker = workerContentOf(root)
+    // A string-form replace() would expand "$&" into the whole match
+    expect(worker).toContain("'$&',")
+    expect(worker).toContain("'googlebot',")
+  })
 })
 
 describe('injectBrand title replacement (tarball e2e regression)', () => {
