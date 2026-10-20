@@ -226,3 +226,47 @@ guides, correct relative to the file). Commit: f279122 (6 files, +280/-185).
 
 1. CF Pages deploy of docs/ (no Pagefind in the Pages build today).
 2. When it is ever time to publish: tag flow per publish.yml runbook only.
+
+## Pass 6 - Phase 3 P1s: Worker bot-list sync + VPS keep-alive starters (2026-10-20)
+
+**Done:**
+
+- **Worker bot list sync (PRD P1).** `syncProxyBotList()` added to
+  `engine/scripts/inject-brand.js`, called at the end of `injectBrand()` when
+  `config.proxy.url` is set: rewrites the `BOT_LIST` array literal in
+  `scripts/proxy.worker.js` from `config.proxy.botList`. Idempotent (no write
+  when equal), skips silently when the Worker file is absent (proxy optional /
+  example has none), warns and skips when the array literal can't be found
+  (manual-edit infestation), returns the found/synced boolean for callers.
+  Escapes backslashes and single quotes in bot tokens (same toReplaceSafe
+  discipline as all injected strings).
+- 8 new behavior tests in `tests/inject-brand.test.js` run against real
+  temp-dir worker files (rewrite, no-op missing file, no-op on empty/malformed
+  botList or missing proxy.url, no-op when BOT_LIST absent, idempotence,
+  quote escaping). Suite: 21 tests in that file; battery 68/68.
+- **pm2 + systemd starters (PRD P1).** `init/ecosystem.cjs` (pm2 config:
+  fork-mode, single instance, 700M memory cap, 3s restart backoff, Chromium
+  headroom documented - never clusterise the proxy) and
+  `init/scripts/prestruct-proxy.service` (systemd unit: EnvironmentFile for
+  PRESTRUCT_SECRET, PORT comment, hardening PrivateTmp/NoNewPrivileges,
+  WorkingDirectory/User to edit). Both ship via `prestruct init`.
+- README-proxy.md: step 5 now points at the shipped starters with a table +
+  pm2 commands; "Keeping bot lists in sync" rewritten: the build syncs the
+  Worker's BOT_LIST automatically (old hand-copy instructions removed).
+- **PRD open questions closed** (Section 6 answers written): W4 =
+  PRESTRUCT_STRICT env flag, default off (landed in Phase 1); proxy = copy-in
+  via prestruct init, never npm-imported; example-only features = shared-engine
+  config flags (deployIdFooter); docs stay Jekyll/gh-pages. Phase 3 progress
+  table updated (robots.txt, cache stats, migration refresh remain P2 open).
+- PLAN.md feature table refreshed to current reality (engine single-source,
+  CLI, validation, fetchRoutes all Done; NPM package = built but dormant;
+  bots/starters Done) and "Current" list now says v1.0.0 unpublished.
+
+**Verified:** sync check 5/5 byte-identical engine->init+example; vitest
+68/68; node --check on engine + ecosystem.cjs; ecosystem loads via require.
+systemd-analyze isn't installed locally, so the unit file was verified by
+inspection only (PORT/secret contract match against proxy.js source: lines
+75/271). Remaining Phase 1-era open item unchanged: fresh-project tarball E2E.
+
+**Warts found:** none new; search-tool/git-noise issues in this box were
+environmental, not repo defects.

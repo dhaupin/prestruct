@@ -41,7 +41,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join, resolve } from 'path'
+import { join, resolve, dirname } from 'path'
 import { execSync } from 'child_process'
 import { fileURLToPath, pathToFileURL } from 'url'
 
@@ -78,7 +78,7 @@ function defaultGetDeployId() {
 //   distDir : absolute path to the build output (defaults ./dist)
 //   getDeployId : injectable for tests; defaults to git-hash generator
 
-export function injectBrand(config, distDir = resolve('dist'), { getDeployId = defaultGetDeployId } = {}) {
+export function injectBrand(config, distDir = resolve('dist'), { getDeployId = defaultGetDeployId, projectRoot } = {}) {
   const {
     platform = 'cloudflare',
     siteUrl, siteName, author, tagline, ogImage, keywords,
@@ -253,6 +253,57 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
       // A bad proxyUrl is a config mistake, not a build-blocker
       console.warn('[inject-brand] CSP update failed:', err.message)
     }
+  }
+
+  // ── Worker bot list sync ──────────────────────────────────────────────────
+  // The VPS proxy (scripts/proxy.js) reads config.proxy.botList from
+  // ssr.config.js at startup, but the Cloudflare Worker has no build-time
+  // config access -- its list is embedded in scripts/proxy.worker.js.
+  // Embed it here so a botList change only ever means editing ssr.config.js
+  // and rebuilding. The file may legitimately not exist (proxy is optional,
+  // example/ has none) -- skip silently in that case.
+  syncProxyBotList(config, projectRoot || dirname(resolve(distDir)))
+}
+
+// Replaces the BOT_LIST array literal inside scripts/proxy.worker.js with
+// config.proxy.botList. Idempotent: no write when the content is identical.
+// Returns true if the file was found and is in sync (written or already equal).
+export function syncProxyBotList(config, projectRoot) {
+  const proxy = (config && config.proxy) || {}
+  const botList = proxy.botList
+  if (!proxy.url || !Array.isArray(botList) || botList.length === 0) return false
+
+  const workerPath = join(projectRoot, 'scripts', 'proxy.worker.js')
+  if (!existsSync(workerPath)) return false
+
+  try {
+    const worker = readFileSync(workerPath, 'utf8')
+    const tokensSafe = botList
+      .map(t => String(t).replace(/\\/g, '\\\\').replace(/'/g, "\\'"))
+      .map(t => `  '${t}',`)
+      .join('\n')
+    const replacement = `const BOT_LIST = [\n${tokensSafe}\n]`
+
+    // Match the BOT_LIST declaration up to its closing bracket line. The
+    // array only ever contains single-quoted token lines, so \n] is the end.
+    const regex = /const BOT_LIST = \[[\s\S]*?\n\]/
+    if (!regex.test(worker)) {
+      console.warn('[inject-brand] BOT_LIST array not found in scripts/proxy.worker.js -- skipping sync')
+      return false
+    }
+
+    const next = worker.replace(regex, replacement)
+    if (next !== worker) {
+      writeFileSync(workerPath, next, 'utf8')
+      console.log(`[inject-brand] BOT_LIST synced from ssr.config.js (${botList.length} bots) -> scripts/proxy.worker.js`)
+    } else {
+      console.log('[inject-brand] BOT_LIST already in sync with ssr.config.js')
+    }
+    return true
+  } catch (err) {
+    // A mangled worker file is a manual-edit problem, not a build-blocker
+    console.warn('[inject-brand] Worker bot list sync failed:', err.message)
+    return false
   }
 }
 

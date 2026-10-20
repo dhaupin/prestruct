@@ -17,27 +17,28 @@ See [SCOPE.md](./SCOPE.md) for purpose and reach, [README.md](./README.md) for q
 
 ## Feature table
 
-| Feature | Files | P1/P2 | Notes ||---------|-------|------|-------|| Engine single source | scripts/sync-engine.mjs copies init -> example | P1 | Done in v0.2.6; init/ is the source of truth || CLI scaffold | npx prestruct init | P1 | Copy init/ files to project |
-| Config validation | validate in scripts/ | P1 | Emit clear errors |
-| Dynamic routes | fetchRoutes() in config | P1 | Already documented |
-| Per-route og:image | meta.ogImage per route | P1 | Already works |
-| Worker bot list sync | write to worker | P1 | No manual copy |
-| pm2/systemd starters | ecosystem.config.cjs | P1 | VPS deployment |
-| Robots.txt generation | inject in prerender | P2 | Static → generated |
-| Cache stats endpoint | GET /_prestruct/status | P2 | Monitor cache |
-| NPM package | package.json with bin | P2 | Publish to npm |
+| Feature | Files | P1/P2 | Status ||---------|-------|------|-------|| Engine single source | engine/ + scripts/sync-engine.mjs | P1 | Done -- engine/ is the source of truth, init/ + example/ generated || CLI scaffold | bin/cli.mjs (`prestruct init/build/validate/clean`) | P1 | Done || Config validation | engine/scripts/validate-config.js | P1 | Done; `PRESTRUCT_STRICT=1` fails builds |
+| Dynamic routes | fetchRoutes() in config | P1 | Done; documented in docs/guides/config.md |
+| Per-route og:image | meta.ogImage per route | P1 | Done |
+| Worker bot list sync | inject-brand syncs config.proxy.botList into proxy.worker.js | P1 | Done |
+| pm2/systemd starters | init/ecosystem.cjs, init/scripts/prestruct-proxy.service | P1 | Done |
+| Robots.txt generation | inject in prerender | P2 | Not started |
+| Cache stats endpoint | GET /_prestruct/status | P2 | Not started |
+| NPM package | package.json with bin | P1 | Built but unpublished (v1.0.0 dormant) |
 
 ---
 
-## Current (v0.2.6)
+## Current (v1.0.0, unpublished)
 
 - [x] AI-first homepage
 - [x] Platform detection (config field)
-- [x] Tests + CI (43 passing)
+- [x] Tests + CI (vitest battery green)
 - [x] Incremental prerender (--force, --clean)
 - [x] fetchRoutes() hook docs
 - [x] ESLint + vitest config
 - [x] Dynamic islands (eager, visible, idle)
+- [x] npm package + CLI (dormant: nothing tagged/published)
+- [x] Worker bot-list sync + VPS proxy keep-alive starters
 
 ---
 

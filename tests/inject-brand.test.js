@@ -1,11 +1,125 @@
-import { describe, it, expect } from 'vitest'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
+import { describe, it, expect, afterEach } from 'vitest'
+import { syncProxyBotList } from '../engine/scripts/inject-brand.js'
 
 /**
  * inject-brand.js tests
- * 
- * Tests the config parsing and meta injection logic without requiring fs.
- * The actual script integration tests run via npm run build in CI.
+ *
+ * Tests the config parsing and meta injection logic without requiring fs
+ * (except the syncProxyBotList suite, which exercises real file I/O in a
+ * temp dir). The actual script integration tests run via npm run build in CI.
  */
+
+// ── syncProxyBotList ───────────────────────────────────────────────────────────
+
+// A realistic skeleton of scripts/proxy.worker.js -- same shape the engine
+// ships. Kept in the test rather than read from init/ so the suite stays
+// independent of the repo layout.
+const WORKER_SKELETON = `import puppeteer from '@cloudflare/puppeteer'
+
+// Keep this in sync with config.proxy.botList in ssr.config.js
+const BOT_LIST = [
+  'googlebot',
+  'bingbot',
+]
+
+function isBot(ua) {
+  if (!ua) return false
+  const lower = ua.toLowerCase()
+  return BOT_LIST.some(token => lower.includes(token))
+}
+
+export default { async fetch() {} }
+`
+
+let tmpDirs = []
+function makeTempProject(workerContent = WORKER_SKELETON) {
+  const root = mkdtempSync(join(tmpdir(), 'prestruct-botlist-'))
+  tmpDirs.push(root)
+  mkdirSync(join(root, 'scripts'), { recursive: true })
+  if (workerContent !== null) {
+    writeFileSync(join(root, 'scripts', 'proxy.worker.js'), workerContent, 'utf8')
+  }
+  return root
+}
+
+afterEach(() => {
+  for (const dir of tmpDirs) rmSync(dir, { recursive: true, force: true })
+  tmpDirs = []
+})
+
+const workerContentOf = root => readFileSync(join(root, 'scripts', 'proxy.worker.js'), 'utf8')
+
+describe('syncProxyBotList', () => {
+  it('rewrites BOT_LIST in an existing proxy.worker.js from config.proxy.botList', () => {
+    const root = makeTempProject()
+    const config = { proxy: { url: 'https://proxy.example.com', botList: ['Googlebot', 'Bingbot'] } }
+
+    const result = syncProxyBotList(config, root)
+    const worker = workerContentOf(root)
+
+    expect(result).toBe(true)
+    expect(worker).toContain("'Googlebot',")
+    expect(worker).toContain("'Bingbot',")
+    expect(worker).toContain('BOT_LIST.some(token => lower.includes(token))') // rest of file intact
+    expect(worker).not.toContain('\\') // no escaping glitches leaked into the array
+  })
+
+  it('is a no-op when the worker file does not exist', () => {
+    const root = makeTempProject(null) // no scripts/proxy.worker.js
+    const config = { proxy: { url: 'https://proxy.example.com', botList: ['Googlebot'] } }
+
+    expect(syncProxyBotList(config, root)).toBe(false)
+  })
+
+  it('is a no-op when proxy.botList is missing, empty, or malformed', () => {
+    const root = makeTempProject()
+    const before = workerContentOf(root)
+
+    expect(syncProxyBotList({ proxy: { url: 'https://x.example.com' } }, root)).toBe(false)
+    expect(syncProxyBotList({ proxy: { url: 'https://x.example.com', botList: [] } }, root)).toBe(false)
+    expect(syncProxyBotList({ proxy: { url: 'https://x.example.com', botList: 'googlebot' } }, root)).toBe(false)
+    expect(workerContentOf(root)).toBe(before) // file untouched
+  })
+
+  it('is a no-op when proxy.url is not set', () => {
+    const root = makeTempProject()
+    const before = workerContentOf(root)
+
+    // No proxy at all, or a proxy without a URL -- the Worker is not deployed
+    expect(syncProxyBotList({}, root)).toBe(false)
+    expect(syncProxyBotList({ proxy: { botList: ['Googlebot'] } }, root)).toBe(false)
+    expect(workerContentOf(root)).toBe(before)
+  })
+
+  it('warns and returns false when BOT_LIST cannot be found in the file', () => {
+    const root = makeTempProject('export default {}\n') // Worker without a BOT_LIST declaration
+    const config = { proxy: { url: 'https://x.example.com', botList: ['Googlebot'] } }
+
+    expect(syncProxyBotList(config, root)).toBe(false)
+  })
+
+  it('is idempotent: re-syncing with the same config changes nothing', () => {
+    const root = makeTempProject()
+    const config = { proxy: { url: 'https://x.example.com', botList: ['Googlebot', 'Bingbot', 'DuckDuckBot'] } }
+
+    syncProxyBotList(config, root)
+    const afterFirst = workerContentOf(root)
+    syncProxyBotList(config, root)
+
+    expect(workerContentOf(root)).toBe(afterFirst)
+  })
+
+  it('escapes single quotes in bot tokens', () => {
+    const root = makeTempProject()
+    const config = { proxy: { url: 'https://x.example.com', botList: [`evil'bot`] } }
+
+    expect(syncProxyBotList(config, root)).toBe(true)
+    expect(workerContentOf(root)).toContain("'evil\\'bot',")
+  })
+})
 
 // Helper: toReplaceSafe (from inject-brand.js)
 const toReplaceSafe = (value = '') => String(value).replace(/\$/g, '$$$$')

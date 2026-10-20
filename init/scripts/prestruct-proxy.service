@@ -1,0 +1,47 @@
+# prestruct-proxy.service - systemd unit for the Prestruct render proxy
+#
+# Ships with `prestruct init`. Copy to /etc/systemd/system/, adjust the
+# [Service] section to your install path, then:
+#
+#   sudo cp scripts/prestruct-proxy.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now prestruct-proxy
+#
+# Secrets live in /etc/prestruct/config.env, NOT in this file:
+#
+#   sudo install -d -m 700 -o prestruct /etc/prestruct
+#   echo 'PRESTRUCT_SECRET=your-shared-secret' | \
+#     sudo tee /etc/prestruct/config.env >/dev/null
+#
+# One proxy process, one warm Chromium browser pool -- do not run multiple
+# instances of the service on the same box (each pool costs ~100MB+).
+#
+# Prefer pm2? See ecosystem.cjs at the project root instead.
+
+[Unit]
+Description=Prestruct bot-render proxy (browsers get rendered snapshots, humans get redirected)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# --- edit these two to your VPS paths --------------------------------------
+User=www-data
+WorkingDirectory=/srv/example
+# ---------------------------------------------------------------------------
+ExecStart=/usr/bin/node scripts/proxy.js
+Environment=NODE_ENV=production
+# PORT defaults to 3000 inside proxy.js; set it here to run behind a reverse
+# proxy on a different local port.
+#Environment=PORT=3000
+EnvironmentFile=-/etc/prestruct/config.env
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=10
+# Puppeteer + Chromium need a /dev/shm large enough, or must not use it
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

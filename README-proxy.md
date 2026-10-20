@@ -77,11 +77,34 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### 5. Start the proxy
 
+For a quick test:
+
 ```bash
 node scripts/proxy.js
-# or with pm2 for auto-restart:
-pm2 start scripts/proxy.js --name prestruct-proxy
 ```
+
+Prestruct ships two keep-alive starters so you don't have to write your own:
+| Starter | File | Start it with |
+|---|---|---|
+| pm2 | `ecosystem.cjs` | `pm2 start ecosystem.cjs` |
+| systemd | `scripts/prestruct-proxy.service` | see the comments in the unit file |
+
+pm2 (from the project root, after `npm install` of the proxy dependencies):
+
+```bash
+export PRESTRUCT_SECRET=your-secret
+pm2 start ecosystem.cjs
+pm2 save && pm2 startup        # survive reboots
+pm2 logs prestruct-proxy       # watch it
+```
+
+The ecosystem file pins one process (`exec_mode: fork`) and restarts on memory
+spikes -- the proxy keeps a warm Chromium pool, so it must never be clusterised.
+
+For systemd, the unit file is also copied by `prestruct init`. Point
+`WorkingDirectory` at your install path, put `PRESTRUCT_SECRET` in
+`/etc/prestruct/config.env`, then `sudo systemctl enable --now prestruct-proxy`.
+Full instructions in the comments of the unit file.
 
 ### 6. Set up TLS
 
@@ -241,8 +264,17 @@ The header is ignored regardless of its value.
 The VPS proxy reads `config.proxy.botList` from `ssr.config.js` at startup.
 
 The Worker proxy has its own `BOT_LIST` array at the top of `proxy.worker.js`
-(Workers have no access to build-time config). If you customise `botList` in
-`ssr.config.js`, copy the same values into the Worker file before deploying.
+(Workers have no access to build-time config). You usually never touch it:
+when `config.proxy.url` is set, the build (`inject-brand.js`) rewrites the
+Worker's `BOT_LIST` from `ssr.config.js` automatically:
+
+```text
+[inject-brand] BOT_LIST synced from ssr.config.js (13 bots) -> scripts/proxy.worker.js
+```
+
+Edit `botList` in `ssr.config.js`, rebuild, redeploy the Worker. The sync is
+idempotent (no rewrite when already equal) and is skipped when
+`scripts/proxy.worker.js` does not exist or the array cannot be found.
 
 ---
 
