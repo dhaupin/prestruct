@@ -42,10 +42,17 @@ import { validateConfig, formatDiagnostics } from './validate-config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT      = path.resolve(__dirname, '..')
-const DIST      = path.join(ROOT, 'dist')
 
-const CACHE_DIR  = path.join(ROOT, '.prestruct/cache')
-const CACHE_FILE = path.join(CACHE_DIR, 'routes.json')
+// Rooted-path derivation: the npm CLI passes the USER PROJECT's root;
+// deployed template copies call without opts and get their own project root.
+export function enginePaths(root = ROOT) {
+  return {
+    root,
+    dist: path.join(root, 'dist'),
+    cacheDir: path.join(root, '.prestruct', 'cache'),
+    cacheFile: path.join(root, '.prestruct', 'cache', 'routes.json'),
+  }
+}
 
 // ── Replacement safety ────────────────────────────────────────────────────────
 // Prevent regex backreference expansion ($1, $2, ...) when dynamic values are
@@ -104,22 +111,25 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
 
 // ── Incremental cache ─────────────────────────────────────────────────────────
 
-export function readCache() {
+export function readCache({ cacheFile = enginePaths().cacheFile } = {}) {
   try {
-    if (fs.existsSync(CACHE_FILE)) {
-      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'))
+    if (fs.existsSync(cacheFile)) {
+      return JSON.parse(fs.readFileSync(cacheFile, 'utf8'))
     }
   } catch {}
   return {}
 }
 
-export function writeCache(cache) {
-  fs.mkdirSync(CACHE_DIR, { recursive: true })
-  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2))
+export function writeCache(cache, { cacheDir = enginePaths().cacheDir, cacheFile = enginePaths().cacheFile } = {}) {
+  fs.mkdirSync(cacheDir, { recursive: true })
+  fs.writeFileSync(cacheFile, JSON.stringify(cache, null, 2))
 }
 
-export function cleanCache() {
-  fs.writeFileSync(CACHE_FILE, '{}')
+export function cleanCache({ cacheFile = enginePaths().cacheFile } = {}) {
+  // Directory is derived from the file path so a custom cacheFile can never
+  // point at a directory that was not created.
+  fs.mkdirSync(path.dirname(cacheFile), { recursive: true })
+  fs.writeFileSync(cacheFile, '{}')
   console.log('[prerender] Cache cleared')
 }
 
@@ -221,7 +231,8 @@ async function loadConfig() {
   return config
 }let config = null
 
-export async function prerender(cfg = config, { force = false } = {}) {
+export async function prerender(cfg = config, { force = false, root } = {}) {
+  const p = enginePaths(root || ROOT)
   console.log('\n[prerender] Starting static HTML generation...')
 
   const { siteUrl,
@@ -243,8 +254,8 @@ export async function prerender(cfg = config, { force = false } = {}) {
   // ssrLoadModule resolves all imports through Vite's unified module registry,
   // guaranteeing a single react-router-dom instance. StaticRouter's location
   // context reaches useLocation() inside Routes correctly.
-  const vite = await createServer({
-    root: ROOT,
+    const vite = await createServer({
+    root: p.root,
     server: { middlewareMode: true },
     appType: 'custom',
     customLogger: {
@@ -262,7 +273,7 @@ export async function prerender(cfg = config, { force = false } = {}) {
     const { default: AppLayout } = await vite.ssrLoadModule(appLayoutPath)
 
     // Validate dist/index.html exists (vite build may have failed)
-    const indexPath = path.join(DIST, 'index.html')
+    const indexPath = path.join(p.dist, 'index.html')
     if (!fs.existsSync(indexPath)) {
       console.error('[prerender] dist/index.html not found -- run vite build first')
       process.exit(0)
@@ -270,14 +281,14 @@ export async function prerender(cfg = config, { force = false } = {}) {
 
     const shell     = fs.readFileSync(indexPath, 'utf-8')
     let succeeded   = 0
-    const cache     = readCache()
+    const cache     = readCache({ cacheFile: p.cacheFile })
 
     console.log(`[prerender] Cache: ${Object.keys(cache).length} routes cached${force ? ' (forcing rebuild)' : ''}`)
 
     for (const route of ROUTES) {
       const distPath = route.path === '/'
-        ? path.join(DIST, 'index.html')
-        : path.join(DIST, route.path.slice(1), 'index.html')
+        ? path.join(p.dist, 'index.html')
+        : path.join(p.dist, route.path.slice(1), 'index.html')
 
       // Incremental: skip if cached and not --force
       if (!force && cache[route.path]) {
@@ -316,14 +327,14 @@ export async function prerender(cfg = config, { force = false } = {}) {
     }
 
     // Save cache
-    writeCache(cache)
+    writeCache(cache, { cacheDir: p.cacheDir, cacheFile: p.cacheFile })
 
     // 404.html -- CF Pages serves this for all unmatched routes with HTTP 404
-    fs.writeFileSync(path.join(DIST, '404.html'), generate404(shell, config, siteUrl), 'utf-8')
+    fs.writeFileSync(path.join(p.dist, '404.html'), generate404(shell, cfg || config, siteUrl), 'utf-8')
     console.log('[prerender] ✓ /404.html')
 
     // sitemap.xml -- overwrites the static one in public/ with today's date
-    fs.writeFileSync(path.join(DIST, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl), 'utf-8')
+    fs.writeFileSync(path.join(p.dist, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl), 'utf-8')
     console.log('[prerender] ✓ /sitemap.xml')
 
     console.log(`[prerender] Done. ${succeeded}/${ROUTES.length} pages rendered.\n`)

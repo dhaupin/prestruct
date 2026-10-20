@@ -10,6 +10,24 @@ records only what cherry-pickers must act on.
 
 ## v0.2.6 (current)
 
+### Phase 2 scaffold: npm-ready packaging (dormant -- nothing published yet)
+
+- The repo root is now the npm package shape: "bin" (`prestruct` ->
+  `bin/cli.mjs` with `init`, `build`, `validate`, `clean`, `help`), exports map
+  for programmatic use (`prestruct/prerender`, `prestruct/inject-brand`,
+  `prestruct/validate-config`), `files` whitelist (`bin + engine + init`),
+  peerDependencies (react/react-dom/react-router-dom/vite resolve from the
+  HOST project), engines >= 18.
+- `.github/workflows/publish.yml` added: npm Trusted Publishing (OIDC),
+  fires on `v*` tags only. **Dormant by design** -- no tag exists and no
+  publish is allowed until the engine proves stable in real projects.
+  First publish must be manual (OIDC cannot create a new package; see the
+  runbook in the workflow header).
+- `prerender()` accepts `prerender(config, { root })` so the CLI can run the
+  pipeline inside a user project; engine copies keep project-root defaults.
+- No version has been tagged or published; the npm registry still has no
+  `prestruct` package.
+
 ### Phase 1: the engine is now one source
 
 - The engine moved to `engine/` at the repo root: `scripts/prerender.js`,

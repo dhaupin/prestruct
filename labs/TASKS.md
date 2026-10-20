@@ -136,3 +136,53 @@ not block. Queued for Phase 1.
 2. PRD open question 2 (proxy in npm package) -> Phase 2 scaffolding.
 3. PRD Phase 1 leftover: none; Phase 2 starts with package bin/cli.mjs.
 4. Re-run example build once CF sync lands (CI builds auto-run on push).
+---
+
+## Pass 4 - Phase 2 scaffolding: npm packaging wired, dormant (2026-10-20)
+
+**Done:**
+
+- Root package.json is the npm package shape: exports map (prestruct/,
+  prestruct/prerender, prestruct/inject-brand, prestruct/validate-config),
+  bin -> bin/cli.mjs, files whitelist (bin + engine + init), peerDependencies
+  resolve from the HOST project, type: module, engines >= 18. Version field
+  1.0.0 set but NOT tagged and NOT published (per owner: prove stability
+  first).
+- bin/cli.mjs: init (never-clobber scaffold), build (validate -> vite build
+  -> inject-brand -> prerender), validate (exit 1 on bad config), clean.
+  prereq refactor: prerender(config, {root}) for host-project execution.
+- .github/workflows/publish.yml: OIDC trusted publishing on v* tags ONLY,
+  mirroring the dhaupin/crashtest runbook. Dormant: no tag exists - do not
+  publish until stability is proven. One-time manual npm publish + Trusted
+  Publisher setup required when it is time (runbook in workflow header).
+- prereq fix: cleanCache() now mkdirs from the cacheFile path (cmdClean
+  ENOENT found by smoke-testing CLI commands).
+- Battery: 61/61 tests, sync check ok, init lint ok. Pack sim from clean
+  checkout: 367.9 kB / 126 files, no junk. e2e after refactor: init build +
+  example build both exit 0, example renders 8/8 with correct root attrs.
+
+**Learned:**
+
+- Destructuring a boolean return: `const { ok } = report(config)` yields
+  undefined for a boolean return -> silent else-exit with EMPTY diagnostics.
+  Debug-visible because console output vanished while trace-exit pinned the
+  else branch. Rule: match return-shape to destructure (report returns ok
+  boolean; validateConfig returns {ok, errors}).
+- npm peers are auto-installed (npm 7+) - root devDeps must pin react/react-
+  dom 18 and react-router-dom ^6.30 so engine.test.js can import prerender.js
+  through vite's import-analysis (v7 has no ./server.js subpath).
+- npm pack uses disk state, not git - check the tarball from a clean checkout
+  (git archive sim) before trusting local dry-run numbers.
+- CLI debug discipline: fs.appendFileSync probes bypass console entirely;
+  use when stdout/stderr look possessed.
+
+**Setup for next pass (stability completion, part of "go through prestruct"):**
+
+1. Windows path check for cli init walk; example/AppLayout has paths in
+   engine that need re-shape? None - keep as-is.
+2. Fresh-project simulation: use the packed tarball in a scratch Vite app
+   after `npm pack`, verify prestruct init/build/validate E2E (uses the real
+   npm morphology, not the repo shape).
+3. Then the stability sweep for the engine (PRD phase 2 gate for v1.0.0):
+   docs guides refresh (config.md / cli.md refresh + footer semantics), CI
+   green, brain + TASKS updated. Only then discuss tagging/publishing v1.0.0.

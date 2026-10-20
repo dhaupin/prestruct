@@ -1,0 +1,54 @@
+# publish.yml
+# -----------
+# npm Trusted Publishing (OIDC) -- releases publish on version tags ONLY.
+# There is no NPM_TOKEN secret stored anywhere; provenance is generated
+# automatically because the repo is public and repository.url matches.
+#
+# DORMANT BY DESIGN: this fires on `v*` tags, which do not exist yet. The
+# first publish must be done manually once (bootstrap -- OIDC cannot create
+# a brand-new package, see npm/cli#8544), then a Trusted Publisher entry is
+# configured on npmjs.com (user dhaupin, repo prestruct, workflow publish.yml).
+# Until then, no tag will be created and this workflow never runs.
+#
+# Runbook (when it is time):
+#   1. npm test all green; npm pack --dry-run shows the intended tarball.
+#   2. npm publish            # one-time manual bootstrap, creates the package
+#   3. npmjs.com -> prestruct -> Settings -> Trusted Publisher
+#   4. npm version patch|minor  # future releases
+#      git push origin main --follow-tags
+#
+# Rules (same as the crashtest runbook this mirrors):
+#   - Only publish from version tags, never from main directly.
+#   - The `files` field limits the tarball to bin/ + engine/ + init/.
+
+name: npm-publish
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trusted publishing needs node >= 22.14 / npm >= 11.5.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Test
+        run: npm run test:run
+
+      - name: Publish
+        run: npm publish
