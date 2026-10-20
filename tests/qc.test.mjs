@@ -5,6 +5,7 @@ import { execSync } from 'node:child_process'
 const SYNCED_FILES = [
   'scripts/inject-brand.js',
   'scripts/prerender.js',
+  'scripts/validate-config.js',
   'src/hooks/usePageMeta.js',
   'src/islands.js',
 ]

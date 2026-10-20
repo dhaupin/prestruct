@@ -20,6 +20,7 @@ jobs:
           files=(
             "scripts/inject-brand.js"
             "scripts/prerender.js"
+            "scripts/validate-config.js"
             "src/hooks/usePageMeta.js"
             "src/islands.js"
           )

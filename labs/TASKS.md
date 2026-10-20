@@ -85,3 +85,54 @@ not block. Queued for Phase 1.
 - Suite was 45/46: failing test was the init↔example sync check on
   `inject-brand.js`.
 - `labs/prd.md` written: Phases 0-3 + 4 open questions.
+---
+
+## Pass 3 - Phase 1 begins: engine extraction (2026-10-20)
+
+**Done:**
+
+- `engine/` created as the single source (`scripts/prerender.js`,
+  `scripts/inject-brand.js`, `scripts/validate-config.js`, `src/islands.js`,
+  `src/hooks/usePageMeta.js`, `vite.config.js` init-only). sync-engine.mjs is
+  now a generator (engine -> init + example, INIT_ONLY group for template-owned
+  files). init/incremental.js stub deleted.
+- Module surfaces: `replaceRootDiv`, `injectMeta`, `generateSitemap`,
+  `generate404`, cache helpers, `prerender(config, {force})`, `injectBrand`,
+  `validateConfig` + CLI guards (isMainExecute) so imports never run pipelines.
+- W8 fixed for real: root-div injection is attribute-tolerant; footer attr now
+  survives prerender (verified live: prerendered pages carry
+  `data-deploy-id-footer data-server-rendered="true"` with deployIdFooter:
+  true). W9: dead footer-scan dropped from inject-brand.
+- Config validation: validateConfig() with structured `[prestruct] config:`
+  diagnostics; exits stay graceful. PRESTRUCT_STRICT=1 fails build on config
+  diagnostics (open question 1 resolved: env flag, default off).
+- Simple enablement: `npx vitest run` runs 46/46.
+  sync-engine.mjs check: ok.
+
+**Latent break found and fixed (this is why the end-to-end build mattered):**
+
+- The init template could never prerender on a fresh install: (a) missing
+  vite.config.js -> JSX compiled via esbuild classic runtime -> "React is not
+  defined" per route; (b) react-router-dom unpinned -> npm auto-installs v7,
+  which dropped react-router-dom/server.js. Both masked by the graceful
+  exit-0 fallback. Fixed: template ships vite.config.js (engine/vite.config.js
+  -> init only) and pins react/react-dom 18 + react-router-dom ^6.30.
+- Proof: `cd init && npm run build` -> 8/8 pages rendered, footer attrs on
+  rebound prerendered pages, 404 + sitemap written.
+
+**Learned:**
+
+- The engine contract is 5 files + an INIT_ONLY surface; example-owned files
+  (ssr configs, AppLayout, App, main, vite.config) must never be generated.
+- Always re-run `node scripts/sync-engine.mjs` after touching engine/; CI
+  fails otherwise (this is now the single place edits land).
+- `dist/index.html` shell must survive attribute injection: the root-div
+  matcher and inject-brand both expect extra attrs.
+
+**Setup for next pass (Phase 1 cont./rest of PRD):**
+
+1. Decide docs tagged for the footer behavior + strict flag (docs guides
+   config.md / cli.md refresh).
+2. PRD open question 2 (proxy in npm package) -> Phase 2 scaffolding.
+3. PRD Phase 1 leftover: none; Phase 2 starts with package bin/cli.mjs.
+4. Re-run example build once CF sync lands (CI builds auto-run on push).

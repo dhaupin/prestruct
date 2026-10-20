@@ -10,6 +10,24 @@ records only what cherry-pickers must act on.
 
 ## v0.2.6 (current)
 
+### Phase 1: the engine is now one source
+
+- The engine moved to `engine/` at the repo root: `scripts/prerender.js`,
+  `scripts/inject-brand.js`, `scripts/validate-config.js`, `src/islands.js`,
+  `src/hooks/usePageMeta.js`, `vite.config.js` (init-only). `init/` and
+  `example/` copies are now **generated** by `node scripts/sync-engine.mjs` --
+  never edit them. CI verifies engine == init == example for 5 contract files.
+- **Fixed: `deployIdFooter: true` no longer breaks prerendering** (tracked as
+  W8). prerender's root-div injection is attribute-tolerant: any attributes
+  injected by inject-brand (e.g. `data-deploy-id-footer`) now survive onto the
+  prerendered pages.
+- **Fixed: template builds silently degraded to SPA on fresh installs.**
+  `init/` ships `vite.config.js` (missing plugin-react jsx automatic runtime),
+  and pins `react`/`react-dom` 18 + `react-router-dom` 6 as devDependencies --
+  react-router-dom v7 dropped the `./server.js` subpath the pipeline needs.
+  Cherry-pickers on v7: pin v6 or update your SSR entry.
+- `init/incremental.js` removed (dead stub; cache logic lives in prerender.js).
+
 ### Must-read for cherry-pickers
 
 - **`scripts/inject-brand.js` now reads `config.deployId` and `config.deployIdFooter`.**
