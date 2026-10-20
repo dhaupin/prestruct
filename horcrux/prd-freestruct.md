@@ -4,9 +4,12 @@
 **Authors:** prestruct agent session, on behalf of the owner.
 **Reads first:** freestruct README.md, CHANGELOG.md, issue tracker (#2-#8),
 docs/lib/inject.js, package.json.
-**Temp location note:** this file + freestruct-brain/ live in the prestruct
-repo's /horcrux folder only as a handoff mailbox. They belong in the vant
-install's models/private/freestruct/ (brain) and the freestruct repo (PRD).
+**Temp location note:** this PRD is the last piece still living in the
+prestruct repo's /horcrux folder as a handoff mailbox. The brain itself
+(identity/goals/start/progress/lessons) already moved into the vant install
+at models/private/freestruct/, and its public stone
+(freestruct-p_v5frogstone2026.svg) sits beside this file. The PRD belongs in
+the freestruct repo the moment the rehaul starts.
 
 ---
 
@@ -123,8 +126,53 @@ possible). Behavior parity is asserted by the fixture battery each step.
 4. **noindex in sitemap/RSS:** strict-honor by default, or flag-gated?
    (#5 owner call.)
 5. **search.json:** keep as opt-in or delete? (F12 / filed report.)
-6. **Stone password:** owner picks (separator-free, boot convention). The
-   brain's start.md shows the snapshot flow with `<password>` placeholder.
+6. **Stone password:** ~~owner picks~~ RESOLVED: owner picked
+   `v5frogstone2026` (separator-free boot convention). The stone is minted
+   and shipped: `horcrux/freestruct-p_v5frogstone2026.svg` in the prestruct
+   repo (temporary location until the freestruct repo exists as the stone's
+   home). Refresh it at pass end:
+
+   ```
+   cd /home/daytona/vant && node bin/vant.js snapshot --brain freestruct \
+     --output models/public/freestruct/boot/freestruct-p_v5frogstone2026.svg \
+     --password v5frogstone2026
+   ```
+
+   then copy the file to the repo horcrux/ (same name).
+
+---
+
+## 4.1 Path to v1.0.0 (approach steps)
+
+v1.0.0 is the REHAUL release, not the next patch. The prestruct path is the
+playbook, and its two owner-gate lessons transfer directly:
+
+1. **Finish Phases 0-2 first.** v1.0.0 earns "1" by semantics: real test
+   battery in CI, module decomposition, honest config contract. A version
+   number cannot make a monolith either of those.
+2. **Version truth in front, not behind:** tag the rehaul release as
+   `v1.0.0` the moment Phase 2 lands, with README/package.json/CHANGELOG
+   aligned by a CI pin (prestruct's test pin: root == template == stamp).
+   No more "README says 0.3.0, package.json says 0.3.2, nothing tag-able."
+3. **First publish is manual, exactly once.** npm OIDC/Trusted Publisher
+   cannot create a package; the bootstrap publish from a dev machine carries
+   no provenance (adding publishConfig.provenance: true breaks it - the
+   sigstore cert requires a CI identity). Prestruct published this exact
+   runbook: .github/workflows/publish.yml header in dhaupin/prestruct.
+4. **Then the Trusted-Publisher entry** (user dhaupin, repo freestruct,
+   workflow name). After it, every `v*` tag publishes with provenance
+   automatically; the runbook also gates "no tag until the engine is
+   proven by real installs."
+5. **Tarball e2e before the tag.** Fresh-machine install test (real npm
+   pack/install morphology, not repo runs) is the honest proof the quick
+   start works - prestruct's e2e caught bugs repo-shape tests cannot see
+   (CLI flag pass-through, npm-pack disk state, node_modules leakage).
+6. **Dormant-by-default release posture.** Ship the publish workflow merged
+   and inert (fires on v* tags only) so the owner-gate is a tag, not a
+   merge. No publish without the Phase 2 contract being green in CI.
+
+Conceptual readiness (doc truth, error taxonomy, docs-audit gates ported in
+Phase 3) rides along so the docs site passes the same gates at v1.0.0.
 
 ---
 
@@ -148,5 +196,9 @@ possible). Behavior parity is asserted by the fixture battery each step.
 - The prestruct rehaul playbook this PRD mirrors: prestruct labs/prd.md,
   AGENTS.md (lessons), and the ported docs-audit suite (scripts/check-*.cjs
   in the prestruct repo - copy targets for Phase 3).
-- Brain handoff package: horcrux/freestruct-brain/ (identity, goals, start,
-  progress, lessons) -> vant models/private/freestruct/.
+- Canonical brain: vant install models/private/freestruct/ (identity, goals,
+  start, progress, lessons) - updated at pass end and encoded into the
+  public stone horcrux/freestruct-p_v5frogstone2026.svg.
+- Publish-path precedent + release runbook prestruct shipped first:
+  dhaupin/prestruct .github/workflows/publish.yml (manual bootstrap ->
+  Trusted Publisher -> tag-driven publishes).
