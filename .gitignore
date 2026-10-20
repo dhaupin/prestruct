@@ -3,3 +3,5 @@ ssr.config.js
 
 # Prestruct cache (generated at build time)
 .prestruct/cache/
+# Dependencies (gitignored node_modules were committed earlier)
+node_modules/
