@@ -31,7 +31,7 @@ See [SCOPE.md](./SCOPE.md) for purpose and reach, [README.md](./README.md) for q
 ## Current (v1.0.0, unpublished)
 
 - [x] AI-first homepage
-- [x] Platform detection (config field)
+- [x] Platform detection (config field; validate-only -- cloudflare is the only host with generated files today)
 - [x] Tests + CI (vitest battery green)
 - [x] Incremental prerender (--force, --clean)
 - [x] fetchRoutes() hook docs
@@ -51,4 +51,4 @@ See [SCOPE.md](./SCOPE.md) for purpose and reach, [README.md](./README.md) for q
 
 ---
 
-_Generated: v0.2.6_
+_Generated: 1.0.0 state_

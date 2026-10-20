@@ -39,10 +39,10 @@ const TOOLS = [
     href: `https://developers.facebook.com/tools/debug/?q=${ENC}`,
   },
   {
-    label: 'twitter / x',
-    name: 'Card validator',
-    desc: 'Validates Twitter/X card meta tags and previews how your link will appear when shared.',
-    href: `https://cards-dev.twitter.com/validator`,
+    label: 'social',
+    name: 'Social card preview',
+    desc: 'Previews how your og: and twitter: card tags render when shared. X retired its official card validator, so social previews live here now.',
+    href: `https://metatags.io/?url=${ENC}`,
   },
   {
     label: 'crawl',

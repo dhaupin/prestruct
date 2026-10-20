@@ -13,7 +13,7 @@ Make your React app visible to search engines. Renders each route to static HTML
 - **Static prerender**: Every route → static HTML at build time
 - **Incremental builds**: Cache routes, rebuild only changed
 - **Dynamic islands**: Client-only `<pre-island>` placeholders  
-- **Multi-platform**: Cloudflare, Vercel, Netlify
+- **Cloudflare Pages first-class**: headers, redirects, immutable asset caching ship configured; any static host works on the plain dist/ output
 - **Optional proxy**: Bot-only rendering (VPS or CF Worker)
 
 See [PLAN.md](./PLAN.md) for roadmap.
@@ -23,7 +23,7 @@ See [PLAN.md](./PLAN.md) for roadmap.
 ## In Scope
 
 - Vite + React apps
-- Cloudflare Pages (primary), Vercel, Netlify
+- Cloudflare Pages (primary); any static host otherwise (platform config for Vercel/Netlify validates only -- no host-file generation yet)
 - React Router v6
 - Static routing (dynamic routes via fetchRoutes() hook)
 - Client-only dynamic content (islands)
