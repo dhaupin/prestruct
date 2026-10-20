@@ -376,7 +376,10 @@ export function generate404(shell, config, siteUrl) {
     '  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem">',
     `    <h1 style="font-size:2.5rem;font-weight:800;margin-bottom:1rem">${heading}</h1>`,
     `    <p style="max-width:480px;font-size:1.05rem;line-height:1.7;margin-bottom:2rem">${body}</p>`,
-    `    <a href="${primaryHref}" style="display:inline-flex;align-items:center;padding:0.75rem 1.75rem;background:#000;color:#fff;font-weight:700;font-size:0.9rem;letter-spacing:0.05em;text-transform:uppercase;border-radius:6px;text-decoration:none">${primaryLabel}</a>`,
+    // Theme-neutral CTA (#19): the filled `background:#000;color:#fff` button
+    // went invisible on dark themes (black fill on near-black pages). Text and
+    // outline now follow currentColor, so the CTA reads on any host theme.
+    `    <a href="${primaryHref}" style="display:inline-flex;align-items:center;padding:0.75rem 1.75rem;color:inherit;font-weight:700;font-size:0.9rem;letter-spacing:0.05em;text-transform:uppercase;border:2px solid currentColor;border-radius:6px;text-decoration:none">${primaryLabel}</a>`,
     '  </div>',
     '</div>',
   ]

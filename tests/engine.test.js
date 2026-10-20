@@ -146,6 +146,18 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).not.toContain('<script type="module"')
   })
 
+  it('404 CTA is theme-neutral (no hardcoded fill/color pair)', () => {
+    // #19: the filled black button was invisible on dark hosts. The CTA must
+    // draw its text AND outline from currentColor so it reads on any theme.
+    const shell = `<html><head><title>x</title></head><div id="root"></div></html>`
+    const html = generate404(shell, { siteName: 'Test' }, siteUrl)
+    expect(html).not.toMatch(/background:\s*#000/i)
+    expect(html).not.toMatch(/background:\s*#fff/i)
+    expect(html).toContain('color:inherit')
+    expect(html).toContain('border:2px solid currentColor')
+    expect(html).toContain('text-transform:uppercase') // CTA link exists
+  })
+
   it('html-escapes user-supplied notFound text (no script injection into static HTML)', () => {
     const shell = `<html><head><title>x</title></head><div id="root"></div></html>`
     const html = generate404(shell, {

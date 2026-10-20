@@ -10,6 +10,15 @@ records only what cherry-pickers must act on.
 
 ## v0.2.6 (current)
 
+### 404 CTA follows the host theme (visible fix for dark-mode owners)
+
+- The generated `404.html` CTA no longer hardcodes `background:#000;
+  color:#fff` -- that fill was invisible on dark-themed hosts (black fill on
+  a near-black page). The button now draws its text and 2px outline from
+  `currentColor`, so it reads on any theme the host shell sets. If you
+  cherry-picked `scripts/prerender.js`, re-copy or re-run the generator.
+  Layout and copy are unchanged; only the CTA's color source moved.
+
 ### Phase 2 scaffold: npm-ready packaging (dormant -- nothing published yet)
 
 - The repo root is now the npm package shape: "bin" (`prestruct` ->
