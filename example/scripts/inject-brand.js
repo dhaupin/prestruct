@@ -249,11 +249,18 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   let jsonLdBlock = ''
   if (typeof buildJsonLd === 'function') {
     const jsonLdData = buildJsonLd.call(config)
-    if (Array.isArray(jsonLdData) && jsonLdData.length > 0) {
-      // Wrap in @graph if multiple objects, or use directly if single
-      const payload = jsonLdData.length === 1
-        ? jsonLdData[0]
-        : { '@context': 'https://schema.org', '@graph': jsonLdData }
+    // Documented contract (ssr.config.example.js): accept a single bare
+    // object OR an array of objects. The array-only check used to silently
+    // drop the most common shape a consumer writes, while the config example
+    // promised object support -- caught in the crashtest vendored-copy diff.
+    const payload = Array.isArray(jsonLdData)
+      ? (jsonLdData.length === 0
+          ? null
+          : jsonLdData.length === 1
+            ? jsonLdData[0]
+            : { '@context': 'https://schema.org', '@graph': jsonLdData })
+      : (jsonLdData && typeof jsonLdData === 'object' ? jsonLdData : null)
+    if (payload) {
       jsonLdBlock = `
     <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
     <script type="application/ld+json">

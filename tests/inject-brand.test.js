@@ -326,3 +326,72 @@ describe('proxy config', () => {
     expect(config.proxy).toBeUndefined()
   })
 })
+
+describe('buildJsonLd contract (single object OR array of objects)', () => {
+  // The config example documents "a single object or array of objects" but the
+  // engine's array-only check silently dropped the bare-object shape -- the
+  // most common thing a consumer writes. Caught in the crashtest vendored-copy
+  // diff (their vendored inject-brand already accepted objects; the upstream
+  // refactor lost it). Ported upstream so their vendored copy can retire in
+  // place without regression.
+  function makeLdDist(root) {
+    mkdirSync(join(root, 'dist'), { recursive: true })
+    writeFileSync(join(root, 'dist', 'index.html'), `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Site</title>
+  <meta name="description" content="" />
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
+`, 'utf8')
+  }
+
+  function injectWithLd(root, buildJsonLd) {
+    makeLdDist(root)
+    injectBrand({ siteUrl: 'https://e2e.test', siteName: 'LD', author: 'L',
+      routes: [], buildJsonLd }, join(root, 'dist'), { getDeployId: () => 't' })
+    return readFileSync(join(root, 'dist', 'index.html'), 'utf8')
+  }
+
+  function ldPayload(html) {
+    const match = html.match(/<script type="application\/ld\+json">\n\s*([\s\S]*?)\n\s*<\/script>/)
+    expect(match).not.toBeNull()
+    return JSON.parse(match[1].replace(/\\u003c/g, '<'))
+  }
+
+  it('accepts a single bare object (the most common shape)', () => {
+    const html = injectWithLd(makeTempProject(), () => ({
+      '@type': 'WebSite', name: 'Bare',
+    }))
+    expect(ldPayload(html)).toEqual({ '@type': 'WebSite', name: 'Bare' })
+    expect(html).toContain('application/ld+json')
+  })
+
+  it('keeps a single-element array unwrapped (retained behavior)', () => {
+    const html = injectWithLd(makeTempProject(), () => [{ '@type': 'WebSite', name: 'One' }])
+    expect(ldPayload(html)).toEqual({ '@type': 'WebSite', name: 'One' })
+  })
+
+  it('wraps a multi-element array in @graph (retained behavior)', () => {
+    const html = injectWithLd(makeTempProject(), () => [
+      { '@type': 'WebSite', name: 'One' },
+      { '@type': 'Organization', name: 'Two' },
+    ])
+    const payload = ldPayload(html)
+    expect(payload['@context']).toBe('https://schema.org')
+    expect(payload['@graph']).toHaveLength(2)
+  })
+
+  it('skips an empty array silently (retained behavior)', () => {
+    const html = injectWithLd(makeTempProject(), () => [])
+    expect(html).not.toContain('application/ld+json')
+  })
+
+  it('ignores a non-object return (string) rather than injecting garbage', () => {
+    const html = injectWithLd(makeTempProject(), () => 'not-an-object')
+    expect(html).not.toContain('application/ld+json')
+  })
+})
