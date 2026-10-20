@@ -15,7 +15,8 @@
  *   1. Copy this file and ssr.config.js to your VPS.
  *   2. `npm install express puppeteer` (puppeteer downloads Chromium automatically).
  *   3. Set PRESTRUCT_SECRET env var to match config.proxy.secret.
- *   4. `node scripts/proxy.js` -- or use pm2 / systemd to keep it alive.
+ *   4. `node scripts/proxy.js` -- or use pm2 / systemd to keep it alive
+ *      (ecosystem.cjs and scripts/prestruct-proxy.service ship alongside).
  *   5. Reverse-proxy port 3000 (or $PORT) with nginx/caddy for TLS.
  *
  * Browser pooling:
@@ -32,6 +33,8 @@
  * Security:
  *   - Cache refresh requires a matching PRESTRUCT_SECRET. Without it, the header
  *     is ignored. An empty or null secret disables refresh entirely.
+ *   - The compare is constant-time (SHA-256 + timingSafeEqual) so response
+ *     timing cannot leak the secret one byte at a time.
  *   - Only GET requests are processed. All others return 405.
  *   - Request URL is validated before being passed to Puppeteer.
  *
@@ -39,48 +42,35 @@
  *   Set config.proxy.targetUrl to point the proxy at a different origin than
  *   siteUrl. Useful when the proxy sits in front of a separate backend (WordPress,
  *   a staging URL, or localhost:5173 for local dev). Defaults to siteUrl.
+ *
+ * Import safety (for tests):
+ *   The module exports createProxyApp(config) and is inert at import time --
+ *   config binding, server listening, and browser pre-warm only happen when
+ *   executed directly (same gate pattern as engine files). `puppeteer` is a
+ *   dynamic import inside getBrowser() so importing the module never pays the
+ *   cost of (or requires) Chromium.
  */
 
-import express       from 'express'
-import puppeteer     from 'puppeteer'
-import fs            from 'fs'
-import path          from 'path'
-import crypto        from 'crypto'
-import config        from '../ssr.config.js'
+import fs   from 'fs'
+import path from 'path'
+import crypto from 'crypto'
+import express from 'express'
+import { pathToFileURL } from 'url'
 
-const {
-  siteUrl,
-  proxy: proxyConfig = {},
-} = config
+// ── Runtime state (set by createProxyApp) ────────────────────────────────────
 
-// Validate required siteUrl
-if (!siteUrl) {
-  console.error('[proxy] siteUrl is required in ssr.config.js')
-  process.exit(1)
-}
+let TARGET_URL     = null
+let BOT_LIST       = []
+let SECRET_SHA256  = null
 
-const TARGET_URL   = (proxyConfig.targetUrl || siteUrl).replace(/\/$/, '')
+export const PORT = parseInt(process.env.PORT || '3000', 10)
 
-// Validate TARGET_URL is a valid URL
-try {
-  new URL(TARGET_URL)
-} catch (err) {
-  console.error('[proxy] Invalid targetUrl:', TARGET_URL)
-  process.exit(1)
-}
+// ── Secret compare (constant time) ───────────────────────────────────────────
+// Only honoured when a secret is configured and matches. Hash both sides to a
+// fixed length and use timingSafeEqual: response timing cannot distinguish a
+// matching prefix of the secret from a mismatching one.
 
-const CACHE_DIR    = path.resolve('.prestruct_cache')
-const CACHE_TTL    = 1000 * 60 * 60 * 24   // 24 hours -- adjust if needed
-const MAX_CACHE_SIZE = 500 * 1024 * 1024    // 500MB max cache size
-const PORT         = parseInt(process.env.PORT || '3000', 10)
-const SECRET       = process.env.PRESTRUCT_SECRET || null
-
-// Cache refresh -- only honoured when a secret is configured and matches.
-// Compare is constant-time: hash both sides to fixed length and use
-// timingSafeEqual, so response timing cannot leak the secret one byte at a
-// time.
-const SECRET_SHA256 = SECRET ? crypto.createHash('sha256').update(SECRET).digest() : null
-function secretMatches(headerValue) {
+export function secretMatches(headerValue) {
   if (!SECRET_SHA256 || headerValue == null) return false
   const provided = crypto.createHash('sha256').update(String(headerValue)).digest()
   return crypto.timingSafeEqual(SECRET_SHA256, provided)
@@ -88,15 +78,21 @@ function secretMatches(headerValue) {
 
 // ── Bot detection ─────────────────────────────────────────────────────────────
 
-const BOT_LIST = proxyConfig.botList || []
-
-function isBot(ua) {
+export function isBot(ua) {
   if (!ua) return false
-  const lower = ua.toLowerCase()
+  const lower = String(ua).toLowerCase()
   return BOT_LIST.some(token => lower.includes(token))
 }
 
 // ── Cache helpers ─────────────────────────────────────────────────────────────
+
+// Location override exists so CI/tests (and VPS layouts that mount cache
+// on a tmpfs or data disk) don't litter the process CWD. Without the override
+// the import-time mkdirSync left a directory behind in whatever directory
+// the module was imported from.
+const CACHE_DIR    = path.resolve(process.env.PRESTRUCT_CACHE_DIR || '.prestruct_cache')
+const CACHE_TTL    = 1000 * 60 * 60 * 24   // 24 hours -- adjust if needed
+const MAX_CACHE_SIZE = 500 * 1024 * 1024    // 500MB max cache size
 
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true })
 
@@ -129,17 +125,17 @@ function cleanupCache() {
   // Only run cleanup once per minute max
   if (now - lastCleanup < 60000) return
   lastCleanup = now
-  
+
   try {
     const files = fs.readdirSync(CACHE_DIR).map(f => {
       const p = path.join(CACHE_DIR, f)
       const stat = fs.statSync(p)
       return { path: p, size: stat.size, mtime: stat.mtimeMs }
     })
-    
+
     // Calculate total size
     let totalSize = files.reduce((sum, f) => sum + f.size, 0)
-    
+
     // If over limit, remove oldest files
     if (totalSize > MAX_CACHE_SIZE) {
       files.sort((a, b) => a.mtime - b.mtime)
@@ -161,6 +157,9 @@ let browser = null
 
 async function getBrowser() {
   if (browser) return browser
+  // Dynamic import: only the render path ever needs Puppeteer/Chromium, and
+  // importing the module must not require it (unit tests, CI shells).
+  const { default: puppeteer } = await import('puppeteer')
   browser = await puppeteer.launch({
     args: [
       '--no-sandbox',
@@ -195,16 +194,14 @@ async function render(targetFullUrl) {
   }
 }
 
-// ── Express app ───────────────────────────────────────────────────────────────
+// ── Render concurrency limit ────────────────────────────────────────────────
+// Max concurrent renders to prevent overwhelming the system.
 
-const app = express()
-
-// Limit concurrent rendering requests to prevent overwhelming the system
-const MAX_CONCURRENT = 5
+export const MAX_CONCURRENT = 5
 let activeRenders = 0
 const renderQueue = []
 
-async function withRenderLimit(fn) {
+export async function withRenderLimit(fn) {
   if (activeRenders < MAX_CONCURRENT) {
     activeRenders++
     try {
@@ -225,10 +222,16 @@ async function withRenderLimit(fn) {
     }
   }
   // Queue the request; rejection must propagate to the waiting caller
+  // (the old form swallowed rejections and left the caller's promise forever
+  // pending).
   return new Promise((resolve, reject) => {
     renderQueue.push(() => { withRenderLimit(fn).then(resolve, reject) })
   })
 }
+
+// ── Express app ───────────────────────────────────────────────────────────────
+
+const app = express()
 
 // Only GET -- proxying other methods through Puppeteer is meaningless
 app.all('*', (req, res, next) => {
@@ -283,19 +286,79 @@ app.get('*', async (req, res) => {
   }
 })
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Configuration + startup ──────────────────────────────────────────────────
+// createProxyApp binds a validated config to the shared app and returns it, so
+// tests (or embedding hosts) can drive the pipeline without opening a port.
+// Startup validation applies the same rules the old top-level code enforced.
 
-app.listen(PORT, () => {
-  console.log(`[proxy] Prestruct proxy listening on port ${PORT}`)
-  console.log(`[proxy] Target: ${TARGET_URL}`)
-  if (!SECRET) {
-    console.warn('[proxy] PRESTRUCT_SECRET not set -- cache refresh disabled')
+export function createProxyApp(config) {
+  const proxyConfig = (config && config.proxy) || {}
+
+  if (!config || !config.siteUrl) {
+    throw new Error('[proxy] siteUrl is required in ssr.config.js')
   }
-})
 
-// Pre-warm the browser so the first bot request doesn't cold-start Chromium
-getBrowser().then(() => {
-  console.log('[proxy] Browser ready')
-}).catch(err => {
-  console.error('[proxy] Browser pre-warm failed:', err.message)
-})
+  TARGET_URL = (proxyConfig.targetUrl || config.siteUrl).replace(/\/$/, '')
+
+  // Validate TARGET_URL is a valid URL
+  try {
+    new URL(TARGET_URL)
+  } catch (err) {
+    throw new Error(`[proxy] Invalid targetUrl: ${TARGET_URL}`)
+  }
+
+  BOT_LIST = proxyConfig.botList || []
+
+  const secret = process.env.PRESTRUCT_SECRET || null
+  SECRET_SHA256 = secret
+    ? crypto.createHash('sha256').update(secret).digest()
+    : null
+
+  return app
+}
+
+// ── CLI entry ────────────────────────────────────────────────────────────────
+// Only runs when executed directly (node scripts/proxy.js) -- never on import.
+// Same gate pattern as engine files.
+
+export function isMainExecute() {
+  try {
+    return import.meta.url === pathToFileURL(process.argv[1] || '').href
+  } catch {
+    return false
+  }
+}
+
+async function main() {
+  let config = null
+  try {
+    config = (await import('../ssr.config.js')).default
+  } catch (err) {
+    console.error('[proxy] Could not load ssr.config.js:', err.message)
+    process.exit(1)
+  }
+
+  const server = createProxyApp(config)
+
+  server.listen(PORT, () => {
+    console.log(`[proxy] Prestruct proxy listening on port ${PORT}`)
+    console.log(`[proxy] Target: ${TARGET_URL}`)
+    if (!SECRET_SHA256) {
+      console.warn('[proxy] PRESTRUCT_SECRET not set -- cache refresh disabled')
+    }
+  })
+
+  // Pre-warm the browser so the first bot request doesn't cold-start Chromium
+  getBrowser().then(() => {
+    console.log('[proxy] Browser ready')
+  }).catch(err => {
+    console.error('[proxy] Browser pre-warm failed:', err.message)
+  })
+}
+
+if (isMainExecute()) {
+  main().catch(err => {
+    console.error('[proxy] Fatal:', err.message)
+    process.exit(1)
+  })
+}

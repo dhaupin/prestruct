@@ -46,12 +46,18 @@
  *   if you customise either. The Worker has no access to your build-time config.
  *
  * Security:
- *   - Cache refresh requires the PRESTRUCT_SECRET value in x-prestruct-refresh.
+ *   - Cache refresh requires the PRESTRUCT_SECRET value in x-prestruct-refresh,
+ *     compared with a full-length constant-time XOR (see refreshSecretMatches).
  *   - Only GET requests are processed. Others return 405.
  *   - Target URL is validated before passing to the browser.
+ *
+ * Import safety (for tests):
+ *   `@cloudflare/puppeteer` is loaded lazily inside the render step, so
+ *   importing this module -- in unit tests, CI, or a bundler -- never requires
+ *   the package. Only requests that actually need a rendered page pay for it.
+ *   The exported helpers (isBot, cacheKey, refreshSecretMatches) are pure and
+ *   run in any JS runtime, not just Workers.
  */
-
-import puppeteer from '@cloudflare/puppeteer'
 
 // Keep this in sync with config.proxy.botList in ssr.config.js
 const BOT_LIST = [
@@ -70,15 +76,37 @@ const BOT_LIST = [
   'whatsapp',
 ]
 
-function isBot(ua) {
+export function isBot(ua) {
   if (!ua) return false
-  const lower = ua.toLowerCase()
+  const lower = String(ua).toLowerCase()
   return BOT_LIST.some(token => lower.includes(token))
 }
 
-function cacheKey(url) {
+export function cacheKey(url) {
   // KV key: simple prefix + encoded path. Max 512 bytes, URL-safe.
   return `prestruct:${encodeURIComponent(url)}`
+}
+
+// ── Secret compare (constant time) ───────────────────────────────────────────
+// Workers cannot import node:crypto, so there is no timingSafeEqual here.
+// The XOR form is the standard constant-time comparator available in any
+// runtime: every byte of both inputs is read and folded into one accumulator,
+// regardless of where (or whether) they differ. The result depends only on
+// whether the strings are equal -- never on how far in they diverge.
+//
+// Note: the return value requires BOTH equal content and equal byte length.
+// A differing length never matches, but its comparison still burns the same
+// work as an equal-length mismatch (full loop over the longer string).
+export function refreshSecretMatches(secret, headerValue) {
+  if (secret == null || secret === '' || headerValue == null) return false
+  const a = new TextEncoder().encode(String(secret))
+  const b = new TextEncoder().encode(String(headerValue))
+  let diff = a.length ^ b.length
+  const len = Math.max(a.length, b.length)
+  for (let i = 0; i < len; i++) {
+    diff |= (a[i % a.length] || 0) ^ (b[i % b.length] || 0)
+  }
+  return diff === 0
 }
 
 export default {
@@ -112,26 +140,12 @@ export default {
       return Response.redirect(targetFullUrl, 302)
     }
 
-    // Cache refresh check. Subtle-timing-safe: XOR every byte of two SHA-256
-    // digests (fixed length), so response timing reveals nothing about the
-    // secretWorkers cannot import node:crypto -- the XOR form is the standard
-    // Workers-compatible constant-time compare.
+    // Cache refresh check. Constant-time compare (see refreshSecretMatches):
+    // response timing reveals nothing about where the submitted token diverges
+    // from the secret.
     const SECRET       = env.PRESTRUCT_SECRET || null
     const refreshToken = request.headers.get('x-prestruct-refresh')
-    let forceRefresh = false
-    if (SECRET && refreshToken) {
-      const enc     = new TextEncoder()
-      const a       = enc.encode(SECRET)
-      const b       = enc.encode(refreshToken)
-      let diff      = a.length ^ b.length
-      const len     = Math.max(a.length, b.length)
-      if (len > 0) {  // avoid a zero-length loop branch; both are >= 1 byte here
-        for (let i = 0; i < len; i++) {
-          diff |= (a[i % a.length] || 0) ^ (b[i % b.length] || 0)
-        }
-      }
-      forceRefresh = diff === 0
-    }
+    const forceRefresh = refreshSecretMatches(SECRET, refreshToken)
 
     const TTL = parseInt(env.CACHE_TTL_SECONDS || '86400', 10)
     const key = cacheKey(requestUrl.pathname + requestUrl.search)
@@ -152,12 +166,15 @@ export default {
       }
     }
 
-    // Render via Browser Rendering API
+    // Render via Browser Rendering API. The binding is imported lazily so the
+    // module (and its unit tests) never require the @cloudflare/puppeteer
+    // package -- only the render path does.
     let html
     let browser
     let page
     try {
-      browser = await puppeteer.launch(env.BROWSER)
+      const { default: workerPuppeteer } = await import('@cloudflare/puppeteer')
+      browser = await workerPuppeteer.launch(env.BROWSER)
       page    = await browser.newPage()
       await page.setViewport({ width: 1280, height: 800 })
       await page.setExtraHTTPHeaders({ 'X-Prestruct-Proxy': 'true' })

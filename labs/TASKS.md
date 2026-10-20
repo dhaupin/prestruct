@@ -474,3 +474,71 @@ inject-brand only touches connect-src with an origin allow-list pattern.
 
 **Verified:** node --check on both proxy files; vitest 82/82; sync check 5/5
 byte-identical (proxy files intentionally outside the contract list).
+
+---
+
+## Pass 11 - Proxy unit battery + live timing harness (express/puppeteer installed)
+
+Post-pass-10 follow-through: the three security fixes had no execute-able
+proof because both proxy files bound express/puppeteer at import time and the
+repo had neither dep. Fixed the shape, then tested.
+
+**Import safety (gate + lazy imports), matching the engine-file convention:**
+
+- `init/scripts/proxy.js`: `createProxyApp(config)` + `isMainExecute()` gate;
+  config binding, listen, browser pre-warm only on direct execution;
+  `secretMatches`/`isBot`/`withRenderLimit`/`MAX_CONCURRENT` exported.
+- `init/scripts/proxy.worker.js`: top-level `import '@cloudflare/puppeteer'
+  REMOVED - lazy dynamic import inside the render step (unit tests import the
+  module without the package); `refreshSecretMatches`/`isBot`/`cacheKey`
+  extracted and exported; verified `import()` succeeds with the package
+  absent (which the static import failed).
+- `PRESTRUCT_CACHE_DIR` env override for the VPS proxy's import-time
+  `mkdirSync('.prestruct_cache')` (tests/CI no longer litter the CWD); added
+  `.prestruct_cache/` to .gitignore as belt-and-braces.
+
+**Tests: `tests/proxy.test.js` (20 tests, battery now 102/102)**
+
+- withRenderLimit queue: saturates exactly at MAX_CONCURRENT and never
+  exceeds under 40-job overflow (the pass-10 unbounded-concurrency bug can
+  not regenerate); queued rejections propagate instead of hanging callers;
+  immediate-path rejections propagate too.
+- VPS `secretMatches`: exact match true; wrong first/middle/last byte,
+  longer/shorter token, empty/null header all false; NO secret configured ->
+  false for everything (feature-off, not allow-all).
+- Worker `refreshSecretMatches`: same candidate set, and results are pinned
+  EQUAL to the VPS comparator's on identical inputs (parity test).
+- Worker helpers: cacheKey determinism + URL-safety, isBot list, default
+  export shape.
+
+**Live timing harness: `tests/timing-harness.mjs` (run manually, not in the
+battery - statistical results):**
+
+- Layer A (hrtime, interleaved-batch microbench, 120x256 samples/candidate,
+  6 candidate tokens diverging at different offsets):
+  - VPS fixed comparator: FLAT - all |t| <= 0.42 vs correct, medians ~1.35us.
+  - Worker fixed comparator: FLAT - all |t| <= 0.94, medians ~1.15us.
+  - naive `===` control (the old code shape): DISTINGUISHABLE - t = 86.8 on
+    the wrong-first-byte token, t = 8.1-10.4 on length variants: the early-
+    exit leak shape is REAL and measurable at nanosecond granularity. This is
+    the empirical proof for pass 10's fix #2, before vs after.
+- Layer B (real TCP socket): an amplified naive control (sleep proportional
+  to matched prefix) is DETECTED by the harness end-to-end (methodology has
+  signal); the REAL VPS app over real sockets is below-threshold across all
+  candidates (p50 ~0.7-0.8ms; network jitter, not gate timing, dominates).
+  Two harness verdict bugs were found and fixed during bring-up: leak
+  detection direction (correct token is the slow one under naive prefix
+  compares - detection must be symmetric), and a vacuous baseline
+  (`entries.find(...)[1]` is the array, `.p50` was undefined -> everything
+  below-threshold, B2's first PASS was hollow).
+
+**Honest limitations:** the wrong-middle naive token stays undetectable in
+this V8 build (~same ns cost as full compare) - naive-=== characterization,
+not a claim about the fix; the Worker's fetch handler needs the Workers
+runtime and is covered by comparator-level tests only (same limitation shape
+as documented in pass 10). Harness is deliberately not a CI test: machine
+noise makes hard statistical thresholds flaky; the vitest battery covers the
+behavioral logic deterministically.
+
+**Verified:** vitest 102/102 (was 82; +20 proxy tests); sync check 5/5;
+`node --check` on all touched js; harness OVERALL PASS exit 0.
