@@ -1,7 +1,9 @@
 # AGENTS.md: Prestruct
 
 Engineering history and hard-won decisions. Written for an AI agent (or human)
-picking this up cold. Read before touching anything.
+picking this up cold. Read before touching anything. Every pattern here was
+debugged against real CF Pages deployments across two production apps;
+nothing is theoretical.
 
 **Also read:** `CONTENT.md` before writing any copy, documentation, or code
 comments. It covers tone, voice, formatting, naming, and what to avoid.
@@ -21,8 +23,47 @@ build-time `fetchRoutes()` hook); client-only dynamic content (islands).
 server-side frameworks; edge runtime; CMS out of the box (static config or
 fetchRoutes() only).
 
-Every pattern here was debugged against real CF Pages deployments across two
-production apps. Nothing is theoretical.
+---
+
+## Getting started (contributor wake-up)
+
+prestruct ships as open source (Fair-Code terms: LICENSE + LEGAL.md). Humans
+and agents contribute the same way. Cold-start order:
+
+1. Read this file (history + rules). Skip nothing that contradicts you.
+2. `labs/prd.md` -- roadmap. Work belongs to a phase; new work enters as a
+   PRD row first.
+3. `labs/TASKS.md` -- pass log, newest on top. Record what you did, what you
+   learned, what the next pass should pick up.
+4. Agents: boot the brain stone for project history -- `horcrux/README.md`
+   (the boot password lives in the filename; see that file for the flow).
+5. Pull requests: the detailed fork/clone review flow lives in
+   `docs/guides/contributing.md`.
+
+**Setup (Node >= 18):**
+
+```bash
+npm install
+npx vitest run            # the test battery
+```
+
+**Gates before every push (CI runs the same set):**
+
+```bash
+npx vitest run            # engine + template + proxy battery
+npm run sync:check        # engine -> init -> example byte-identity
+npm run lint:docs         # docs style/links/frontmatter/truthfulness
+npm run lint:claims       # fiction-signature scan
+```
+
+**Working rules the gates pin down:**
+
+- Engine changes go in `engine/` only, then `node scripts/sync-engine.mjs`.
+  Never hand-edit `init/` or `example/` copies; they are generated.
+- Docs copy follows `CONTENT.md` (no marketing terms, no emoji in prose,
+  no unverifiable claims).
+- Template-behavior changes prove themselves end to end: `npm run e2e`
+  packs the package and builds a fresh project from the tarball.
 
 ---
 
@@ -370,11 +411,12 @@ docs/guides/config.md). Incremental prerender below remains open.
 
 The proxy ships as two separate files targeting two deployment environments:
 
-- `scripts/proxy.js` -- Node.js / Express / Puppeteer for VPS
-- `scripts/proxy.worker.js` -- Cloudflare Worker via Browser Rendering API
+- `init/scripts/proxy.js` -- Node.js / Express / Puppeteer for VPS
+- `init/scripts/proxy.worker.js` -- Cloudflare Worker via Browser Rendering API
 
 Both read `config.proxy` from `ssr.config.js` for shared settings (botList,
-targetUrl, secret). Bot detection logic and the cache-refresh contract are
+targetUrl -- the refresh secret is the `PRESTRUCT_SECRET` env var, not a
+config key). Bot detection logic and the cache-refresh contract are
 identical across both. The only structural difference is how they store cached
 HTML: the VPS version writes to disk, the Worker version uses KV.
 
@@ -588,7 +630,9 @@ var url = data.url && data.url.startsWith(baseurl)
 - The only network request is fetching the index chunks from the same origin
 - No authentication or CORS concerns since everything is static
 
-## Docs header layout (flexbox ordering)
+---
+
+## Docs frame: header layout + accordion
 
 Desktop layout with wordmark → nav → actions (search/theme):
 
@@ -603,7 +647,7 @@ Submenu accordion behavior:
 - `this.parentElement.parentElement.querySelectorAll('.nav-folder.open')` finds siblings
 - Toggle class: if already open, closes it; if closed, opens it
 
-### Future work
+**Future work (docs frame + search):**
 
 - Add keyboard navigation (arrow keys + Enter) to search results
 - Consider highlighting matched terms in results
@@ -655,13 +699,18 @@ export default {
 - Runs at build time only, no runtime overhead
 - Works with any data source (CMS, API, file, database)
 
-**Route merge example:**
+**Route merge example (static wins):**
 
 ```js
-const allRoutes = [...staticRoutes, ...fetchedRoutes]
-const byPath = new Map(allRoutes.map(r => [r.path, r]))
-const routes = [...byPath.values()]
+const out = new Map(staticRoutes.map(r => [r.path, r]))
+for (const r of fetchedRoutes) {
+  if (!out.has(r.path)) out.set(r.path, r) // static keeps precedence AND position
+}
+const routes = [...out.values()]
 ```
+
+A plain rebuild of `new Map([...staticRoutes, ...fetchedRoutes])` would let
+fetched entries overwrite static ones -- same collision, opposite contract.
 
 **AI agent tip:** Use fetchRoutes() to pull dynamic routes from headless CMS (Sanity, Contentful, Strapi, etc.) at build time. Renders to static HTML - no runtime CMS calls needed.
 
