@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { execSync } from 'node:child_process'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { join } from 'node:path'
 
 const SYNCED_FILES = [
   'scripts/inject-brand.js',
@@ -18,17 +18,51 @@ test('engine files stay synced between init and example', () => {
   }
 })
 
-test('code imports react-router-dom/server.js with explicit extension', () => {
-  const cmd = String.raw`rg --pcre2 -n "react-router-dom/server(?!\\.js)" -g '*.js' -g '*.jsx' -g '*.mjs' -g '*.cjs' init example`
+// Engine sources must equal their generated init/ copies byte-for-byte.
+// scripts/sync-engine.mjs is the generator; an engine file edited after the
+// last generation lands here instead of hiding inside the sync workflow.
+const ENGINE_MAP = [
+  ['engine/scripts/inject-brand.js', 'init/scripts/inject-brand.js'],
+  ['engine/scripts/prerender.js', 'init/scripts/prerender.js'],
+  ['engine/scripts/validate-config.js', 'init/scripts/validate-config.js'],
+  ['engine/src/hooks/usePageMeta.js', 'init/src/hooks/usePageMeta.js'],
+  ['engine/src/islands.js', 'init/src/islands.js'],
+]
 
-  let output = ''
-  try {
-    output = execSync(cmd, { encoding: 'utf8' })
-  } catch (error) {
-    output = error.stdout || ''
+test('init copies match their engine sources byte-for-byte', () => {
+  for (const [enginePath, initPath] of ENGINE_MAP) {
+    expect(readFileSync(initPath, 'utf8')).toBe(readFileSync(enginePath, 'utf8'))
+  }
+})
+
+test('code imports react-router-dom/server.js with explicit extension', () => {
+  // Pure-JS scan (no external rg dependency, no PCRE2 availability games --
+  // the previous rg --pcre2 version passed vacuously wherever rg was missing).
+  // Mirrors the AGENTS.md gotcha: bare react-router-dom/server breaks CF
+  // Pages' Node ESM resolver.
+  const dirs = ['engine', 'init', 'example']
+  const extensions = ['.js', '.jsx', '.mjs', '.cjs']
+  const offenders = []
+
+  function walk(dir) {
+    for (const entry of readdirSync(dir)) {
+      if (entry === 'node_modules' || entry === 'dist' || entry === '.prestruct') continue
+      const full = join(dir, entry)
+      const st = statSync(full)
+      if (st.isDirectory()) {
+        walk(full)
+      } else if (st.isFile() && extensions.some(ext => entry.endsWith(ext))) {
+        const text = readFileSync(full, 'utf8')
+        for (const m of text.matchAll(/(['"])react-router-dom\/server(?!\.js)\1/g)) {
+          offenders.push(`${full}: ${m[0]}`)
+        }
+      }
+    }
   }
 
-  expect(output.trim()).toBe('')
+  for (const dir of dirs) walk(dir)
+
+  expect(offenders).toEqual([])
 })
 
 test('release workflow packages only init starter files', () => {
