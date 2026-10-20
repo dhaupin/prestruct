@@ -9,11 +9,7 @@ See [SCOPE.md](./SCOPE.md) for purpose and reach, [README.md](./README.md) for q
 - [README.md](./README.md) - Quick start
 - [SCOPE.md](./SCOPE.md) - What it is
 - [AGENTS.md](./AGENTS.md) - AI patterns
-- [CONTENT.md](./CONTENT.md) - Writing style
-
-| Feature | Files | P1/P2 | Notes |
-|---------|-------|------|-------|
-| CLI scaffold | npx prestruct init | P1 | Copy init/ files to project |
+- [CONTENT.md](./CONTENT.md) - Writing style| Feature | Files | P1/P2 | Notes ||---------|-------|------|-------|| Engine single source | scripts/sync-engine.mjs copies init -> example | P1 | Done in v0.2.6; init/ is the source of truth || CLI scaffold | npx prestruct init | P1 | Copy init/ files to project |
 | Config validation | validate in scripts/ | P1 | Emit clear errors |
 | Dynamic routes | fetchRoutes() in config | P1 | Already documented |
 | Per-route og:image | meta.ogImage per route | P1 | Already works |

@@ -37,6 +37,6 @@ jobs:
           done
 
           if [ "$mismatch" -ne 0 ]; then
-            echo "Engine sync check failed. Run the sync workflow or copy init files into example."
+            echo "Engine sync check failed. Fix init/ then run: node scripts/sync-engine.mjs"
             exit 1
           fi

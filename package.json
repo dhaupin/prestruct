@@ -1,6 +1,6 @@
 {
   "name": "prestruct",
-  "version": "1.0.0",
+  "version": "0.2.6",
   "description": "**AI-first SEO prerender for Vite + React apps.** Drop in, config, build.",
   "main": "eslint.config.js",
   "directories": {
@@ -11,7 +11,9 @@
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "sync": "node scripts/sync-engine.mjs",
+    "sync:check": "node scripts/sync-engine.mjs check"
   },
   "devDependencies": {
     "vitest": "^2.1.0"

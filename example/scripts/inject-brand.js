@@ -13,6 +13,14 @@
  *   - JSON-LD structured data (from config.buildJsonLd())
  *   - <meta name="deploy-id"> with build identifier
  *
+ * Deploy ID behavior (see init/ssr.config.example.js):
+ *   - deployId: true        -- inject <meta name="deploy-id"> (default: true)
+ *   - deployIdFooter: false -- show deploy ID in the app footer via
+ *                              data-deploy-id-footer on the root div.
+ *                              Opt-in (default: false). Requires client-side
+ *                              JS that reads the attribute (see example
+ *                              src/AppLayout.jsx footer implementation).
+ *
  * If config.proxy.url is set, also updates dist/_headers to add the proxy
  * origin to connect-src. This is done precisely: it finds the existing
  * connect-src directive and appends only if the origin isn't already there.
@@ -95,10 +103,9 @@ let html = readFileSync(htmlPath, 'utf8')
 
 // ── Deploy ID ───────────────────────────────────────────────────────────────────
 
-// Check if deploy ID feature is enabled (default: true)
+// Deploy ID meta tag is on by default. Footer display is opt-in (default false).
 const deployIdEnabled = config.deployId !== false
-// Check if footer display is enabled (default: true)
-const showFooter = config.deployIdFooter !== false
+const showFooter = config.deployIdFooter === true
 
 if (deployIdEnabled) {
   const deployId = getDeployId()
@@ -110,17 +117,20 @@ if (deployIdEnabled) {
   // Inject deploy-id meta tag
   html = html.replace('</head>', `  <meta name="deploy-id" content="${deployId}" />
 </head>`)
-
-  if (showFooter) {
-    // Add data attribute to root div for client-side footer display
-    html = html.replace(/<div id="root"/, '<div id="root" data-deploy-id-footer')
-  }
 } else {
   // Remove any existing deploy-id meta tag if disabled
   html = html.replace(/<meta name="deploy-id"[^>]*>/g, '')
+  console.log('  Deploy ID: disabled')
+}
+
+// Footer attribute is separate from the meta tag: applied when opted in,
+// stripped when not (safe to run on rebuild either way).
+if (showFooter) {
+  // Add data attribute to root div for client-side footer display
+  html = html.replace(/<div id="root"/, '<div id="root" data-deploy-id-footer')
+} else {
   // Remove footer data attribute if present
   html = html.replace(/ data-deploy-id-footer/g, '')
-  console.log('  Deploy ID: disabled')
 }
 
 // ── Primary meta ──────────────────────────────────────────────────────────────
@@ -233,7 +243,11 @@ if (proxy?.url && existsSync(headersPath)) {
   }
 }
 
-// ── Inject deploy ID into prerendered route pages ───────────────────────────────
+// ── Inject footer attribute into prerendered route pages ───────────────────────
+// NOTE: runs at inject-brand time, so only existing dist/<route>/index.html
+// files (e.g. from a previous build or manual prerender) get the attribute.
+// Prerender.js runs AFTER this script and writes fresh route pages from the
+// shell -- pages created by this build's prerender step are NOT covered here.
 
 if (deployIdEnabled && showFooter) {
   // Find all prerendered HTML files in subdirectories
