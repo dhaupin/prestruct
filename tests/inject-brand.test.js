@@ -260,70 +260,26 @@ describe('findRoute', () => {
   })
 })
 
-describe('ssr.config.js validation', () => {
-  it('validates required fields', () => {
-    const config = {
-      siteUrl: 'https://example.com',
-      siteName: 'Test Site',
-      routes: [{ path: '/', priority: '1.0', meta: {} }],
-    }
+describe('config pass-through contract (real validateConfig validation lives in engine.test.js)', () => {
+  // Audit cleanup 2026-10-21: the three describes that lived here before
+  // ("ssr.config.js validation", "404 config", "proxy config") tested local
+  // literal objects against themselves -- zero engine code — and the proxy
+  // block carried the retired `config.proxy.secret` key that no shipped code
+  // reads. What inject-brand.js actually consumes from config is platform
+  // (default cloudflare) and deployId; the REAL validateConfig checks are
+  // pinned in tests/engine.test.js. These tests pin what this module does:
+  // unknown/extra config keys ride along harmlessly.
 
-    expect(config.siteUrl).toBeDefined()
-    expect(config.siteName).toBeDefined()
-    expect(config.routes).toBeDefined()
-    expect(config.routes.length).toBeGreaterThan(0)
-  })
+  it('does not consume notFound or proxy keys (pass through untouched)', () => {
+    const root = makeTempProject()
+    mkdirSync(join(root, 'dist'), { recursive: true })
+    writeFileSync(join(root, 'dist', 'index.html'), `<!DOCTYPE html>
+<html><head><title>x</title></head><body><div id="root"></div></body></html>`, 'utf8')
 
-  it('validates route structure', () => {
-    const route = { path: '/', priority: '1.0', meta: { title: 'Test' } }
-
-    expect(route.path).toMatch(/^\//)
-    expect(route.priority).toMatch(/^[0-1]\.[0-9]/)
-    expect(route.meta).toBeDefined()
-  })
-
-  it('validates platform field', () => {
-    const validPlatforms = ['cloudflare', 'vercel', 'netlify']
-
-    expect(validPlatforms).toContain('cloudflare')
-    expect(validPlatforms).toContain('vercel')
-    expect(validPlatforms).toContain('netlify')
-  })
-})
-
-describe('404 config', () => {
-  it('validates notFound structure', () => {
-    const notFound = {
-      heading: 'Page not found',
-      body: "That page doesn't exist.",
-      primaryCta: { label: 'Go home', href: '/' },
-    }
-
-    expect(notFound.heading).toBeDefined()
-    expect(notFound.body).toBeDefined()
-    expect(notFound.primaryCta).toBeDefined()
-    expect(notFound.primaryCta.href).toBe('/')
-  })
-})
-
-describe('proxy config', () => {
-  it('validates proxy structure when present', () => {
-    const proxy = {
-      url: 'https://proxy.example.com',
-      secret: 'test-secret',
-      targetUrl: 'https://staging.example.com',
-      botList: ['Googlebot', 'Bingbot'],
-    }
-
-    expect(proxy.url).toMatch(/^https?:\/\//)
-    expect(proxy.botList).toBeInstanceOf(Array)
-    expect(proxy.botList.length).toBeGreaterThan(0)
-  })
-
-  it('allows proxy to be undefined', () => {
-    const config = {}
-
-    expect(config.proxy).toBeUndefined()
+    expect(() => injectBrand({
+      siteUrl: 'https://e2e.test', siteName: 'S', author: 'A', routes: [],
+      notFound: { heading: 'x' }, proxy: { url: 'https://p.test', botList: ['B'] },
+    }, join(root, 'dist'), { getDeployId: () => 't' })).not.toThrow()
   })
 })
 

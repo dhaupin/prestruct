@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { replaceRootDiv, injectMeta, generateSitemap, generate404, loadStaticRouter, mergeRoutes } from '../engine/scripts/prerender.js'
-import { validateConfig, formatDiagnostics } from '../engine/scripts/validate-config.js'
+import { join } from 'node:path'
+import { replaceRootDiv, injectMeta, generateSitemap, generate404, loadStaticRouter, mergeRoutes, enginePaths, readCache, writeCache } from '../engine/scripts/prerender.js'
+import { validateConfig, formatDiagnostics, defineConfig } from '../engine/scripts/validate-config.js'
 import { toReplaceSafe, generateTitle } from '../engine/scripts/inject-brand.js'
 
 /**
@@ -255,5 +256,52 @@ describe('cleanCache', () => {
     cleanCache({ cacheFile })
     expect(JSON.parse(readFileSync(cacheFile, 'utf8'))).toEqual({})
     rmSync(dir, { recursive: true, force: true })
+  })
+})
+
+describe('engine cache-module surface (gap audit 2026-10-21)', () => {
+  // These four exports had heavy indirect coverage through the prerender
+  // pipeline but no direct contract: enginePaths shape, readCache miss
+  // behavior, and the read/write roundtrip. cleanCache was already pinned.
+
+  it('enginePaths derives dist and cache paths from root', () => {
+    const p = enginePaths('/tmp/whatever-root')
+    expect(p).toEqual({
+      root: '/tmp/whatever-root',
+      dist: '/tmp/whatever-root/dist',
+      cacheDir: '/tmp/whatever-root/.prestruct/cache',
+      cacheFile: '/tmp/whatever-root/.prestruct/cache/routes.json',
+    })
+  })
+
+  it('readCache returns {} for a missing cache file (no throw)', () => {
+    expect(readCache({ cacheFile: '/nonexistent-definitely/routes.json' })).toEqual({})
+  })
+
+  it('readCache returns {} for a corrupt cache file instead of crashing', async () => {
+    const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const dir = mkdtempSync(join(tmpdir(), 'cache-corrupt-'))
+    const file = join(dir, 'routes.json')
+    writeFileSync(file, '{not json')
+    expect(readCache({ cacheFile: file })).toEqual({})
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('writeCache -> readCache roundtrip persists entries', async () => {
+    const { mkdtempSync, rmSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const dir = mkdtempSync(join(tmpdir(), 'cache-roundtrip-'))
+    const p = enginePaths(dir)
+    writeCache({ '/a': { sig: 'x', html: 'y' } }, { cacheDir: p.cacheDir, cacheFile: p.cacheFile })
+    expect(readCache({ cacheFile: p.cacheFile })).toEqual({ '/a': { sig: 'x', html: 'y' } })
+    rmSync(dir, { recursive: true, force: true })
+  })
+})
+
+describe('defineConfig + config extras (gap audit 2026-10-21)', () => {
+  it('defineConfig is an identity pass-through (typed-config DX)', () => {
+    const cfg = { siteUrl: 'https://x.com', routes: [{ path: '/' }] }
+    expect(defineConfig(cfg)).toBe(cfg)
   })
 })
