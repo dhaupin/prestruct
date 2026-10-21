@@ -8,6 +8,39 @@ records only what cherry-pickers must act on.
 
 ---
 
+## v1.1.0 (unreleased -- main is ahead by these)
+
+### Deep engine imports are now part of the exports contract
+
+- `package.json` exports map adds `prestruct/hooks` (usePageMeta),
+  `prestruct/islands` (mountIslands), and a `prestruct/engine/*` passthrough
+  so every engine file is importable without re-publishing a spec entry.
+  Previously only `.`/`bin`/`prerender`/`inject-brand`/`validate-config`
+  exported; deep paths failed with `Missing specifier in "prestruct"
+  package`. Verified against the packed tarball (still 35 files). The docs
+  default stays the scaffold-relative import (`../hooks/usePageMeta.js`) --
+  the deep form is for host projects that want to pin to the package.
+
+### Release archive is correct and self-testing
+
+- The v1.0.0 GitHub release zip shipped a test battery that could not run:
+  repo tests import `../engine/...`, which does not exist inside the
+  template. `release.yml` now remaps those imports to the template layout,
+  injects the full test devDependency set (react, react-dom,
+  react-router-dom, vite, vitest, happy-dom, express, puppeteer), and runs
+  the battery inside `init/` BEFORE the archive is built -- a release can
+  no longer ship a dead test suite. Battery proven 136/136 inside the
+  rebuilt zip.
+- Archive hygiene: `node_modules/`, `dist/`, `.prestruct/`, and the stale
+  `package-lock.json` are stripped before zipping, tests + e2e/timing
+  helpers are copied in, and guardrails assert `tests/engine.test.js` and
+  `ssr.config.example.js` are present with no node_modules leak.
+- Release notes body now lists the real archive contents (the v1.0.0 body
+  named `ssr.config.js`, which the zip does not contain, and omitted both
+  proxy variants, `validate-config.js`, and `wrangler.toml`).
+
+---
+
 ## v1.0.0 (current)
 
 Identical content to the 0.9.0 bootstrap release; the version returns to the

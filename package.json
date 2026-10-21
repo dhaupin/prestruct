@@ -1,6 +1,6 @@
 {
   "name": "prestruct",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AI-first SEO prerender for Vite + React apps. Drop in, config, build.",
   "type": "module",
   "license": "SEE LICENSE IN LICENSE",
@@ -14,6 +14,9 @@
     "./prerender": "./engine/scripts/prerender.js",
     "./inject-brand": "./engine/scripts/inject-brand.js",
     "./validate-config": "./engine/scripts/validate-config.js",
+    "./hooks": "./engine/src/hooks/usePageMeta.js",
+    "./islands": "./engine/src/islands.js",
+    "./engine/*": "./engine/*",
     "./package.json": "./package.json"
   },
   "files": [

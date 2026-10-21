@@ -39,6 +39,50 @@ jobs:
       - name: Sync tests to init template
         run: cp -R tests/. init/tests/
 
+      # Test battery fix: repo tests import engine files via ../engine/, which
+      # does not exist inside the init/ template (engine lives only in the npm
+      # package). Tests running from the template must import the template's
+      # own copies in scripts/ and src/. The mapping is proven on the actual
+      # zip contents (all three import styles covered: `from '../engine/...`),
+      # `await import('../engine/...')`, and proxy tests' `from '../init/...`).
+      - name: Fix test imports for template context
+        run: |
+          for f in init/tests/*.test.js init/tests/*.test.mjs init/tests/*.mjs; do
+            [ -f "${f}" ] || continue
+            # Bare `await import('../engine/x')` (no paren prefix) and the
+            # parenthesized form both occur; cover both plus `from` style.
+            perl -pi -e "s|(await import\\(['\\\"]\\))\\.\\./engine/|\\\\1./|g" "${f}"
+            perl -pi -e "s|(await import\\(['\\\"]\\))\\.\\./init/|\\\\1./|g" "${f}"
+            perl -pi -e "s|(from\\s+['\\\"]\\)\\.\\./engine/|\\\\1./|g" "${f}"
+            perl -pi -e "s|(from\\s+['\\\"]\\)\\.\\./init/scripts/|\\\\1./scripts/|g" "${f}"
+          done
+
+      # One devDeps write: everything the template test battery needs that
+      # the template package.json does not declare -- react/rrd/vite/vitest
+      # (peers must be concrete for a standalone npm test), happy-dom
+      # (islands/use-page-meta DOM), express + puppeteer (proxy.test.js).
+      - name: Make the template test battery self-sufficient
+        run: node -e "
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('init/package.json','utf8'));
+          p.devDependencies=Object.assign({},p.devDependencies,{
+            react:'^18.3.1',
+            'react-dom':'^18.3.1',
+            'react-router-dom':'^6.30.1',
+            vite:'^5.4.0',
+            vitest:'^2.1.0',
+            'happy-dom':'^21.0.4',
+            express:'^5.3.0',
+            puppeteer:'^22.15.0'
+          });
+          fs.writeFileSync('init/package.json',JSON.stringify(p,null,2)+'\\n');"
+
+      - name: Verify the template test battery passes before release
+        working-directory: init
+        run: |
+          npm install --no-audit --no-fund
+          npx vitest run
+
       - name: Build release archive
         run: |
           PACKAGE_DIR="prestruct-${{ env.VERSION }}"
@@ -46,11 +90,27 @@ jobs:
 
           mkdir -p "${PACKAGE_DIR}"
           cp -R init/. "${PACKAGE_DIR}/"
+
+          # The zip must be self-sufficient: tests in, but build/test junk
+          # never (npm pack uses DISK state -- pass-4/7 lesson, same here).
+          rm -rf "${PACKAGE_DIR}/node_modules" "${PACKAGE_DIR}/dist" \
+                 "${PACKAGE_DIR}/.prestruct" "${PACKAGE_DIR}/package-lock.json"
+          mkdir -p "${PACKAGE_DIR}/tests"
+          cp tests/*.test.js tests/*.test.mjs tests/e2e-fixture.mjs \
+             tests/timing-harness.mjs "${PACKAGE_DIR}/tests/"
+          cp init/tests/. "${PACKAGE_DIR}/tests/" 2>/dev/null || true
+
           zip -r "${ARCHIVE}" "${PACKAGE_DIR}"
 
           # Guardrail: release artifacts should only contain starter files from init/
           unzip -l "${ARCHIVE}" | grep -q "${PACKAGE_DIR}/scripts/prerender.js"
           unzip -l "${ARCHIVE}" | grep -q "${PACKAGE_DIR}/src/main.jsx"
+          unzip -l "${ARCHIVE}" | grep -q "${PACKAGE_DIR}/tests/engine.test.js"
+          unzip -l "${ARCHIVE}" | grep -q "${PACKAGE_DIR}/ssr.config.example.js"
+          if unzip -l "${ARCHIVE}" | grep -q "node_modules"; then
+            echo "node_modules leaked into the archive."
+            exit 1
+          fi
           if unzip -l "${ARCHIVE}" | grep -q "example/"; then
             echo "Unexpected example/ path found in archive."
             exit 1
@@ -71,21 +131,32 @@ jobs:
             |------|---------|
             | `scripts/inject-brand.js` | Engine: injects global SEO meta into `dist/index.html` |
             | `scripts/prerender.js` | Engine: renders each route to static HTML, generates sitemap + 404 |
+            | `scripts/validate-config.js` | Engine: shape-checks ssr.config.js, structured diagnostics |
+            | `scripts/proxy.js` | Bot proxy, VPS variant: Express + Puppeteer, disk cache |
+            | `scripts/proxy.worker.js` | Bot proxy, Cloudflare Worker variant: Browser Rendering + KV cache |
             | `src/islands.js` | Engine: mounts island components into `<pre-island>` elements |
             | `src/hooks/usePageMeta.js` | Hook: keeps head tags in sync on client-side navigation |
             | `src/App.jsx` | Template: BrowserRouter wrapper, client entry point |
             | `src/AppIslands.jsx` | Template: island registry, map names to components |
             | `src/AppLayout.jsx` | Template: routes + layout, no BrowserRouter, islands wired |
             | `src/main.jsx` | Template: client entry, hydrateRoot or createRoot |
-            | `ssr.config.js` | Starter config: site identity, routes, JSON-LD |
+            | `ssr.config.example.js` | Starter config: copy to ssr.config.js, every config key commented |
             | `index.html` | Shell template: meta injected at build time, not hardcoded |
             | `public/_redirects` | CF Pages redirect rules, SPA fallback intentionally omitted |
             | `public/_headers` | Security headers and CDN cache rules |
+            | `wrangler.toml` | Worker proxy binding scaffold (BROWSER, CACHE, vars) |
+            | `vite.config.js` / `vitest.config.js` | Build and test configuration |
+            | `tests/` | Test battery: engine, islands, proxy, inject-brand, cache -- self-sufficient, run `npm test` |
+
+            The engine source of truth lives in the npm package (`npm i -D prestruct`). This
+            template is the copy-shipped form of the same files for projects that prefer
+            owning the scripts; the CLI copies the identical content via `npx prestruct init`.
 
             ### Quick start
 
             Download and unzip the archive, then copy the files from `prestruct-${{ env.VERSION }}/` into your project root.
-            Fill in `ssr.config.js` with your site details and wire your routes into `AppLayout.jsx`.
+            Copy `ssr.config.example.js` to `ssr.config.js`, fill in your site details and wire your routes into `AppLayout.jsx`.
+            Run `npm install` then `npm run build` (validate -> vite build -> inject-brand -> prerender).
 
             See [README.md](README.md) and the [live example](https://prestruct.creadev.org) for full integration docs.
           files: ${{ env.ARCHIVE }}

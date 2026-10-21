@@ -5,6 +5,52 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 13 - v0.9.0 bootstrap publish + v1.0.0 restore verified installatble (2026-10-21)
+
+The publish saga, closed out. npm needed a manual bootstrap before trusted
+publishing could take over: a fresh package name's first publish has no
+existing version for the TP workflow to yank the token from, so the
+workflow's `--provenance` publish 403s on a pristine package. Ladder used:
+manually bump 1.0.0 -> 0.9.0, npm-login publish (plain, no provenance),
+restore pins to 1.0.0 (package.json, init/package.json, init/VERSION),
+commit + push, tag `v1.0.0`, let `publish.yml` do the real publish.
+
+**Verified live:**
+
+- Registry: `prestruct@1.0.0` is `latest` (was 0.9.0 during bootstrap).
+- Publish run 39528238363 succeeded, logs show `prestruct@1.0.0` packed.
+- Provenance attestation verified at the registry level (npmjs.com 403s
+  bots, so direct page fetch is not possible): sigstore bundle's cert
+  binds `repo:dhaupin/prestruct:ref:refs/tags/v1.0.0`, workflow
+  `publish.yml`, run id 39528238363, trigger `push`. `latest` dist-tag.
+- Tarball from the registry (not a local pack): 35 files, 68K packed,
+  292,504 unpacked. No `node_modules`, no `dist`, no `.prestruct`.
+- Fresh-project install test (`/tmp/pverify/mysite`, bare `npm init` +
+  `prestruct@1.0.0` + react18/rrd6/vite5 from the host's own resolution):
+  `npx prestruct init` never clobbers (0 created / 25 skipped on re-run),
+  `npx prestruct build` produced `dist/` with `index.html` (baked title,
+  canonical, description, `data-server-rendered`), `404.html`,
+  `_headers`, `_redirects`, `sitemap.xml`. The package WORKS from the
+  registry, not just from the repo.
+
+**Found during the install test (docs follow-up, next pass):**
+
+- Getting-started's page-component snippet uses the repo-relative import
+  (`from '../hooks/usePageMeta.js'`) which is correct for the scaffolded
+  app, but any user who instead writes the mental-model deep import
+  (`prestruct/engine/src/hooks/usePageMeta.js`) hits the `exports` map:
+  the package only exposes `.`/`bin`/`prerender`/`inject-brand`/
+  `validate-config`. Deep imports of engine src are NOT part of the
+  contract. If a deep-import ergonomics export is ever wanted (`./hooks`
+  or `./engine` wildcard), it needs an `exports` entry AND a qc test
+  asserting the specifiers exist in the packed tarball. Until then, docs
+  must stay consistent on the scaffold relative import.
+- host-plugin-react@6 requires vite@^8; the install test used
+  plugin-react@^4 with vite@5. Worth a one-line note somewhere user-facing
+  if deps drift further (init/package-lock pins the assured set).
+
+---
+
 ## Pass 2 -- Phase 0: stop the bleeding (2026-10-20)
 
 **Done:**
