@@ -7,8 +7,9 @@ version: 1.0.0
 permalink: /guides/roadmap
 ---
 
-Planned features and ideas for prestruct. The package is at 1.0.0
-(unpublished -- `publish.yml` waits on the first `v*` tag).
+Planned features and ideas for prestruct. The package is live on npm at
+1.0.0 (published from the `v1.0.0` tag with provenance); main carries the
+next planned release (1.1.0) until it is tagged.
 
 ## Shipped (1.0.0 state)
 

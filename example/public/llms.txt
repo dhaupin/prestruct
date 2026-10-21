@@ -24,6 +24,20 @@ Cloudflare Pages is the first-class host (headers, redirects, immutable caching 
 ## Licensing
 LICENSE is MIT; LEGAL.md adds Fair-Code restrictions: commercial SaaS use is restricted.
 
+## Install
+npm i -D prestruct
+npx prestruct init (never clobbers existing files)
+cp ssr.config.example.js ssr.config.js (edit siteUrl + routes)
+npx prestruct build
+
+## Package Contract
+npm: https://www.npmjs.com/package/prestruct (published from v* tags via GitHub Actions with npm provenance; verify with `npm audit signatures`).
+Exports: `.` (engine prerender entry), `./bin`, `./prerender`, `./inject-brand`, `./validate-config`, `./hooks` (usePageMeta), `./islands` (mountIslands), `./engine/*` passthrough. Deep imports resolve from the host project's module registry, same as the template copies.
+Peer deps (react, react-dom, react-router-dom >=6, vite >=5) resolve from the host project; nothing is bundled. Node >= 18.
+
+## Build Telemetry
+Per-build snapshot writes to PROJECT-ROOT .prestruct/status.json (route counts, cache flags) -- deliberately outside dist/ so telemetry never deploys and dist/ stays byte-stable across identical input builds. The route cache lives at .prestruct/cache/routes.json; `prestruct clean` or `--clean` clears it.
+
 ## Links
 - GitHub: https://github.com/dhaupin/prestruct
 - Docs: https://docs.creadev.org/prestruct/

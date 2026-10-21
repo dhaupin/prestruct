@@ -119,10 +119,11 @@ types and the per-route limitation.
 
 Prestruct auto-generates `sitemap.xml` with:
 
-- All routes from config
-- `<lastmod>` with build date
-- `<changefreq>` from config
-- `<priority>` from config
+- All routes from config (merged with `fetchRoutes()` output; static wins)
+- `<lastmod>` with the build date (YYYY-MM-DD)
+- `<changefreq>` from config, defaulting to `monthly` when omitted
+- `<priority>` from config, defaulting to `0.5` when omitted
+- XML-escaped loc values; the home URL carries no trailing slash
 
 ## 404 Pages
 
@@ -136,7 +137,8 @@ This prevents 404 pages from appearing in search results.
 
 ## Robots.txt
 
-Add your own in `public/robots.txt`:
+Two ways, one contract: prestruct never touches `dist/robots.txt` unless you
+opt in. Author your own in `public/robots.txt` (copied through untouched):
 
 ```txt
 User-agent: *
@@ -144,6 +146,12 @@ Allow: /
 
 Sitemap: https://example.com/sitemap.xml
 ```
+
+Or generate one from config (`robots: true` = minimal allow-all + Sitemap
+line, `robots: "<body>"` = custom body with the Sitemap line auto-appended,
+`robots: { body, sitemap: false }` = custom body without the pointer). Both
+come from the `robots` key in `ssr.config.js`; details:
+[Config Reference](/prestruct/guides/config).
 
 ## Security Headers
 
