@@ -50,6 +50,20 @@ records only what cherry-pickers must act on.
   the pack travels with the checkout -- the npm tarball ships only
   `bin/`, `engine/`, `init/` and never includes `packs/`.
 
+### vitest 5 lands: root dev-tree audit down to the deliberate v6 pin
+
+- The remaining vitest-2 finding class (UI-server critical, mocker
+  moderates, vitest's private vite 5.4 copy) is GONE: root, init, and the
+  release battery all run vitest ^5.0.5 with the full test battery
+  passing 147/147 first run, against vite 6.4.5 (vitest 5 peers ^6.4).
+  Nothing in the suite touches the flagged surfaces (no `--ui`, no
+  `vi.mock`), so the earlier "accepted" verdicts were replaced by removal
+  rather than papered over.
+- What deliberately remains: two react-router 6.x moderates on the ROOT
+  devDependency pin -- that pin is the battery's v6-compile guarantee for
+  the engine's dual-major support; v7 is verified live on the example.
+  Maintainers' test tree only; consumers install their own router.
+
 ### Supply-chain pass: critical tinypool pin, CI hardening, honest alert ledger
 
 - **Consumer exposure stays zero.** Security scanners (Socket et al.) grade
@@ -64,7 +78,7 @@ records only what cherry-pickers must act on.
   affected up to tinypool 2.1.2. An npm `overrides` pin (`tinypool:
   "^2.2.0"`) now applies at root and init, the release workflow injects
   the same override into the zip battery, and the full vitest battery
-  passes 147/147 on the patched line (vitest 2.1.9 + tinypool 2.2.0).
+  passes on the patched line (battery later moved to vitest 5, above).
 - **CI installs skip Chromium.** All workflows that run `npm install`
   set `PUPPETEER_SKIP_DOWNLOAD=1`: no test here drives a real browser
   (the render path is asserted to fail closed), so the ~170 MB Chromium

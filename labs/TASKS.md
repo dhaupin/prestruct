@@ -5,6 +5,35 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 19 - vitest 5.0.5 lands; root dev-tree audit down to the deliberate v6 pin (2026-10-21)
+
+Closing the "leverage or clean up" question on the vitest-2 residue: the
+answer was CLEAN UP -- nothing in the suite touches the flagged surfaces
+(no --ui, no vi.mock, no watcher RPC), and vitest 5.0.5 peers vite ^6.4,
+which we already had.
+
+- Probe first (`npm i --no-save vitest@5.0.5` -> battery 147/147, vite
+  6.4.5-clean), then commit for real: root + init devDeps and the
+  release.yml battery injection all move to ^5.0.5. Init build zero
+  errors.
+- Result: the entire former vitest-2 class (UI-server critical, mocker
+  moderates, vitest's private vite 5.4 copy with its esbuild/launch-editor
+  chain) is out of the tree the way npm reports it. Root audit is now TWO
+  moderates -- both react-router 6.x advisories on the DEVDEPEND pin,
+  which is deliberate: the root battery must keep compiling the engine
+  against 6.30.x for the v6-compile guarantee (issue 26's v7 path is
+  verified live on the example). Consumers are unaffected: they install
+  their own router.
+- Lesson: the "breaking" audit fix (npm suggested vitest@5.0.5 --force)
+  was a 40-line config-free bump that the battery proved on the first
+  run. Peer-range hygiene paid: the engine never restricted vite, so
+  vitest 5 peer-locked into ^6.4 cleanly.
+
+Gates: vitest 147/147 on vitest 5, init build, audit 2 (intentional),
+docs suites, fiction scan -- PASS.
+
+---
+
 ## Pass 18 - react-router-dom v7 shipped for real; vite 6; JSX-build warnings zero; Node 20 engines (2026-10-21)
 
 Solved issue #26 end to end, then used its findings to clean the CF Pages
