@@ -649,19 +649,21 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
       console.log('[prerender] ok /robots.txt')
     }
 
-    // Cache stats -- static-sites-safe monitor: a JSON snapshot beside dist/
-    // (Intentionally not a runtime endpoint; static hosts serve files, not
-    // processes. Follows the PRD "static-sites-safe option preferred" note.)
+    // Cache stats -- static-sites-safe monitor: a JSON snapshot in the
+    // project's .prestruct/ dir, NOT dist/. Build telemetry must not become a
+    // deployed URL (issue 23): dist/ is the public artifact on every static
+    // host, and the old wall-clock generatedAt made two byte-identical
+    // builds differ. Same monitor, invisible to deploys, no opt-out needed
+    // because there is nothing to opt out of shipping.
     const stats = {
-      generatedAt: new Date().toISOString(),
       routeCount: ROUTES.length,
       succeeded,
       cached: Object.keys(cache).length,
       force,
       routes: ROUTES.map(r => ({ path: r.path, cached: Boolean(cache[r.path]) })),
     }
-    fs.mkdirSync(path.join(p.dist, '.prestruct'), { recursive: true })
-    fs.writeFileSync(path.join(p.dist, '.prestruct', 'status.json'), JSON.stringify(stats, null, 2), 'utf-8')
+    fs.mkdirSync(path.join(p.cacheDir, '..'), { recursive: true })
+    fs.writeFileSync(path.join(p.root, '.prestruct', 'status.json'), JSON.stringify(stats, null, 2), 'utf-8')
 
     console.log(`[prerender] Done. ${succeeded}/${ROUTES.length} pages rendered.\n`)
 
