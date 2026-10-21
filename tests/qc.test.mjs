@@ -78,6 +78,23 @@ test('version story is single-sourced (root pkg == init pkg == init/VERSION)', (
   expect(stampVersion).toBe(rootVersion)
 })
 
+test('shipped build scripts run inject-brand BEFORE prerender (SEO contract)', () => {
+  // SEO audit 2026-10-20: the engine's injectMeta() is replace-only -- it swaps
+  // values into head tags that already exist but never ADDS missing ones. The
+  // raw vite shell carries no OG/Twitter tags (inject-brand seeds them), so an
+  // example-era "prerender && inject-brand" order left 7/7 sub-route pages
+  // shipping with NO social head while the home page looked fine. Both
+  // package.json build scripts are ordered brand-first; this pin keeps it.
+  for (const pkg of ['example/package.json', 'init/package.json']) {
+    const build = JSON.parse(readFileSync(pkg, 'utf8')).scripts.build
+    const brand = build.indexOf('inject-brand')
+    const prerender = build.indexOf('prerender.js')
+    expect(brand).toBeGreaterThan(-1)
+    expect(prerender).toBeGreaterThan(-1)
+    expect(brand).toBeLessThan(prerender)
+  }
+})
+
 test('release workflow packages only init starter files', () => {
   const workflow = readFileSync('.github/workflows/release.yml', 'utf8')
 

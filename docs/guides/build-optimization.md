@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Build Optimization
+description: How repeated builds behave: the incremental cache, signature checks, and the stages that rerun on changed content.
 nav_order: 14
 version: 1.0.0
 permalink: /guides/build-optimization

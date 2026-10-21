@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Routing and Trailing Slashes
+description: How routes map to static files, why trailing slashes resolve without redirects, and the 404 contract.
 nav_order: 6
 version: 1.0.0
 permalink: /guides/routing

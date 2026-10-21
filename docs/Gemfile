@@ -4,4 +4,5 @@ source "https://rubygems.org"
 # dark mode) - no theme gem. Same stack as dhaupin/vant's docs.
 gem "jekyll", "~> 4.3"
 gem "jekyll-redirect-from"
+gem "jekyll-sitemap"
 gem "kramdown-parser-gfm"

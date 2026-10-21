@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Getting Started
+description: Install prestruct, activate ssr.config.js, scaffold routes, and run your first prerendered build.
 nav_order: 2
 version: 1.0.0
 permalink: /guides/getting-started

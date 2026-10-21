@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CLI Reference
+description: Command reference for the prestruct CLI: init, build, validate, clean, and their flags.
 nav_order: 21
 version: 1.0.0
 permalink: /guides/cli

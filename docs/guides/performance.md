@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Performance Optimization
+description: How the incremental prerender cache works, what invalidates a route, and how --force and --clean are used.
 nav_order: 7
 version: 1.0.0
 permalink: /guides/performance

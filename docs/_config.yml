@@ -35,3 +35,4 @@ kramdown:
 
 plugins:
   - jekyll-redirect-from
+  - jekyll-sitemap

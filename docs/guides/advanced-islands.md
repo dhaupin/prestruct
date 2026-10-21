@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Advanced Islands
+description: Advanced island patterns: load strategies, multiple mounts, fallback content, and what islands cannot do.
 nav_order: 11
 version: 1.0.0
 permalink: /guides/advanced-islands

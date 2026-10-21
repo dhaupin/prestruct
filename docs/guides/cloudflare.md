@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Cloudflare Pages
+description: Deploying a prerendered site on Cloudflare Pages: build command, output directory, headers, redirects, and 404 wiring.
 nav_order: 8
 version: 1.0.0
 permalink: /guides/cloudflare

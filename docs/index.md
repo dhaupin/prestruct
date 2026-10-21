@@ -1,5 +1,6 @@
 ---
 title: prestruct Documentation
+description: Complete documentation for prestruct: build-time SEO prerender for Vite + React apps on Cloudflare Pages.
 layout: default
 nav_order: 0
 version: 1.0.0

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: SEO Guide
+description: The head tags prestruct injects per route: title, description, canonical, Open Graph, and Twitter Card fields.
 nav_order: 4
 version: 1.0.0
 permalink: /guides/seo
