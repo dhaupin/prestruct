@@ -272,6 +272,30 @@ export function cleanCache({ cacheFile = enginePaths().cacheFile } = {}) {
 
 // -- Sitemap -------------------------------------------------------------------
 
+//
+// AI-crawler policy preset (aeo option):
+// Search-visibility bots get explicit Allow groups; TRAINING-crawl preference
+// is a separate choice via config.robots.aiBots ('allow' | 'block', default
+// 'block'). Bot names are the token each vendor documents for its own robots
+// product (2026: OpenAI OAI-SearchBot/GPTBot, Anthropic
+// Claude-SearchBot/ClaudeBot, PerplexityBot, Apple Applebot/Applebot-Extended,
+// Common Crawl CCBot, Google-Extended)
+const AEO_SEARCH_BOTS = [
+  'OAI-SearchBot',      // OpenAI: surfaces sites in ChatGPT search
+  'PerplexityBot',      // Perplexity: search index, not model training
+  'Claude-SearchBot',   // Anthropic: Claude's search
+  'Applebot',           // Apple: Siri/Spotlight/Safari search
+  'Googlebot',          // Google Search incl. AI Overviews eligibility
+  'Bingbot',            // Bing / Copilot discovery
+]
+const AEO_TRAINING_BOTS = [
+  'GPTBot',             // OpenAI: model training crawl
+  'ClaudeBot',          // Anthropic: model development crawl
+  'Google-Extended',    // Gemini/Vertex grounding (product token, no HTTP hits)
+  'Applebot-Extended',  // Apple: foundation model training
+  'CCBot',              // Common Crawl: open corpus crawlers
+]
+
 /**
  * Generate robots.txt when config.robots is opted in; otherwise null so the
  * author's own public/robots.txt is left untouched. The Sitemap: line points
@@ -290,16 +314,25 @@ export function generateRobots(config) {
   const cfgBody    = typeof cfg === 'string' ? cfg : (cfg.body || '')
   const cfgSitemap = cfgBool || (cfg && typeof cfg === 'object' ? cfg.sitemap !== false : true)
   const siteUrl    = (config.siteUrl || '').replace(/\/$/, '')
+  const sitemapLine = cfgSitemap && siteUrl ? ['', `Sitemap: ${siteUrl}/sitemap.xml`] : []
 
-  if (cfgBool) {
-    const lines = [
-      'User-agent: *',
-      'Allow: /',
-    ]
-    if (cfgSitemap && siteUrl) {
-      lines.push('', `Sitemap: ${siteUrl}/sitemap.xml`)
+  // { aeo: true | {} } -> search bots allowed, training crawls blocked by
+  // default. { aeo: { aiBots: 'allow' } } flips training to Allow. aeo with
+  // an explicit body: the body is appended after the preset groups (letting
+  // owners add extra paths) only via body; the preset itself ignores body.
+  const aeo       = !cfgBool && cfg && cfg.aeo
+  const aeoCli    = aeo ? (aeo.aiBots === 'allow' ? 'allow' : 'block') : null
+
+  if (cfgBool || aeo) {
+    const lines = []
+    if (cfgBool) {
+      lines.push('User-agent: *', 'Allow: /')
+    } else {
+      for (const bot of AEO_SEARCH_BOTS) lines.push(`User-agent: ${bot}`, 'Allow: /', '')
+      const verdict = aeoCli === 'allow' ? 'Allow: /' : 'Disallow: /'
+      for (const bot of AEO_TRAINING_BOTS) lines.push(`User-agent: ${bot}`, verdict, '')
     }
-    return lines.join('\n') + '\n'
+    return lines.concat(sitemapLine).join('\n').replace(/\n+$/, '\n')
   }
 
   // Custom body; sitemap pointer appended unless { sitemap: false }

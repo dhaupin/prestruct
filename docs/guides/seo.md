@@ -153,6 +153,34 @@ line, `robots: "<body>"` = custom body with the Sitemap line auto-appended,
 come from the `robots` key in `ssr.config.js`; details:
 [Config Reference](/prestruct/guides/config).
 
+### AI crawlers (AEO)
+
+`robots: { aeo: true }` writes a per-bot policy instead of a catch-all:
+search-visibility crawlers are allowed, training crawlers are disallowed by
+default (`aeo: { aiBots: 'allow' }` flips that). The separation matters
+because the vendor tokens differ: `OAI-SearchBot` controls ChatGPT search
+results while `GPTBot` controls OpenAI training crawls; `Claude-SearchBot` vs
+`ClaudeBot`; `Applebot` vs `Applebot-Extended`. `Google-Extended` is a product
+token for Gemini/Vertex grounding that does not affect Google Search
+inclusion. Details: [Config Reference](/prestruct/guides/config).
+
+Two honest limits, from vendor documentation (2026):
+
+- These are crawler instructions, not citation switches. No tag or file makes
+  an answer engine cite you; Google's 2026 guidance is explicit that ordinary
+  fundamentals remain what matter and it ignores `llms.txt`.
+- robots rules are not access control. A disallowed URL may still be indexed
+  by some systems without a description, and `Perplexity-User`/
+  `ChatGPT-User`-style user-initiated fetches may ignore robots entirely.
+
+What does move answer-engine visibility, per the same documentation: public
+crawlable HTML (prestruct prerenders every route, so this is already handled),
+stable canonicals, accurate titles/descriptions, visible author/date info,
+schema.org types that match visible content (Article, Person/ProfilePage,
+BreadcrumbList -- see [Structured Data](/prestruct/guides/structured-data)),
+and not accidentally blocking resource URLs. FAQ rich results were retired
+May 2026; de-prioritize FAQPage markup unless the page is genuinely Q&A.
+
 ## Security Headers
 
 Prestruct sites on Cloudflare Pages get security headers automatically:

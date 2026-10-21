@@ -46,6 +46,14 @@ export default {
   // robots: true,              // minimal block (all agents + Sitemap line)
   // robots: "User-agent: *\nDisallow: /private",  // custom body; sitemap auto-appended
   // robots: { body: "...", sitemap: false },      // custom body, no sitemap line
+  //
+  // AEO preset -- per-bot crawl policy from the 2026 vendor docs:
+  // robots: { aeo: true },                  // search AI bots Allow, training crawls Disallow
+  // robots: { aeo: { aiBots: 'allow' } },   // same, but also allow training crawls
+  // Search group: OAI-SearchBot, PerplexityBot, Claude-SearchBot, Applebot,
+  // Googlebot, Bingbot. Training group: GPTBot, ClaudeBot, Google-Extended,
+  // Applebot-Extended, CCBot. Search access and training/data-use are separate
+  // choices; the Sitemap line is appended as usual.
 
   // === Routes ===
   // Each route gets prerendered to static HTML at build time.

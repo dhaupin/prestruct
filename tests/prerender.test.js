@@ -48,6 +48,50 @@ describe('generateRobots (P2: opt-in generation)', () => {
   })
 })
 
+describe('generateRobots (aeo preset: documented AI-crawler groups)', () => {
+  const siteUrl = 'https://example.com'
+  const config = body => ({ siteUrl, ...body })
+
+  it('aeo: true allows logo-documented SEARCH bots, blocks TRAINING crawlers by default', () => {
+    const text = generateRobots(config({ robots: { aeo: true } }))
+
+    for (const bot of ['OAI-SearchBot', 'PerplexityBot', 'Claude-SearchBot', 'Applebot', 'Googlebot', 'Bingbot']) {
+      expect(text).toMatch(new RegExp(`User-agent: ${bot}\\nAllow: /`))
+    }
+    for (const bot of ['GPTBot', 'ClaudeBot', 'Google-Extended', 'Applebot-Extended', 'CCBot']) {
+      expect(text).toMatch(new RegExp(`User-agent: ${bot}\\nDisallow: /`))
+    }
+    expect(text).toContain(`Sitemap: ${siteUrl}/sitemap.xml`)
+    // no catch-all group: the preset expresses a policy per documented token
+    expect(text).not.toContain('User-agent: *')
+  })
+
+  it('aeo { aiBots: allow } flips the training group to Allow (site-by-site choice)', () => {
+    const text = generateRobots(config({ robots: { aeo: { aiBots: 'allow' } } }))
+
+    expect(text).toMatch(/User-agent: GPTBot\nAllow: \//)
+    expect(text).toMatch(/User-agent: ClaudeBot\nAllow: \//)
+    expect(text).toMatch(/User-agent: CCBot\nAllow: \//)
+  })
+
+  it('aiBots invalid value falls back to block (safe default), never crashes', () => {
+    const text = generateRobots(config({ robots: { aeo: { aiBots: 'yolo' } } }))
+    expect(text).toMatch(/User-agent: GPTBot\nDisallow: \//)
+  })
+
+  it('robots: true keeps the catch-all behavior (unchanged contract)', () => {
+    const text = generateRobots(config({ robots: true }))
+    expect(text).toContain('User-agent: *')
+    expect(text).not.toContain('User-agent: GPTBot')
+  })
+
+  it('aeo with no sitemap: false still appends the pointer; body is ignored with aeo', () => {
+    const text = generateRobots(config({ robots: { aeo: true, body: 'User-agent: *\nDisallow: /x' } }))
+    expect(text).toContain(`Sitemap: ${siteUrl}/sitemap.xml`)
+    expect(text).not.toContain('Disallow: /x')
+  })
+})
+
 // Helper: escapeReplacement (from prerender.js)
 const escapeReplacement = (s) => String(s || '').replace(/\$/g, '$$$$')
 

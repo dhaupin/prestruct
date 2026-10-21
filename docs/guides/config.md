@@ -262,10 +262,31 @@ robots: true,                       // minimal block + Sitemap pointer
 //   body:   'User-agent: GPTBot\nDisallow: /private\n',
 //   sitemap: true,                  // default true; append Sitemap: line
 // }
+// robots: { aeo: true },            // AI-crawler preset (see below)
 ```
 
 When enabled, prerender writes `dist/robots.txt` after `sitemap.xml` so the
 `Sitemap:` pointer always references a fresh file.
+
+### AEO preset (`robots: { aeo: true }`)
+
+`robots: true` emits one catch-all group. The `aeo` preset instead writes a
+per-bot policy using the token each vendor documents for its own product:
+search-visibility crawlers get `Allow: /`, and training/data-use crawlers get
+`Disallow: /` by default:
+
+- Allowed by default: `OAI-SearchBot` (ChatGPT search), `PerplexityBot`,
+  `Claude-SearchBot`, `Applebot` (Siri/Spotlight), `Googlebot`, `Bingbot`
+- Blocked by default: `GPTBot` (OpenAI training), `ClaudeBot` (Anthropic
+  training), `Google-Extended` (Gemini/Vertex grounding),
+  `Applebot-Extended` (Apple training), `CCBot` (Common Crawl)
+
+Search eligibility and training/data-use preference are separate decisions;
+`aeo: { aiBots: 'allow' }` flips the training group to `Allow`. The Sitemap
+pointer is appended as usual. This preset only writes crawler instructions:
+it cannot guarantee any answer engine will cite your pages, and it is not
+access control. See the [SEO guide](/prestruct/guides/seo) for what these
+tokens do and do not affect.
 
 ## Cache stats (build telemetry)
 
