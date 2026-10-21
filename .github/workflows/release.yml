@@ -65,7 +65,8 @@ jobs:
       # (peers must be concrete for a standalone npm test), happy-dom
       # (islands/use-page-meta DOM), express + puppeteer (proxy.test.js).
       - name: Make the template test battery self-sufficient
-        run: node -e "
+        run: |
+          node -e "
           const fs=require('fs');
           const p=JSON.parse(fs.readFileSync('init/package.json','utf8'));
           p.devDependencies=Object.assign({},p.devDependencies,{
@@ -83,7 +84,8 @@ jobs:
           // GHSA-85c8-ppgw-ccpr, patched in tinypool 2.1.2). The battery runs
           // on the patched line -- see the overrides doc in CHANGELOG.
           p.overrides=Object.assign({},p.overrides,{tinypool:'^2.2.0'});
-          fs.writeFileSync('init/package.json',JSON.stringify(p,null,2)+'\\n');"
+          fs.writeFileSync('init/package.json',JSON.stringify(p,null,2)+'\\n');
+          "
 
       - name: Verify the template test battery passes before release
         working-directory: init
