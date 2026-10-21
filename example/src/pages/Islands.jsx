@@ -169,6 +169,24 @@ mountIslands(islands)`}</CodeBlock>
 
       <section className="section">
         <div className="container">
+          <p className="section-label">Live demo · visible</p>
+          <p className="u-section-intro">
+            The widget below is a <code>pre-island</code> with{' '}
+            <code>data-pre-load="visible"</code>. It did not mount when this page
+            loaded -- it waits for <code>IntersectionObserver</code> to report it in
+            your viewport (threshold 0.1). Scroll it into view and it mounts.
+            The eager strategy is live on <code>/contact</code>; the idle demo is
+            the section above.
+          </p>
+
+          <pre-island data-pre-island="scroll-marker" data-pre-load="visible">
+            <p className="island-fallback">Scroll this widget into view to mount it.</p>
+          </pre-island>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
           <p className="section-label">What islands can't do</p>
           <div className="callout">
             <strong>Islands don't receive props from the React tree.</strong>

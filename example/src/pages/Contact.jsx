@@ -4,7 +4,6 @@
  */
 
 import usePageMeta from '../hooks/usePageMeta.js'
-import EmailIsland from '../components/EmailIsland.jsx'
 
 export default function Contact() {
   usePageMeta({
@@ -34,7 +33,7 @@ export default function Contact() {
             </p>
             <p style={{ color: 'var(--accent)', lineHeight: '1.7', marginBottom: '1rem' }}>
               <pre-island data-pre-island="email-island">
-                <EmailIsland />
+                <span className="island-loading">loading...</span>
               </pre-island>
             </p>
           </section>
