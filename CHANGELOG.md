@@ -23,13 +23,26 @@ records only what cherry-pickers must act on.
 
 ### Crash-test pack is documented in-repo
 
-- The root README now names `packs/public/prestruct-proxy` (v0.2.0): where
+- The root README now names `packs/public/prestruct-proxy` (v0.3.0): where
   it lives, which proxy surfaces it attacks, where the latest run results
   land (`labs/hardening.md`, `labs/crashledger.json`), and the one-line
   adoption path from another repo's `crashtest.config.js`
   (`packs: ['/abs/path/to/prestruct/packs']`). Clarification for adopters:
   the pack travels with the checkout -- the npm tarball ships only
   `bin/`, `engine/`, `init/` and never includes `packs/`.
+
+### Pack v0.3.0: cache-key variant parity now pinned at the wire
+
+- New pack shape `cache-key-variant-parity` pins the issue-18 fix class (a
+  cached route restoring another URL-variant's HTML) at the wire level, on
+  both runtimes, browser-free. The scenario seeds marker cache entries --
+  `{html, cachedAt}` JSON into the Worker's KV namespace, marker files into
+  the express proxy's disk cache via a new `cacheDir` moduleCtx arm (set
+  `PRESTRUCT_CACHE_DIR` before importing the proxy module) -- then asserts
+  each variant is served only its own bytes and that no cached byte reaches
+  a non-bot request. Fail-open honesty: if the seeded key is never
+  consulted (key-format drift, seeding arm broken), the row reports the
+  exact surfaces it could not prove instead of claiming a pass.
 
 ### Release archive is correct and self-testing
 

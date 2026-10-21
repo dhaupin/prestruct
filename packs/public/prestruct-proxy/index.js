@@ -19,6 +19,22 @@
 //                           first-byte diffs, junk) must never crash the
 //                           surface and must not change a non-bot response
 //                           when the cache-refresh feature is off
+//   cache-key-variant-parity  two URL variants of one route (same path,
+//                           different query) must never be served AS each
+//                           other from the render cache, and cached bytes
+//                           must never leak to non-bot requests
+//
+// Cache seeding (cache-key-variant-parity, both runtimes, browser-free):
+//   worker : entries written through the harness fake KV (harness.env.CACHE),
+//            payload = the {html, cachedAt} JSON the worker serves from.
+//   vps    : marker files written into the express proxy's own cache dir;
+//            arming requires moduleCtx['prestruct-proxy'].cacheDir (the
+//            PRESTRUCT_CACHE_DIR value the run root set BEFORE importing
+//            scripts/proxy.js -- its CACHE_DIR is resolved at module load).
+//            Missing arm degrades to the usual honest skip.
+import { createHash } from 'node:crypto';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { join, resolve as resolvePath } from 'node:path';
 //
 // Arming (crashtest.config.js):
 //   moduleCtx: { 'prestruct-proxy': { c: {
@@ -159,6 +175,105 @@ export default {
         }
         if (bad.length) return exp(`${bad.length} strictness violation(s): ${bad.slice(0, 3).join(' | ')}`);
         return ref('refresh probes (no-header control + 5 hostile tokens) never crashed or reshaped the response', { tokens: tokens.length - 1 });
+      },
+    },
+    {
+      name: 'cache-key-variant-parity',
+      description: 'two URL variants of one route seeded into the render cache must never be served as each other, and cached bytes must never leak to non-bots',
+      async run(harness, ctx) {
+        const c = cfg(ctx); if (!c) return skip('route names not armed');
+        if (!c.botList?.length) return skip('botList not armed');
+        const vpsDir = c.cacheDir ? resolvePath(String(c.cacheDir)) : null;
+        const botUA = `${c.botList[0]}/2.1`;
+        // Same path, different query: the exact shape that once restored HTML
+        // referencing deleted asset chunks across variants (issue 18 class).
+        // Markers carry the poisoned stale-chunk reference on purpose: if a
+        // proxy ever serves variant A bytes for variant B requests, the
+        // response ships a dead asset hash -- the EXPLOITED signature.
+        const uA = '/cache-key-parity/one?ref=alpha';
+        const uB = '/cache-key-parity/one?ref=beta';
+        const marker = (v) => `<!--prestruct-crashtest:cache-key-variant-${v}--><!doctype html><html><body class="crashtest-seed"><script src="/assets/index-${v}DEAD.js"></script></body></html>`;
+        const bodies = { u1: marker('AAA'), u2: marker('BBB') };
+        const surfaces = armed(c);
+        if (!surfaces.length) return skip('no surfaces armed');
+        const bad = [];
+        const skipped = [];
+        let provedSurfaces = 0;
+        const cleanup = [];
+        try {
+          for (const [route, kind] of surfaces) {
+            if (kind === 'worker') {
+              const kv = harness.env?.CACHE;
+              if (!kv || typeof kv.put !== 'function') {
+                return skip(`CACHE KV namespace not armed on ${kind} (set env.kv.CACHE)`);
+              }
+              // Worker payload shape: {html, cachedAt} JSON stored under
+              // prestruct:<encodeURIComponent(path+search)>. Derived here
+              // from the documented format, not from importing the target.
+              for (const [u, html] of [[uA, bodies.u1], [uB, bodies.u2]]) {
+                await kv.put(`prestruct:${encodeURIComponent(u)}`, JSON.stringify({ html, cachedAt: 'crashtest-seed' }));
+                cleanup.push(() => kv.delete(`prestruct:${encodeURIComponent(u)}`));
+              }
+            } else if (kind === 'vps') {
+              if (!vpsDir) {
+                return skip(`cacheDir not armed on ${kind} (set moduleCtx['prestruct-proxy'].cacheDir + PRESTRUCT_CACHE_DIR before importing scripts/proxy.js)`);
+              }
+              await mkdir(vpsDir, { recursive: true });
+              for (const [u, html] of [[uA, bodies.u1], [uB, bodies.u2]]) {
+                const key = createHash('sha256').update(u).digest('hex');
+                await writeFile(join(vpsDir, `${key}.html`), html);
+                cleanup.push(() => unlink(join(vpsDir, `${key}.html`)).catch(() => {}));
+              }
+            }
+            let seededOk = false;
+            // Variant A must come back as A's bytes; B's marker anywhere in
+            // that response is the collision class. B mirrored.
+            for (const [u, mine, theirs, v] of [[uA, bodies.u1, bodies.u2, 'A'], [uB, bodies.u2, bodies.u1, 'B']]) {
+              const rec = await harness.run(route, { url: u, headers: { 'user-agent': botUA } });
+              if (rec.threw || rec.status === null) {
+                bad.push(`${route}/${kind} seeded variant ${v} crashed surface: ${rec.error?.message ?? ''}`);
+                continue;
+              }
+              if (rec.status >= 300) {
+                // With no browser installed the only remaining paths are
+                // seeded-cache HIT (200) or live-site fallback (3xx). A 3xx
+                // means the seeded key was never consulted: the contract
+                // under test cannot be evaluated -- key format drifted or
+                // seeding arm broke. Honest skip accounting, never a fake
+                // pass; the final verdict reports what could not be proved.
+                skipped.push(`${kind} (seed not consulted on ${u.slice(0, 24)})`);
+                continue;
+              }
+              seededOk = true;
+              provedSurfaces += 1;
+              const text = await rec.response.text();
+              if (text.includes(theirs)) {
+                bad.push(`${route}/${kind} variant ${v} was served the OTHER variant's bytes (cache-key collision -- stale-asset leak)`);
+              } else if (!text.includes(mine)) {
+                bad.push(`${route}/${kind} variant ${v} served 2xx but its marker bytes are gone (cache served something else)`);
+              }
+            }
+            // Cache bytes are bot-only: a human request must never receive
+            // seeded HTML -- redirect to the live site at most.
+            const hon = await harness.run(route, { url: uA });
+            if (!hon.threw && hon.status !== null) {
+              const text = await hon.response.text();
+              if (hon.status >= 200 && hon.status < 300 && (text.includes(bodies.u1) || text.includes(bodies.u2))) {
+                bad.push(`${route}/${kind} non-bot request received cached marker bytes (cache leak to humans)`);
+              }
+            }
+          }
+          if (bad.length) return exp(`${bad.length} cache-key violation(s): ${bad.slice(0, 3).join(' | ')}`);
+          const kinds = surfaces.map(([, k]) => k).join('+');
+          const skippedNote = skipped.length
+            ? `; UNPROVED on ${skipped.length} seeded-check(s) -- re-arm seeding before counting those as coverage`
+            : '';
+          if (!provedSurfaces)
+            return skip(`seed never consulted on any surface${skippedNote}`);
+          return ref(`2 URL variants x ${surfaces.length} surface(s) (${kinds}): each variant served its own seeded bytes, no collision; non-bot requests saw no cached bytes${skippedNote}`, { variants: [uA, uB] });
+        } finally {
+          for (const fn of cleanup) await fn();
+        }
       },
     },
   ],

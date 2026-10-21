@@ -18,7 +18,12 @@
 // The deployed copies (init/scripts/*) are attacked, not the engine/ ones:
 // they are what a scaffolded project actually ships. CI keeps them
 // byte-identical to the engine sources via tests/qc.test.mjs.
-import { createProxyApp } from './init/scripts/proxy.js'
+// The disk cache dir is armed BEFORE the proxy module is imported because
+// proxy.js resolves PRESTRUCT_CACHE_DIR at module load. Arming it points the
+// express proxy at a gitignored in-repo dir, which is what lets the pack's
+// cache-key-variant-parity shape seed marker cache files browser-free.
+process.env.PRESTRUCT_CACHE_DIR = process.env.PRESTRUCT_CACHE_DIR || '.prestruct_cache'
+const { createProxyApp } = await import('./init/scripts/proxy.js')
 import workerProxy from './init/scripts/proxy.worker.js'
 
 const VPS_CONFIG = {
@@ -41,6 +46,7 @@ export default {
       vps: 'app',
       worker: 'worker',
       botList: ['Googlebot', 'Bingbot'],
+      cacheDir: process.env.PRESTRUCT_CACHE_DIR, // arms cache-key-variant-parity on the VPS arm
     },
   },
   // Crashtest v0.3+ pack model: the run root's own packs/public/ and

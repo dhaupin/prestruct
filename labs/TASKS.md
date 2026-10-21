@@ -5,6 +5,43 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 16 - Pack v0.3.0: cache-key variant parity pinned at the wire (2026-10-21)
+
+Worked issue 25's five scenarios against the one-surface pack model; one
+shipped, three refuted from shipping in THIS pack, one remains open.
+
+- **Shipped: `cache-key-variant-parity`** (pack 0.2.0 -> 0.3.0). Seeds
+  marker cache entries on BOTH runtimes browser-free -- worker: fake KV
+  (`{html, cachedAt}` JSON, key prestruct:<pathname+search>); vps: marker
+  files into the proxy's disk cache, armed by a new `cacheDir` moduleCtx
+  key; `crashtest.config.js` now sets `PRESTRUCT_CACHE_DIR` before the
+  dynamic import of `scripts/proxy.js` (CACHE_DIR resolves at module load).
+  Asserts: cross-variant serve collision (the issue-18 serve class),
+  seed-served bytes present, and zero cached bytes to non-bots.
+  Fail-open accounting: if the seed is never consulted (key format drift),
+  the row names the unprovable surfaces instead of faking a pass.
+  Verified live: 35/35 REFUSED (34 baseline + 1 new), 0 new EXPLOITED,
+  0 regressed; two consecutive runs byte-identical on the ledger modulo
+  generatedAt.
+- **Refuted from this pack: `404-theme-follower`, `buildJsonLd-bare-object`,
+  `status-optout-parity`.** All three pin build-time surfaces (the
+  generated 404 page, inject-brand's JSON-LD, the status.json opt-out).
+  An HTTP pack shipping permanent skip-rows for surfaces it structurally
+  cannot reach is false-coverage optics. They are already unit-pinned in
+  tests/ (issue 19/21/23 fix commits); if they are ever wanted at the wire,
+  that is a separate prestruct-BUILD pack proposal, not pack bloat here.
+- **Open: `bot-snapshot-discipline`** still needs the RENDER_LANE decision
+  (opt-in Chromium lane, CI cost trade) from issue 25. Parked until the
+  maintainer decides lanes.
+- Extra row growth is the harness side: the current crashtest v1.0.0
+  library fires 34 attack ids on the two proxy routes (was 17 committed
+  baseline) -- authz/race/session/taxonomy/upload horizontal sweeps, all
+  REFUSED. The regenerated labs/ ledger is the new committed baseline.
+
+Gates: vitest, sync, docs lint, fiction scan -- PASS on this commit.
+
+---
+
 ## Pass 15 - Closes issue 24 quick wins; crashtest pack named in the docs (2026-10-21)
 
 Issue 24 asked for four things; the close-out item-by-item report:
