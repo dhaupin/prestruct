@@ -77,23 +77,23 @@ The build runs three steps in sequence:
 
 ```bash
 npm run build
-    │
-    ├─► vite build          → JS/CSS bundles in dist/assets/
-    │
-    ├─► inject-brand.js     → Global meta in index.html
-    │
-    └─► prerender.js        → Per-route HTML generation
+    |
+    |-> vite build          -> JS/CSS bundles in dist/assets/
+    |
+    |-> inject-brand.js     -> Global meta in index.html
+    |
+    `-> prerender.js        -> Per-route HTML generation
 ```
 
 `prestruct build` adds a fourth step first:
 
 ```text
 prestruct build
-    │
-    ├─► validate-config.js  → structured [prestruct] diagnostics
-    ├─► vite build
-    ├─► inject-brand.js
-    └─► prerender.js
+    |
+    |-> validate-config.js  -> structured [prestruct] diagnostics
+    |-> vite build
+    |-> inject-brand.js
+    `-> prerender.js
 ```
 
 Config loading is fixed in every entry point: `ssr.config.js` from the
@@ -143,7 +143,7 @@ Trigger automatic rebuilds on git push:
 
 ```bash
 # Get hook URL from Cloudflare dashboard
-# Add it to your GitHub repo settings → Webhooks
+# Add it to your GitHub repo settings -> Webhooks
 ```
 
 ## Common issues

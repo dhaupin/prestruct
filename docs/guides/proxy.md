@@ -23,10 +23,10 @@ The proxy handles requests that weren't prerendered at build time:
 
 ```text
 Request
-   │
-   ├─► Bot? ──► Puppeteer ──► Rendered HTML ──► Cache ──► Response
-   │
-   └─► Human ──► 302 Redirect ──► Live site
+   |
+   |-> Bot? --> Puppeteer --> Rendered HTML --> Cache --> Response
+   |
+   `-> Human --> 302 Redirect --> Live site
 ```
 
 ## Bot Detection

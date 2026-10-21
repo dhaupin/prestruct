@@ -1,7 +1,7 @@
-// tests/use-page-meta.test.js — behavioral tests for the shipped hook
+// tests/use-page-meta.test.js -- behavioral tests for the shipped hook
 // engine/src/hooks/usePageMeta.js.
 //
-// Gap-audit 2026-10-21: this hook had ZERO behavioral tests — only the sync
+// Gap-audit 2026-10-21: this hook had ZERO behavioral tests -- only the sync
 // byte-identity check (tests/qc.test.mjs) that keeps the three copies equal.
 // It ships in every scaffolded app and carries 16 documented tags, so its
 // contract is pinned here against happy-dom: what updates on navigation,
@@ -69,7 +69,7 @@ const tag = (sel, attr = 'content') => document.querySelector(sel)?.getAttribute
 const og = (name) => tag(`meta[property="${name}"]`)
 const tw = (name) => tag(`meta[name="${name}"]`)
 
-describe('usePageMeta — the 8-tag navigation contract', () => {
+describe('usePageMeta -- the 8-tag navigation contract', () => {
   beforeEach(() => {
     bootDom()
     seedHead()
@@ -106,7 +106,7 @@ describe('usePageMeta — the 8-tag navigation contract', () => {
   })
 })
 
-describe('usePageMeta — guarded behavior', () => {
+describe('usePageMeta -- guarded behavior', () => {
   beforeEach(() => { bootDom(); seedHead() })
 
   it('no siteUrl -> canonical/og:url are NOT written (never a relative canonical)', async () => {

@@ -14,18 +14,18 @@ Optimizing the prestruct build for speed and efficiency.
 
 ```text
 npm run build
-    │
-    ├─► vite build          → JS/CSS bundles in dist/assets/
-    │
-    ├─► inject-brand.js     → Global meta in index.html
-    │
-    └─► prerender.js        → Per-route HTML generation
-         │
-         ├─► Start Vite dev server (SSR mode)
-         ├─► ssrLoadModule(AppLayout)
-         ├─► renderToString(StaticRouter)
-         ├─► Inject route meta
-         └─► Write dist/[route]/index.html
+    |
+    |-> vite build          -> JS/CSS bundles in dist/assets/
+    |
+    |-> inject-brand.js     -> Global meta in index.html
+    |
+    `-> prerender.js        -> Per-route HTML generation
+         |
+         |-> Start Vite dev server (SSR mode)
+         |-> ssrLoadModule(AppLayout)
+         |-> renderToString(StaticRouter)
+         |-> Inject route meta
+         `-> Write dist/[route]/index.html
 ```
 
 ## Speeding Up the Build
@@ -104,7 +104,7 @@ export default function AppLayout() {
 ### 4. Use the Built-In Incremental Cache
 
 Prerender already skips unchanged routes: rendered HTML and its inputs are
-cached in `.prestruct/cache/`, and unchanged routes report `◯ path (cached)`
+cached in `.prestruct/cache/`, and unchanged routes report `cached path`
 instead of rendering again. Rebuilds only RERENDER routes whose inputs (or
 the HTML shell) changed.
 

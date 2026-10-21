@@ -70,7 +70,7 @@ Puppeteer downloads a compatible Chromium binary automatically during install.
 export PRESTRUCT_SECRET="a-long-random-string"
 ```
 
-Set the same value as the `PRESTRUCT_SECRET` env var where the proxy runs —
+Set the same value as the `PRESTRUCT_SECRET` env var where the proxy runs --
 it is an env var, never a `ssr.config.js` field (an unset secret disables
 the refresh feature entirely; it never means "allow all"). Generate one with:
 ```bash

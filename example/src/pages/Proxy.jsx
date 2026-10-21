@@ -60,7 +60,7 @@ export default function Proxy() {
           <p className="section-label">How it works</p>
           <CodeBlock lang="sh" label="sh">
 {`# Bot hits /blog/page/5
-# Not prerendered? → Proxy renders
+# Not prerendered? -> Proxy renders
 
 # 1. Detect bot from the User-Agent (config.proxy.botList)
 # 2. Humans: 302 redirect to the live site -- they never reach the proxy

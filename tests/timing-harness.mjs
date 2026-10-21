@@ -40,7 +40,7 @@ import express from 'express'
 import { createProxyApp, secretMatches } from '../init/scripts/proxy.js'
 import { refreshSecretMatches } from '../init/scripts/proxy.worker.js'
 
-// ── Scenario setup ───────────────────────────────────────────────────────────
+// -- Scenario setup -----------------------------------------------------------
 
 const SECRET = 'harness-' + crypto.randomBytes(16).toString('hex') // ~32-40 chars
 
@@ -61,7 +61,7 @@ createProxyApp({ siteUrl: 'https://harness.test', proxy: { botList: ['googlebot'
 
 const naiveCompare = (a, b) => a === b
 
-// ── Layer A: comparator microbench ───────────────────────────────────────────
+// -- Layer A: comparator microbench -------------------------------------------
 
 function benchComparator({ label, compare }) {
   const BATCHES = 150
@@ -142,7 +142,7 @@ const wkrFixed = benchComparator({ label: 'Worker refreshSecretMatches (full-len
 const naiveFlat = Object.entries(vpsNaive.sums || {}).every(([k, v], i, all) =>
   Math.abs(v.median - all[0][1].median) / all[0][1].median < 0.03)
 
-// ── Layer B: HTTP-level detection sanity (amplified control) ────────────────
+// -- Layer B: HTTP-level detection sanity (amplified control) ----------------
 
 async function httpSample(port, path, headers) {
   const t0 = process.hrtime.bigint()
@@ -224,7 +224,7 @@ async function layerB() {
   return b1 && b2
 }
 
-// ── Run ──────────────────────────────────────────────────────────────────────
+// -- Run ----------------------------------------------------------------------
 
 const bOk = await layerB()
 

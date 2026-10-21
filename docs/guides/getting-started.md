@@ -191,31 +191,31 @@ Serves `dist/` at `http://localhost:4173`.
 
 ```text
 my-app/
-├── ssr.config.js          # Your config (routes, meta, schema)
-├── package.json           # Build: "vite build && node scripts/inject-brand.js && node scripts/prerender.js"
-├── vite.config.js         # Standard Vite config
-├── public/                # Static assets
-│   ├── _headers           # Cloudflare security headers
-│   ├── _redirects         # Cloudflare redirects
-│   └── favicon.ico
-├── src/
-│   ├── main.jsx           # Client entry (hydrateRoot)
-│   ├── App.jsx            # BrowserRouter wrapper
-│   ├── AppLayout.jsx      # Routes + layout (NO BrowserRouter!)
-│   ├── AppIslands.jsx     # Island registry
-│   ├── hooks/
-│   │   └── usePageMeta.js # SEO meta hook
-│   ├── islands/           # Dynamic island components
-│   └── pages/             # Your page components
-├── scripts/
-│   ├── inject-brand.js    # Injects global meta
-│   └── prerender.js       # Prerenders routes to HTML
-└── dist/                  # Build output (generated)
-    ├── index.html
-    ├── about/
-    │   └── index.html
-    ├── sitemap.xml
-    └── 404.html
+|-- ssr.config.js          # Your config (routes, meta, schema)
+|-- package.json           # Build: "vite build && node scripts/inject-brand.js && node scripts/prerender.js"
+|-- vite.config.js         # Standard Vite config
+|-- public/                # Static assets
+|   |-- _headers           # Cloudflare security headers
+|   |-- _redirects         # Cloudflare redirects
+|   `-- favicon.ico
+|-- src/
+|   |-- main.jsx           # Client entry (hydrateRoot)
+|   |-- App.jsx            # BrowserRouter wrapper
+|   |-- AppLayout.jsx      # Routes + layout (NO BrowserRouter!)
+|   |-- AppIslands.jsx     # Island registry
+|   |-- hooks/
+|   |   `-- usePageMeta.js # SEO meta hook
+|   |-- islands/           # Dynamic island components
+|   `-- pages/             # Your page components
+|-- scripts/
+|   |-- inject-brand.js    # Injects global meta
+|   `-- prerender.js       # Prerenders routes to HTML
+`-- dist/                  # Build output (generated)
+    |-- index.html
+    |-- about/
+    |   `-- index.html
+    |-- sitemap.xml
+    `-- 404.html
 ```
 
 ## Environment Variables

@@ -12,7 +12,7 @@ import { syncProxyBotList, injectBrand } from '../engine/scripts/inject-brand.js
  * temp dir). The actual script integration tests run via npm run build in CI.
  */
 
-// ── syncProxyBotList ───────────────────────────────────────────────────────────
+// -- syncProxyBotList -----------------------------------------------------------
 
 // A realistic skeleton of scripts/proxy.worker.js -- same shape the engine
 // ships. Kept in the test rather than read from init/ so the suite stays
@@ -263,7 +263,7 @@ describe('findRoute', () => {
 describe('config pass-through contract (real validateConfig validation lives in engine.test.js)', () => {
   // Audit cleanup 2026-10-21: the three describes that lived here before
   // ("ssr.config.js validation", "404 config", "proxy config") tested local
-  // literal objects against themselves -- zero engine code — and the proxy
+  // literal objects against themselves -- zero engine code -- and the proxy
   // block carried the retired `config.proxy.secret` key that no shipped code
   // reads. What inject-brand.js actually consumes from config is platform
   // (default cloudflare) and deployId; the REAL validateConfig checks are

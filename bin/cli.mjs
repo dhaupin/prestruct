@@ -90,7 +90,7 @@ function report(config) {
   return ok
 }
 
-// ── init ──────────────────────────────────────────────────────────────────────
+// -- init ----------------------------------------------------------------------
 
 function cmdInit(args) {
   const target = path.resolve(args.find(a => !a.startsWith('-')) || '.')
@@ -132,7 +132,7 @@ function cmdInit(args) {
   console.log('[prestruct] add "prestruct build" (or npm run build) as your build step.')
 }
 
-// ── build ─────────────────────────────────────────────────────────────────────
+// -- build ---------------------------------------------------------------------
 
 async function cmdBuild(args) {
   const workdir = findWorkdir(args)
@@ -154,7 +154,7 @@ async function cmdBuild(args) {
 
   // Forward --force/--clean through to the engine's incremental prerender.
   // Found live by tarball e2e: without this pass-through, engine accepted the
-  // force flag but CLI silently dropped it -- "◯ / (cached)" under --force,
+  // force flag but CLI silently dropped it -- "cached / (route)" under --force,
   // which shipped stale static HTML and made users reach for rm -rf.
   const force = args.includes('--force') || args.includes('-f')
   if (args.includes('--clean')) {
@@ -173,7 +173,7 @@ async function cmdBuild(args) {
   }
 }
 
-// ── validate / clean ──────────────────────────────────────────────────────────
+// -- validate / clean ----------------------------------------------------------
 
 async function cmdValidate(args) {
   const workdir = findWorkdir(args)
@@ -190,7 +190,7 @@ function cmdClean(args) {
   cleanCache({ cacheFile: p.cacheFile })
 }
 
-// ── dispatch ──────────────────────────────────────────────────────────────────
+// -- dispatch ------------------------------------------------------------------
 
 const [command, ...args] = process.argv.slice(2)
 

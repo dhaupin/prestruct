@@ -47,19 +47,19 @@ Do not revisit these. They are documented and debugged:
 
 ## 4. Phases
 
-### Phase 0 — Stop the bleeding (this PR)
+### Phase 0 -- Stop the bleeding (this PR)
 
 Goal: green CI, no engine drift, no code behavior changes.
 
 | Task | Files |
 |------|-------|
 | 0.1 Reconcile `inject-brand.js` drift: merge deployId/deployIdFooter into `init/` (single source) and copy to `example/` | `init/scripts/inject-brand.js`, `example/scripts/inject-brand.js` |
-| 0.2 Add a sync script (`node scripts/sync-engine.mjs`) that copies init→example; document it in engine-sync-check.yml error message | `scripts/sync-engine.mjs` (new, at repo root) |
+| 0.2 Add a sync script (`node scripts/sync-engine.mjs`) that copies init->example; document it in engine-sync-check.yml error message | `scripts/sync-engine.mjs` (new, at repo root) |
 | 0.3 Decide version truth: root `package.json` becomes the release version; both `init/package.json` and PLAN.md reference it | root `package.json` |
 
 Estimated: half a day. No behavior change. Tests go green.
 
-### Phase 1 — Extract the engine (the "clean up internals" focus)
+### Phase 1 -- Extract the engine (the "clean up internals" focus)
 
 Goal: one engine, imported -- not copied.
 
@@ -67,7 +67,7 @@ Goal: one engine, imported -- not copied.
    `islands.js`, `usePageMeta.js` live here with a stable export surface
    (`prerender(config)`, `injectMeta(html, meta, url)`).
 2. **`scripts/sync-engine.mjs`** is a derived-artifact generator: it copies
-   `engine/` → `init/` → `example/` with path rewrites. Byte-identical CI check
+   `engine/` -> `init/` -> `example/` with path rewrites. Byte-identical CI check
    stays; it now verifies the generator ran, not that humans edited twice.
 3. **Delete `init/incremental.js`.** Inline cache logic in prerender.js becomes
    a small module inside `engine/`.
@@ -78,7 +78,7 @@ Goal: one engine, imported -- not copied.
 Acceptance: npx vitest run passes; a fresh `cp -r init/*` still works unchanged
 in a clean Vite app (verify in `example/`).
 
-### Phase 2 — The npm package (PLAN P2 pulled up)
+### Phase 2 -- The npm package (PLAN P2 pulled up)
 
 Goal: `npx prestruct init` or `npm i prestruct` works.
 
@@ -90,7 +90,7 @@ Goal: `npx prestruct init` or `npm i prestruct` works.
 
 Acceptance: `npx prestruct init` in a fresh Vite app produces a working build.
 
-### Phase 3 — Remaining roadmap items
+### Phase 3 -- Remaining roadmap items
 
 Progress (landed in the pass after Phase 2):
 

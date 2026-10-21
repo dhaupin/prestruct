@@ -1,4 +1,4 @@
-// crashtest.config.js — prestruct's own crash-test target.
+// crashtest.config.js -- prestruct's own crash-test target.
 //
 // The proxy pair IS prestruct's whole HTTP surface (everything else is
 // build-time/CLI code), so the harness attacks both runtimes in-process:
@@ -8,10 +8,10 @@
 //
 // Deliberately NOT armed in this run:
 //   - PRESTRUCT_SECRET is unset (script cwd env) and absent for the fake
-//     worker env — cache-refresh is OFF on both runtimes, which is exactly
+//     worker env -- cache-refresh is OFF on both runtimes, which is exactly
 //     the behavior `refresh-strict-parity` pins (an unset secret must mean
 //     "feature off", never "allow all").
-//   - puppeteer/@cloudflare/puppeteer are not installed — the render paths
+//   - puppeteer/@cloudflare/puppeteer are not installed -- the render paths
 //     MUST fail and fall through to the live-site 302; `bot-render-fallback`
 //     turns that into a contract instead of an accident.
 //
@@ -44,7 +44,7 @@ export default {
     },
   },
   // Crashtest v0.3+ pack model: the run root's own packs/public/ and
-  // packs/local/ are discovered automatically — `packs: true` is that
+  // packs/local/ are discovered automatically -- `packs: true` is that
   // default spelled out. An ADOPTING repo (any other repo running crashtest
   // against prestruct as a target) needs exactly one line instead:
   //   packs: ['/abs/path/to/prestruct/packs']   // whole checkout

@@ -71,11 +71,11 @@ From an empty Vite app to a deployed prerendered site in minutes.
 
 ```text
 my-site/
-├── ssr.config.js      # Route config, meta, schema
-├── public/            # Static assets
-├── src/               # React source
-├── scripts/           # Prerender logic
-└── dist/              # Build output
+|-- ssr.config.js      # Route config, meta, schema
+|-- public/            # Static assets
+|-- src/               # React source
+|-- scripts/           # Prerender logic
+`-- dist/              # Build output
 ```
 
 ## Resources

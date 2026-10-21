@@ -4,15 +4,15 @@ import { cacheSignature, cacheEntryValid } from '../engine/scripts/prerender.js'
 /**
  * Stale-cache regression battery (2026-10 sweep).
  *
- * The old skip was `if (!force && cache[route.path])` — path-keyed only, so a
+ * The old skip was `if (!force && cache[route.path])` -- path-keyed only, so a
  * changed shell (new vite hashes, deploy-id), changed route meta, or a
  * changed siteUrl rewrote nothing and the build shipped PREVIOUS-BAKE HTML
  * with a fresh "Done." log. Found live during the example-site once-over:
  * eight source/config edits produced EIGHT "(cached)" lines and a dist/ that
  * contained none of them.
  *
- * These tests pin the signature contract: every rendered input — shell,
- * siteUrl, route meta, route ogImage — participates in the entry signature,
+ * These tests pin the signature contract: every rendered input -- shell,
+ * siteUrl, route meta, route ogImage -- participates in the entry signature,
  * legacy entries (no sig) are stale-once, and matching signatures hold.
  */
 
@@ -54,7 +54,7 @@ describe('cacheEntryValid', () => {
     expect(cacheEntryValid(entry(staleSig), ROUTE, SITE, SHELL)).toBe(false)
   })
 
-  it('treats legacy entries (no sig) as stale — one fresh render upgrades them', () => {
+  it('treats legacy entries (no sig) as stale -- one fresh render upgrades them', () => {
     expect(cacheEntryValid({ html: '<p>old</p>', time: 1 }, ROUTE, SITE, SHELL)).toBe(false)
   })
 

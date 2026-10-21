@@ -3,7 +3,7 @@
  * Docs frontmatter gate (pass 153).
  *
  * docs/advanced/style.md requires every page to carry all 5 frontmatter
- * fields (version, permalink, layout, title, nav_order) — but until now
+ * fields (version, permalink, layout, title, nav_order) -- but until now
  * NOTHING enforced it, and pass 151 found 2 of 118 pages missing
  * `layout:` with a real consequence: docs/_config.yml has no `defaults`
  * block, so Jekyll renders a layout-less page as raw HTML with no site
@@ -11,7 +11,7 @@
  *
  * Checks every markdown page under docs/:
  *   - all 5 style.md-required fields present and non-empty
- *   - permalink is absolute-ish (starts with /) — the site links by it
+ *   - permalink is absolute-ish (starts with /) -- the site links by it
  *   - nav_order is an integer
  *
  * NOTE: the version field is PRESENCE-only. style.md defines it as

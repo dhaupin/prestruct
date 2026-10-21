@@ -1,11 +1,11 @@
-# TASKS.md — pass log for prestruct
+# TASKS.md -- pass log for prestruct
 
 Working log, not documentation. One section per pass: what was done, what was
 learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
-## Pass 2 — Phase 0: stop the bleeding (2026-10-20)
+## Pass 2 -- Phase 0: stop the bleeding (2026-10-20)
 
 **Done:**
 
@@ -35,28 +35,32 @@ not block. Queued for Phase 1.
 - Sync contract: `init/` is source of truth; `sync-example.yml` copies on
   release publish; `engine-sync-check.yml` + `tests/qc.test.mjs` enforce
   byte-identical on every push. Drift happened because a feature landed in
-  only one copy — OldSchool fix: always change `init/`, then run
+  only one copy -- OldSchool fix: always change `init/`, then run
   `node scripts/sync-engine.mjs`.
 - W8 (latent bug found during reconciliation): with `deployIdFooter: true`,
   inject-brand rewrites `<div id="root"` before prerender runs, so
   prerender's `'<div id="root"></div>'` shell replace misses and every route
   prerenders empty. Dormant (both configs use false). Phase 1: make
   prerender's root-div matcher attribute-tolerant.
-- Root lint has never worked (`type: module` missing); do not "fix" casually —
+- Root lint has never worked (`type: module` missing); do not "fix" casually --
   adding `"type"` to root package.json changes module semantics for every
   root `.js` file; bundle it with the Phase 1 engine extraction.
 - Vant brain runs in a dedicated install (`/home/daytona/vant`) with its own
   default template brain parked in `template-brain-backup/` (gather captures
-  ALL scopes in an install, no CLI filter — so a shared install would bloat
+  ALL scopes in an install, no CLI filter -- so a shared install would bloat
   the repo stone with unrelated brain content). Canonical brain content lives
   in `models/private/prestruct/`; `models/public/prestruct/` is a curated
   pointer-only mirror that feeds the repo stone.
 - Public stone: `horcrux/prestruct-p_st0neph0enix2026.svg`. Password
   `st0neph0enix2026` is IN the filename by design (boot convention) so the
-  OSS brain is bootable by contributors/agents: restore via  `VANT_ALLOW_FILENAME_PW=true` (vant gates legacy filename-password lookup)  or via an explicit password / `VANT_BRAIN_PASSWORD`. Locator schema quirk  learned:
+  OSS brain is bootable by contributors/agents: restore via  `VANT_ALLOW_FILENAME_PW=true` (vant gates legacy filename-password lookup)
+  or via an explicit password / `VANT_BRAIN_PASSWORD`. Locator schema quirk
+  learned:
   `parseFilenamePassword` splits on `-`/`_` and takes only the first segment
-  after `p_` — stone passwords must never contain separators or they can
-  never round-trip through the filename convention. Consequence of the  transparent password: every file in the dedicated install ships inside the  stone — OSS-safe discipline applies to the whole brain, personal/private  content must live in a separate install's brain instead.
+  after `p_` -- stone passwords must never contain separators or they can
+  never round-trip through the filename convention. Consequence of the  transparent password: every file in the dedicated install ships inside the
+  stone -- OSS-safe discipline applies to the whole brain, personal/private
+  content must live in a separate install's brain instead.
 
 **Setup for next pass (Phase 1: extract the engine):**
 
@@ -77,12 +81,12 @@ not block. Queued for Phase 1.
 
 ---
 
-## Pass 1 — audit and PRD (2026-10-20)
+## Pass 1 -- audit and PRD (2026-10-20)
 
 - Full repo audit. Findings logged as W1-W7 in `labs/prd.md` (engine drift,
   no engine source dir, version sprawl, exit-0 policy, incremental stub,
   duplicated meta logic, non-portable example config).
-- Suite was 45/46: failing test was the init↔example sync check on
+- Suite was 45/46: failing test was the init<->example sync check on
   `inject-brand.js`.
 - `labs/prd.md` written: Phases 0-3 + 4 open questions.
 ---
@@ -325,7 +329,7 @@ environmental, not repo defects.
 (7 new unit tests this pass); scratch rebuild produced correct dist
 (robots.txt present, status.json valid JSON, title reflects route meta
 under --force and under default cache-skip). Tarball down to 57KB, so CI
-and npx installs stop transferring闲置 MB of node_modules.
+and npx installs stop transferring idle MB of node_modules.
 
 **Next:** upstream the AGENTS.md lessons (npm pack disk-state negation +
 .npmignore both; title-regex comment trap; CLI flag pass-through linter);

@@ -15,22 +15,22 @@ Typical prestruct project:
 
 ```text
 my-app/
-├── src/
-│   ├── App.jsx           # Main app with BrowserRouter
-│   ├── AppLayout.jsx     # Layout component (no BrowserRouter)
-│   ├── pages/
-│   │   ├── Home.jsx
-│   │   ├── About.jsx
-│   │   └── Blog.jsx
-│   ├── islands/
-│   │   └── CartWidget.jsx  # Dynamic island component
-│   ├── AppIslands.jsx      # Island registry
-├── scripts/
-│   ├── prerender.js      # Build-time prerender
-│   └── proxy.js          # Optional bot proxy
-├── ssr.config.js         # Prerender configuration
-├── wrangler.toml         # Cloudflare Pages config
-└── package.json
+|-- src/
+|   |-- App.jsx           # Main app with BrowserRouter
+|   |-- AppLayout.jsx     # Layout component (no BrowserRouter)
+|   |-- pages/
+|   |   |-- Home.jsx
+|   |   |-- About.jsx
+|   |   `-- Blog.jsx
+|   |-- islands/
+|   |   `-- CartWidget.jsx  # Dynamic island component
+|   |-- AppIslands.jsx      # Island registry
+|-- scripts/
+|   |-- prerender.js      # Build-time prerender
+|   `-- proxy.js          # Optional bot proxy
+|-- ssr.config.js         # Prerender configuration
+|-- wrangler.toml         # Cloudflare Pages config
+`-- package.json
 ```
 
 ## Static site with islands
@@ -73,6 +73,8 @@ export default function CartWidget() {
 ```
 
 Expose it through the registry, use the placeholder in pages:
+
+First register the component under the island name your pages will use:
 
 ```jsx
 // src/AppIslands.jsx

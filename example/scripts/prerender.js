@@ -24,11 +24,11 @@
  *   prerender()                     -- full pipeline
  *
  * Output (for a 3-route app with /, /about, /contact):
- *   dist/index.html           → /
- *   dist/about/index.html     → /about
- *   dist/contact/index.html   → /contact
- *   dist/404.html             → served by CF Pages for unmatched routes (HTTP 404)
- *   dist/sitemap.xml          → replaces the static one from public/
+ *   dist/index.html           -> /
+ *   dist/about/index.html     -> /about
+ *   dist/contact/index.html   -> /contact
+ *   dist/404.html             -> served by CF Pages for unmatched routes (HTTP 404)
+ *   dist/sitemap.xml          -> replaces the static one from public/
  *
  * Failure policy: exits 0 on fatal error so CF Pages deploy continues as SPA.
  * Set PRESTRUCT_STRICT=1 to make config-validation failures exit 1 (local CI use).
@@ -65,7 +65,7 @@ export function enginePaths(root = ROOT) {
   }
 }
 
-// ── Replacement safety ────────────────────────────────────────────────────────
+// -- Replacement safety --------------------------------------------------------
 // Prevent regex backreference expansion ($1, $2, ...) when dynamic values are
 // used in replacement strings.
 
@@ -101,13 +101,13 @@ export function escapeHtml(s) {
     .replace(/'/g, '&#39;')
 }
 
-// ── Cache-entry validity (stale-cache fix) ─────────────────────────────────
-// The old skip was path-keyed only: `if (!force && cache[route.path])` — a
+// -- Cache-entry validity (stale-cache fix) ---------------------------------
+// The old skip was path-keyed only: `if (!force && cache[route.path])` -- a
 // changed shell (new vite asset hashes, meta edits, deploy-id) or changed
 // route meta did NOT invalidate, and the loop happily rewrote yesterday's
 // HTML over today's build. Real fix: every cache entry carries a
-// signature over every rendered input — the shell, the siteUrl, and the
-// route's own meta/ogImage — and a hit only counts when the signature
+// signature over every rendered input -- the shell, the siteUrl, and the
+// route's own meta/ogImage -- and a hit only counts when the signature
 // matches. Entries written before signatures exist (no `sig` field) count
 // as stale and get rerendered once, then upgraded in place.
 //
@@ -152,7 +152,7 @@ export function cacheEntryValid(entry, route, siteUrl, shell) {
   return entry.sig === cacheSignature(route, siteUrl, shell)
 }
 
-// ── Root-div injection (W8 fix) ───────────────────────────────────────────────
+// -- Root-div injection (W8 fix) -----------------------------------------------
 // Attribute-tolerant: inject-brand.js may add its own attrs to the root div
 // (e.g. data-deploy-id-footer when config.deployIdFooter is true). This
 // matcher therefore matches <div id="root">, <div id="root" ...attrs>, and
@@ -185,7 +185,7 @@ export function replaceRootDiv(shell, appHtml) {
   )
 }
 
-// ── Meta injection ────────────────────────────────────────────────────────────
+// -- Meta injection ------------------------------------------------------------
 
 /**
  * Stamp per-route title/description/canonical/OG onto prerendered HTML.
@@ -225,7 +225,7 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
   return html
 }
 
-// ── Incremental cache ─────────────────────────────────────────────────────────
+// -- Incremental cache ---------------------------------------------------------
 
 /**
  * Read the incremental cache map from disk (empty object when absent/corrupt).
@@ -270,7 +270,7 @@ export function cleanCache({ cacheFile = enginePaths().cacheFile } = {}) {
   console.log('[prerender] Cache cleared')
 }
 
-// ── Sitemap ───────────────────────────────────────────────────────────────────
+// -- Sitemap -------------------------------------------------------------------
 
 /**
  * Generate robots.txt when config.robots is opted in; otherwise null so the
@@ -344,7 +344,7 @@ export function generateSitemap(routes, siteUrl) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}\n</urlset>`
 }
 
-// ── 404 page ──────────────────────────────────────────────────────────────────
+// -- 404 page ------------------------------------------------------------------
 // Uses id="root-404" (not "root") so main.jsx does NOT trigger hydrateRoot.
 // The React bundle script tag is stripped -- no JS loads at all on 404 pages.
 // See AGENTS.md for the full explanation.
@@ -424,7 +424,7 @@ export function generate404(shell, config, siteUrl) {
   return html
 }
 
-// ── Main pipeline ─────────────────────────────────────────────────────────────
+// -- Main pipeline -------------------------------------------------------------
 
 async function loadConfig() {
   try {
@@ -581,7 +581,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
       // path-joined. Validation diagnostics already flagged it; the loop
       // still skips silently-uncaught otherwise.
       if (route.path.includes('..') || route.path.includes('\\')) {
-        console.error(`[prerender] ✗ ${route.path}: refusing path outside dist/ (contains ".." or backslash)`)
+        console.error(`[prerender] FAIL ${route.path}: refusing path outside dist/ (contains ".." or backslash)`)
         continue
       }
 
@@ -596,7 +596,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
       if (!force && cacheEntryValid(cache[route.path], route, siteUrl, shell)) {
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         fs.writeFileSync(distPath, cache[route.path].html, 'utf-8')
-        console.log(`[prerender] ◯ ${route.path} (cached)`)
+        console.log(`[prerender] cached ${route.path}`)
         succeeded++
         continue
       }
@@ -621,10 +621,10 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         fs.writeFileSync(distPath, html, 'utf-8')
 
-        console.log(`[prerender] ✓ ${route.path}`)
+        console.log(`[prerender] ok ${route.path}`)
         succeeded++
       } catch (err) {
-        console.error(`[prerender] ✗ ${route.path}: ${err.message}`)
+        console.error(`[prerender] FAIL ${route.path}: ${err.message}`)
         failures.push({ path: route.path, message: err.message })
       }
     }
@@ -634,11 +634,11 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
     // 404.html -- CF Pages serves this for all unmatched routes with HTTP 404
     fs.writeFileSync(path.join(p.dist, '404.html'), generate404(shell, cfg || config, siteUrl), 'utf-8')
-    console.log('[prerender] ✓ /404.html')
+    console.log('[prerender] ok /404.html')
 
     // sitemap.xml -- overwrites the static one in public/ with today's date
     fs.writeFileSync(path.join(p.dist, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl), 'utf-8')
-    console.log('[prerender] ✓ /sitemap.xml')
+    console.log('[prerender] ok /sitemap.xml')
 
     // robots.txt -- opt-in only (config.robots): without it the author-owned
     // public/robots.txt (if any) is untouched. Generated after sitemap so the
@@ -646,7 +646,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     const robots = generateRobots(cfg || config)
     if (robots !== null) {
       fs.writeFileSync(path.join(p.dist, 'robots.txt'), robots, 'utf-8')
-      console.log('[prerender] ✓ /robots.txt')
+      console.log('[prerender] ok /robots.txt')
     }
 
     // Cache stats -- static-sites-safe monitor: a JSON snapshot beside dist/
@@ -667,7 +667,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
     // Structured result -- callers (CLI, tests) need the failure count to
     // decide the exit code. Live-fire (2026-10): every prerendering route
-    // is a silent-empty-page site; prerender used to end on a green ✓ while
+    // is a silent-empty-page site; prerender used to end on a green-ok line while
     // the routes errorred out. Return, never process.exit: library-safety.
     return { total: ROUTES.length, succeeded, cached: ROUTES.length - succeeded, failed: failures.length, failures }
 
@@ -676,7 +676,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
   }
 }
 
-// ── CLI entry ─────────────────────────────────────────────────────────────────
+// -- CLI entry -----------------------------------------------------------------
 // Only runs when executed directly (node scripts/prerender.js) -- never on
 // import. prerender() itself does not load ssr.config.js; the CLI wrapper does.
 

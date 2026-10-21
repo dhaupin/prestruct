@@ -91,7 +91,7 @@ export function cacheKey(url) {
   return `prestruct:${encodeURIComponent(url)}`
 }
 
-// ── Secret compare (constant time) ───────────────────────────────────────────
+// -- Secret compare (constant time) -------------------------------------------
 // Workers cannot import node:crypto, so there is no timingSafeEqual here.
 // The XOR form is the standard constant-time comparator available in any
 // runtime: every byte of both inputs is read and folded into one accumulator,

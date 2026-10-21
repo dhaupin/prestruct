@@ -1,7 +1,7 @@
-// tests/islands.test.js — REAL engine tests for engine/src/islands.js.
+// tests/islands.test.js -- REAL engine tests for engine/src/islands.js.
 //
 // History, pinned by the 2026-10-21 islands audit: this file used to hold
-// 11 "tests" that never touched the engine — they tested local helper
+// 11 "tests" that never touched the engine -- they tested local helper
 // functions invented inside the test itself (parseIslandSelector,
 // validateIslandConfig) and asserted the test's own constants. Fiction that
 // passed while BOTH example islands shipped unregistered and the contact
@@ -37,7 +37,7 @@ const el = (html) => {
 
 const Comp = () => null
 
-describe('mountIslands — registry wiring', () => {
+describe('mountIslands -- registry wiring', () => {
   beforeEach(() => bootDom())
 
   it('mounts an eager island by clearing the element and rendering into it', () => {
@@ -69,7 +69,7 @@ describe('mountIslands — registry wiring', () => {
   })
 })
 
-describe('mountIslands — double-mount guard (WeakSet)', () => {
+describe('mountIslands -- double-mount guard (WeakSet)', () => {
   beforeEach(() => bootDom())
 
   it('does not clear/mount the same element twice across repeated scans', () => {
@@ -82,7 +82,7 @@ describe('mountIslands — double-mount guard (WeakSet)', () => {
   })
 })
 
-describe('mountIslands — load strategies', () => {
+describe('mountIslands -- load strategies', () => {
   // React 18 createRoot().render() commits asynchronously, so every assertion
   // flushes a macrotask first. The engine reads strategy globals through TWO
   // different surfaces that must both be faked in happy-dom:

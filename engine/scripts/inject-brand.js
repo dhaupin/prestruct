@@ -47,7 +47,7 @@ import { fileURLToPath, pathToFileURL } from 'url'
 
 import { validateConfig, formatDiagnostics } from './validate-config.js'
 
-// ── Replacement safety ────────────────────────────────────────────────────────
+// -- Replacement safety --------------------------------------------------------
 
 /**
  * Neutralize replacement-pattern characters ($&, $1, ...) so user copy can
@@ -81,7 +81,7 @@ export function escapeHtmlAttr(value) {
     .replace(/'/g, '&#39;')
 }
 
-// ── Title generation ─────────────────────────────────────────────────────────
+// -- Title generation ---------------------------------------------------------
 
 /**
  * Compose the SEO title as "siteName | tagline" with the tagline trimmed
@@ -95,7 +95,7 @@ export function generateTitle(siteName, tagline) {
   return siteName ? (tagline ? `${siteName} | ${tagline}` : siteName) : 'Site'
 }
 
-// ── Deploy ID ────────────────────────────────────────────────────────────────
+// -- Deploy ID ----------------------------------------------------------------
 
 // Generate deploy ID from git commit hash + short timestamp
 function defaultGetDeployId() {
@@ -114,7 +114,7 @@ function defaultGetDeployId() {
   }
 }
 
-// ── Main injection flow ──────────────────────────────────────────────────────
+// -- Main injection flow ------------------------------------------------------
 // export function injectBrand(config, distDir, { getDeployId } = {})
 //   config  : loaded ssr.config.js (validated first)
 //   distDir : absolute path to the build output (defaults ./dist)
@@ -168,7 +168,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
 
   let html = readFileSync(htmlPath, 'utf8')
 
-  // ── Deploy ID ──────────────────────────────────────────────────────────────
+  // -- Deploy ID --------------------------------------------------------------
 
   // Deploy ID meta tag is on by default. Footer display is opt-in (default false).
   const deployIdEnabled = config.deployId !== false
@@ -198,7 +198,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
     html = html.replace(/ data-deploy-id-footer/g, '')
   }
 
-  // ── Primary meta ───────────────────────────────────────────────────────────
+  // -- Primary meta -----------------------------------------------------------
 
   // Title regex deliberately has no dotall 's' flag: shells can carry the
   // string '<title>' inside HTML comments (build instructions), and a dotall
@@ -225,11 +225,11 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   html = html.replace(/<link rel="canonical"[^>]*>/,
     `<link rel="canonical" href="${canonicalSafe}" />`)
 
-  // ── Remove previously injected OG / JSON-LD blocks (safe to run on rebuild) ──
+  // -- Remove previously injected OG / JSON-LD blocks (safe to run on rebuild) --
 
   html = html.replace(/\n\s*<!-- Open Graph -->[\s\S]*?<\/script>\s*/g, '\n  ')
 
-  // ── Open Graph + Twitter Card ───────────────────────────────────────────────
+  // -- Open Graph + Twitter Card -----------------------------------------------
 
   // Only include image tags if ogImage is provided
   const imageMeta = ogImage ? `
@@ -250,7 +250,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
     <meta name="twitter:title"       content="${titleSafe}" />
     <meta name="twitter:description" content="${descriptionSafe}" />`
 
-  // ── JSON-LD ────────────────────────────────────────────────────────────────
+  // -- JSON-LD ----------------------------------------------------------------
 
   let jsonLdBlock = ''
   if (typeof buildJsonLd === 'function') {
@@ -285,7 +285,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   console.log(`  Title:     ${title}`)
   console.log(`  Canonical: ${canonical}`)
 
-  // ── CSP update for proxy origin ────────────────────────────────────────────
+  // -- CSP update for proxy origin --------------------------------------------
   // Only runs when config.proxy.url is set.
   // Appends the proxy origin to the connect-src directive in dist/_headers.
   // Safe to run multiple times -- checks for existing entry before appending.
@@ -321,7 +321,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
     }
   }
 
-  // ── Worker bot list sync ──────────────────────────────────────────────────
+  // -- Worker bot list sync --------------------------------------------------
   // The VPS proxy (scripts/proxy.js) reads config.proxy.botList from
   // ssr.config.js at startup, but the Cloudflare Worker has no build-time
   // config access -- its list is embedded in scripts/proxy.worker.js.
@@ -384,7 +384,7 @@ export function syncProxyBotList(config, projectRoot) {
   }
 }
 
-// ── CLI entry ────────────────────────────────────────────────────────────────
+// -- CLI entry ----------------------------------------------------------------
 // Only runs when executed directly (node scripts/inject-brand.js) -- never on import.
 
 /**

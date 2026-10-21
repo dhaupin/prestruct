@@ -5,7 +5,7 @@
  * Why: two org agents drifted into Chinese mid-session on 2026-10-11 from
  * an English conversation; committed artifacts can drift the same way via
  * scripted agents. Committed prose a HUMAN reads must be readable by every
- * nationality — English is what the OSS landscape runs on.
+ * nationality -- English is what the OSS landscape runs on.
  *
  * Contract (distilled from the gistory reference implementation):
  * 1. SCAN SCOPE: committed files a human reads as prose - docs/, labs/,
@@ -19,7 +19,7 @@
  *    For each Han/Hiragana/Katakana/Hangul/Cyrillic/Arabic/Hebrew/
  *    Devanagari/Thai/Greek block, compute the longest contiguous run per
  *    line; flag when a run is >= MIN_RUN (2 can be a transliterated name;
- *    3 reads as writing). Threshold + block list are DATA at the top —
+ *    3 reads as writing). Threshold + block list are DATA at the top --
  *    tuned in <30 lines.
  * 3. ALLOWLIST BY CONSTRUCTION, not intervention: URL-bearing lines,
  *    import/export/require lines, base64-ish blobs, and the
@@ -27,10 +27,10 @@
  *    out WITHOUT editing the checker.
  * 4. FAILURE CONTRACT: exit 1 with `path:line <script-block-name> (N chars):
  *    <trimmed line>`; PASS prints
- *    `LANGUAGE GATE: PASS (English-only) — N prose files scanned`.
+ *    `LANGUAGE GATE: PASS (English-only) -- N prose files scanned`.
  *
  * Inside fenced code blocks and inline-code spans are literal DATA, not
- * prose — exempt (same posture as check-docs-style.js).
+ * prose -- exempt (same posture as check-docs-style.js).
  */
 const fs = require('fs');
 const path = require('path');
@@ -108,7 +108,7 @@ function isAllowed(line) {
     if (/^\s*(import|export|require)\b/.test(line)) return true; // code lines
     if (/[A-Za-z0-9+/]{40,}={0,2}/.test(line)) return true;   // base64-ish
     const env = process.env.LINT_LANGUAGE_ALLOW_RE;
-    if (env) { try { if (new RegExp(env).test(line)) return true; } catch (e) { /* hostile regex — ignore, keep scanning */ } }
+    if (env) { try { if (new RegExp(env).test(line)) return true; } catch (e) { /* hostile regex -- ignore, keep scanning */ } }
     return false;
 }
 
@@ -166,6 +166,6 @@ for (const f of unique) {
 }
 for (const f of findings) console.log(f);
 console.log(issues === 0
-    ? `LANGUAGE GATE: PASS (English-only) — ${unique.length} prose files scanned`
+    ? `LANGUAGE GATE: PASS (English-only) -- ${unique.length} prose files scanned`
     : `LANGUAGE GATE: FAIL (${issues} findings in ${unique.length} prose files)`);
 process.exit(issues === 0 ? 0 : 1);

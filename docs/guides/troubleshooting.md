@@ -287,7 +287,7 @@ both runtimes.
 
 ### Watch the build's own diagnostics
 
-Prerender logs per-route status (`✓ / route`, `◯ / route (cached)`) and any
+Prerender logs per-route status (`ok /route`, `cached /route`) and any
 `[prestruct] config:` validation lines -- no debug flag needed. To fail on
 diagnostics in CI: `PRESTRUCT_STRICT=1`.
 

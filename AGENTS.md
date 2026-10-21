@@ -233,7 +233,7 @@ description, ogImage path, anything.
 /about/    /about    301
 ```
 
-**What broke:** Infinite redirect loop. `/about` → `/about/` (CF Pretty URLs) → `/about` → ...
+**What broke:** Infinite redirect loop. `/about` -> `/about/` (CF Pretty URLs) -> `/about` -> ...
 
 **Root cause:** CF Pages' Pretty URLs feature redirects directory-index requests
 to the trailing-slash form. Our rule reversed that redirect, CF re-applied it.
@@ -634,7 +634,7 @@ var url = data.url && data.url.startsWith(baseurl)
 
 ## Docs frame: header layout + accordion
 
-Desktop layout with wordmark → nav → actions (search/theme):
+Desktop layout with wordmark -> nav -> actions (search/theme):
 
 - Use `order` CSS property to control flex child positions
 - Nav gets `order:1`, actions get `order:2` (actions rightmost)

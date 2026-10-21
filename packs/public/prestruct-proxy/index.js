@@ -1,4 +1,4 @@
-// packs/public/prestruct-proxy/index.js — adversarial pack for prestruct's
+// packs/public/prestruct-proxy/index.js -- adversarial pack for prestruct's
 // HTTP surface. The proxy pair IS the whole HTTP side of prestruct:
 //
 //   VPS    : scripts/proxy.js    -> createProxyApp(config) (express .handle)
@@ -6,8 +6,8 @@
 //
 // Every attack is vocabulary-driven like wp-money-shapes: route NAMES come
 // from the host config (moduleCtx['prestruct-proxy']), so the pack runs
-// against any wiring. Missing arms degrade to a REFUSED skip — matching the
-// declared-skip row contract — never a false positive.
+// against any wiring. Missing arms degrade to a REFUSED skip -- matching the
+// declared-skip row contract -- never a false positive.
 //
 // Four shapes, two runtimes, one contract each:
 //
@@ -33,7 +33,7 @@ export default {
   attacks: [
     {
       name: 'method-contract-walk',
-      description: 'non-GET requests must be clean 405s on every surface — never 5xx, never hang, never pass through',
+      description: 'non-GET requests must be clean 405s on every surface -- never 5xx, never hang, never pass through',
       async run(harness, ctx) {
         const c = cfg(ctx); if (!c) return skip('route names not armed');
         const surfaces = armed(c);
@@ -56,7 +56,7 @@ export default {
     },
     {
       name: 'malformed-target-fuzz',
-      description: 'hostile paths and query strings must fail with clean 4xx responses — never 5xx, never throw',
+      description: 'hostile paths and query strings must fail with clean 4xx responses -- never 5xx, never throw',
       async run(harness, ctx) {
         const c = cfg(ctx); if (!c) return skip('route names not armed');
         const target = c.hostilePath ?? '/weird'; // path shape is the attack, not the value
@@ -89,7 +89,7 @@ export default {
     },
     {
       name: 'bot-render-fallback',
-      description: 'a classified bot must leave via the live-site 302 even when render is impossible — never a 5xx or error page',
+      description: 'a classified bot must leave via the live-site 302 even when render is impossible -- never a 5xx or error page',
       async run(harness, ctx) {
         const c = cfg(ctx); if (!c) return skip('route names not armed');
         if (!c.botList?.length) return skip('botList not armed');
@@ -152,7 +152,7 @@ export default {
             }
             if (!control.threw && control.status !== null && rec.status !== control.status && control.status < 300) {
               // Feature off + a real header changed the response shape of a
-              // non-bot request — that is a bypass-class behavior change.
+              // non-bot request -- that is a bypass-class behavior change.
               bad.push(`${route} refresh token changed response: ${control.status} -> ${rec.status}`);
             }
           }
@@ -164,7 +164,7 @@ export default {
   ],
 };
 
-// — helpers (same degrade-to-skip grammar as wp-money-shapes) —
+// -- helpers (same degrade-to-skip grammar as wp-money-shapes) --
 function cfg(ctx) {
   const c = ctx?.config?.['prestruct-proxy']
     ?? ctx?.config?.moduleCtx?.['prestruct-proxy']
@@ -179,4 +179,4 @@ function armed(c) {
 }
 function exp(detail, extra) { return { verdict: 'EXPLOITED', detail, ...extra }; }
 function ref(detail, extra = {}) { return { verdict: 'REFUSED', detail, ...extra }; }
-function skip(why) { return { verdict: 'REFUSED', detail: `prestruct-proxy: skip — ${why} (arm moduleCtx['prestruct-proxy'])` }; }
+function skip(why) { return { verdict: 'REFUSED', detail: `prestruct-proxy: skip -- ${why} (arm moduleCtx['prestruct-proxy'])` }; }

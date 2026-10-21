@@ -28,7 +28,7 @@ import {
 
 const SECRET = 'timing-test-secret-32-chars-aaaaaaaaa'
 
-// ── VPS: secret compare (hash + timingSafeEqual) ─────────────────────────────
+// -- VPS: secret compare (hash + timingSafeEqual) -----------------------------
 
 describe('VPS secretMatches', () => {
   beforeEach(() => {
@@ -65,7 +65,7 @@ describe('VPS secretMatches', () => {
   })
 })
 
-// ── VPS: isBot driven by config.proxy.botList ────────────────────────────────
+// -- VPS: isBot driven by config.proxy.botList --------------------------------
 
 describe('VPS isBot', () => {
   beforeEach(() => {
@@ -87,7 +87,7 @@ describe('VPS isBot', () => {
   })
 })
 
-// ── VPS: render concurrency limit ────────────────────────────────────────────
+// -- VPS: render concurrency limit --------------------------------------------
 // The pass-10 bug: overflow callers ran WITHOUT slot acquisition (concurrency
 // unbounded again under exactly the load the limit exists for) and queued
 // rejections were swallowed (hung callers). These tests pin both.
@@ -178,7 +178,7 @@ describe('withRenderLimit', () => {
   })
 })
 
-// ── Worker: helpers are pure and runtime-agnostic ────────────────────────────
+// -- Worker: helpers are pure and runtime-agnostic ----------------------------
 
 describe('Worker refreshSecretMatches (full-length XOR compare)', () => {
   it('accepts the exact secret', () => {

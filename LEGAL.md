@@ -1,6 +1,6 @@
 # License Agreement & Legal Framework
 
-> **⚖️ This document provides legally binding terms for using, forking, and building upon Prestruct.**
+> **This document provides legally binding terms for using, forking, and building upon Prestruct.**
 
 > **Last Updated: 2026-10-20** | **Version: 1.1** | **[Prestruct](https://github.com/dhaupin/prestruct)**
 
@@ -308,15 +308,15 @@ If any provision is held unenforceable, the remainder continues in effect.
 
 | Action | Allowed? |
 |--------|----------|
-| Use Prestruct in open source | ✅ Yes |
-| Use Prestruct in closed source | ✅ Yes |
-| Fork privately | ✅ Yes |
-| Fork publicly (rebranded) | ❌ No |
-| Call it "Prestruct" in name | ❌ No |
-| SAAS offering | ❌ No |
-| Sell Prestruct directly | ❌ No |
-| Use "Built with Prestruct" | ✅ Yes |
-| Reasonable attribution | ✅ Required |
+| Use Prestruct in open source | Yes |
+| Use Prestruct in closed source | Yes |
+| Fork privately | Yes |
+| Fork publicly (rebranded) | No |
+| Call it "Prestruct" in name | No |
+| SAAS offering | No |
+| Sell Prestruct directly | No |
+| Use "Built with Prestruct" | Yes |
+| Reasonable attribution | Required |
 
 ---
 

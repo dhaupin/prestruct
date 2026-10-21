@@ -1,4 +1,4 @@
-// tests/e2e-fixture.mjs — persisted CLI-contract e2e (opt-in: `npm run e2e`).
+// tests/e2e-fixture.mjs -- persisted CLI-contract e2e (opt-in: `npm run e2e`).
 //
 // Packs the repo as an npm tarball, then in a throwaway project: installs
 // the tarball, scaffolds `prestruct init`, copies the example config, and

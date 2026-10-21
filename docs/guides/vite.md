@@ -69,18 +69,18 @@ After `npm run build`, your `dist/` should look like:
 
 ```text
 dist/
-├── index.html              # Shell with global meta
-├── about/
-│   └── index.html          # Prerendered about page
-├── blog/
-│   ├── index.html          # Blog index
-│   └── hello-world/
-│       └── index.html      # Prerendered blog post
-├── assets/
-│   ├── index-abc123.js     # Hashed JS bundle
-│   └── index-def456.css    # Hashed CSS bundle
-├── sitemap.xml             # Auto-generated
-└── 404.html                # 404 page
+|-- index.html              # Shell with global meta
+|-- about/
+|   `-- index.html          # Prerendered about page
+|-- blog/
+|   |-- index.html          # Blog index
+|   `-- hello-world/
+|       `-- index.html      # Prerendered blog post
+|-- assets/
+|   |-- index-abc123.js     # Hashed JS bundle
+|   `-- index-def456.css    # Hashed CSS bundle
+|-- sitemap.xml             # Auto-generated
+`-- 404.html                # 404 page
 ```
 
 ## Development
@@ -146,9 +146,9 @@ Place static assets in `public/`:
 
 ```text
 public/
-├── favicon.ico
-├── og-image.png
-└── robots.txt
+|-- favicon.ico
+|-- og-image.png
+`-- robots.txt
 ```
 
 These are copied to `dist/` during build.

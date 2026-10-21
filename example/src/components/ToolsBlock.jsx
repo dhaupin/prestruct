@@ -78,7 +78,7 @@ export default function ToolsBlock() {
           <span className="tool-label">{t.label}</span>
           <span className="tool-name">{t.name}</span>
           <span className="tool-desc">{t.desc}</span>
-          <span className="tool-arrow">open tool →</span>
+          <span className="tool-arrow">open tool -></span>
         </a>
       ))}
       {/* 9th card: fills the orphan slot at 3-col width. Links to next section. */}
@@ -89,7 +89,7 @@ export default function ToolsBlock() {
           See the full build pipeline, caching strategy, and the key architectural
           decisions behind prestruct.
         </span>
-        <span className="tool-arrow">read more →</span>
+        <span className="tool-arrow">read more -></span>
       </Link>
     </div>
   )

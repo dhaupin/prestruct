@@ -75,14 +75,14 @@ line-by-line).
 
 ```
 ssr.config.js
-      │
-      ▼
+      |
+      v
 prestruct build (or npm run build in the template)
-      │
-      ├─ validate        structured [prestruct] diagnostics
-      ├─ vite build      JS/CSS bundles in dist/assets/
-      ├─ inject-brand    meta + OG + JSON-LD into dist/index.html
-      └─ prerender       vite.ssrLoadModule per route -> static HTML
+      |
+      |- validate        structured [prestruct] diagnostics
+      |- vite build      JS/CSS bundles in dist/assets/
+      |- inject-brand    meta + OG + JSON-LD into dist/index.html
+      `- prerender       vite.ssrLoadModule per route -> static HTML
 ```
 
 Static HTML is served directly at deploy time (Cloudflare Pages default). No

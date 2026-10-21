@@ -16,23 +16,23 @@ Prestruct is a **build-time prerenderer** for React/Vite apps. It renders each r
 
 ```text
 Build Time                          Runtime
-─────────────                       ───────
-┌─────────────────────┐            ┌─────────────────────┐
-│  vite build         │            │  CDN serves         │
-│  (JS bundles)       │            │  static HTML        │
-└──────────┬──────────┘            └──────────┬──────────┘
-           │                                  │
-           ▼                                  │
-┌─────────────────────┐                       │
-│  inject-brand.js    │                       │
-│  (global meta)      │                       │
-└──────────┬──────────┘                       │
-           │                                  │
-           ▼                                  ▼
-┌─────────────────────┐            ┌─────────────────────┐
-│  prerender.js       │            │  Browser hydrates   │
-│  (per-route HTML)   │───────────▶│  (SPA navigation)   │
-└─────────────────────┘            └─────────────────────┘
+-------------                       -------
+,,--------------------            ,,--------------------
+|  vite build         |            |  CDN serves         |
+|  (JS bundles)       |            |  static HTML        |
+`----------+----------            `----------+----------
+           |                                  |
+           v                                  |
+,,--------------------                       |
+|  inject-brand.js    |                       |
+|  (global meta)      |                       |
+`----------+----------                       |
+           |                                  |
+           v                                  v
+,,--------------------            ,,--------------------
+|  prerender.js       |            |  Browser hydrates   |
+|  (per-route HTML)   |----------->|  (SPA navigation)   |
+`---------------------            `---------------------
 ```
 
 ## Core Concepts
@@ -152,19 +152,19 @@ Islands are separate React roots - they don't participate in hydration, so no mi
 
 ```text
 src/
-├── App.jsx              # BrowserRouter wrapper (client only)
-├── AppLayout.jsx        # Routes + layout (NO BrowserRouter!)
-├── main.jsx             # hydrateRoot vs createRoot decision
-├── AppIslands.jsx       # Island component registry
-├── hooks/
-│   └── usePageMeta.js   # Head tag management
-└── pages/               # Page components
-    └── *.jsx
+|-- App.jsx              # BrowserRouter wrapper (client only)
+|-- AppLayout.jsx        # Routes + layout (NO BrowserRouter!)
+|-- main.jsx             # hydrateRoot vs createRoot decision
+|-- AppIslands.jsx       # Island component registry
+|-- hooks/
+|   `-- usePageMeta.js   # Head tag management
+`-- pages/               # Page components
+    `-- *.jsx
 
 scripts/
-├── inject-brand.js      # Injects <title>, meta into index.html
-└── prerender.js         # Main prerendering engine
-    └── For each route:
+|-- inject-brand.js      # Injects <title>, meta into index.html
+`-- prerender.js         # Main prerendering engine
+    `-- For each route:
         1. Create Vite dev server
         2. ssrLoadModule(AppLayout)
         3. renderToString(StaticRouter)

@@ -58,7 +58,7 @@ import crypto from 'crypto'
 import express from 'express'
 import { pathToFileURL } from 'url'
 
-// ── Runtime state (set by createProxyApp) ────────────────────────────────────
+// -- Runtime state (set by createProxyApp) ------------------------------------
 
 let TARGET_URL     = null
 let BOT_LIST       = []
@@ -66,7 +66,7 @@ let SECRET_SHA256  = null
 
 export const PORT = parseInt(process.env.PORT || '3000', 10)
 
-// ── Secret compare (constant time) ───────────────────────────────────────────
+// -- Secret compare (constant time) -------------------------------------------
 // Only honoured when a secret is configured and matches. Hash both sides to a
 // fixed length and use timingSafeEqual: response timing cannot distinguish a
 // matching prefix of the secret from a mismatching one.
@@ -77,7 +77,7 @@ export function secretMatches(headerValue) {
   return crypto.timingSafeEqual(SECRET_SHA256, provided)
 }
 
-// ── Bot detection ─────────────────────────────────────────────────────────────
+// -- Bot detection -------------------------------------------------------------
 
 export function isBot(ua) {
   if (!ua) return false
@@ -88,7 +88,7 @@ export function isBot(ua) {
   return BOT_LIST.some(token => lower.includes(String(token).toLowerCase()))
 }
 
-// ── Cache helpers ─────────────────────────────────────────────────────────────
+// -- Cache helpers -------------------------------------------------------------
 
 // Location override exists so CI/tests (and VPS layouts that mount cache
 // on a tmpfs or data disk) don't litter the process CWD. Without the override
@@ -155,7 +155,7 @@ function cleanupCache() {
   }
 }
 
-// ── Browser pool (single shared instance) ────────────────────────────────────
+// -- Browser pool (single shared instance) ------------------------------------
 
 let browser = null
 
@@ -181,7 +181,7 @@ async function getBrowser() {
   return browser
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// -- Render --------------------------------------------------------------------
 
 async function render(targetFullUrl) {
   const b    = await getBrowser()
@@ -198,7 +198,7 @@ async function render(targetFullUrl) {
   }
 }
 
-// ── Render concurrency limit ────────────────────────────────────────────────
+// -- Render concurrency limit ------------------------------------------------
 // Max concurrent renders to prevent overwhelming the system.
 
 export const MAX_CONCURRENT = 5
@@ -233,7 +233,7 @@ export async function withRenderLimit(fn) {
   })
 }
 
-// ── Express app ───────────────────────────────────────────────────────────────
+// -- Express app ---------------------------------------------------------------
 
 const app = express()
 
@@ -295,7 +295,7 @@ export async function proxyHandler(req, res, next) {
 
 app.use(proxyHandler)
 
-// ── Configuration + startup ──────────────────────────────────────────────────
+// -- Configuration + startup --------------------------------------------------
 // createProxyApp binds a validated config to the shared app and returns it, so
 // tests (or embedding hosts) can drive the pipeline without opening a port.
 // Startup validation applies the same rules the old top-level code enforced.
@@ -326,7 +326,7 @@ export function createProxyApp(config) {
   return app
 }
 
-// ── CLI entry ────────────────────────────────────────────────────────────────
+// -- CLI entry ----------------------------------------------------------------
 // Only runs when executed directly (node scripts/proxy.js) -- never on import.
 // Same gate pattern as engine files.
 

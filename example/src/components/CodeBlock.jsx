@@ -25,7 +25,7 @@ const T = {
   PLAIN: 'tok-plain',
 }
 
-// ── HTML tokenizer ────────────────────────────────────────────────────────────
+// -- HTML tokenizer ------------------------------------------------------------
 function tokenizeTag(tag, tokens) {
   const isClose  = tag.startsWith('</')
   const selfClose = tag.endsWith('/>')
@@ -86,7 +86,7 @@ function tokenizeHtml(code) {
   return tokens
 }
 
-// ── JS tokenizer ──────────────────────────────────────────────────────────────
+// -- JS tokenizer --------------------------------------------------------------
 const JS_KW = new Set(['import','export','default','from','const','let','var',
   'function','return','if','else','typeof','null','undefined','true','false',
   'new','class','extends','async','await','for','while','of','in','throw'])
@@ -135,7 +135,7 @@ function tokenizeJs(code) {
   return tokens
 }
 
-// ── Shell tokenizer ───────────────────────────────────────────────────────────
+// -- Shell tokenizer -----------------------------------------------------------
 function tokenizeSh(code) {
   return code.split('\n').flatMap((line, li, arr) => {
     const toks = []
@@ -163,7 +163,7 @@ function tokenize(code, lang) {
 }
 
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 export default function CodeBlock({ children = '', lang = 'js', label, noBar = false }) {
   const code   = String(children)
   const tokens = tokenize(code, lang)

@@ -5,42 +5,42 @@
     {
       "id": "auth/identity-spoof-headers",
       "verdict": "REFUSED",
-      "detail": "route \"admin\" not declared on this target — spoof matrix skipped (declare it for coverage)"
+      "detail": "route \"admin\" not declared on this target -- spoof matrix skipped (declare it for coverage)"
     },
     {
       "id": "auth/secret-watermark",
       "verdict": "REFUSED",
-      "detail": "no fake secrets planted in env — declare CRASHTEST_SECRET to arm this probe"
+      "detail": "no fake secrets planted in env -- declare CRASHTEST_SECRET to arm this probe"
     },
     {
       "id": "auth/privilege-escalation",
       "verdict": "REFUSED",
-      "detail": "route \"device\" not declared on this target — escalation skipped (declare it for coverage)"
+      "detail": "route \"device\" not declared on this target -- escalation skipped (declare it for coverage)"
     },
     {
       "id": "guards/hygiene-no-store",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — attack skipped (declare it for coverage)"
+      "detail": "route \"enroll\" not declared on this target -- attack skipped (declare it for coverage)"
     },
     {
       "id": "guards/burst-wall",
       "verdict": "REFUSED",
-      "detail": "route \"burst\" not declared on this target — attack skipped (declare it for coverage)"
+      "detail": "route \"burst\" not declared on this target -- attack skipped (declare it for coverage)"
     },
     {
       "id": "input/proto-pollution-body",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — attack skipped (declare it for coverage)"
+      "detail": "route \"enroll\" not declared on this target -- attack skipped (declare it for coverage)"
     },
     {
       "id": "input/never-fail-mutations",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — attack skipped (declare it for coverage)"
+      "detail": "route \"enroll\" not declared on this target -- attack skipped (declare it for coverage)"
     },
     {
       "id": "input/oversized-field",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — attack skipped (declare it for coverage)"
+      "detail": "route \"enroll\" not declared on this target -- attack skipped (declare it for coverage)"
     },
     {
       "id": "prestruct-proxy/method-contract-walk",
@@ -65,27 +65,27 @@
     {
       "id": "state/enumeration-oracle",
       "verdict": "REFUSED",
-      "detail": "route \"device\" not declared on this target — enumeration skipped (declare it for coverage)"
+      "detail": "route \"device\" not declared on this target -- enumeration skipped (declare it for coverage)"
     },
     {
       "id": "state/id-collision-alias",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — alias check skipped"
+      "detail": "route \"enroll\" not declared on this target -- alias check skipped"
     },
     {
       "id": "volume/credential-stuffing",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — stuffing skipped (declare it for coverage)"
+      "detail": "route \"enroll\" not declared on this target -- stuffing skipped (declare it for coverage)"
     },
     {
       "id": "volume/storage-fill",
       "verdict": "REFUSED",
-      "detail": "route \"kvwrite\" not declared on this target — fill check skipped (declare a KV-writing route)"
+      "detail": "route \"kvwrite\" not declared on this target -- fill check skipped (declare a KV-writing route)"
     },
     {
       "id": "volume/cost-amplification",
       "verdict": "REFUSED",
-      "detail": "route \"enroll\" not declared on this target — amplification skipped (declare it for coverage)"
+      "detail": "route \"enroll\" not declared on this target -- amplification skipped (declare it for coverage)"
     }
   ],
   "acceptedRisks": [],

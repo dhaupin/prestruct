@@ -16,8 +16,8 @@ Islands punch holes through prerendered HTML for client-only content. The static
 
 ```text
 Build Time                              Client Time
-────────────                             ───────────
-<pre-island>Hello</pre-island>    →     <pre-island>Hello</pre-island>
+------------                             -----------
+<pre-island>Hello</pre-island>    ->     <pre-island>Hello</pre-island>
 (static, visible to crawlers)            (replaced by React component)
 ```
 
@@ -302,6 +302,9 @@ is a hydration mismatch (the same flash/unstyled issue as any re-render):
 }
 .skeleton-line.short { width: 60%; }
 ```
+
+Then use those styles as the island's fallback content, so the crawler sees a
+loading skeleton and the human sees it replaced when the island mounts:
 
 ```jsx
 import './islands/cart.css'

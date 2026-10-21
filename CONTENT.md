@@ -15,7 +15,7 @@ Voice, tone, and formatting for AI-first docs.
 
 ## Structure
 
-1. **Quick Start** - Copy → Edit → Run. 3 lines max.
+1. **Quick Start** - Copy -> Edit -> Run. 3 lines max.
 2. **Config API** - Full reference. One file shown.
 3. **CLI** - Commands only.
 4. **Architecture** - 1 diagram or paragraph.
