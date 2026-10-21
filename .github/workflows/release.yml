@@ -16,6 +16,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -48,17 +49,33 @@ jobs:
       # own copies in scripts/ and src/. The mapping is proven on the actual
       # zip contents (all three import styles covered: `from '../engine/...`),
       # `await import('../engine/...')`, and proxy tests' `from '../init/...`).
+      # Plain string remap, not perl with layered YAML/perl escaping: the
+      # v1.0.0-era perl line regex was correct as authored but its second
+      # rule ('from ../engine/' form) reached CI as an Unmatched-( regex and
+      # exited 255, killing the release one step before the archive. String
+      # joins do the same job with zero escape layers.
       - name: Fix test imports for template context
         run: |
-          for f in init/tests/*.test.js init/tests/*.test.mjs init/tests/*.mjs; do
-            [ -f "${f}" ] || continue
-            # Bare `await import('../engine/x')` (no paren prefix) and the
-            # parenthesized form both occur; cover both plus `from` style.
-            perl -pi -e "s|(await import\\(['\\\"]\\))\\.\\./engine/|\\\\1./|g" "${f}"
-            perl -pi -e "s|(await import\\(['\\\"]\\))\\.\\./init/|\\\\1./|g" "${f}"
-            perl -pi -e "s|(from\\s+['\\\"]\\)\\.\\./engine/|\\\\1./|g" "${f}"
-            perl -pi -e "s|(from\\s+['\\\"]\\)\\.\\./init/scripts/|\\\\1./scripts/|g" "${f}"
-          done
+          node -e "
+          const fs = require('fs');
+          const dir = 'init/tests';
+          if (!fs.existsSync(dir)) { console.log('no init/tests -- nothing to remap'); process.exit(0); }
+          for (const f of fs.readdirSync(dir)) {
+            if (!f.endsWith('.js') && !f.endsWith('.mjs')) continue;
+            const p = dir + '/' + f;
+            let s = fs.readFileSync(p, 'utf8');
+            const before = s;
+            // Longest prefix first. Tests live in init/tests/ and must reach
+            // init/scripts/ + init/src/-- one '../' from the test file, NOT
+            // './' (file-relative resolution goes through the tests dir).
+            s = s.split('../engine/scripts/').join('../scripts/');
+            s = s.split('../engine/src/').join('../src/');
+            s = s.split('../engine/').join('../');
+            s = s.split('../init/scripts/').join('../scripts/');
+            s = s.split('../init/').join('../');
+            if (s !== before) { fs.writeFileSync(p, s); console.log('remapped', p); }
+          }
+          "
 
       # One devDeps write: everything the template test battery needs that
       # the template package.json does not declare -- react/rrd/vite/vitest
