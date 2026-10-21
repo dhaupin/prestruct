@@ -8,11 +8,11 @@ permalink: /guides/changelog
 ---
 
 Release history for prestruct. Commit history is the detailed source
-(`git log --oneline`); the npm package sits at **1.0.0** (published via the
-Trusted-Publisher workflow, provenance-attested), and **main is ahead** at
-1.1.0 until the next tag.
+(`git log --oneline`); the npm package sits at **1.1.0** (published from
+the v1.1.0 tag via the Trusted-Publisher workflow, provenance-attested),
+and **main carries the next release's pins**.
 
-## 1.1.0 (main, unreleased)
+## 1.1.0 (released from the v1.1.0 tag)
 
 - Deep engine imports join the package contract: `prestruct/hooks`,
   `prestruct/islands`, and a `prestruct/engine/*` passthrough (previously

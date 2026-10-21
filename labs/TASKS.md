@@ -5,6 +5,38 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 22 - Brain stone refresh, crashtest on the newest harness, v1.1.0 tagged (2026-10-21)
+
+Release round; the pre-flight the owner asked for, in order:
+
+- **Brain updated in the dedicated vant install** (/home/daytona/vant):
+  identity/goals/progress rewritten to the post-1.0.0 reality (append-only
+  npm, the Socket-vs-consumer-tree verdict, the v7 interop correction with
+  its retracted claim, pack v0.3.0, Node >=20 platform state, the
+  prd-prestruct.md rename), five fresh lessons appended. start.md's wake
+  pointer updated to the new PRD name.
+- **Stone regenerated** (`vant snapshot --brain prestruct`), roundtrip
+  decoded to verify the new content is inside, then copied to the repo
+  horcrux/ together with the new `.sha256` integrity sidecar (byte-verify:
+  sha256 matches the sidecar). horcrux/README.md documents the
+  sidecar + the PRD rename.
+- **Crashtest on true upstream HEAD:** the local ~/crashtest install was
+  stale (18-row-era harness vs the committed 35-row baseline) -- ff-updated
+  to origin/main (7977e7a), deps refreshed, re-run: **35/35 REFUSED,
+  ledger byte-identical to the committed baseline, 0 new / 0 regressed**.
+  Two lessons: a harness that writes into your working tree must be
+  version-checked BEFORE the run (a stale one silently rewrites your
+  baseline downward), and `git checkout -- labs/` restores the committed
+  truth while the binary is corrected.
+- **Version ladder 1.1.0 everywhere** (root pkg == init pkg ==
+  init/VERSION, pinned by qc) and the release-truth flips: README/docs
+  claims now say 1.1.0 published; CHANGELOG stanza heading flipped from
+  "unreleased"; PRD R1 marked shipped.
+- Tag v1.1.0 pushed from this state; publish.yml (npm, OIDC provenance)
+  and release.yml (self-testing zip battery) fire from the tag.
+
+---
+
 ## Pass 20 - PRD rewritten to current truth; zero unfinished rows found (2026-10-21)
 
 The 2026-10-20 planning PRD predated Phase 2 (engine extraction, npm ship).

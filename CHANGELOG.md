@@ -8,7 +8,7 @@ records only what cherry-pickers must act on.
 
 ---
 
-## v1.1.0 (unreleased -- main is ahead by these)
+## v1.1.0 (released from the v1.1.0 tag)
 
 ### Scaffold now compiles on react-router-dom v7 (and the example runs it)
 
@@ -137,7 +137,7 @@ records only what cherry-pickers must act on.
 
 ---
 
-## v1.0.0 (current)
+## v1.0.0
 
 Identical content to the 0.9.0 bootstrap release; the version returns to the
 1.0.0 lock and stays there. This is the tag the dormant Trusted-Publisher

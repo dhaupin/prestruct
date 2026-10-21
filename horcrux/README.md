@@ -19,7 +19,9 @@ A stone is a password-encrypted, self-contained memory snapshot:
   is public, and contributors/agents must be able to boot it without a
   side channel.
 - The prestruct stone lives at
-  [`prestruct-p_st0neph0enix2026.svg`](prestruct-p_st0neph0enix2026.svg).
+  [`prestruct-p_st0neph0enix2026.svg`](prestruct-p_st0neph0enix2026.svg),
+  with a `.sha256` integrity sidecar beside it, so any copy can be
+  tamper-checked with `sha256sum` against the sidecar without decrypting.
   Handoff documents (PRDs, decision records between repos) also move
   through this directory temporarily; they are workspace mailboxes, not
   part of the shipped package.
@@ -49,4 +51,6 @@ Restore happens on the vant side:
 - [vant](https://github.com/dhaupin/vant) docs - the locator, boot flow, and
   brain templates
 - [`AGENTS.md`](../AGENTS.md) - the engineering history this stone snapshots
+- [`labs/prd-prestruct.md`](../labs/prd-prestruct.md) - the roadmap board
+  (prd-[project].md standard)
 - [`labs/TASKS.md`](../labs/TASKS.md) - the pass ledger the recon draws from

@@ -8,16 +8,18 @@ permalink: /guides/roadmap
 ---
 
 Planned features and ideas for prestruct. The package is live on npm at
-1.0.0 (published from the `v1.0.0` tag with provenance); main carries the
-next planned release (1.1.0) until it is tagged.
+1.1.0 (published from the `v1.1.0` tag with provenance); main carries the
+next planned release (1.2.x) until it is tagged.
 
-## Shipped (1.0.0 state)
+## Shipped (1.1.0 state)
 
 - CLI (`init` / `build` / `validate` / `clean`) with incremental prerender
 - Incremental route cache (`.prestruct/cache/`) + per-build status snapshot
-- Sitemap + opt-in robots.txt generation
+- Sitemap + opt-in robots.txt generation, including the AEO preset (`robots:
+  { aeo: true }` per-vendor AI-crawler policy)
 - `fetchRoutes()` build-time CMS hook
 - Islands architecture and the optional bot proxy pair (VPS + Worker)
+- In-repo crashtest pack (v0.3.0, five wire-level shapes) + 35/35 ledger
 
 ## Planned
 

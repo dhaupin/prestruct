@@ -159,7 +159,7 @@ another repo is one line in that repo's `crashtest.config.js`:
 
 ## Publishing state
 
-**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.0.0,
+**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0,
 published via `publish.yml`, GitHub Actions OIDC trusted publishing with
 npm provenance -- verify with `npm audit signatures`). Tags drive releases:
 `v*` triggers npm publish plus the GitHub release archive (template zip with

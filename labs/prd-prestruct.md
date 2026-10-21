@@ -75,7 +75,7 @@ forward rows.
 
 | Row | Why now | Notes |
 |---|---|---|
-| R1: tag v1.1.0 when the maintainer is ready | main carries five consumer-facing bug fixes (#18 #19 #20 #21 #23), the AEO preset, the pack v0.3.0, and this supply-chain hardening -- all unpublished on npm 1.0.0 | Tag pipeline proven; npm scan-visibility caveat documented in CHANGELOG. Maintainer held the tag on purpose -- this row waits on a human decision, not on work. |
+| R1: tag v1.1.0 when the maintainer is ready -- SHIPPED (tagged v1.1.0, publish.yml + release.yml fired) | main carried five consumer-facing bug fixes (#18 #19 #20 #21 #23), the AEO preset, the pack v0.3.0, and the supply-chain hardening; all now published on npm 1.1.0 | Tag pipeline proven; npm scan-visibility caveat documented in CHANGELOG. |
 | R2: flip the example's robots to the AEO preset | the docs' flagship feature is not demonstrated on the docs' own site; one-line config + live verify | example `public/robots.txt` is author-owned passthrough today. |
 | R3: decide the crashtest CI lane | #24/#25 parked twice on "how does an external harness enter CI" -- pinned checkout vs published pack vs composite action; on-tag option cheapest | Ledger is CI-comparable already; owning an exit rule makes alerts meaningful. |
 | R4: RENDER_LANE=puppeteer (opt-in) | proves the bot render SUCCESS path (snapshot discipline) -- today every lane is browser-free by design | The only unproven proxy path; needs Chromium-in-CI cost sign-off + a deterministic cache namespace. |
