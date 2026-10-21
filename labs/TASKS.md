@@ -5,6 +5,36 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 15 - Closes issue 24 quick wins; crashtest pack named in the docs (2026-10-21)
+
+Issue 24 asked for four things; the close-out item-by-item report:
+
+- **Docs note (item 2) DONE.** Root README gained a "Crash testing (in-repo
+  pack)" section plus a `packs/` row in the repo-layout table;
+  CHANGELOG's v1.1.0 stanza documents the pack and states the packaging
+  boundary plainly (npm tarball ships `bin/`/`engine/`/`init/`, never
+  `packs/`). `packs/README.md` already carried the concrete adoption shape
+  (`packs: ['/abs/path/to/prestruct/packs']`), so it was crosslinked, not
+  duplicated.
+- **Stale-labels item (item 3) FOUND ALREADY RESOLVED.** The issue predates
+  actually checking disk: `grep -rn 'ln/' labs/` is zero hits.
+  `labs/hardening.md` + `labs/crashledger.json` were regenerated
+  2026-10-20T23:06 against the current `prestruct-proxy/` labels. No re-cut
+  needed; the issue's "stale docs artifact" is history.
+- **Pin-lockstep advisory (item 4) VERIFIED SATISFIED at HEAD**
+  (`refresh-strict-parity` exists at both layers: pack +
+  `tests/proxy.test.js`). No action.
+- **CI gate (item 1) PARKED, honest about why.** The crashtest runner is
+  not in this repo's devDependencies -- the 34/34 runs came from the
+  crashtest checkout. Wiring CI would decide how an external harness
+  enters CI (pinned GitHub checkout vs published package vs composite
+  action) and that decision does not exist yet. Tracked here rather than
+  faked; revisit alongside dhaupin/crashtest#4.
+
+Gates run on this commit; nothing else moved.
+
+---
+
 ## Pass 14 - Docs scaled for the npm era + nitpick true-up (2026-10-21)
 
 Docs pass after the npm 1.0.0 publish. Every fix is fact-supported against

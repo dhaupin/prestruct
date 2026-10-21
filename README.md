@@ -99,6 +99,7 @@ after hydration.
 | `bin/cli.mjs` | The `prestruct` executable (init/build/validate/clean). |
 | `init/` | Project template `prestruct init` scaffolds, including `scripts/proxy.js` (VPS) and `proxy.worker.js` (Cloudflare Worker). |
 | `example/` | Working demo site (8 routes), kept byte-identical to engine via `scripts/sync-engine.mjs`. |
+| `packs/` | In-repo crashtest pack (`public/prestruct-proxy` v0.2.0) attacking the bot-proxy pair on both runtimes. |
 | `docs/` | Full docs site, AGENTS-built with Pagefind. |
 | `tests/` | vitest battery, including the engine sync contract test. |
 
@@ -115,6 +116,24 @@ Puppeteer HTML for the rest -- deploy it on a cheap VPS
 ([README-proxy.md](./README-proxy.md), Option A: Node + Puppeteer) or as a
 Cloudflare Worker with Browser Rendering (Option B). Humans always get static
 CF Pages output; the two layers stack, they don't replace each other.
+
+---
+
+## Crash testing (in-repo pack)
+
+`packs/public/prestruct-proxy` (pack v0.2.0) is this repo's own adversarial
+pack for the bot-proxy pair above: four wire-level contracts (method matrix,
+hostile-path fuzz, bot-render 302 fallback, refresh-secret strict parity),
+run through the [crashtest](https://github.com/dhaupin/crashtest) harness
+against both runtimes. Attack route names come from the host `moduleCtx`, so
+the pack runs against any wiring. Latest results live in
+[labs/hardening.md](./labs/hardening.md), the CI-comparable ledger in
+[labs/crashledger.json](./labs/crashledger.json).
+
+The pack travels with the checkout, not the npm tarball. Adopting it from
+another repo is one line in that repo's `crashtest.config.js`:
+`packs: ['/abs/path/to/prestruct/packs']` -- contract table and runbook in
+[packs/README.md](./packs/README.md).
 
 ---
 

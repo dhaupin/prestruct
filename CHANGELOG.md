@@ -21,6 +21,16 @@ records only what cherry-pickers must act on.
   default stays the scaffold-relative import (`../hooks/usePageMeta.js`) --
   the deep form is for host projects that want to pin to the package.
 
+### Crash-test pack is documented in-repo
+
+- The root README now names `packs/public/prestruct-proxy` (v0.2.0): where
+  it lives, which proxy surfaces it attacks, where the latest run results
+  land (`labs/hardening.md`, `labs/crashledger.json`), and the one-line
+  adoption path from another repo's `crashtest.config.js`
+  (`packs: ['/abs/path/to/prestruct/packs']`). Clarification for adopters:
+  the pack travels with the checkout -- the npm tarball ships only
+  `bin/`, `engine/`, `init/` and never includes `packs/`.
+
 ### Release archive is correct and self-testing
 
 - The v1.0.0 GitHub release zip shipped a test battery that could not run:
