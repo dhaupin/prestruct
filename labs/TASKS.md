@@ -5,6 +5,24 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 20 - PRD rewritten to current truth; zero unfinished rows found (2026-10-21)
+
+The 2026-10-20 planning PRD predated Phase 2 (engine extraction, npm ship).
+Every phase and wart in it had already closed; even its two "still open"
+P2 rows shipped unrecorded (robots.txt generation + AEO preset; cache stats
+as root `.prestruct/status.json`; migration guide already current). Rewrote
+`labs/prd.md` as: current shipped-surface inventory (schema, package,
+platform state, pack, verification gates), the completed ledger with the
+closeout rule that phase history lives in TASKS.md/AGENTS.md, and a
+forward-row table carrying the parked decisions only (R1 tag readiness,
+R2 example AEO-robots flip, R3 crashtest CI lane, R4 RENDER_LANE, R5
+prestruct-build pack, R6/R7 majors kept battery-first). Kept AGENTS.md's
+hook operational: forward work enters as a PRD row first; a Task entry on
+movement. Nothing in Section 6 is scheduled work yet -- those are the
+decisions a human owes, not code a robot owes.
+
+---
+
 ## Pass 19 - vitest 5.0.5 lands; root dev-tree audit down to the deliberate v6 pin (2026-10-21)
 
 Closing the "leverage or clean up" question on the vitest-2 residue: the

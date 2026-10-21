@@ -1,188 +1,98 @@
-# PRD: Prestruct Next Steps
+# PRD: Prestruct Roadmap
 
-**Status:** Phase 0 complete (see Section 7)
-**Date:** 2026-10-20
+**Status:** rewrite 2026-10-21 -- supersedes the 2026-10-20 planning PRD (that
+one's phases all landed; its ledger is preserved in TASKS.md and retired here)
 **Reads first:** [AGENTS.md](../AGENTS.md), [TASKS.md](./TASKS.md)
 
 ---
 
-## 1. Product one-liner
+## 1. Product one-liner (unchanged)
 
-Prestruct renders every route of a Vite + React app to static SEO-HTML at build time.
-Config is the API. No runtime SSR. No bloat.
-
----
-
-## 2. Where the rigging is wacky (current state)
-
-Verified facts, not vibes:
-
-| # | Wart | Evidence |
-|---|------|----------|
-| W1 | **Engine drift between `init/` and `example/`** | `init/scripts/inject-brand.js` and `example/scripts/inject-brand.js` differ (deployId/deployIdFooter). `tests/qc.test.mjs` sync test FAILS today (45/46 passing). CI sync check would fail on next push. |
-| W2 | **Engine lives inside the template it distributes** | Core scripts (`prerender.js`, `inject-brand.js`, `islands.js`, `usePageMeta.js`) only exist as *copied* files. Changing the engine means editing `init/`, re-syncing `example/`, and re-shipping the template. The library IS its merge artifact. |
-| W3 | **Version sprawl** | Root `package.json` says `1.0.0`, `init/package.json` says `0.2.1`, PLAN.md says `v0.2.6`. No single source of truth. |
-| W4 | **Fatal errors exit 0** | `prerender.js` calls `process.exit(0)` on every failure path (bad config, missing dist, render errors). Deliberate CF-Pages-correctness trade, but it makes real config mistakes invisible, and it undermines any later "config validation" feature. |
-| W5 | **`incremental.js` is a stub** | Cache logic is hand-inlined in `prerender.js`; the shipped `incremental.js` is comments + dead code. |
-| W6 | **Duplicated meta-injection logic** | Meta tag rewriting logic exists separately in `prerender.js` (injectMeta), `inject-brand.js`, and `generate404` inside prerender.js. Three regex engines, one job. |
-| W7 | **Example contains non-portable config** | `example/ssr.config.js` options (deployId, deployIdFooter) exist in one engine copy only. Users who copied `init/` and set them get silently ignored opts. |
-
-Fixing W1-W3 is a prerequisite for everything in Section 4, because every new
-feature multiplies in both engine copies.
+Prestruct renders every route of a Vite + React app to static SEO-HTML at
+build time. Config is the API. No runtime SSR. No bloat.
 
 ---
 
-## 3. Decisions already locked (moved from AGENTS + SCOPE)
+## 2. Current shipped surface (the v1.0.0->1.1.0 state)
 
-Do not revisit these. They are documented and debugged:
+Verified against the engine at HEAD, not memory:
+
+| Surface | State |
+|---|---|
+| Engine (`engine/`, single source) | `prerender.js` (ssrLoadModule, incremental route cache, sitemap, 404, robots), `inject-brand.js` (meta/OG/JSON-LD, deployId, WORKER bot-list sync), `validate-config.js` (structured diagnostics), `src/islands.js`, `src/hooks/usePageMeta.js` |
+| Config keys | `siteUrl`, `siteName`, `routes[].meta/priority`, `robots` (`true` or `{ aeo: true, aiBots: 'block'|'allow' }` per-vendor preset), `proxy` (`url`, `botList`, `targetUrl`), `deployId`/`deployIdFooter`, `fetchRoutes()` build-time hook, `platform` (cloudflare full; vercel/netlify validate-only stubs), `PRESTRUCT_STRICT=1` exit-code flag |
+| npm package | live at 1.0.0 (Trusted-Publisher tag pipeline, provenance-attested); CLI `init/build/validate/clean`; deep exports `prestruct/hooks`,`prestruct/islands`,`prestruct/engine/*`; `files` = bin/engine/init only (packs never ship) |
+| Template (`init/`) | byte-identical to engine via `scripts/sync-engine.mjs`; scaffold imports are dual-major safe (`rrdNS.default ?? rrdNS` interop form); ships the proxy pair, wrangler.toml, pm2/systemd starters, self-testing zip battery |
+| Platform state | vite 6.4.5 + vitest 5.0.5 (battery 147/147, tinypool pinned ^2.2.0 via overrides), react-router dual-major (battery pins v6, example runs v7 live), Node engines >=20, react 18 |
+| Example | 8 routes on rrd 7.18.4/rendered 8/8; audit 0 findings; AEO-era docs |
+| Adversarial QA | in-repo crashtest pack `packs/public/prestruct-proxy` v0.3.0 (5 shapes incl. cache-key variant parity), ledger 35/35 REFUSED |
+| Docs | Jekyll + Pagefind site, 23 guides, truthfulness/fiction gates in CI |
+
+---
+
+## 3. Completed ledger (what the old PRD left open, now closed)
+
+The 2026-10-20 PRD's Phase 0-3 and warts W1-W9 all closed (evidence in
+TASKS.md passes 1-18). The only rows that were still marked open there:
+
+| Old open row | Closed by |
+|---|---|
+| Phase 3: robots.txt generation (P2) | `robots: true` opt-in generation, then the per-vendor AEO preset (`robots: { aeo: true, aiBots }`, commit 1b5f36d) |
+| Phase 3: cache stats endpoint (P2) | `status.json` at project root `.prestruct/`, NOT in dist/ (issue 23; staticsites-safe variant chosen over a served endpoint) |
+| Phase 3: migration guide refresh (P2) | already current -- documents `config.robots`, v1.0.0 frontmatter, per-release change lists |
+
+Closeout rule that replaced the old planning format: AGENTS.md + TASKS.md
+are the operating history; this file holds only current-state truth and
+forward rows.
+
+---
+
+## 4. Decisions already locked (do not revisit)
 
 - ssrLoadModule, never `vite build --ssr`
 - AppLayout must never import BrowserRouter
 - Build-time prerender only (no streaming, no edge runtime, no per-request SSR)
 - Islands are separate React roots, outside hydration
-- Proxy optional; disabled unless `config.proxy.url` set
+- Proxy optional; disabled unless `config.proxy.url` set; proxy files are
+  per-project scaffold assets, never npm-imported
 - CF Pages pretty URLs are left alone (no redirect rules for prerendered paths)
+- 404 page is pure static HTML (`root-404`, no JS)
+- Engines declare Node >=20; battery pins react-router v6 for compile coverage,
+  example runs v7 (both majors stay supported)
 
 ---
 
-## 4. Phases
-
-### Phase 0 -- Stop the bleeding (this PR)
-
-Goal: green CI, no engine drift, no code behavior changes.
-
-| Task | Files |
-|------|-------|
-| 0.1 Reconcile `inject-brand.js` drift: merge deployId/deployIdFooter into `init/` (single source) and copy to `example/` | `init/scripts/inject-brand.js`, `example/scripts/inject-brand.js` |
-| 0.2 Add a sync script (`node scripts/sync-engine.mjs`) that copies init->example; document it in engine-sync-check.yml error message | `scripts/sync-engine.mjs` (new, at repo root) |
-| 0.3 Decide version truth: root `package.json` becomes the release version; both `init/package.json` and PLAN.md reference it | root `package.json` |
-
-Estimated: half a day. No behavior change. Tests go green.
-
-### Phase 1 -- Extract the engine (the "clean up internals" focus)
-
-Goal: one engine, imported -- not copied.
-
-1. **`engine/` directory at repo root.** `prerender.js`, `inject-brand.js`,
-   `islands.js`, `usePageMeta.js` live here with a stable export surface
-   (`prerender(config)`, `injectMeta(html, meta, url)`).
-2. **`scripts/sync-engine.mjs`** is a derived-artifact generator: it copies
-   `engine/` -> `init/` -> `example/` with path rewrites. Byte-identical CI check
-   stays; it now verifies the generator ran, not that humans edited twice.
-3. **Delete `init/incremental.js`.** Inline cache logic in prerender.js becomes
-   a small module inside `engine/`.
-4. **Config validation** (carries PLAN P1): validate `ssr.config.js` shape in
-   `engine/validateConfig.js` with clear errors. Behavior keeps exits 0 on CF
-   Pages, but emits structured diagnostics (`[prestruct] Invalid route meta: /blog: expected {title}`).
-
-Acceptance: npx vitest run passes; a fresh `cp -r init/*` still works unchanged
-in a clean Vite app (verify in `example/`).
-
-### Phase 2 -- The npm package (PLAN P2 pulled up)
-
-Goal: `npx prestruct init` or `npm i prestruct` works.
-
-- Ship `engine/` as the package; init template becomes a string bundle the CLI
-  scaffolds from
-- Root `package.json` gains `bin`: `"prestruct": "bin/cli.mjs"`
-- CLI subcommands: `init`, `build`, `validate` (mirrors `scripts` jobs)
-- Config-first: no postinstall magic
-
-Acceptance: `npx prestruct init` in a fresh Vite app produces a working build.
-
-### Phase 3 -- Remaining roadmap items
-
-Progress (landed in the pass after Phase 2):
-
-- [x] **Worker bot list sync (P1).** `syncProxyBotList()` in
-  `engine/scripts/inject-brand.js` embeds `config.proxy.botList` into
-  `scripts/proxy.worker.js` at build time. Idempotent; skips silently when
-  `config.proxy.url` is unset or the Worker file is absent. Tests in
-  `tests/inject-brand.test.js`.
-- [x] **pm2/systemd starter files (P1).** `init/ecosystem.cjs` (pm2, fork-mode,
-  single Chromium pool, memory cap) and `init/scripts/prestruct-proxy.service`
-  (systemd unit, secrets via `EnvironmentFile`) scaffolded by `prestruct init`;
-  README-proxy.md documents both plus expectations (never clusterise).
-
-Still open:
-
-| Item | Priority | Notes |
-|------|----------|-------|
-| Robots.txt generation | P2 | Existing `public/robots.txt` stays authorable; prerender touches it only when config says so |
-| Cache stats endpoint | P2 | Serve JSON at `/_prestruct/status` or write `dist/.prestruct/status.json` (staticsites-safe option preferred) |
-| Docs: migration guide from v0.1 | P2 | `docs/guides/migration.md` exists; refresh after Phase 1 breaks the layout |
-
-Ordered by user cost of not having them. Do not begin Phase 3 until Phase 1 lands.
-
----
-
-## 5. Out of scope (inherited, restated)
+## 5. Out of scope (inherited, unchanged)
 
 - Runtime SSR, streaming SSR, edge rendering
-- Built-in CMS adapters (config hook, not bundling)
-- Turborepo/monorepo restructure of `docs/`
+- CMS adapters (config hook only)
+- Docs-site platform migration while Pagefind/gh-pages still work
+- Monorepo restructure of `docs/`
 
 ---
 
-## 6. Open questions
+## 6. Forward rows (candidates for the next phases, in cost-benefit order)
 
-Answers written after the fact -- these are no longer open:
+| Row | Why now | Notes |
+|---|---|---|
+| R1: tag v1.1.0 when the maintainer is ready | main carries five consumer-facing bug fixes (#18 #19 #20 #21 #23), the AEO preset, the pack v0.3.0, and this supply-chain hardening -- all unpublished on npm 1.0.0 | Tag pipeline proven; npm scan-visibility caveat documented in CHANGELOG. Maintainer held the tag on purpose -- this row waits on a human decision, not on work. |
+| R2: flip the example's robots to the AEO preset | the docs' flagship feature is not demonstrated on the docs' own site; one-line config + live verify | example `public/robots.txt` is author-owned passthrough today. |
+| R3: decide the crashtest CI lane | #24/#25 parked twice on "how does an external harness enter CI" -- pinned checkout vs published pack vs composite action; on-tag option cheapest | Ledger is CI-comparable already; owning an exit rule makes alerts meaningful. |
+| R4: RENDER_LANE=puppeteer (opt-in) | proves the bot render SUCCESS path (snapshot discipline) -- today every lane is browser-free by design | The only unproven proxy path; needs Chromium-in-CI cost sign-off + a deterministic cache namespace. |
+| R5: prestruct-build pack | #25 analysis: the build-time surfaces (404 theme, JSON-LD emit, status opt-out) are unit-pinned but have no wire-level ledger; that is a separate pack, never more shapes in the proxy pack | Would need a scenario vocabulary decision on the crashtest side first. |
+| R6: react 19 evaluation | zero advisories to react 18 -- priority LOW, churn HIGH | Battery + example render are the acceptance gate. |
+| R7: platform-matrix majors on the board | vite 8 / vitest future majors stay battery-first; v6-pin retirement only when dual-major usage data says so | |
 
-1. **W4 (exit 0 on fatal): RESOLVED -- env flag, default off.** Landed in
-   Phase 1: `PRESTRUCT_STRICT=1` makes config diagnostics and build failures
-   exit 1; default behavior stays exit-0 for CF Pages (see docs/guides/config.md).
-2. **Proxy in the npm package: RESOLVED -- copy-in.** `prestruct init`
-   scaffolds `scripts/proxy.js`, `scripts/proxy.worker.js`, and
-   `proxy.package.json` into the host project; the engine never imports them.
-   Workers cannot run an npm-imported Express proxy, and the VPS copy needs
-   host-editable config loading, so proxy files are per-project assets.
-3. **Example drift policy: RESOLVED -- config flag on the shared engine.**
-   The deployIdFooter feature (previously an example-only edit) is now a
-   boolean config option (`deployIdFooter === true`) with shared-engine
-   semantics, and example/ is a generated byte-identical copy (except its
-   own branding config files).
-4. **Docs site: stays Jekyll/GitHub Pages for now.** Engine extraction made
-   a Vite-docs move cheap in principle, but search (Pagefind) + gh-pages
-   workflow work until there is a feature reason to migrate.
+Carried P2/P3 ideas (unchanged from docs roadmap): image optimization
+pipeline, file-level incremental invalidation, plugin system,
+vercel/netlify host-file generation, theme packs.
 
 ---
 
-## 7. Phase 0 completion log
+## 7. Working rules that shipped with this rewrite
 
-Landed in this pass:
-
-- **W1 fixed.** deployId/deployIdFooter merged into `init/scripts/inject-brand.js`
-  as single source; footer default flipped to opt-in (`config.deployIdFooter === true`)
-  matching the semantics already documented in `init/ssr.config.example.js` and
-  set in `example/ssr.config.js`. Example copy is byte-identical. Tests: 46/46.
-- **Sync script added.** `scripts/sync-engine.mjs` (copy + `check` mode), wired
-  as `npm run sync` / `npm run sync:check`; `engine-sync-check.yml` error message
-  now points to it. Covers the 4 CI-checked engine files + `AppIslands.jsx`.
-  `ssr.config.example.js` excluded (example-owned branding).
-- **W3 fixed.** Version single-sourced at `0.2.6` in root and `init/package.json`;
-  PLAN.md engine-sync row marked done.
-
-New warts found during reconciliation (handled in Phase 1, no behavior change now):
-
-| # | Wart | Evidence |
-|---|------|----------|
-| W8 | **Footer opt-in breaks prerender matching** | When `deployIdFooter: true`, inject-brand rewrites `<div id="root"` into `<div id="root" data-deploy-id-footer`, so prerender.js's `shell.replace('<div id="root"></div>', ...)` no longer matches and every route prerenders as an empty shell. Latent today (both configs use `deployIdFooter: false`). Prerender's root-div matcher should tolerate extra attributes. |
-| W9 | **inject-brand footer-scan ordering is wrong** | The final dist-subdirectory scan in inject-brand runs before prerender.js creates the route pages, so the scan finds nothing on a clean build. Harmless but misleading; fold into prerender.js root-div handling in Phase 1. |
-
-Status after passes 5-10 (closeout ledger -- evidence above is historical):
-
-| Wart | Status |
-|---|---|
-| W1 engine drift | CLOSED -- engine/ single source, sync-engine generater + CI check |
-| W2 engine inside template | CLOSED -- engine/ at repo root ships as the npm package |
-| W3 version sprawl | CLOSED (reopened once more after the 1.0.0 npm-shape move, reclosed pass 10: root == init/package.json == init/VERSION, pinned by a qc test; release workflow stamps all template version files from the tag) |
-| W4 silent exit-0 | CLOSED -- PRESTRUCT_STRICT=1 flag, default off |
-| W5 incremental.js stub | CLOSED -- stub deleted, cache logic lives in prerender.js |
-| W6 triplicated meta logic | CLOSED-BY-DESIGN -- three writers remain but each owns a distinct HTML surface (global brand vs per-route meta vs 404); shared exports cover the overlap |
-| W7 non-portable example config | CLOSED -- deployId/deployIdFooter are engine config flags |
-| W8 footer attr breaks prerender | CLOSED -- replaceRootDiv is attribute-tolerant AND carries attrs forward |
-| W9 dead footer-scan ordering | CLOSED -- folded into prerender.js root-div handling (no dist-subdir scan remains in inject-brand) |
-
-Phase 3 (post-Phase-2 pass): Worker bot-list sync + pm2/systemd starters landed
-(see Section 4); open questions in Section 6 answered as resolved. Engine,
-init/, and example/ byte-identical; full vitest battery green.
+- Every row in Section 6 needs a TASKS.md pass entry when it moves.
+- Engine changes stay in `engine/`, then `node scripts/sync-engine.mjs`;
+  `engine-sync-check.yml` is the proof of execution.
+- No new feature lands without the battery green and (if template-visible)
+  the tarball e2e.
