@@ -22,6 +22,12 @@ function bootDom() {
   globalThis.IntersectionObserver = window.IntersectionObserver
   globalThis.requestIdleCallback = window.requestIdleCallback?.bind(window)
     ?? ((cb) => setTimeout(cb, 0))
+  // react-dom touches `navigator.userAgent` at module eval. Node 22 defines
+  // navigator globally; Node 20 (CI, test.yml) does not, so this previously
+  // failed there as "navigator is not defined" while passing locally.
+  if (typeof globalThis.navigator === 'undefined') {
+    globalThis.navigator = window.navigator
+  }
 }
 
 // Always boot the DOM before the engine module evaluates; islands.js reads
