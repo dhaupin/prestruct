@@ -13,6 +13,7 @@ dist/
 # pattern to any depth - the earlier `.prestruct/cache/` form was root-anchored
 # and silently missed nested workspaces like example/)
 **/.prestruct/cache/
+**/.prestruct/status.json
 
 # Proxy disk cache (default location when PRESTRUCT_CACHE_DIR is not set)
 .prestruct_cache/
