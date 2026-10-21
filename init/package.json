@@ -7,9 +7,11 @@
     "build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:ui": "vitest --ui",
     "lint": "eslint . --ext js,mjs",
     "lint:fix": "eslint . --ext js,mjs --fix"
+  },
+  "overrides": {
+    "tinypool": "^2.2.0"
   },
   "peerDependencies": {
     "react": ">=18",

@@ -35,6 +35,11 @@ permissions:
   contents: read
   id-token: write
 
+# Nothing in prestruct ships or executes a browser at publish time; skipping
+# the puppeteer download also skips its install-time fetch chain.
+env:
+  PUPPETEER_SKIP_DOWNLOAD: '1'
+
 jobs:
   publish:
     runs-on: ubuntu-latest

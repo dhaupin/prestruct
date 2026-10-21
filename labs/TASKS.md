@@ -5,6 +5,49 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 17 - Supply-chain pass: tinypool critical pinned, CI installs hardened, v7 scaffold finding banked (2026-10-21)
+
+Triggered by Socket alerts on npm prestruct 1.0.0. The decisive fact: Socket
+grades the published manifest INCLUDING devDependencies; npm never installs
+a dependency's devDeps for consumers, so the fresh 1.0.0 install tree is
+audit-clean (verified locally: 0 findings, dev included). The real exposure
+was this repo's own build/CI tree.
+
+- **Critical fixed:** vitest 2.x resolves tinypool 1.x (two prototype-
+  pollution RCEs, GHSA-5gmw-xhrv-c9v3 / GHSA-85c8-ppgw-ccpr, patched
+  2.1.2). `overrides: { tinypool: '^2.2.0' }` at root + init, the release
+  workflow injects the same override into the zip battery. Full battery
+  passes 147/147 on the patched line; init build/lint green; `npm pack`
+  still 35 files. Learn: vitest 2.1.9 runs fine on tinypool 2.2.0 -- no
+  vitest major needed for the critical.
+- **CI install hardening:** every workflow that runs `npm install` now
+  sets `PUPPETEER_SKIP_DOWNLOAD=1` -- no suite drives a real browser, so
+  the 170MB Chromium fetch (the vulnerable extract-zip/basic-ftp chain)
+  never executes at install time.
+- **init:** `test:ui` script removed (UI advisory footgun; @vitest/ui not
+  installed so it could not run). Learn reinforced: JSON files cannot
+  carry comments -- one edit wrote prose into init/package.json and
+  release.yml's JSON.parse would have choked; caught and reverted
+  immediately. JSON.parse is the smoke test to run after touching it.
+- **Example site:** audit fix landed the browserslist (OOM) and
+  @remix-run/router (protocol-relative open redirect) fixes. A
+  react-router-dom 7.18.4 bump was attempted and REVERTED with evidence:
+  v7 ships CJS, vite SSR rejects named imports from CJS modules, and the
+  scaffold has ~9 files with named imports (AppLayout, usePageMeta copy,
+  ToolsBlock, ViewSource, Proxy, Home, NotFound, About, Deploy x2).
+  The namespace-import form (
+  `import * as rrd` + destructure) was proven live: AppLayout and the
+  hook copy compiled and rendered 8/8 under v7 before the revert. The
+  remaining vite findings (all dev-server classes) stay accepted with
+  reasoning in CHANGELOG; majors (vite 8 / vitest 5 / puppeteer 25) are a
+  platform-matrix pass, not a patch.
+-  Follow-up tracked as issue 26: react-router-dom v7 scaffold migration,
+  with the live-proven fix shape and the full file list.
+
+Gates: vitest 147/147, sync 5/5, docs suites, fiction scan, pack 35 -- PASS.
+
+---
+
 ## Pass 16 - Pack v0.3.0: cache-key variant parity pinned at the wire (2026-10-21)
 
 Worked issue 25's five scenarios against the one-surface pack model; one

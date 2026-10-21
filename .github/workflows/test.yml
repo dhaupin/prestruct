@@ -11,6 +11,12 @@ on:
     branches:
       - main
 
+# No test in this suite drives a real browser (the render path is asserted
+# to fail closed), so Chromium (~170MB via puppeteer's install-time fetch,
+# which is also the vulnerable extract-zip/basic-ftp chain) is pure CI cost.
+env:
+  PUPPETEER_SKIP_DOWNLOAD: '1'
+
 jobs:
   test:
     runs-on: ubuntu-latest

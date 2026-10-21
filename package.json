@@ -39,6 +39,9 @@
   "engines": {
     "node": ">=18"
   },
+  "overrides": {
+    "tinypool": "^2.2.0"
+  },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",

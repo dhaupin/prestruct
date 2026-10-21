@@ -31,6 +31,46 @@ records only what cherry-pickers must act on.
   the pack travels with the checkout -- the npm tarball ships only
   `bin/`, `engine/`, `init/` and never includes `packs/`.
 
+### Supply-chain pass: critical tinypool pin, CI hardening, honest alert ledger
+
+- **Consumer exposure stays zero.** Security scanners (Socket et al.) grade
+  the published manifest including its devDependencies. prestruct's
+  tarball has zero runtime dependencies and the consumer install tree
+  audit-checks clean (`npm audit` reports 0 with and without dev on a
+  fresh `prestruct@1.0.0` install) -- a package's devDeps are never
+  installed for its consumers. The real exposure is this repo's own
+  build/CI tree, which is what was hardened below.
+- **Critical fixed: tinypool prototype-pollution RCEs (GHSA-5gmw-xhrv-c9v3,
+  GHSA-85c8-ppgw-ccpr).** vitest 2.x resolves tinypool 1.x, which is
+  affected up to tinypool 2.1.2. An npm `overrides` pin (`tinypool:
+  "^2.2.0"`) now applies at root and init, the release workflow injects
+  the same override into the zip battery, and the full vitest battery
+  passes 147/147 on the patched line (vitest 2.1.9 + tinypool 2.2.0).
+- **CI installs skip Chromium.** All workflows that run `npm install`
+  set `PUPPETEER_SKIP_DOWNLOAD=1`: no test here drives a real browser
+  (the render path is asserted to fail closed), so the ~170 MB Chromium
+  fetch -- which is also the vulnerable extract-zip/basic-ftp chain --
+  is not executed at install time.
+- **init template: `test:ui` script removed.** `@vitest/ui` is not a
+  dependency and vitest 2.x's UI server carries a critical advisory while
+  listening; the script could never run as-is, so the footgun is gone.
+- **What remains and why it is accepted, documented per finding:** the
+  remaining root audit highs/moderates live in code paths CI never
+  executes (vite dev-server classes -- CI only runs `vite build`;
+  vitest UI-server class -- never started; @vitest/mocker mock
+  registration -- attacker-controlled input does not reach it; the
+  puppeteer browser-download chain -- skipped at install). Clearing them
+  from the ledger requires semver-major devDep bumps (vite 8, vitest 5,
+  puppeteer 25) that belong to a tested platform-matrix pass, not a
+  security patch. Clearing them in the SCANNER view only: consumers were
+  never exposed.
+- **Example site runtime fix:** `npm audit fix` bumped browserslist (OOM
+  advisory) and @remix-run/router (protocol-relative open redirect) in
+  the deployed example's dependency tree; react-router-dom stays on 6.x
+  for the example (the two remaining react-router moderates are fixed in
+  v7, and shipping that migration needs the scaffold import work tracked
+  in a follow-up issue).
+
 ### Pack v0.3.0: cache-key variant parity now pinned at the wire
 
 - New pack shape `cache-key-variant-parity` pins the issue-18 fix class (a
