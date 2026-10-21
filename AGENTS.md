@@ -40,7 +40,7 @@ and agents contribute the same way. Cold-start order:
 5. Pull requests: the detailed fork/clone review flow lives in
    `docs/guides/contributing.md`.
 
-**Setup (Node >= 18):**
+**Setup (Node >= 20):**
 
 ```bash
 npm install

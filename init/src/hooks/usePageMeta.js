@@ -43,7 +43,14 @@
  */
 
 import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import * as rrdNS from 'react-router-dom'
+// Neither plain named imports nor a bare namespace destructure survive
+// both majors: v7 ships CJS (vite SSR rejects named imports; node interop
+// gives a namespace whose only reliable export is `default` -- the exports
+// object), while v6 is ESM with possibly no default. Destructure from
+// whichever carries the exports.
+const rrd = rrdNS.default ?? rrdNS
+const { useLocation } = rrd
 
 /** Update the SPA head tags on every route change (see the module head doc). */
 export default function usePageMeta({ title, description, path, siteUrl }) {

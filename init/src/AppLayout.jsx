@@ -20,7 +20,14 @@
  * runs in Node where these globals don't exist.
  */
 
-import { Routes, Route, useLocation } from 'react-router-dom'
+import * as rrdNS from 'react-router-dom'
+// Neither plain named imports nor a bare namespace destructure survive
+// both majors: v7 ships CJS (named imports rejected under vite SSR; the
+// node interop namespace only reliably carries `default`), v6 is ESM
+// with possibly no default. Destructure from whichever has the exports.
+const rrd = rrdNS.default ?? rrdNS
+const { Routes, Route, useLocation } = rrd
+
 import { useEffect } from 'react'
 import { mountIslands } from './islands.js'
 import { islands }      from './AppIslands.jsx'

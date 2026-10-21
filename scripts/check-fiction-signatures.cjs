@@ -74,7 +74,11 @@ function allowListed(rel) {
     if (rel === 'docs/guides/changelog.md') return true;
     if (rel === 'CHANGELOG.md') return true;
     if (rel === 'package-lock.json') return true;
-    if (rel.startsWith('node_modules/') || rel.startsWith('.git/')) return true;
+    // Skip installed/vendored trees at ANY depth (react-router 7 ships a
+    // docs/ folder inside its package, so example/node_modules/... carries
+    // third-party markdown now). Those files are vendors' words, not ours.
+    const segments = rel.split('/');
+    if (segments.includes('node_modules') || segments.includes('.git')) return true;
     return false;
 }
 

@@ -62,8 +62,11 @@ jobs:
 
       # One devDeps write: everything the template test battery needs that
       # the template package.json does not declare -- react/rrd/vite/vitest
-      # (peers must be concrete for a standalone npm test), happy-dom
-      # (islands/use-page-meta DOM), express + puppeteer (proxy.test.js).
+      # (peers must be concrete for a standalone npm test) and happy-dom
+      # (islands/use-page-meta DOM). Puppeteer is deliberately NOT here:
+      # no test imports it for real (the render path is asserted to fail
+      # closed), and carrying it would drag the basic-ftp/extract-zip chain
+      # into every consumer checkout that runs the battery.
       - name: Make the template test battery self-sufficient
         run: |
           node -e "
@@ -76,8 +79,7 @@ jobs:
             vite:'^5.4.0',
             vitest:'^2.1.0',
             'happy-dom':'^21.0.4',
-            express:'^5.3.0',
-            puppeteer:'^22.15.0'
+            express:'^5.3.0'
           });
           // Supply-chain pin: vitest 2.x resolves tinypool 1.x, which carries
           // the twin prototype-pollution RCEs (GHSA-5gmw-xhrv-c9v3 /

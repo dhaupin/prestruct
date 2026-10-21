@@ -47,7 +47,7 @@ export default function Contact() {
             </p>
             <p style={{ marginBottom: '1rem' }}>
               <a href="https://github.com/dhaupin/prestruct/issues" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-                Open an Issue ->
+                Open an Issue {'\u2192'}
               </a>
             </p>
           </section>
@@ -61,7 +61,7 @@ export default function Contact() {
             </p>
             <p style={{ marginBottom: '1rem' }}>
               <a href="https://github.com/dhaupin/prestruct/discussions" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-                Join the Discussion ->
+                Join the Discussion {'\u2192'}
               </a>
             </p>
           </section>

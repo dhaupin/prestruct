@@ -113,7 +113,10 @@ npx prestruct init   # scaffolds scripts/ + template files, never clobbers
                 See <a href="/about">how it works</a>.
               </div>
               <CodeBlock lang="js" label="src/AppLayout.jsx">{`// NO BrowserRouter here, ever
-import { Routes, Route, useLocation } from 'react-router-dom'
+import * as rrdNS from 'react-router-dom'
+// Namespace form: node ESM rejects named imports from v7's CJS entry, and
+// the CJS interop namespace only reliably carries the default export (v6 is ESM).
+const { Routes, Route, useLocation } = (rrdNS.default ?? rrdNS)
 import { useEffect } from 'react'
 
 function ScrollToTop() {
@@ -139,7 +142,8 @@ export default function AppLayout() {
   )
 }`}</CodeBlock>
               <CodeBlock lang="js" label="src/App.jsx">{`// BrowserRouter lives ONLY here
-import { BrowserRouter } from 'react-router-dom'
+import * as rrd from 'react-router-dom'
+const { BrowserRouter } = rrd
 import AppLayout from './AppLayout'
 export default function App() {
   return <BrowserRouter><AppLayout /></BrowserRouter>

@@ -1,5 +1,10 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import * as rrdNS from 'react-router-dom'
+// Namespace form: v7 ships CJS and vite SSR rejects named imports from it;
+// the node interop namespace only reliably carries `default`, so destructure
+// from whichever side the exports object lives on (v6 is ESM, no default).
+const rrd = rrdNS.default ?? rrdNS
+const { Link } = rrd
 
 export default function NotFound() {
   useEffect(() => { document.title = '404 | prestruct' }, [])

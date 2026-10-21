@@ -5,6 +5,47 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 18 - react-router-dom v7 shipped for real; vite 6; JSX-build warnings zero; Node 20 engines (2026-10-21)
+
+Solved issue #26 end to end, then used its findings to clean the CF Pages
+build log and the example's dependency ledger.
+
+- **The namespace-import shape from Pass 17 was half-wrong, corrected.** A
+  bare `import * as rrdNS` + destructure COMPILES under v7 but its node
+  interop namespace only reliably carries `default` -- the destructures
+  became undefined and every route failed with `useLocation is not a
+  function` (0/8 pages). The surviving form is the guarded interop:
+  `const rrd = rrdNS.default ?? rrdNS; const { ... } = rrd`. Lesson: "it
+  compiled " is not "it rendered" -- run the full prerender before
+  claiming a fix shape. Pass 17's claim was premature; this pass owns
+  that.
+- **Shipped on both majors.** Engine usePageMeta (synced), example
+  (App/AppLayout/usePageMeta/ToolsBlock/ViewSource/Proxy/Home/NotFound/
+  About/Deploy snippets), init (App/AppLayout) converted. Example renders
+  8/8 pages under rrd 7.18.4; root battery 147/147 on v6; init build
+  compiles the same form under v6. The example now RUNS v7 (clears its
+  open-redirect + constructor-injection advisories); the template ships
+  the v7-safe form while its battery pins v6.
+- **vite 6.4.5 for example + init + root devDeps** (plugin-react 4.x peers
+  cover v4-v7; engine peer range unchanged >=5). The example's audit is
+  now 0 findings -- earlier all vite 5.4 dev-server/launch-editor/
+  esbuild classes, gone with the major. Render path proven 8/8.
+- **CF build-log warnings zeroed.** The four `>` -in-JSX-text warnings
+  (Contact.jsx x2, ToolsBlock.jsx x2, echoed again during prerender) are
+  explicit arrow expressions now (`{'\u2192'}`); build runs clean.
+- **puppeteer removed from root devDeps** (and from the release.yml battery
+  injection) -- no test imports it for real; battery 147/147 without it;
+  98 packages left the install and the basic-ftp/extract-zip chain left
+  the tree entirely.
+- **Node 20 engines.** root/init/example declare node >=20 (matches
+  tinypool 2.2.0's ^20||>=22); README, cloudflare.md, AGENTS claims
+  updated to 20+. CF Pages builds on 22 already.
+- Gates: vitest 147/147, sync 5/5, docs suites, fiction scan, npm pack
+  35 files -- all PASS; example build 8/8 under vite 6 + rrd 7; init
+  build green under vite 6 + rrd 6.
+
+---
+
 ## Pass 17 - Supply-chain pass: tinypool critical pinned, CI installs hardened, v7 scaffold finding banked (2026-10-21)
 
 Triggered by Socket alerts on npm prestruct 1.0.0. The decisive fact: Socket

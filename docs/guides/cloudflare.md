@@ -121,7 +121,7 @@ renders on the VPS/Worker proxy -- see
 
 ### Build fails
 
-- Check Node.js version is set to 18+
+- Check Node.js version is set to 20+
 - Ensure all dependencies are in `package.json`
 - Verify build command matches local: `npm run build`
 

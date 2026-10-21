@@ -10,6 +10,25 @@ records only what cherry-pickers must act on.
 
 ## v1.1.0 (unreleased -- main is ahead by these)
 
+### Scaffold now compiles on react-router-dom v7 (and the example runs it)
+
+- vite SSR rejects named imports from v7's CJS entry, and node's CJS-interop
+  namespace only reliably carries `default` (v6 is ESM, usually with no
+  default export). The scaffold's router imports are now
+  `import * as rrdNS` + `const rrd = rrdNS.default ?? rrdNS` + destructure,
+  which compiles identically on both majors. Files touched: engine
+  usePageMeta (synced), example (App/AppLayout/usePageMeta/ToolsBlock/
+  ViewSource/Proxy/Home/NotFound/About/Deploy snippets), init (App/
+  AppLayout). Verified for real: example builds and renders 8/8 pages
+  under react-router-dom 7.18.4 + vite 6.4.5; root battery 147/147 on v6.
+- The example is now on v7 (clears its open-redirect/constructor-injection
+  advisories) and the init template ships the v7-safe import form while its
+  battery stays pinned on v6 -- both majors stay compiled and tested.
+- The example also moved to vite 6.4.5 (plugin-react 4.x peers cover v4-v7):
+  its audit is now 0 findings, and the Cloudflare build log JSX-arrow
+  warnings (`>` in JSX text on Contact/ToolsBlock) are gone -- replaced with
+  explicit arrow string expressions.
+
 ### Deep engine imports are now part of the exports contract
 
 - `package.json` exports map adds `prestruct/hooks` (usePageMeta),

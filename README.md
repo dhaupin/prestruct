@@ -140,19 +140,20 @@ another repo is one line in that repo's `crashtest.config.js`:
 ## Deploy
 
 - Cloudflare Pages: [docs/guides/cloudflare.md](./docs/guides/cloudflare.md)
-  (`npm run build`, output `dist/`, Node 18+).
+  (`npm run build`, output `dist/`, Node 20+).
 - Any static host works too: `dist/` is a plain static folder.
 
 ---
 
 ## Stack
 
-- Vite 5+
+- Vite 5+ (examples and the template battery build on Vite 6)
 - React 18+
-- React Router v6 (v7 works -- engine falls back to the package root when the
-  `./server.js` subpath is absent)
+- React Router v6 and v7 both work: v6 via the `./server.js` subpath, v7 via
+  the package-root fallback -- scaffold imports use the namespace+destructure
+  form so CJS v7 passes vite SSR (docs and generated HTML render from v7 live)
 - Cloudflare Pages default; any static host otherwise
-- Node 18+
+- Node 20+
 
 ---
 
