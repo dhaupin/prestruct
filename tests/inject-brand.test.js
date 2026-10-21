@@ -327,6 +327,35 @@ describe('proxy config', () => {
   })
 })
 
+describe('default deploy-id stability (cache signature contract)', () => {
+  // Perf audit 2026-10-20: the default deploy id embedded a random base36
+  // timestamp, which changed the shell on every build. Prerender's cache
+  // signature covers the whole shell, so every deployId:true project
+  // re-rendered its full route list every time. The default id is now stable
+  // per commit (git short hash; 'dev-local' outside git). Real content still
+  // invalidates honestly via the vite asset hashes in the same shell.
+  it('renders the same deploy-id meta on consecutive builds', () => {
+    const mkDist = (root) => {
+      mkdirSync(join(root, 'dist'), { recursive: true })
+      writeFileSync(join(root, 'dist', 'index.html'), `<!DOCTYPE html>
+<html><head><title>x</title></head><body><div id="root"></div></body></html>
+`, 'utf8')
+    }
+    const rootA = makeTempProject()
+    const rootB = makeTempProject()
+    mkDist(rootA)
+    mkDist(rootB)
+
+    const ids = [rootA, rootB].map((root) => {
+      injectBrand({ siteUrl: 'https://e2e.test', siteName: 'S', author: 'A', routes: [] }, join(root, 'dist'))
+      return (readFileSync(join(root, 'dist', 'index.html'), 'utf8').match(/name="deploy-id" content="([^"]*)"/) || [])[1]
+    })
+
+    expect(ids[0]).toBeTruthy()
+    expect(ids[0]).toBe(ids[1])
+  })
+})
+
 describe('buildJsonLd contract (single object OR array of objects)', () => {
   // The config example documents "a single object or array of objects" but the
   // engine's array-only check silently dropped the bare-object shape -- the

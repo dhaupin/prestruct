@@ -99,12 +99,18 @@ export function generateTitle(siteName, tagline) {
 
 // Generate deploy ID from git commit hash + short timestamp
 function defaultGetDeployId() {
+  // Stable per commit. The OLD shape appended a random base36 timestamp,
+  // which changed the shell on EVERY build -- and because prerender's cache
+  // signature covers the whole shell, that defeated the incremental cache
+  // on every deployId:true project (SEO/perf audit 2026-10-20: warm
+  // rebuilds re-rendered 8/8 pages). Per-deploy identity belongs to the
+  // hosting platform (CF Pages deployment id), not the HTML; the shell
+  // still invalidates the cache honestly when content actually changes
+  // (vite asset hashes + meta live in the same signature).
   try {
-    const hash = execSync('git rev-parse --short HEAD 2>/dev/null', { encoding: 'utf8' }).trim()
-    const ts = Date.now().toString(36).slice(-4)
-    return `${hash}-${ts}`
+    return execSync('git rev-parse --short HEAD 2>/dev/null', { encoding: 'utf8' }).trim()
   } catch {
-    return `dev-${Date.now().toString(36).slice(-6)}`
+    return 'dev-local'
   }
 }
 
