@@ -125,12 +125,12 @@ export default function AppLayout() {
           <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>deploy</NavLink>
           <NavLink to="/islands"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>islands</NavLink>
           <NavLink to="/proxy" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>proxy</NavLink>
+          <a href="https://docs.creadev.org/prestruct/" className="nav-link" target="_blank" rel="noopener noreferrer">docs</a>
           <NavLink to="/contact"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>contact</NavLink>
           <a href={GITHUB} className="nav-github" target="_blank" rel="noopener noreferrer">
               <GitHubIcon size={13} />
               <span>github</span>
             </a>
-          <a href="https://docs.creadev.org/prestruct/" className="nav-link" target="_blank" rel="noopener noreferrer">docs</a>
         </nav>
       </header>
 
