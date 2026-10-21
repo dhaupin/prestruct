@@ -8,6 +8,15 @@ records only what cherry-pickers must act on.
 
 ---
 
+## v1.0.0 (current)
+
+Identical content to the 0.9.0 bootstrap release; the version returns to the
+1.0.0 lock and stays there. This is the tag the dormant Trusted-Publisher
+workflow publishes from: pushing `v1.0.0` triggers .github/workflows/
+publish.yml for the first tag-based publish with provenance (requires the
+npmjs.com Trusted-Publisher entry: user dhaupin, repo prestruct, workflow
+publish.yml).
+
 ## v0.9.0 (bootstrap release)
 
 First npm publish (manual bootstrap; the Trusted-Publisher tag pipeline is
