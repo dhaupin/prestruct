@@ -110,51 +110,48 @@ Flag notes backed by the CLI dispatch (`bin/cli.mjs`):
   prints one line (`ssr.config.js is valid (N routes)`).
 - `clean` clears `.prestruct/cache/routes.json` for the target workdir.
 
-## Cloudflare CLI
+## Deploy commands (prestruct output is what deploys)
 
-Deploy to Cloudflare Pages:
+`prestruct build` output is the only artifact that ships. On Cloudflare Pages,
+that's normally git-connected (push to main -> Pages runs `npm run build`,
+serves `dist/` -- full setup: [Cloudflare Pages guide](/prestruct/guides/cloudflare)).
+For direct uploads the wrangler commands operate on prestruct's `dist/`:
 
 ```bash
-# Deploy to production
-wrangler pages deploy dist
+npm run build            # or: npx prestruct build
 
-# Create project
+# First direct upload
 wrangler pages project create my-app
+wrangler pages deploy dist
 
 # View deployments
 wrangler pages deployment list
 ```
 
-### Environment variables
+CF Pages' build queue is the "build hook": git push fires the build that runs
+prestruct. A `wrangler pages deploy dist` in CI is the equivalent for repos
+that build elsewhere.
+
+## Proxy commands
+
+The bot proxy is opt-in and separate from the build. Commands, tied to what
+actually runs:
 
 ```bash
-# Set for deploy
-CF_PAGES_API_TOKEN=xxx wrangler pages deploy dist
-```
-
-## Proxy scripts
-
-Run the optional bot proxy:
-
-```bash
-# VPS proxy
+# VPS proxy (Node/Express/Puppeteer): needs scripts/proxy.js + the
+# proxy.package.json dependency set (npm i in scripts/ first)
 node scripts/proxy.js
 
-# With PM2
+# Same, under a process manager
 pm2 start scripts/proxy.js --name prestruct
 
-# Deploy worker
+# Worker proxy (Browser Rendering + KV): scripts/proxy.worker.js + wrangler.toml
 wrangler deploy
 ```
 
-## Build hooks
-
-Trigger automatic rebuilds on git push:
-
-```bash
-# Get hook URL from Cloudflare dashboard
-# Add it to your GitHub repo settings -> Webhooks
-```
+Both variants read `config.proxy` from `ssr.config.js` and share the
+`x-prestruct-refresh` cache-bust contract (auth: `PRESTRUCT_SECRET`). Details
+and the request flow: [Proxy guide](/prestruct/guides/proxy).
 
 ## Common issues
 

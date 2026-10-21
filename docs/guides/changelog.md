@@ -40,7 +40,7 @@ Trusted-Publisher workflow, provenance-attested), and **main is ahead** at
   generation
 - Bot proxy pair (VPS + Worker) with constant-time cache-refresh secret
   compare and a bounded render-concurrency queue
-- 22 guides under `docs/` with Pagefind search
+- 23 guides under `docs/` with Pagefind search
 
 ## v0.2.4 (May 2026)
 

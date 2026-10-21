@@ -5,6 +5,42 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 14 - Docs scaled for the npm era + nitpick true-up (2026-10-21)
+
+Docs pass after the npm 1.0.0 publish. Every fix is fact-supported against
+engine/CLI output; no invented claims.
+
+**Fiction removed (Pass 14a true-up, commit 8ad0d79):**
+
+- 3 guides + changelog pointed at `dist/.prestruct/status.json` and a
+  `generatedAt` field abolished by the issue-23 fix. Now: project-root
+  `.prestruct/status.json`, no timestamp, rationale stated.
+- `docs/guides/changelog.md` + README + AGENTS claimed "not published
+  yet". Rewritten to the live-registry state (1.0.0 published, provenance,
+  tags-are-the-trigger convention, main ahead = next planned release).
+- `cli.md` pinned to `bin/cli.mjs` reality: `-f` alias, route failure fails
+  the build (exit 1), clean's exact target, validate's passing line,
+  `[dir]` positional contradicted by a stale "no --dir flag" sentence (gone).
+
+**Premier-experience scale-out (Pass 14b, this commit):**
+
+- `docs/index.md` guide cards: added the 6 newer guides people could not
+  find from the homepage: structured-data, bot proxy, migration, api
+  (deep package imports included in the card text), advanced islands,
+  build optimization. Links verified to resolve; docs-links gate PASS.
+- `docs/guides/cli.md`: the generic "Cloudflare CLI / Build hooks" filler
+  is gone, replaced by a deploy section tied to prestruct's actual
+  pipeline (git-connected pages runs `npm run build` which IS prestruct;
+  wrangler direct upload operates on prestruct's `dist/`). Proxy commands
+  section now names the real per-variant prerequisites (proxy.package.json
+  deps, wrangler.toml) and links the proxy guide.
+- "22 guides" count corrected to 23 (the actual file count).
+
+Gates: docs style/links/frontmatter/language/truthfulness PASS, vitest
+142/142, sync 5/5.
+
+---
+
 ## Pass 13 - v0.9.0 bootstrap publish + v1.0.0 restore verified installatble (2026-10-21)
 
 The publish saga, closed out. npm needed a manual bootstrap before trusted

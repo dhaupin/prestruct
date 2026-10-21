@@ -55,10 +55,39 @@ From an empty Vite app to a deployed prerendered site in minutes.
 
 <a href="guides/cli" class="guide-card">
 <h4>CLI</h4>
-`prestruct init / build / validate / clean` and the template npm scripts.
+`prestruct init / build / validate / clean`, flags, and the pipeline steps.
 </a>
 
-</div>
+<a href="guides/structured-data" class="guide-card">
+<h4>Structured Data</h4>
+schema.org JSON-LD: Organization, WebSite, breadcrumbs, per-page types.
+</a>
+
+<a href="guides/proxy" class="guide-card">
+<h4>Bot Proxy</h4>
+Serve crawlers fresh HTML for routes the build cannot prerender (VPS + Worker).
+</a>
+
+<a href="guides/migration" class="guide-card">
+<h4>Migration</h4>
+Moving from vendored prerender scripts or another SSR setup to prestruct.
+</a>
+
+<a href="guides/api" class="guide-card">
+<h4>API</h4>
+Engine entry points: `prerender()`, `injectBrand()`, `validateConfig()`,
+`buildJsonLd()`, deep package imports.
+</a>
+
+<a href="guides/advanced-islands" class="guide-card">
+<h4>Advanced Islands</h4>
+Load strategies, registry patterns, fallback content, island data flow.
+</a>
+
+<a href="guides/build-optimization" class="guide-card">
+<h4>Build Optimization</h4>
+Incremental cache, `--force`/`--clean`, CI health-check snapshot.
+</a>
 
 ## Why Cloudflare Pages?
 
