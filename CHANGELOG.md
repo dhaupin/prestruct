@@ -8,7 +8,15 @@ records only what cherry-pickers must act on.
 
 ---
 
-## v0.2.6 (current)
+## v0.9.0 (bootstrap release)
+
+First npm publish (manual bootstrap; the Trusted-Publisher tag pipeline is
+dormant until v1.0.0, per the runbook in .github/workflows/publish.yml).
+Behavior is identical to the internal v1.0.0 lock, renamed down for the
+bootstrap ladder: after the publish lands, the version returns to 1.0.0 and
+the `v1.0.0` tag drives the first tag-based publish with provenance.
+
+## v0.2.6
 
 ### 404 CTA follows the host theme (visible fix for dark-mode owners)
 
