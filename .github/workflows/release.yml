@@ -124,10 +124,10 @@ jobs:
           # never (npm pack uses DISK state -- pass-4/7 lesson, same here).
           rm -rf "${PACKAGE_DIR}/node_modules" "${PACKAGE_DIR}/dist" \
                  "${PACKAGE_DIR}/.prestruct" "${PACKAGE_DIR}/package-lock.json"
-          mkdir -p "${PACKAGE_DIR}/tests"
-          cp tests/*.test.js tests/*.test.mjs tests/e2e-fixture.mjs \
-             tests/timing-harness.mjs "${PACKAGE_DIR}/tests/"
-          cp init/tests/. "${PACKAGE_DIR}/tests/" 2>/dev/null || true
+          # PACKAGE_DIR/tests already came in via `cp -R init/.` above: the
+          # remapped init/tests copies. Do NOT re-copy raw repo tests over
+          # them -- that shipped v1.1.0's first zip with ../engine/ imports
+          # that only resolve in the repo, not in the artifact.
 
           zip -r "${ARCHIVE}" "${PACKAGE_DIR}"
 
@@ -146,6 +146,18 @@ jobs:
           fi
 
           echo "ARCHIVE=${ARCHIVE}" >> $GITHUB_ENV
+
+      # The in-init battery above can pass while the shipped zip fails:
+      # ../engine/ imports resolve inside init/ but not in the artifact
+      # (v1.0.0 AND v1.1.0's first zip shipped exactly that). So gate the
+      # release on THE ARTIFACT'S OWN battery: unzip it, install it, run it.
+      - name: Run the artifact's own battery before release
+        run: |
+          rm -rf /tmp/zip-verify && mkdir -p /tmp/zip-verify
+          unzip -q "${{ env.ARCHIVE }}" -d /tmp/zip-verify
+          cd /tmp/zip-verify/prestruct-${{ env.VERSION }}
+          npm install --no-audit --no-fund
+          npx vitest run
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

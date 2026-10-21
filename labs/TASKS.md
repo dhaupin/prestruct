@@ -5,7 +5,38 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
-## Pass 22 - Brain stone refresh, crashtest on the newest harness, v1.1.0 tagged (2026-10-21)
+## Pass 23 - v1.1.0 zip battery defeated by a silent `cp dir/.` failure; artifact gate added (2026-10-21)
+
+Post-release verification pass. The npm tarball checked out: 35 files, the
+`bin/ engine/ init/` whitelist shape, version 1.1.0, no node_modules/dist
+strays. The GitHub zip did not: its `tests/` shipped the RAW repo imports
+(`../engine/scripts/...`, `../init/scripts/...`) that resolve only in the
+repo layout -- in the artifact they point at directories that do not exist,
+and the standalone battery fails 8/8 with import errors.
+
+- **Root cause:** release.yml copied raw repo tests over the remapped
+  init/tests copies, then "restored" them with
+  `cp init/tests/. "${PACKAGE_DIR}/tests/" 2>/dev/null || true`. GNU cp
+  requires `-r` for a `dir/.` source; the error
+  ("cp: -r not specified; omitting directory 'init/tests/.'") was swallowed,
+  the copy did nothing, and the raw copies won. The in-init battery passed
+  141/141 anyway because inside `init/` the remapped paths DO resolve --
+  the same repo-shape-vs-artifact-shape trap as v1.0.0, one level of
+  shell-quietness deeper.
+- **Fix (release.yml):**\ the archive now ships ONLY the remapped init/tests
+  (the raw `cp tests/*` re-copy was deleted -- it was pure overwrite churn),
+  and a new hard gate runs BEFORE "Create GitHub release": unzip the built
+  archive into /tmp, npm install, `npx vitest run` from the artifact tree.
+  The workflow can no longer ship a zip its own tests cannot run from.
+- **Verified locally before re-firing:** full archive sequence simulated in
+  /tmp/relcheck2 (fixed flow) -> artifact battery 141/141 (8 files); root
+  battery 147/147 (9 files). yaml-lint clean.
+- **Next pass:** nothing open from this fix; tag was re-pushed to re-fire
+  release/publish, artifact re-downloaded and re-verified after the rerun.
+
+---
+
+## Pass 22 - Brain stone refresh, crashtest on the newest harness, v1.1.0 tagged (2026-10-21))
 
 Release round; the pre-flight the owner asked for, in order:
 

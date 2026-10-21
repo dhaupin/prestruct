@@ -735,6 +735,16 @@ place (gh release upload --clobber + gh release edit), verified 136/136
 inside. Lesson: a release asset forgets none of your debt -- test it from the
 downloaded artifact, not from the repo shape.
 
+Confirmed re-broken in v1.1.0 (Oct 21, same day): release.yml copied RAW repo
+tests over the remapped init/tests copies inside a shell line ending
+`2>/dev/null || true`. GNU cp needs `-r` for a `dir/.` source (error saved:
+"cp: -r not specified; omitting directory 'init/tests/.'"), so the copy failed
+silently and the first v1.1.0 zip shipped the ../engine/ imports again. The
+in-init battery still passed 141/141 -- same lesson, sharper form. release.yml
+now zips ONLY the remapped init/tests (no raw re-copy) and, before creating
+the release, unzips its own archive and runs the battery from the artifact
+tree as a hard gate.
+
 - **`files` whitelist:** only `bin/`, `engine/`, `init/` ship in the tarball.
   `example/` is deliberately excluded -- it is repo documentation, not payload.
 - **peerDependencies** (`react`, `react-dom`, `react-router-dom`, `vite`)
