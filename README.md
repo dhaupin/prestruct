@@ -180,7 +180,7 @@ aftermath to match what the archive actually contains.
 
 - [AGENTS.md](./AGENTS.md) -- engineering history, gotchas, hard rules,
   what's in/out of scope.
-- [labs/prd.md](./labs/prd.md) -- roadmap.
+- [labs/prd-prestruct.md](./labs/prd-prestruct.md) -- roadmap.
 - [docs/](./docs/index.md) -- full site (SEO, routing, islands, proxy,
   Cloudflare).
 

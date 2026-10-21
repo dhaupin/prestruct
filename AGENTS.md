@@ -7,8 +7,8 @@ nothing is theoretical.
 
 **Also read:** `CONTENT.md` before writing any copy, documentation, or code
 comments. It covers tone, voice, formatting, naming, and what to avoid.
-`labs/prd.md` is the roadmap -- future patterns and planning live there.
-
+`labs/prd-prestruct.md` is the roadmap -- future patterns and planning
+live there.
 ---
 
 ## Scope boundaries (inherited from the retired SCOPE.md)
@@ -31,7 +31,8 @@ prestruct ships as open source (Fair-Code terms: LICENSE + LEGAL.md). Humans
 and agents contribute the same way. Cold-start order:
 
 1. Read this file (history + rules). Skip nothing that contradicts you.
-2. `labs/prd.md` -- roadmap. Work belongs to a phase; new work enters as a
+2. `labs/prd-prestruct.md` -- roadmap. Work belongs to a phase; new work
+   enters as a
    PRD row first.
 3. `labs/TASKS.md` -- pass log, newest on top. Record what you did, what you
    learned, what the next pass should pick up.

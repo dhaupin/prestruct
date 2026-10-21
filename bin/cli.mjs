@@ -2,7 +2,7 @@
 /**
  * bin/cli.mjs - prestruct CLI
  * ============================
- * Commands (spec'd in labs/prd.md Phase 2):
+ * Commands (spec'd in labs/prd-prestruct.md Phase 2):
  *
  *   prestruct init [dir]    Scaffold the template into dir (default: cwd).
  *                           Never clobbers existing files.
