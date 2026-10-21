@@ -40,6 +40,13 @@ export default {
   // deployId: true,        // inject <meta name="deploy-id"> (default: true)
   // deployIdFooter: false, // show in footer (default: false)
 
+  // === Robots.txt (opt-in) ===
+  // Prestruct never touches dist/robots.txt unless you opt in -- a static
+  // public/robots.txt you author yourself is copied through untouched.
+  // robots: true,              // minimal block (all agents + Sitemap line)
+  // robots: "User-agent: *\nDisallow: /private",  // custom body; sitemap auto-appended
+  // robots: { body: "...", sitemap: false },      // custom body, no sitemap line
+
   // === Routes ===
   // Each route gets prerendered to static HTML at build time.
   // Add your routes here (at least one; zero routes fails validation).

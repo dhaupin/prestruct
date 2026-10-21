@@ -146,6 +146,18 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).not.toContain('<script type="module"')
   })
 
+  it('404 strips modulepreload chunk links (no JS prefetch on a no-JS page)', () => {
+    // Page-weight audit 2026-10-20: vite emits `<link rel=modulepreload>` per
+    // imported chunk beside the entry script; the script strip alone left the
+    // 404 prefetching the 160KB vendor bundle, defeating the zero-JS-load
+    // contract on every 404 hit.
+    const shell = `<html><head><title>x</title></head><div id="root"></div><script type="module" src="/assets/i.js"></script><link rel="modulepreload" crossorigin href="/assets/vendor.js" /></html>`
+    const html = generate404(shell, { siteName: 'Test' }, siteUrl)
+    expect(html).not.toContain('modulepreload')
+    expect(html).not.toContain('/assets/vendor.js')
+    expect(html).not.toContain('<script type="module"')
+  })
+
   it('404 CTA is theme-neutral (no hardcoded fill/color pair)', () => {
     // #19: the filled black button was invisible on dark hosts. The CTA must
     // draw its text AND outline from currentColor so it reads on any theme.

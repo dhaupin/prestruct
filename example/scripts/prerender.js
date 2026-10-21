@@ -413,8 +413,13 @@ export function generate404(shell, config, siteUrl) {
     '<meta name="author"',
     '<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />\n  <meta name="author"'
   )
-  // Strip the React bundle -- 404 is pure static HTML, no React needed
+  // Strip the React bundle -- 404 is pure static HTML, no React needed.
+  // modulepreload must go too: vite emits one `<link rel=modulepreload>` per
+  // imported chunk next to the entry script, and a modulepreload link makes
+  // the browser PREFETCH the 160KB vendor bundle on a page whose whole
+  // contract is zero JS loads (caught by the 2026-10 perf/page-weight audit).
   html = html.replace(/<script type="module"[^>]*><\/script>/, '')
+  html = html.replace(/<link[^>]*rel="modulepreload"[^>]*>/g, '')
 
   return html
 }
