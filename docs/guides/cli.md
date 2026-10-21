@@ -97,8 +97,18 @@ prestruct build
 ```
 
 Config loading is fixed in every entry point: `ssr.config.js` from the
-invocation directory (or the nearest parent that has one). There is currently
-no `--config` / `--dir` flag.
+explicit `[dir]` argument (default: current directory, walking up to the
+nearest parent that has one). There is currently no `--config` flag.
+
+Flag notes backed by the CLI dispatch (`bin/cli.mjs`):
+
+- `build` accepts `--force` (alias `-f`) and `--clean`.
+- A route that fails to render fails the BUILD: exit 1 with
+  `[prestruct] prerender failed for N/M route(s)`. Exit 0 on a broken deploy
+  was the bug; there is no opt-out.
+- `validate` prints diagnostics only when something is wrong; a passing config
+  prints one line (`ssr.config.js is valid (N routes)`).
+- `clean` clears `.prestruct/cache/routes.json` for the target workdir.
 
 ## Cloudflare CLI
 

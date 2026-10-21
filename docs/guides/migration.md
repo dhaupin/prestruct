@@ -394,7 +394,7 @@ Most UI libraries work with prestruct. Test for:
 1. **Test locally**: `npx vite preview` serves `dist/` at :4173
 2. **Validate the config**: `npx prestruct validate` (catches mistakes before CI does)
 3. **Check SEO**: Verify meta tags, sitemap, canonical URLs, robots.txt
-4. **Watch the cache stats snapshot**: `dist/.prestruct/status.json` reports the last build's route render status
+4. **Watch the cache stats snapshot**: `.prestruct/status.json` (project root, not dist) reports the last build's route render status
 5. **Lighthouse audit**: Should score 90+ on all metrics
 
 ## Next steps

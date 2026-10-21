@@ -8,17 +8,36 @@ permalink: /guides/changelog
 ---
 
 Release history for prestruct. Commit history is the detailed source
-(`git log --oneline`); the npm package sits at **1.0.0** and is not published
-yet -- `publish.yml` stays dormant until the first `v*` tag.
+(`git log --oneline`); the npm package sits at **1.0.0** (published via the
+Trusted-Publisher workflow, provenance-attested), and **main is ahead** at
+1.1.0 until the next tag.
 
-## 1.0.0 (repo state)
+## 1.1.0 (main, unreleased)
+
+- Deep engine imports join the package contract: `prestruct/hooks`,
+  `prestruct/islands`, and a `prestruct/engine/*` passthrough (previously
+  `Missing specifier` for any non-mapped path). Docs still recommend the
+  scaffold-relative import for template users.
+- `status.json` moves out of `dist/`: build telemetry now lands in
+  PROJECT-ROOT `.prestruct/status.json` beside the route cache, and the
+  wall-clock `generatedAt` field is dropped. Anything inside `dist/` deploys
+  to a public URL (issue 23) and a timestamp inside it broke byte-identical
+  build parity. Action for upgraders: re-point any CI step reading
+  `dist/.prestruct/status.json` at the project root.
+- Release archive (GitHub zip) now ships a working test battery: imports
+  remapped to the template layout, test-only devDependencies declared, and
+  the battery runs inside `init/` BEFORE the zip is built (136/136).
+- Release notes list the real archive contents (the v1.0.0 body named
+  `ssr.config.js`, which the zip does not contain).
+
+## 1.0.0 (published)
 
 - npm package shape: `bin/cli.mjs` (`init` / `build` / `validate` / `clean`),
   `engine/` single-source scripts synced into `init/` + `example/`
 - CLI realizes `--force` / `--clean` pass-through (engine already accepted
   them; the CLI previously dropped both silently)
-- Incremental prerender cache (`.prestruct/cache/`) + per-build
-  `dist/.prestruct/status.json` snapshot + opt-in `config.robots` generation
+- Incremental prerender cache (`.prestruct/cache/`) + opt-in `config.robots`
+  generation
 - Bot proxy pair (VPS + Worker) with constant-time cache-refresh secret
   compare and a bounded render-concurrency queue
 - 22 guides under `docs/` with Pagefind search

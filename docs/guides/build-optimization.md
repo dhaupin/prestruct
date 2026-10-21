@@ -114,10 +114,11 @@ npx prestruct build --force  # rerender everything, keep the cache file
 npx prestruct build --clean  # clear the cache first, then build
 ```
 
-The build also writes `dist/.prestruct/status.json` (route count, succeeded,
-cached-entry total, per-route cache-entry flags) -- readable in CI as a cheap
-build health check. It reports cache-file presence, not which routes were
-served from cache on this run.
+The build also writes `.prestruct/status.json` in the project root (route
+count, succeeded, cached-entry total, per-route cache-entry flags) -- readable
+as a cheap build health check. It reports cache-file presence, not which
+routes were served from cache on this run. It is deliberately outside `dist/`:
+telemetry does not deploy (issue 23).
 
 ### 5. Cache Expensive Data
 

@@ -139,10 +139,17 @@ CF Pages output; the two layers stack, they don't replace each other.
 
 ## Publishing state
 
-`package.json` is at 1.0.0 but **not tagged and not published**. `publish.yml`
-(OIDC trusted publishing on `v*` tags) is wired and dormant -- it
-fires nothing until the first tag exists, by owner decision. When it fires,
-provenance is automatic and no stored npm token is needed.
+**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.0.0,
+published via `publish.yml`, GitHub Actions OIDC trusted publishing with
+npm provenance -- verify with `npm audit signatures`). Tags drive releases:
+`v*` triggers npm publish plus the GitHub release archive (template zip with
+a self-testing battery). `main` may be ahead of the latest tag; its version
+pins are the next planned release.
+
+Local install test from the registry tarball (35 files) passed: `init` never
+clobbers, `build` produces full `dist/` (baked meta, sitemap, 404). The
+release-body template inside `release.yml` was corrected in the v1.0.0
+aftermath to match what the archive actually contains.
 
 **Legal:** using prestruct means agreeing to [LICENSE](./LICENSE) and
 [LEGAL.md](./LEGAL.md). Fair-Code: commercial SaaS use is restricted.

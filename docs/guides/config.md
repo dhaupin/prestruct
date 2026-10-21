@@ -267,14 +267,14 @@ robots: true,                       // minimal block + Sitemap pointer
 When enabled, prerender writes `dist/robots.txt` after `sitemap.xml` so the
 `Sitemap:` pointer always references a fresh file.
 
-## Cache stats (static monitor)
+## Cache stats (build telemetry)
 
 Every successful `prestruct build` writes a JSON snapshot to
-`dist/.prestruct/status.json`:
+`.prestruct/status.json` in the PROJECT ROOT (not dist -- build telemetry
+must not deploy; see the issue-23 note below):
 
 ```json
 {
-  "generatedAt": "2026-10-20T15:36:30.400Z",
   "routeCount": 1,
   "succeeded": 1,
   "cached": 1,
@@ -283,8 +283,11 @@ Every successful `prestruct build` writes a JSON snapshot to
 }
 ```
 
-Useful in CI or a deploy health-check step: `cat dist/.prestruct/status.json | jq .succeeded`. The file is intentionally static (no runtime endpoint), so it
-is safe on static hosts per the PRD note "static-sites-safe option preferred".
+Useful in CI or a local health-check step: `cat .prestruct/status.json | jq .succeeded`. The file is intentionally static (no runtime endpoint) and
+intentionally OUTSIDE `dist/` -- anything in `dist/` ships to the public
+artifact surface on every static host, and a wall-clock timestamp inside it
+made byte-identical builds differ for parity-gating consumers (issue 23,
+fixed in v1.1.0). `dist/` is byte-stable across identical input builds.
 
 Field note: `cached` is the TOTAL number of entries in the incremental cache
 file, and each route's `cached: true` means "a cache entry exists for this

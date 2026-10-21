@@ -718,9 +718,21 @@ fetched entries overwrite static ones -- same collision, opposite contract.
 
 ## The npm package: host-project execution, not self-hosted deps
 
-Since Phase 2 the repo root is the npm package shape (version 1.0.0 exists in
-`package.json` but is **unpublished by owner decision** -- see
-`.github/workflows/publish.yml`, dormant until the first `v*` tag).
+The package is LIVE on npm: 1.0.0 published from the `v1.0.0` tag via
+`publish.yml` (GitHub Actions OIDC trusted publishing, provenance attested --
+the 0.9.0 version was a one-shot manual bootstrap so the tag pipeline could
+exist at all). Tags are the single release trigger: `v*` publishes npm AND
+builds the GitHub release zip. `main` may sit ahead of the latest tag with
+the next version's pins ( TAG POLICY: automatic per-tag publish, no manual
+publish path except the one-time bootstrap which is done and closed ).
+
+Release archive note (2026-10-21): the v1.0.0 GitHub zip shipped a test
+battery that could not run (engine-relative imports in a tree with no
+engine/). release.yml now remaps the imports, injects test-only devDeps, and
+runs the battery inside init/ BEFORE zipping. The v1.0.0 zip was rebuilt in
+place (gh release upload --clobber + gh release edit), verified 136/136
+inside. Lesson: a release asset forgets none of your debt -- test it from the
+downloaded artifact, not from the repo shape.
 
 - **`files` whitelist:** only `bin/`, `engine/`, `init/` ship in the tarball.
   `example/` is deliberately excluded -- it is repo documentation, not payload.
