@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Reference
-description: Importable module surface of the engine: prerender, injectMeta, generateSitemap, injectBrand, and validateConfig.
+description: "Importable module surface of the engine: prerender, injectMeta, generateSitemap, injectBrand, and validateConfig."
 nav_order: 9
 version: 1.0.0
 permalink: /guides/api

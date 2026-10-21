@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Structured Data
-description: How JSON-LD structured data is generated from config.buildJsonLd and how script-tag breakout protection works.
+description: "How JSON-LD structured data is generated from config.buildJsonLd and how script-tag breakout protection works."
 nav_order: 13
 version: 1.0.0
 permalink: /guides/structured-data

@@ -65,6 +65,8 @@
 
 - title: Project
   items:
+    - title: Live Site
+      url: https://prestruct.creadev.org
     - title: Content Style
       url: /prestruct/guides/content-style
     - title: Contributing

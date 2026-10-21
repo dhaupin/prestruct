@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Changelog
-description: Consumer-facing changes per release: what cherry-pickers of the init template must act on when updating.
+description: "Consumer-facing changes per release: what cherry-pickers of the init template must act on when updating."
 nav_order: 17
 version: 1.0.0
 permalink: /guides/changelog

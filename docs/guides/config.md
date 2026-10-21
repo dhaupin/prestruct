@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Configuration
-description: Full ssr.config.js reference: siteUrl, siteName, routes and per-route meta, robots, proxy, and fetchRoutes.
+description: "Full ssr.config.js reference: siteUrl, siteName, routes and per-route meta, robots, proxy, and fetchRoutes."
 nav_order: 3
 version: 1.0.0
 permalink: /guides/config

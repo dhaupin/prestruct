@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Roadmap
-description: What is planned next for prestruct, crosslinked to the repository roadmap and issue tracker.
+description: "What is planned next for prestruct, crosslinked to the repository roadmap and issue tracker."
 nav_order: 18
 version: 1.0.0
 permalink: /guides/roadmap

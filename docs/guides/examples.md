@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Examples
-description: Sample configurations and patterns for common stacks, with links to the live example site.
+description: "Sample configurations and patterns for common stacks, with links to the live example site."
 nav_order: 19
 version: 1.0.0
 permalink: /guides/examples

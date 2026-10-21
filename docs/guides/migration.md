@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Migration Guide
-description: Upgrading prestruct across versions: behavioral changes per release and what to change in your project.
+description: "Upgrading prestruct across versions: behavioral changes per release and what to change in your project."
 nav_order: 10
 version: 1.0.0
 permalink: /guides/migration

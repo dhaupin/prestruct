@@ -9,15 +9,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: "prestruct docs" }}</title>
     <meta name="description" content="{{ page.description | default: "prestruct: build-time SEO prerender for Vite + React apps" }}">
-    <link rel="canonical" href="{{ page.url | absolute_url | replace: ".html", "" }}">
-    <meta property="og:title" content="{{ page.title | default: "prestruct docs" }}">
-    <meta property="og:description" content="{{ page.description | default: "prestruct: build-time SEO prerender for Vite + React apps" }}">
-    <meta property="og:url" content="{{ page.url | absolute_url | replace: ".html", "" }}">
+    <link rel="canonical" href="{{ page.url | absolute_url | replace: '.html', '' }}">
+    <meta property="og:title" content="{{ page.title | default: 'prestruct docs' }}">
+    <meta property="og:description" content="{{ page.description | default: 'prestruct build-time SEO prerender for Vite + React apps' }}">
+    <meta property="og:url" content="{{ page.url | absolute_url | replace: '.html', '' }}">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="prestruct docs">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ page.title | default: \"prestruct docs\" }}">
-    <meta name="twitter:description" content="{{ page.description | default: \"prestruct: build-time SEO prerender for Vite + React apps\" }}">
+    <meta name="twitter:title" content="{{ page.title | default: 'prestruct docs' }}">
+    <meta name="twitter:description" content="{{ page.description | default: 'prestruct build-time SEO prerender for Vite + React apps' }}">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%234f46e5'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold' font-size='20'>P</text></svg>">
     
     <!-- Prism.js for syntax highlighting -->
@@ -650,6 +650,7 @@
         <footer class="footer">
             <p>Open source under the <a href="https://github.com/dhaupin/prestruct/blob/main/LICENSE">prestruct license</a>.</p>
             <p style="margin-top: 8px;">
+                <a href="https://prestruct.creadev.org">Live site</a> · 
                 <a href="https://github.com/dhaupin/prestruct">GitHub</a> · 
                 <a href="https://github.com/dhaupin/prestruct/blob/main/labs/TASKS.md">Build log</a> · 
                 <a href="https://github.com/dhaupin/prestruct/issues">Issues</a>

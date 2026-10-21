@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Hardening & Packs
-description: The adversarial crashtest pack for the proxy pair: what it probes, how to read the report, and CI rules.
+description: "The adversarial crashtest pack for the proxy pair: what it probes, how to read the report, and CI rules."
 nav_order: 24
 version: 1.0.0
 permalink: /guides/hardening

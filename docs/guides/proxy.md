@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Bot-Render Proxy
-description: The bot-render proxy pair: express and Worker runtimes, config keys, cache behavior, and the refresh header contract.
+description: "The bot-render proxy pair: express and Worker runtimes, config keys, cache behavior, and the refresh header contract."
 nav_order: 15
 version: 1.0.0
 permalink: /guides/proxy

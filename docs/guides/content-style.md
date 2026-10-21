@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Content Style
-description: The documentation style contract: frontmatter fields, voice, formatting, and truthfulness rules this repo enforces.
+description: "The documentation style contract: frontmatter fields, voice, formatting, and truthfulness rules this repo enforces."
 nav_order: 20
 version: 1.0.0
 permalink: /guides/content-style

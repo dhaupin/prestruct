@@ -130,6 +130,7 @@ export default function AppLayout() {
               <GitHubIcon size={13} />
               <span>github</span>
             </a>
+          <a href="https://docs.creadev.org/prestruct/" className="nav-link" target="_blank" rel="noopener noreferrer">docs</a>
         </nav>
       </header>
 
@@ -158,6 +159,7 @@ export default function AppLayout() {
             <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>deploy</NavLink>
             <NavLink to="/islands"   className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>islands</NavLink>
             <NavLink to="/proxy"    className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>proxy</NavLink>
+            <a href="https://docs.creadev.org/prestruct/" className="footer-link" target="_blank" rel="noopener noreferrer">docs</a>
           </nav>
         </div>
         <div className="footer-col">

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Redirects
-description: Which _redirects rules to keep and remove on Cloudflare Pages when prerendering, and why the SPA fallback loops.
+description: "Which _redirects rules to keep and remove on Cloudflare Pages when prerendering, and why the SPA fallback loops."
 nav_order: 12
 version: 1.0.0
 permalink: /guides/redirects

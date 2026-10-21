@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Contributing
-description: How to contribute to prestruct: development setup, the repository CI gates, and the pull request flow.
+description: "How to contribute to prestruct: development setup, the repository CI gates, and the pull request flow."
 nav_order: 16
 version: 1.0.0
 permalink: /guides/contributing

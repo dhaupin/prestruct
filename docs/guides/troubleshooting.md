@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Troubleshooting
-description: Common failure modes and their fixes: blank prerenders, missing pages, cache surprises, and deploy errors.
+description: "Common failure modes and their fixes: blank prerenders, missing pages, cache surprises, and deploy errors."
 nav_order: 23
 version: 1.0.0
 permalink: /guides/troubleshooting

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Vite Integration
-description: Vite integration details: the custom dev config, SSR module loading, and the template vite.config.js setup.
+description: "Vite integration details: the custom dev config, SSR module loading, and the template vite.config.js setup."
 nav_order: 22
 version: 1.0.0
 permalink: /guides/vite

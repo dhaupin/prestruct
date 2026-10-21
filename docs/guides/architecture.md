@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Architecture
-description: How prestruct works internally: the ssrLoadModule pipeline, the engine single source, and generated copies.
+description: "How prestruct works internally: the ssrLoadModule pipeline, the engine single source, and generated copies."
 nav_order: 5
 version: 1.0.0
 permalink: /guides/architecture
