@@ -5,6 +5,22 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 24 - v1.1.0 release artifacts double-verified; announcement draft added (2026-10-22)
+
+- Both release artifacts grabbed from their publishers and re-verified from
+  the downloads themselves: npm tarball 35 files, whitelist shape, engine/init
+  synced pairs byte-identical, version 1.1.0; GitHub zip 37 files, no stale
+  `../engine/` / `../init/` import remnants, standalone battery 141/141 from
+  the unzipped artifact. The first v1.1.0 zip had shipped the raw imports
+  (Pass 23); the corrected artifact is what ships.
+- `docs/discussions/announcing-v1.1.0.md` added: the discussion announcement
+  draft mirroring the v1.0.0 post's format (frontmatter + one ~~~md block to
+  copy). lint:docs PASS on all five sub-gates; lint:claims PASS after
+  removing a stray vant boot-state dump (`models/`, `horcrux/models/`) that
+  the Pass-22 ghost boot had dropped into the repo worktree.
+
+---
+
 ## Pass 23 - v1.1.0 zip battery defeated by a silent `cp dir/.` failure; artifact gate added (2026-10-21)
 
 Post-release verification pass. The npm tarball checked out: 35 files, the
