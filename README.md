@@ -1,5 +1,7 @@
 # Prestruct
 
+[![crashtest proxy hardening](https://img.shields.io/github/actions/workflow/status/dhaupin/prestruct/crashtest.yml?branch=main&label=crashtest%20hardening)](https://github.com/dhaupin/prestruct/actions/workflows/crashtest.yml)
+
 **Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`,
 build, inject meta, prerender every route to static HTML. No framework
 migration, no runtime SSR.

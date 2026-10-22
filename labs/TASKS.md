@@ -5,6 +5,32 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 25 - crashtest wired into CI, ledger npm-parity, announcement count fix (2026-10-22)
+
+- Spot-run of the PUBLISHED crashtest@1.0.0 via npx against the committed
+  crashtest.config.js: 35 REFUSED / 0 EXPLOITED, 99 backend ops across 206
+  in-process requests, "baseline: 0 new / 0 regressed / 0 accepted hits".
+  That is first-parity proof that an adopting repo only needs one line
+  (packs path) + npm. The regenerated labs/hardening.md +
+  labs/crashledger.json + labs/run-meta.json are committed as-is (npm-run
+  stamps; verdict set identical to HEAD).
+- New .github/workflows/crashtest.yml: installs root devDeps (express
+  present, puppeteer deliberately never installed -- fail-closed render is
+  the pinned contract of bot-render-fallback), runs `npx --yes crashtest@1
+  run`. Exit code is the gate: fail on a NEW EXPLOITED or a
+  REFUSED->EXPLOITED regression, the same rule hardening.md documents.
+  Hardening artifacts upload on failure for triage. README carries the
+  matching shields.io workflow badge -- the repo's first README badge.
+- Announcement correction: docs/discussions/announcing-v1.1.0.md said
+  "(17 REFUSED, 0 EXPLOITED)"; 17 was stale pre-pass-22 output read from an
+  old hardening.md. Current truth is 35 REFUSED, 0 EXPLOITED. Anyone who
+  already pasted the discussion's md block must update that one number.
+- Lesson: fresh crashtest runs re-stamp wall-clock fields, so the committed
+  labs trio is an occasionally-regenerated ledger, not byte-frozen state;
+  the gate keys on exit code + verdict set, never on the timestamp lines.
+
+---
+
 ## Pass 24 - v1.1.0 release artifacts double-verified; announcement draft added (2026-10-22)
 
 - Both release artifacts grabbed from their publishers and re-verified from

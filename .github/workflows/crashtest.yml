@@ -1,0 +1,57 @@
+# crashtest.yml
+# --------------
+# Runs the packs/public/prestruct-proxy crash-test pack against BOTH shipped
+# proxy runtimes, driven by the committed crashtest.config.js:
+#
+#   adapters.express -> init/scripts/proxy.js    createProxyApp(config)
+#   routes.worker    -> init/scripts/proxy.worker.js  fetch(request, env)
+#
+# The run is in-process and never opens a socket. No browser is installed on
+# purpose: puppeteer imports fail closed, which is exactly the contract the
+# pack's bot-render-fallback row pins (render failure must fall through to
+# the live-site 302, not crash).
+#
+# Gate rule (encoded by crashtest itself, same rule labs/hardening.md
+# documents): exit 0 unless a NEW EXPLOITED finding appears or something
+# previously REFUSED regresses. The regenerated labs/*. artifacts are run
+# stamps, not required to match HEAD byte-for-byte (timestamps move); they
+# upload as an artifact on failure for triage.
+
+name: crashtest
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PUPPETEER_SKIP_DOWNLOAD: '1'
+
+jobs:
+  proxy-pair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Run the proxy pack
+        run: npx --yes crashtest@1 run
+
+      - name: Upload the hardening artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hardening
+          path: |
+            labs/hardening.md
+            labs/crashledger.json
+            labs/run-meta.json

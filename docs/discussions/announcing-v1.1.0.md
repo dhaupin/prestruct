@@ -103,7 +103,7 @@ The repo carries `packs/public/prestruct-proxy` (v0.3.0), an attack pack for
 proxy surfaces: method contract walks, malformed target fuzzing, bot-render
 fallback behavior, refresh-secret strict parity, and cache-key variant
 parity. Latest results live in the repo as `labs/hardening.md` and
-`labs/crashledger.json` (17 REFUSED, 0 EXPLOITED on the current pass).
+`labs/crashledger.json` (35 REFUSED, 0 EXPLOITED on the current pass).
 
 The README documents adoption in one line from another repo's
 `crashtest.config.js`:
