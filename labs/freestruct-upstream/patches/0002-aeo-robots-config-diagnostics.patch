@@ -1,0 +1,37 @@
+--- a/engine/config.js
++++ b/engine/config.js
+@@ -19,7 +19,7 @@
+ export const KNOWN_CONFIG_KEYS = Object.freeze([
+   'site', 'twitter', 'og', 'author', 'jsonLd', 'basePath', 'outputDir', 'minify', 'runHooks',
+   'generateSitemap', 'generateFeed', 'generate404', 'generateRobots',
+-  'readingTime', 'lastModified', 'lazyLoad', 'linkCheck', 'searchIndex',
++  'readingTime', 'lastModified', 'lazyLoad', 'linkCheck', 'searchIndex', 'robots',
+   'cacheBusting', 'hooks', 'indexNow', 'ogImageGeneration',
+   'search', 'breadcrumb', 'verification', 'llms', 'locales', 'article',
+ ]);
+@@ -269,6 +269,25 @@
+       }
+     }
+   }
++
++  // robots preset shape (upstream-parity port of prestruct's AEO preset):
++  // { aeo: true, aiBots: 'allow'|'block' }. This engine owns robots.txt
++  // always, so absent/false = the all-open default it has always written;
++  // only aeo: true switches the preset. Shape mistakes stay warnings
++  // (never gates), same ladder as every other config key here.
++  if (config.robots !== undefined && config.robots !== null) {
++    const r = config.robots;
++    if (r !== true && (typeof r !== 'object' || Array.isArray(r))) {
++      warnings.push('robots must be true or { aeo: true, aiBots } (default output stays the all-open one)');
++    } else if (typeof r === 'object') {
++      if (r.aeo !== undefined && r.aeo !== true) {
++        warnings.push('robots.aeo must be true (the search-allow / training-block preset; omit the key for the all-open default)');
++      }
++      if (r.aiBots !== undefined && r.aiBots !== 'allow' && r.aiBots !== 'block') {
++        warnings.push('robots.aiBots must be "allow" or "block" (default: block)');
++      }
++    }
++  }
+ 
+   // llms shape (SEO-gap pass): true opts the run into emitting llms.txt in
+   // the output dir (the AI-consumable docs summary convention).

@@ -1,0 +1,14 @@
+--- a/engine/seo.js
++++ b/engine/seo.js
+@@ -517,6 +517,11 @@
+     // per-page override ships its own image and replaces the set wholesale.
+     if (ogImageFull && companionsSource && !hasPerpageOgImage) {
+       const companions = [];
++      // Upstream-parity port (prestruct ogImage object form): an http-only
++      // source gets its upgraded https variant in og:image:secure_url. An
++      // already-https source makes the property redundant (og:image itself
++      // is the secure form) - emitting it there just doubles the same URL.
++      if (/^http:\/\//i.test(ogImageFull)) companions.push('<meta property="og:image:secure_url" content="' + escAttr('https://' + ogImageFull.slice('http://'.length)) + '">');
+       if (companionsSource.width !== undefined && companionsSource.width !== '') companions.push('<meta property="og:image:width" content="' + escAttr(companionsSource.width) + '">');
+       if (companionsSource.height !== undefined && companionsSource.height !== '') companions.push('<meta property="og:image:height" content="' + escAttr(companionsSource.height) + '">');
+       if (companionsSource.alt !== undefined && companionsSource.alt !== '') companions.push('<meta property="og:image:alt" content="' + escAttr(companionsSource.alt) + '">');

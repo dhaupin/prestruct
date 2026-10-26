@@ -5,6 +5,42 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 34 - the twin pack: prestruct's remaining fixes upstreamed to freestruct (2026-10-26)
+
+The maintainer's ask: the twins need each other -- everything prestruct did
+should reach freestruct too. Full freestruct engine reads made the delta
+small and exact: their audit, xmllike lastmod, assertXmlSafe, stable build
+hash, og object form and companions already carry the family mechanics
+(most arrived FROM our side). Two real gaps remained:
+
+- **AEO robots preset port (0001+0002).** Their generateRobots always
+  writes `User-agent: *`. Ported 1b5f36d 1:1: config `robots: { aeo: true,
+  aiBots: 'block'|'allow' }` groups the 6 search-surface bots (Allow) and
+  the 5 training crawlers (verdict), Sitemap pointer last; 'robots' joins
+  their KNOWN_CONFIG_KEYS with warn-ladder shape diagnostics. Contract
+  pinned in the port comments: absent/true = BYTE-identical today-output
+  (their robots is engine-owned, unlike ours), and the bot lists must never
+  drift between twins (one side adds a bot, both commits).
+- **og:image:secure_url port (0003).** Their companion builder gains the
+  one-line upgrade: http-only sources carry the https variant; https
+  sources ship nothing redundant; per-page overrides stay wholesale (no
+  companions on override).
+- **Verification.** Direct engine calls against the patched vendored 1.1.0
+  tree: robots default byte-stable + full aeo block + aiBots flip;
+  diagnostics warn exactly once on bad shapes and zero false-fires on valid
+  ones; injectPage secure_url/companion/override triangle green. Harness
+  lesson recorded for their tracker: injectPage reads the page MODEL's
+  html -- a disk-only per-page override comment is invisible (two false
+  test failures before that was straightened out).
+- **Artifacts.** labs/freestruct-upstream/: parity table README (both
+  directions, plus the deliberate non-ports and why), three unified diffs
+  against engine/ 1.1.0 hunk-anchored on stable lines, pristine copies for
+  re-diffing if 1.2.0 lands first, paste-ready PR post.
+- Acceptance: prestruct gates untouched (battery/gates rerun below); no
+  prestruct-side engine change in this pass.
+
+---
+
 ## Pass 33 - the family audit adopted: `prestruct audit` is ours now (2026-10-26)
 
 The maintainer's ask: we do not actually have our own audit (validate-config

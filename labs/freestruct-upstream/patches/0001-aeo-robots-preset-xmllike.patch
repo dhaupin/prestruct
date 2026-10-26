@@ -1,0 +1,59 @@
+--- a/engine/xmllike.js
++++ b/engine/xmllike.js
+@@ -9,6 +9,29 @@
+ import path from 'path';
+ import { pageUrlFor } from './urls.js';
+ 
++// Upstream-parity port of prestruct's AEO robots preset (prestruct commit
++// 1b5f36d, remapped 1:1 so the bot lists NEVER drift between the twins):
++//   robots: { aeo: true, aiBots: 'allow'|'block' }
++// Search-surface bots keep the site (answer engines that surface pages),
++// training/corpus crawlers are blocked (or allowed on aiBots: 'allow').
++// With the key absent there is NO behavior change: the output stays the
++// all-open default this engine has always written.
++const AEO_SEARCH_BOTS = [
++  'OAI-SearchBot',      // OpenAI: surfaces sites in ChatGPT search
++  'PerplexityBot',      // Perplexity: search index, not model training
++  'Claude-SearchBot',   // Anthropic: Claude's search
++  'Applebot',           // Apple: Siri/Spotlight/Safari search
++  'Googlebot',          // Google Search incl. AI Overviews eligibility
++  'Bingbot',            // Bing / Copilot discovery
++];
++const AEO_TRAINING_BOTS = [
++  'GPTBot',             // OpenAI: model training crawl
++  'ClaudeBot',          // Anthropic: model development crawl
++  'Google-Extended',    // Gemini/Vertex grounding (product token, no HTTP hits)
++  'Applebot-Extended',  // Apple: foundation model training
++  'CCBot',              // Common Crawl: open corpus crawlers
++];
++
+ /** Escape a value for XML text/attribute contexts. */
+ export function escXml(value) {
+   return String(value)
+@@ -66,7 +89,25 @@
+  */
+ export function generateRobots(config, outputDir) {
+   const sitemapUrl = pageUrlFor(config, 'sitemap.xml');
+-  const robots = '# Robots.txt\nUser-agent: *\nAllow: /\n\nSitemap: ' + sitemapUrl + '\n';
++  const robotsCfg = config.robots;
++  const aeo = (typeof robotsCfg === 'object' && robotsCfg !== null && !Array.isArray(robotsCfg)
++    && robotsCfg.aeo === true);
++  let robots;
++  if (aeo) {
++    // The preset groups the host reads first (search surfaces), then the
++    // training verdict, then the always-on sitemap pointer. robots: true,
++    // absent and false all keep the all-open default (this engine OWNS
++    // robots.txt, unlike prestruct where the author's copy is untouchable,
++    // so false has nothing to "untouch" - the key only switches the preset).
++    const lines = [];
++    for (const bot of AEO_SEARCH_BOTS) lines.push('User-agent: ' + bot, 'Allow: /', '');
++    const verdict = robotsCfg.aiBots === 'allow' ? 'Allow: /' : 'Disallow: /';
++    for (const bot of AEO_TRAINING_BOTS) lines.push('User-agent: ' + bot, verdict, '');
++    lines.push('Sitemap: ' + sitemapUrl);
++    robots = lines.join('\n').replace(/\n+$/, '\n');
++  } else {
++    robots = '# Robots.txt\nUser-agent: *\nAllow: /\n\nSitemap: ' + sitemapUrl + '\n';
++  }
+   fs.writeFileSync(path.join(outputDir, 'robots.txt'), robots);
+   console.log('robots.txt generated');
+ }
