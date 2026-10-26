@@ -5,6 +5,45 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 41 - the gistory beta report ships paste-ready; write-auth probes failed honestly (2026-10-26)
+
+The maintainer asked for the beta findings reported to dhaupin/gistory. Both
+write paths probed before accepting the paste-ready route:
+
+- **GitHub issues API: 403** (anonymous, IP rate-limited; no token exists in
+  this workspace -- the server-managed credentials reach only the
+  cloud_git tool for the connected prestruct repo).
+- **Git push probe: no credentials.** Anonymous HTTPS push refused with
+  "could not read Username" from a scratch clone with a
+  probe-only empty commit (cleaned up after; never left /tmp).
+
+So the report rides paste-ready, the fleet's established handoff convention
+(labs/flowforge-shim-retirement-issue.md precedent): full issue body at
+labs/gistory-beta-report.md -- title + body ready to paste into a
+dhaupin/gistory issue. Contents: the four POSITIVE feedback receipts
+(refusal-name contracts held incl. MISSING_RENDER/RASTER_BAD_XML; eyestruct
+raster PASS on our og-image.svg at 55,462 bytes opaque; monoforge's doctor
+battery surfaced one real prestruct gap we closed same-day (the publish 0.x
+refusal); shared-audit WARN-ladder agreement with the one robots-opt-in
+divergence documented for prestruct-shapes) + the four actionable findings
+(B1 poststruct CLI swallows the audit verb so the README form cannot work;
+B2 poststruct --module parsed as comma-operator, forever null; B3 monoforge
+doctor false-positive classes -- exports glob-unaware, files-path blind to
+negation, walkFiles ignores .gitignore; B4 gistory README advertises
+`npm i gistory-sync` which is E404 on the registry -- engine exists only in
+the repo tree, the manual 0.9.0 ladder has not fired).
+
+House style kept: findings carry the exact failing line from the beta tree
+and a one-line fix shape, so each is a copy-edit not a hunt. When the
+maintainer (or any session with GitHub write auth) pastes the report, this
+pass's ledger entry is the receipt that it was prepared and verified.
+
+Gates re-run green before commit. Next: when poststruct's M1 opens, draft
+prestruct-shapes from the pass-40 divergence notes (robots opt-in contract
+first).
+
+---
+
 ## Pass 40 - the gistory betas pulled; their premises exercised against prestruct (2026-10-26)
 
 The maintainer's ask: pull dhaupin/gistory's three nested staging betas
