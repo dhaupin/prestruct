@@ -202,7 +202,13 @@ export function replaceRootDiv(shell, appHtml) {
 export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
   const title   = escapeReplacement(escapeHtml(meta.title))
   const desc    = escapeReplacement(escapeHtml(meta.description))
-  const ogImage = escapeReplacement(escapeHtml(meta.ogImage || globalOgImage || ''))
+  // og:image per-route override, string shorthand OR object form (object
+  // contract mirrors inject-brand's): object resolution takes `.url` so a
+  // structured global or route value lands as a URL, never as the string
+  // "[object Object]" corrupting every head silently.
+  const globalImgUrl = (typeof globalOgImage === 'object' && globalOgImage !== null) ? globalOgImage.url : globalOgImage
+  const routeImgUrl  = (typeof meta.ogImage   === 'object' && meta.ogImage   !== null) ? meta.ogImage.url   : meta.ogImage
+  const ogImage = escapeReplacement(escapeHtml(String(routeImgUrl || globalImgUrl || '')))
   // Trailing-slash normalization (#53): a `siteUrl` written with its trailing
   // slash would otherwise join into `https://site//about` on every page's
   // canonical + og:url.robots.txt already strips; this is the same contract

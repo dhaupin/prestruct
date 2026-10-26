@@ -20,11 +20,11 @@ Verified against the engine at HEAD, not memory:
 | Surface | State |
 |---|---|
 | Engine (`engine/`, single source) | `prerender.js` (ssrLoadModule, incremental route cache, sitemap, 404, robots), `inject-brand.js` (meta/OG/JSON-LD, deployId, WORKER bot-list sync), `validate-config.js` (structured diagnostics), `src/islands.js`, `src/hooks/usePageMeta.js` |
-| Config keys | `siteUrl`, `siteName`, `routes[].meta/priority`, `robots` (`true` or `{ aeo: true, aiBots: 'block'|'allow' }` per-vendor preset), `proxy` (`url`, `botList`, `targetUrl`), `deployId`/`deployIdFooter`, `fetchRoutes()` build-time hook, `platform` (cloudflare full; vercel/netlify validate-only stubs), `PRESTRUCT_STRICT=1` exit-code flag |
+| Config keys | `siteUrl`, `siteName`, `routes[].meta/priority`, `ogImage` (string url OR `{ url, width, height, alt, type }` object form emitting the og:image companions -- proposal #38, audit-green), `robots` (`true` or `{ aeo: true, aiBots: 'block'|'allow' }` per-vendor preset), `proxy` (`url`, `botList`, `targetUrl`), `deployId`/`deployIdFooter`, `fetchRoutes()` build-time hook, `platform` (cloudflare full; vercel/netlify validate-only stubs), `PRESTRUCT_STRICT=1` exit-code flag |
 | npm package | live at 1.0.0 (Trusted-Publisher tag pipeline, provenance-attested); CLI `init/build/validate/clean`; deep exports `prestruct/hooks`,`prestruct/islands`,`prestruct/engine/*`; `files` = bin/engine/init only (packs never ship) |
 | Template (`init/`) | byte-identical to engine via `scripts/sync-engine.mjs`; scaffold imports are dual-major safe (`rrdNS.default ?? rrdNS` interop form); ships the proxy pair, wrangler.toml, pm2/systemd starters, self-testing zip battery |
 | Platform state | vite 6.4.5 + vitest 5.0.5 (battery 147/147, tinypool pinned ^2.2.0 via overrides), react-router dual-major (battery pins v6, example runs v7 live), Node engines >=20, react 18 |
-| Example | 8 routes on rrd 7.18.4/rendered 8/8; audit 0 findings; AEO-era docs |
+| Example | 8 routes on rrd 7.18.4/rendered 8/8; freestruct 1.1.0 audit 0 failures/0 warnings (og raster + object-form ogImage, pass 32); AEO-era docs |
 | Adversarial QA | in-repo crashtest pack `packs/public/prestruct-proxy` v0.3.0 (5 shapes incl. cache-key variant parity), ledger 54/54 REFUSED at harness 1.1.0, CI lane = exact devDep pin, bump = `npm run crashtest:bump <v>` |
 | Docs | Jekyll + Pagefind site, 23 guides, truthfulness/fiction gates in CI |
 

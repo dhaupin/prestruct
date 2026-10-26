@@ -166,8 +166,34 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   const authorSafe      = toReplaceSafe(escapeHtmlAttr(author))
   const keywordsSafe    = toReplaceSafe(escapeHtmlAttr(keywords))
   const canonicalSafe   = toReplaceSafe(escapeHtmlAttr(canonical))
-  const ogImageSafe     = toReplaceSafe(escapeHtmlAttr(ogImage))
   const siteNameSafe    = toReplaceSafe(escapeHtmlAttr(siteName))
+
+  // og:image accepts the legacy string shorthand AND the structured object
+  // form (object contract per validate-config): { url, width, height, alt,
+  // type }. Companion properties are emitted ONLY when present and only
+  // when their value validates at this seam, so a typo'd companion can
+  // never corrupt the head (same never-corrupt rule as the escape pipeline).
+  const ogImgObject = (ogImage && typeof ogImage === 'object' && !Array.isArray(ogImage))
+    ? ogImage
+    : (ogImage ? { url: String(ogImage) } : null)
+  const ogImgUrl     = typeof ogImgObject?.url === 'string' ? ogImgObject.url : ''
+  const ogImgWidth   = /^[0-9]+$/.test(String(ogImgObject?.width  ?? '')) ? String(ogImgObject.width) : ''
+  const ogImgHeight  = /^[0-9]+$/.test(String(ogImgObject?.height ?? '')) ? String(ogImgObject.height) : ''
+  const ogImgAlt     = typeof ogImgObject?.alt === 'string' ? ogImgObject.alt : ''
+  const ogImgType    = typeof ogImgObject?.type === 'string' ? ogImgObject.type : ''
+
+  const ogImageSafe     = toReplaceSafe(escapeHtmlAttr(ogImgUrl))
+  const ogImgWidthSafe  = toReplaceSafe(escapeHtmlAttr(ogImgWidth))
+  const ogImgHeightSafe = toReplaceSafe(escapeHtmlAttr(ogImgHeight))
+  const ogImgAltSafe    = toReplaceSafe(escapeHtmlAttr(ogImgAlt))
+  const ogImgTypeSafe   = toReplaceSafe(escapeHtmlAttr(ogImgType))
+  // og:image:secure_url is emitted only for http:// sources, as the upgraded
+  // https variant. An already-https source makes the property redundant
+  // (og:image itself is the secure form) -- emitting it there just doubles
+  // the same URL in the head.
+  const ogImgSecureSafe = ogImgUrl.startsWith('http://')
+    ? toReplaceSafe(escapeHtmlAttr('https://' + ogImgUrl.slice('http://'.length)))
+    : ''
 
   let html = readFileSync(htmlPath, 'utf8')
 
@@ -234,10 +260,20 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
 
   // -- Open Graph + Twitter Card -----------------------------------------------
 
-  // Only include image tags if ogImage is provided
-  const imageMeta = ogImage ? `
+  // Only include image tags if an og:image url resolves (string shorthand or
+  // object form). Companion properties ride below the pair so inject-brand
+  // output stays one copy-pasted block.
+  const imageCompanions = [
+    ogImgSecureSafe ? `    <meta property="og:image:secure_url" content="${ogImgSecureSafe}" />` : '',
+    ogImgTypeSafe   ? `    <meta property="og:image:type"      content="${ogImgTypeSafe}" />` : '',
+    ogImgWidthSafe  ? `    <meta property="og:image:width"     content="${ogImgWidthSafe}" />` : '',
+    ogImgHeightSafe ? `    <meta property="og:image:height"    content="${ogImgHeightSafe}" />` : '',
+    ogImgAltSafe    ? `    <meta property="og:image:alt"       content="${ogImgAltSafe}" />` : '',
+  ].filter(Boolean).join('\n')
+
+  const imageMeta = ogImgUrl ? `
     <meta property="og:image"        content="${ogImageSafe}" />
-    <meta name="twitter:image"       content="${ogImageSafe}" />` : ''
+    <meta name="twitter:image"       content="${ogImageSafe}" />${imageCompanions ? '\n' + imageCompanions : ''}` : ''
 
   const ogTags = `
     <!-- Open Graph -->

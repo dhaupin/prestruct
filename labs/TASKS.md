@@ -5,6 +5,51 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 32 - freestruct-audit-driven: ogImage object form + committed og raster (2026-10-26)
+
+The maintainer's ask: run every audit we have against ourselves, fix what
+surfaces, update packs, push.
+
+- **Harness + audit inputs.** `npx crashtest run` (exact-pin 1.1.0 lane):
+  54/54 REFUSED, 0 EXPLOITED, 0 new/0 regressed -- stamp reset to today.
+  freestruct 1.1.0 `auditOutput` on a fresh example build: every page graded
+  the same two facts -- og:image FAIL (the svg source passed as the social
+  url) and og:image:width/height/alt WARN. Both facts match our proposals
+  #31/#38 word-for-word, so the freestruct run doubles as the evidence pass
+  for closing them.
+- **og raster.** Social scrapers still need a raster, and the VM has no
+  system fonts, so tofu went probabilistic the first try. Fixed the way
+  freestruct's ogimage.js solves it: explicit TTF buffers into
+  `@resvg/resvg-js`. `example/tools/{render-og.mjs,fonts/}` render
+  public/og-image.svg -> committed public/og-image.png (1200x630, 113KB,
+  Geist 400/600/800 + Geist Mono 400/600, OFL). Rerun once per design
+  change; SVG stays the source of truth.
+- **Engine: ogImage object form.** `inject-brand.js` now accepts the string
+  shorthand (unchanged, zero companions) AND
+  `{ url, width, height, alt, type }`, emitting only the companions that
+  validate at the seam (digits-only width/height, string alt/type; secure_url
+  emitted only to upgrade an http source). `prerender.js injectMeta`
+  resolves objects through `.url` on both the global and route value (the
+  literal "[object Object]" corruption path is closed). `validate-config.js`
+  grades the object shape. New inject-brand block: six cases including the
+  junk-companion drop and the alt-escape; suite 31/31.
+- **Example wired.** `ssr.config.js` ogImage -> the object form pointing at
+  og-image.png. Rebuilt 8/8; the prerendered head now carries the full
+  companion set. freestruct audit rerun: **0 failures, 0 warnings, 9 pages**
+  -- first fully green external audit grade on our own output.
+- **Docs + PRD.** config.md gained the "ogImage: string or object" section;
+  PRD surface table row updated (config keys + example audit state).
+- **A sync-discipline trap recorded.** Forgetting `node scripts/sync-engine.mjs`
+  after the engine edit made the example build say `content="[object Object]"`
+  -- the generated copies are the deployed behavior, engine edits alone are
+  inert. The sync:check gate catches drift, but only on push; during a
+  session, run sync before every example build.
+- Acceptance: vitest 166/166, qc engine-sync green, e2e tarball walk green
+  (see pass-closing run below), packs v0.3.0 unchanged (proxy shapes; the
+  og form is build-surface, which stays out of the proxy pack per R5).
+
+---
+
 ## Pass 31 - flowforge theme adopted (docs + example); shim-retirement issue drafted (2026-10-26)
 
 The maintainer's ask: family parity on the theme (flowforge's is better and

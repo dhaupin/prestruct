@@ -141,6 +141,37 @@ export function validateConfig(config) {
     })
   }
 
+  // ogImage: legacy string shorthand AND the structured object form
+  // (freestruct proposal #38 commentary): { url, width, height, alt, type }.
+  // The object form is what lets og:image carry its width/height/alt
+  // companions -- the properties social crawlers use to size previews.
+  // Never throws. Bad shapes surface as errors, not as silently-dropped
+  // metadata. Companion content validation lives at the injection seam
+  // (non-numeric width/height / non-string alt or type are simply not
+  // emitted, so a typo'd field can never corrupt the head)
+  if (config.ogImage !== undefined && config.ogImage !== null) {
+    const isObj = typeof config.ogImage === 'object' && !Array.isArray(config.ogImage)
+    if (isObj) {
+      if (typeof config.ogImage.url !== 'string') {
+        errors.push('ogImage: object form requires a string "url" field')
+      }
+      for (const k of ['width', 'height']) {
+        const v = config.ogImage[k]
+        if (v !== undefined && !/^[0-9]+$/.test(String(v))) {
+          errors.push(`ogImage: "${k}" should be a number (pixels), got ${JSON.stringify(v)}`)
+        }
+      }
+      for (const k of ['alt', 'type']) {
+        const v = config.ogImage[k]
+        if (v !== undefined && typeof v !== 'string') {
+          errors.push(`ogImage: "${k}" must be a string, got ${JSON.stringify(v)}`)
+        }
+      }
+    } else if (typeof config.ogImage !== 'string') {
+      errors.push('ogImage: must be a string URL or an object { url, width, height, alt, type }')
+    }
+  }
+
   // Optional known-value fields
   if (config.platform !== undefined && !PLATFORMS.includes(config.platform)) {
     errors.push(`platform: "${config.platform}" not in ${PLATFORMS.join(', ')}`)

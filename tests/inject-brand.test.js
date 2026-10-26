@@ -380,3 +380,79 @@ describe('buildJsonLd contract (single object OR array of objects)', () => {
     expect(html).not.toContain('application/ld+json')
   })
 })
+
+describe('ogImage object form (width/height/alt companions)', () => {
+  // The string shorthand graded a WARN in the freestruct audit for missing
+  // og:image:width/height/alt -- the properties social crawlers use to size
+  // previews. The object form carries them. A string must keep working
+  // unchanged (zero companions), and a junk companion must stay OUT of the
+  // head entirely rather than corrupt the injection seam.
+  function makeImgDist(root) {
+    mkdirSync(join(root, 'dist'), { recursive: true })
+    writeFileSync(join(root, 'dist', 'index.html'), `<!DOCTYPE html>
+<html><head><title>Site</title></head><body><div id="root"></div></body></html>
+`, 'utf8')
+  }
+
+  function injectWithImage(root, ogImage) {
+    makeImgDist(root)
+    injectBrand({ siteUrl: 'https://e2e.test', siteName: 'IMG', author: 'I',
+      routes: [], ogImage }, join(root, 'dist'), { getDeployId: () => 't' })
+    return readFileSync(join(root, 'dist', 'index.html'), 'utf8')
+  }
+
+  it('renders the string shorthand unchanged (no companions)', () => {
+    const html = injectWithImage(makeTempProject(), 'https://e2e.test/og.png')
+    expect(html).toContain('<meta property="og:image"        content="https://e2e.test/og.png" />')
+    expect(html).not.toContain('og:image:width')
+    expect(html).not.toContain('og:image:height')
+    expect(html).not.toContain('og:image:alt')
+    expect(html).not.toContain('og:image:type')
+    expect(html).not.toContain('og:image:secure_url') // https source: not redundant
+  })
+
+  it('emits width/height/alt/type companions from the object form', () => {
+    const html = injectWithImage(makeTempProject(), {
+      url: 'https://e2e.test/og.png', width: 1200, height: 630,
+      alt: 'Wordmark over gradient', type: 'image/png',
+    })
+    expect(html).toContain('<meta property="og:image"        content="https://e2e.test/og.png" />')
+    expect(html).toContain('<meta property="og:image:width"     content="1200" />')
+    expect(html).toContain('<meta property="og:image:height"    content="630" />')
+    expect(html).toContain('<meta property="og:image:alt"       content="Wordmark over gradient" />')
+    expect(html).toContain('<meta property="og:image:type"      content="image/png" />')
+  })
+
+  it('upgrades an http source to https in og:image:secure_url', () => {
+    const html = injectWithImage(makeTempProject(), { url: 'http://e2e.test/og.png' })
+    expect(html).toContain('<meta property="og:image"        content="http://e2e.test/og.png" />')
+    expect(html).toContain('<meta property="og:image:secure_url" content="https://e2e.test/og.png" />')
+  })
+
+  it('drops junk companions instead of corrupting the head', () => {
+    const html = injectWithImage(makeTempProject(), {
+      url: 'https://e2e.test/og.png',
+      width: 'drop-table users',      // not digits-only
+      height: { evil: true },         // non-numeric junk
+      alt: 42,                        // non-string
+    })
+    expect(html).toContain('content="https://e2e.test/og.png"') // url still lands
+    expect(html).not.toContain('og:image:width')
+    expect(html).not.toContain('og:image:height')
+    expect(html).not.toContain('og:image:alt')
+  })
+
+  it('escapes attribute-breaking characters in alt before injection', () => {
+    const html = injectWithImage(makeTempProject(), {
+      url: 'https://e2e.test/og.png',
+      alt: 'Evil"><script>alert(1)</script>',
+    })
+    expect(html).not.toContain('Evil"><script>')
+    expect(html).toContain('<meta property="og:image:alt"       content="Evil&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;" />')
+  })
+
+  it('no og:image at all when the object lacks a url', () => {
+    const html = injectWithImage(makeTempProject(), { width: 1200, height: 630 })
+    expect(html).not.toContain('og:image')
+  })
+})

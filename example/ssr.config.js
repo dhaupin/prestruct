@@ -3,7 +3,11 @@ export default {
   siteName:      'prestruct',
   author:        'Creadev.org',
   tagline:       'SEO Prerendering for Vite + React on Cloudflare',
-  ogImage:       'https://prestruct.creadev.org/og-image.svg',
+  // og:image as the structured object form (width/height/alt companions for
+  // social crawlers). og-image.svg is the design source of truth in
+  // public/; og-image.png is its committed raster (node tools/render-og.mjs,
+  // once per design change) because social scrapers still need a raster.
+  ogImage: { url: 'https://prestruct.creadev.org/og-image.png', width: 1200, height: 630, alt: '[pre]struct -- Your React app, visible to search engines.', type: 'image/png' },
   keywords:      'vite prerender, react SEO, cloudflare pages SEO, static site generation, react SSR, vite SSR, schema.org, open graph, sitemap generator',
   appLayoutPath: '/src/AppLayout.jsx',
 

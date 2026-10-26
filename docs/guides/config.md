@@ -102,7 +102,7 @@ Each route in the `routes` array supports:
   meta: {
     title: 'About | Example',         // Page title
     description: 'About page desc',   // Meta description
-    ogImage: '/about-og.jpg',         // Optional: override config.ogImage for this route
+    ogImage: '/about-og.jpg',         // Optional: override config.ogImage for this route (string or object, same shapes as config.ogImage)
   }
 }
 ```
@@ -112,6 +112,36 @@ description, OG, and Twitter tags) and are re-applied on SPA navigation by
 `usePageMeta`. There are no per-route `noindex` or `canonical` overrides:
 404 pages carry noindex automatically, and canonical URLs are derived from
 `siteUrl` + the route path.
+
+### ogImage: string or object
+
+`ogImage` (global or per-route) takes two shapes. The string is the bare URL:
+
+```js
+ogImage: 'https://example.com/og.png',
+```
+
+The object form adds the companion properties social crawlers use to size
+previews. Width/height should match the actual raster (1200x630 is the
+card standard); `alt` describes the image for screen readers and fallback
+renderers:
+
+```js
+ogImage: {
+  url: 'https://example.com/og.png',
+  width: 1200,
+  height: 630,
+  alt: 'Example wordmark over a dark gradient',
+  type: 'image/png',
+},
+```
+
+Companion fields are optional and independent -- only the ones present are
+emitted (`og:image:width`, `og:image:height`, `og:image:alt`,
+`og:image:type`). The full-URL string form stays valid; it just ships
+without companions. Validation rejects wrong shapes at build time: the
+object must carry a string `url`, width/height must be numeric, and alt/
+type must be strings.
 
 ## Environment Variables
 
