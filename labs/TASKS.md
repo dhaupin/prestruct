@@ -5,6 +5,52 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 45 - ops home adopted at labs/.eyes; third missing-asset finding closes the visual sweep (2026-10-26)
+
+The maintainer's beta heads-up set the ops convention: operational state of
+this kind lives under labs/ (labs/.eyes, labs/.rig). This pass adopted it
+and finished the visual surface sweep the pass-44 logo fix started.
+
+- **Second instance of the found class, sharpened.** The docs <head> DOES
+  have a favicon link -- but it was a placeholder data-URI: a generic
+  indigo #4f46e5 tile with a white "P" (system font). Valid data URI, all
+  DOM gates green, NOT our brand -- the og-image escape-soup receipt's
+  direct sibling (loads fine, ships someone else's pixels). Replaced with
+  `<link rel="icon" type="image/svg+xml" href="{{ site.baseurl }}/icon.svg">`
+  -- the exact pattern the sibling fleet layouts use, pointing at the
+  pass-44 mark that now exists and is raster-proven.
+- **Sweep closed.** Every site.baseurl asset reference in the layouts
+  resolves to a real file now (header logo + favicon both live at
+  docs/icon.svg); the remaining header icons are inline SVG, not assets.
+  Example-site assets (og-image, webmanifest icons, favicon-32) were
+  verified present in pass 40/44 rounds; no further dangling refs.
+- **labs/.eyes adopted, conformance-tested against the real tool.** Seeded
+  to the eyestruct manifest schema (strict subset): pin rows honest --
+  renderer resvg@2.6.2 (the actually-installed version, the one eyestruct's
+  README names) and browser-image pending@no-pinned-browser-yet (no pinned
+  Chrome exists in this workspace; captures are the pending lane, exactly
+  as the 0.9.0 browserless-spine cut describes); routes seeded for the
+  docs home in dark/light at 1280x800 (path /prestruct/ -- the deployed
+  docs base). Ledger seeded empty ([]). Conformance run with the real
+  binaries: `gate` -> "0 visual artifact(s) all explained by 0 ledger
+  row(s)" exit 0; `ledger list` -> "(empty ledger)" exit 0. First capture
+  rows land when a pinned browser exists (the eyestruct MVP cut wiring).
+- **CLI receipt: eyestruct wants the command first** (`eyestruct gate
+  --manifest ...` works; flags before the command die with the named
+  UNKNOWN_COMMAND refusal -- consistent with its "no bare stack traces"
+  contract; usable ergonomics note, nothing to fix in prestruct).
+- **labs/.rig: not created.** No local source-of-truth shape exists to
+  conform to (gistory carries none; the rig lock tarballs live in the
+  staging trees' horcrux/). Reserved per the heads-up; it gets folded in
+  the day this repo adopts a rig artifact that needs an ops home.
+
+Gates: lint:docs green with the .eyes seed present (42 prose files);
+vitest 200/200. Next candidates: wire the .eyes raster receipts to a docs
+CI lane when the gate spins; poststruct M1 prestruct-shapes contract from
+pass 40 remains the next real adoption.
+
+---
+
 ## Pass 44 - the docs logo shipped, found + proven the beta-eyes way (2026-10-26)
 
 The maintainer reported the docs site shows NO logo and asked for the beta
