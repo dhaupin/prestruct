@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   createProxyApp,
   secretMatches,
   isBot,
   withRenderLimit,
   MAX_CONCURRENT,
+  normalizePort,
 } from '../init/scripts/proxy.js'
 import {
   default as workerProxy,
@@ -12,6 +13,7 @@ import {
   isBot as workerIsBot,
   cacheKey as workerCacheKey,
   cacheKeyFor as workerCacheKeyFor,
+  ttlFromEnv,
 } from '../init/scripts/proxy.worker.js'
 
 /**
@@ -251,5 +253,50 @@ describe('Worker helper surface', () => {
     expect(k.startsWith('prestruct:sha256:')).toBe(true)
     expect(k.length).toBeLessThan(100) // 64-hex + prefix
     expect(await workerCacheKeyFor(long)).toBe(k) // deterministic across probes
+  })
+})
+
+// -- Walk pass (2026-10 second round): operator-env edges at hard seams ---------
+
+describe('VPS normalizePort', () => {
+  it('passes integers through, bounded to the port range', () => {
+    expect(normalizePort('3000')).toBe(3000)
+    expect(normalizePort(undefined)).toBe(3000)
+    expect(normalizePort('65535')).toBe(65535)
+  })
+
+  it('falls back loudly instead of server.listen(NaN) on junk env values', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    for (const junk of ['', '3000x', 'port', 'NaN', '-1', '99999', '0']) {
+      expect(normalizePort(junk)).toBe(3000)
+    }
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
+  })
+})
+
+describe('VPS createProxyApp -- empty bot list diagnostic (#52 form)', () => {
+  it('warns when botList is missing/empty (the proxy would render nothing)', () => {
+    process.env.PRESTRUCT_SECRET = SECRET
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    createProxyApp({ siteUrl: 'https://vps-harness.test' })
+    expect(warn.mock.calls.some(c => String(c[0]).includes('botList is empty or missing'))).toBe(true)
+    warn.mockRestore()
+  })
+})
+
+describe('Worker ttlFromEnv', () => {
+  it('defaults to 86400 without an env value', () => {
+    expect(ttlFromEnv(undefined)).toBe(86400)
+    expect(ttlFromEnv('86400')).toBe(86400)
+  })
+
+  it('refuses junk loudly and clamps below the KV 60s minimum instead of 500ing a paid render', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(ttlFromEnv('second-hour')).toBe(86400) // junk -> default
+    expect(ttlFromEnv('30')).toBe(60)             // KV minimum, not the wish
+    expect(ttlFromEnv('1')).toBe(60)
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
   })
 })

@@ -64,7 +64,19 @@ let TARGET_URL     = null
 let BOT_LIST       = []
 let SECRET_SHA256  = null
 
-export const PORT = parseInt(process.env.PORT || '3000', 10)
+export const PORT = normalizePort(process.env.PORT)
+
+// Port guard (walk 2026-10): a junk PORT env ("", "3000x", "port") made
+// parseInt() produce NaN and server.listen(NaN) died at startup with a
+// runtime error far from its cause. Validate and fall back loudly.
+export function normalizePort(raw) {
+  const n = parseInt(raw ?? '3000', 10)
+  if (!Number.isInteger(n) || n <= 0 || n > 65535) {
+    console.warn(`[proxy] PORT "${raw}" is not a valid port -- falling back to 3000`)
+    return 3000
+  }
+  return n
+}
 
 // -- Secret compare (constant time) -------------------------------------------
 // Only honoured when a secret is configured and matches. Hash both sides to a
@@ -337,6 +349,13 @@ export function createProxyApp(config) {
   }
 
   BOT_LIST = proxyConfig.botList || []
+  if (!Array.isArray(proxyConfig.botList) || proxyConfig.botList.length === 0) {
+    // Loud config diagnostic (#52 form): a proxy with an empty bot list
+    // renders nothing -- every request, bot or not, gets the 302 and the
+    // operator sees a green process doing nothing. Config is author-owned,
+    // so this warns instead of failing.
+    console.warn('[proxy] config.proxy.botList is empty or missing -- no bot will ever be rendered (every request 302s). Set the browser token list.')
+  }
 
   const secret = process.env.PRESTRUCT_SECRET || null
   SECRET_SHA256 = secret

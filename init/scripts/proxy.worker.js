@@ -108,6 +108,21 @@ export async function cacheKeyFor(url) {
   return `prestruct:sha256:${hex}`
 }
 
+/**
+ * TTL guard (walk 2026-10): KV's expirationTtl rejects non-numbers, values
+ * below the protocol minimum of 60s, and NaN -- and the put happens AFTER a
+ * successful, already-paid-for render, so a junk env value turned a working
+ * MISS into a 500 on the response path. Validate loudly at the seam.
+ */
+export function ttlFromEnv(raw) {
+  const n = parseInt(raw ?? '86400', 10)
+  if (!Number.isFinite(n)) {
+    console.warn(`[proxy:worker] CACHE_TTL_SECONDS "${raw}" is not a number -- falling back to 86400`)
+    return 86400
+  }
+  return Math.max(60, n) // KV minimum TTL; a shorter wish cannot be honored
+}
+
 // -- Secret compare (constant time) -------------------------------------------
 // Workers cannot import node:crypto, so there is no timingSafeEqual here.
 // The XOR form is the standard constant-time comparator available in any
@@ -168,7 +183,7 @@ export default {
     const refreshToken = request.headers.get('x-prestruct-refresh')
     const forceRefresh = refreshSecretMatches(SECRET, refreshToken)
 
-    const TTL = parseInt(env.CACHE_TTL_SECONDS || '86400', 10)
+    const TTL = ttlFromEnv(env.CACHE_TTL_SECONDS)
     const key = await cacheKeyFor(requestUrl.pathname + requestUrl.search)
 
     // Try KV cache first (payload is the {html, cachedAt} JSON we now store)

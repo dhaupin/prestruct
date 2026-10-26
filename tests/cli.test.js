@@ -81,11 +81,17 @@ describe('cli refusal contract (#54)', () => {
     const proj = mkdtempSync(join(tmpdir(), 'prestruct-pos-'))
     writeFileSync(join(proj, 'ssr.config.js'),
       "export default { siteUrl: 'https://x.com', routes: [{ path: '/' }] }\n")
+    // Cold CI spawns (fresh npx resolution in a bare tmpdir) measured 30s+
+    // and even crossed vitest's 5s default test timeout once: the default
+    // killed the test mid-spawnSync, which is a harness artifact, not CLI
+    // behavior. The spawn contract is not what's under test, so these two
+    // invocations run with headroom. spawnSync is blocking -- there is no
+    // in-test retry to catch an external timeout, only room to finish.
     for (const argv of [['build', '--force', proj], ['build', proj, '--force']]) {
       const r = run(argv, { cwd: mkdtempSync(join(tmpdir(), 'prestruct-pos-cwd-')) })
       expect(r.stderr).not.toContain('ssr.config.js not found')
       expect(r.stderr).not.toContain('unknown flag')
       expect(r.status).not.toBe(0) // vite build failure, which is expected here
     }
-  })
+  }, 80000)
 })

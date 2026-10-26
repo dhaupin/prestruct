@@ -1,3 +1,78 @@
+## Pass 52 - dependency audit + cross-repo fix-class sweep (2026-10-26)
+
+The "is our stack current?" pass, run against the family too.
+
+- **npm/lockfile/Gemfile: all current.** packstruct 1.0.0 and
+  crashtest 1.1.0 are the published latest, matching the pins; lockfile
+  ships react 18.3.1 / react-router-dom 6.30.6 (newest v6 line) / vite
+  6.4.5 / vitest 5.0.5 / express 4.22.3, all newest-compatible. The vite
+  6-vs-8 gap stays a conscious matrix choice: the peer range is >=5 and
+  the engine must build against the majors hosts actually run; the
+  tarball e2e is the proof surface, not the dev pin. Jekyll `~> 4.4` is
+  the newest 4.4 line, and the docs workflow keeps the artifact-deploy
+  shape the Pagefind lesson demands.
+- **This repo's CI actions were the real drift:** upload-artifact 4->7,
+  configure-pages 4->6, upload-pages-artifact 4->5, deploy-pages 4->5,
+  action-gh-release 2->3 (checkout/setup-node were already v7). Bumped
+  in place; workflows otherwise untouched. The same-round push
+  exercises them live.
+- **Cross-repo walk (shallow clones, receipts inline):**
+  freestruct's engine shares none of the last-week fix classes (their
+  hooks already carry the 30s wall, no root-div swap in their injector,
+  no islands runtime, CLI positional resolution is position-independent
+  double-dash-only). Its CI is current except ONE straggler:
+  docs.yml:74 pagefind cache on actions/cache@v4 while sibling steps are
+  @v6. filed as dhaupin/freestruct#29.
+  flowforge carries two: web/src/islands.js has the identical
+  observe-stacking class prestruct pass 50 fixed (their observe() mints
+  a fresh IO per scan of an unmounted visible island and disconnects
+  only inside its own callback), and every actions/* pin is behind
+  - upload-pages-artifact@v3 in particular predates the v4 line. Filed
+  as dhaupin/flowforge#6 with the transposable island fix. Both issues
+  went in directly through the connected GitHub integration (repo write
+  arrived via Composio) - the labs-draft handoff model is retired, and
+  the two placeholder drafts from this pass are deleted.
+
+Pass-51 proxy fixes remain uncommitted from the previous round; see
+Pass 51 for contents.
+
+## Pass 51 - the proxy pair walk: operator-env edges at hard seams (2026-10-26)
+
+First deep walk of init/scripts/proxy.js (VPS) + proxy.worker.js (CF
+Worker) since the live-fire round. Wrangler contract verified against
+code first: binding names (BROWSER, CACHE), [vars] keys, secret
+placement all match -- no drift. The proxy is init-owned (not engine-
+contract), so example/ rightly ships none and the pack copy is the
+adversarial harness, not payload. Three fixes, all unit-tested:
+
+- **Junk PORT env (VPS):** parseInt made server.listen(NaN) die at
+  startup with an error far from its cause. normalizePort() now
+  validates the 1..65535 range and falls back to 3000 with a loud warn.
+- **Junk CACHE_TTL_SECONDS (Worker):** KV's expirationTtl rejects
+  non-numbers AND values below the 60s protocol minimum -- and the put
+  happens AFTER a successful, already-paid-for render, so a bad env
+  value turned a working MISS into a 500 on the response path.
+  ttlFromEnv() now rejects junk (default 86400) and clamps to the KV
+  minimum instead of surfacing the operator's wish invalidly.
+- **Empty/missing config.proxy.botList (VPS):** a proxy that renders
+  nothing -- every request 302s -- used to bind silently and look
+  green. createProxyApp now warns in the #52 diagnostic form (config is
+  author-owned, so warn, not fail).
+
+Worker browser-per-render churn (launch + close per request vs the
+VPS's pooled browser) is noted as a follow-up, deliberately NOT
+implemented without a live Worker runtime: the CF pooling surface
+(keep_active/sessions) cannot be verified from this environment, and
+the AGENTS.md Cloudflare rule says no unverifiable Puppeteer-surface
+changes ship in that file.
+
+Gates: 244/244 battery, sync:check byte-identity, packstruct --deep,
+docs frontmatter+language+truthfulness, fiction signatures. Also fixed
+mid-run: the new findWorkdir positional test hit vitest's 5s default
+timeout when the cold npx spawn needed 30s+ -- raised to 80s with the
+reason in the test (spawnSync blocks; there is no in-test retry to
+catch an external timeout).
+
 ## Pass 50 - second QC walk: island runtime, CLI args, validator edges (2026-10-26)
 
 Four boundary-class fixes, each with a regression test. Full gates pass.
