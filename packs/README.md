@@ -11,6 +11,13 @@ from the host config (`moduleCtx`), never hardcoded in the pack.
 crosslinked to [`crashtest.config.js`](../crashtest.config.js), which arms it
 against this repo's own deployed copies.
 
+**Shared spec:** the pack manifest follows the [packstruct](https://github.com/dhaupin/packstruct)
+`/packs` convention (`pack.json` schemaVersion 1). `npm run lint:packs` runs
+`packstruct lint packs/ --deep` -- a manifest declaring an entry that does not
+actually ship dies at lint time, before the harness ever loads the pack. The
+crashtest CI lane uses the repo's own pinned devDependency
+(`crashtest@1.0.0` exact), never a floating `@1` fetch.
+
 ## Adopting this pack in another repo (crashtest v0.3+)
 
 Packs are the one extension surface: a pack directory is self-contained

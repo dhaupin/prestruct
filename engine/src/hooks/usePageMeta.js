@@ -54,7 +54,9 @@ const { useLocation } = rrd
 
 /** Update the SPA head tags on every route change (see the module head doc). */
 export default function usePageMeta({ title, description, path, siteUrl }) {
-  const base = siteUrl || import.meta.env?.VITE_SITE_URL || ''
+  // Trailing-slash normalization (#53): a configured base with its trailing
+  // slash would join into `https://site//about` on every navigation
+  const base = (siteUrl || import.meta.env?.VITE_SITE_URL || '').replace(/\/$/, '')
   const location = useLocation()
 
   useEffect(() => {

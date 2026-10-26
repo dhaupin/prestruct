@@ -8,6 +8,50 @@ records only what cherry-pickers must act on.
 
 ---
 
+## Unreleased (the version ladder pins 1.2.0; the v1.1.0 tag remains latest on npm)
+
+### generate404() head tags no longer ship literal `$1`/`$2` (#33)
+
+- The 404 page's og:title, twitter:title, description and canonical tags
+  were built with function replacers whose returned strings contained
+  `$1`/`$2` -- but a function replacer's return value is used LITERALLY, so
+  `dist/404.html` shipped `$1Page Not Found | Site$2`-shaped garbage and
+  lost all four tags. Values now rebuild from the capture groups. Action for
+  cherry-pickers: update `init/scripts/prerender.js` (or describe: drop-in).
+
+### Trailing-slash `siteUrl` no longer doubles the canonical (#53)
+
+- `siteUrl: 'https://x.example.com/'` produced canonical/og:url of
+  `https://x.example.com//` on every page (inject-brand) and inside sitemap
+  locs + prerendered metas. The trailing slash is now stripped at every URL
+  seam: inject-brand canonical/og block, prerender injectMeta, sitemap,
+  404 canonical, and the usePageMeta base. No config change needed; a
+  trailing-slash siteUrl is simply correct now.
+
+### CLI refuses unknown dash-word flags (#54)
+
+- `prestruct build --Force` (or any misspelled flag) was silently ignored:
+  typo'd flags now fail with `unknown flag(s): ... - run prestruct help`,
+  exit 1, naming what the command actually takes. `--help` works on every
+  subcommand.
+
+### Loud config diagnostics for unknown keys (#52)
+
+- A misspelled config key (`ogimg:` instead of `ogImage:`) passed build
+  validation while silently dropping the SEO surface it drove. Unknown
+  keys now print `[prestruct] config warning: unknown config key "x"
+  (typo? see the config reference)` during build/validate. Warnings are
+  diagnostics, not gates: they never fail the build.
+
+### Packs conformance + pinned surfaces
+
+- `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared
+  `/packs` spec linter (crashtest#16 class: manifest declares an entry that
+  does not ship). The crashtest CI lane runs the repo's own pinned
+  `crashtest@1.0.0` devDependency and never a floating `@1` fetch.
+
+---
+
 ## v1.1.0 (released from the v1.1.0 tag)
 
 ### Scaffold now compiles on react-router-dom v7 (and the example runs it)

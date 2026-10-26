@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { join } from 'node:path'
 import { replaceRootDiv, injectMeta, generateSitemap, generate404, loadStaticRouter, mergeRoutes, enginePaths, readCache, writeCache } from '../engine/scripts/prerender.js'
-import { validateConfig, formatDiagnostics, defineConfig } from '../engine/scripts/validate-config.js'
+import { validateConfig, formatDiagnostics, defineConfig, configKeyWarnings, formatConfigWarnings } from '../engine/scripts/validate-config.js'
 import { toReplaceSafe, generateTitle } from '../engine/scripts/inject-brand.js'
 
 /**
@@ -105,6 +105,29 @@ describe('validateConfig', () => {
     const lines = formatDiagnostics(['siteUrl is required'])
     expect(lines[0]).toBe('[prestruct] config: siteUrl is required')
   })
+
+  it('warns on unknown config keys without failing validation (#52)', () => {
+    // A typo'd seam (`ogimg` vs `ogImage`) used to pass a green build while
+    // silently dropping the SEO surface it was meant to drive
+    const config = { siteUrl: 'https://example.com', ogimg: 'x.png', routes: [{ path: '/' }] }
+    const { ok } = validateConfig(config)
+    expect(ok).toBe(true)
+    const warnings = configKeyWarnings(config)
+    expect(warnings).toContain('unknown config key "ogimg" (typo? see the config reference)')
+    expect(formatConfigWarnings(warnings)[0]).toBe('[prestruct] config warning: unknown config key "ogimg" (typo? see the config reference)')
+  })
+
+  it('known keys never warn (#52)', () => {
+    const known = {
+      siteUrl: 'https://example.com',
+      siteName: 'S', author: 'A', tagline: 'T', ogImage: 'o.png', keywords: 'k',
+      appLayoutPath: '/src/AppLayout.jsx',
+      routes: [{ path: '/' }], notFound: {}, robots: { aeo: true }, proxy: { url: 'https://p' },
+      faqs: [], deployId: true, deployIdFooter: false, buildJsonLd: () => [],
+      fetchRoutes: async () => [], platform: 'cloudflare',
+    }
+    expect(configKeyWarnings(known)).toEqual([])
+  })
 })
 
 describe('inject-brand helpers (import surface)', () => {
@@ -157,6 +180,33 @@ describe('prerender pure functions (import surface)', () => {
     const xml = generateSitemap([{ path: '/', priority: '1.0' }, { path: '/about' }], siteUrl)
     expect(xml).toContain(`<loc>${siteUrl}</loc>`)
     expect(xml).toContain(`<loc>${siteUrl}/about</loc>`)
+  })
+
+  it('normalizes a trailing-slash siteUrl at every URL seam (#53)', () => {
+    // A consumer pasting the common `siteUrl: 'https://x/'` shape used to get
+    // `https://x//` on the most SEO-critical tag on every page
+    const slashed = 'https://x.example.com/'
+    const shell = `<html><head><title>t</title><meta property="og:url" content="z"><link rel="canonical" href="z"><meta property="og:title" content="z"><meta name="twitter:title" content="z"></head><div id="root"></div></html>`
+    const meta = injectMeta(shell, { title: 'T' }, '/about', slashed, '')
+    expect(meta).toContain('content="https://x.example.com/about"')
+    const xml = generateSitemap([{ path: '/about' }], slashed)
+    expect(xml).toContain('<loc>https://x.example.com/about</loc>')
+    const p404 = generate404(shell, { siteName: 'S' }, slashed)
+    expect(p404).toContain('href="https://x.example.com/"')
+  })
+
+  it('404 head tags carry real values, never literal $1/$2 (#33)', () => {
+    // Function replacers use their return value LITERALLY: the old
+    // `() => \`$1Page Not Found...$2\`` shipped literal $1/$2 garbage into
+    // dist/404.html and destroyed the description/og:title/twitter:title/
+    // canonical tags. Proven live against 1.1.0 (grep "\$1" dist/404.html).
+    const shell = `<html><head><title>s</title><meta name="description" content="d"><meta property="og:title" content="d"><meta name="twitter:title" content="d"><link rel="canonical" href="d"></head><div id="root"></div></html>`
+    const html = generate404(shell, { siteName: 'Creadev' }, siteUrl)
+    expect(html).not.toMatch(/\$1|\$2/)
+    expect(html).toContain('<meta property="og:title" content="Page Not Found | Creadev">')
+    expect(html).toContain('<meta name="twitter:title" content="Page Not Found | Creadev">')
+    expect(html).toContain('<meta name="description" content="The page you were looking for does not exist.">')
+    expect(html).toContain('<link rel="canonical" href="https://example.com/">')
   })
 
   it('generates a static 404 page and strips the bundle script', () => {

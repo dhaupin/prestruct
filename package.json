@@ -1,6 +1,6 @@
 {
   "name": "prestruct",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "AI-first SEO prerender for Vite + React apps. Drop in, config, build.",
   "type": "module",
   "license": "SEE LICENSE IN LICENSE",
@@ -32,6 +32,7 @@
     "test:run": "vitest run",
     "sync": "node scripts/sync-engine.mjs",
     "sync:check": "node scripts/sync-engine.mjs check",
+    "lint:packs": "packstruct lint packs/ --deep",
     "lint:docs": "node scripts/check-docs-style.cjs && node scripts/check-docs-links.cjs && node scripts/check-docs-frontmatter.cjs && node scripts/check-language.cjs && node scripts/check-docs-truthfulness.cjs",
     "lint:claims": "node scripts/check-fiction-signatures.cjs",
     "e2e": "node tests/e2e-fixture.mjs"
@@ -49,8 +50,10 @@
     "vite": ">=5"
   },
   "devDependencies": {
+    "crashtest": "1.0.0",
     "express": "^4.22.3",
     "happy-dom": "^21.0.4",
+    "packstruct": "1.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.1",

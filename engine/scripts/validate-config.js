@@ -26,6 +26,53 @@ export function defineConfig(config) {
   return config
 }
 
+// Known config keys (#52): the load-time diagnostics list. A key that is
+// neither known nor retired does NOTHING in the engine -- a typo'd seam
+// (`ogimg` instead of `ogImage`) must say so loudly instead of passing a
+// green build that silently loses SEO surface.
+export const KNOWN_CONFIG_KEYS = [
+  'siteUrl', 'siteName', 'author', 'tagline', 'ogImage', 'keywords',
+  'appLayoutPath', 'routes', 'notFound', 'robots', 'proxy', 'faqs',
+  'deployId', 'deployIdFooter', 'buildJsonLd', 'fetchRoutes', 'platform',
+]
+
+// Retired keys: each entry names what owns the behavior now. Empty today --
+// no shipped key has ever been removed without a replacement seam. Entries:
+// { key: string, note: string }
+export const RETIRED_CONFIG_KEYS = []
+
+/**
+ * Collect unknown/retired ssr.config.js keys as warning strings (#52).
+ * Diagnostics, not gates: warnings never fail validation.
+ *
+ * @param {object} config - full ssr.config.js export
+ * @returns {string[]} one warning per unknown/retired key
+ */
+export function configKeyWarnings(config) {
+  if (!config || typeof config !== 'object') return []
+  const warnings = []
+  for (const key of Object.keys(config)) {
+    if (KNOWN_CONFIG_KEYS.includes(key)) continue
+    const retired = RETIRED_CONFIG_KEYS.find(r => r.key === key)
+    if (retired) {
+      warnings.push(`retired config key "${key}" has no effect: ${retired.note} - remove this key`)
+    } else {
+      warnings.push(`unknown config key "${key}" (typo? see the config reference)`)
+    }
+  }
+  return warnings
+}
+
+/**
+ * Format key warnings as printed one-liners (`[prestruct] config warning: ..`).
+ *
+ * @param {string[]} warnings - raw warning strings from configKeyWarnings()
+ * @returns {string[]} prefixed one-liner strings
+ */
+export function formatConfigWarnings(warnings) {
+  return warnings.map(w => `[prestruct] config warning: ${w}`)
+}
+
 /**
  * Validate the ssr.config.js shape and emit structured diagnostics.
  * Shape checks: siteUrl form, route paths (leading slash, traversal guard),

@@ -5,6 +5,72 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 28 - issue-ledger workday: #33 #53 #54 #52 solved; crashtest+packstruct npm hookup; 1.2.0 ladder (2026-10-26)
+
+First pass driven by the GitHub issue ledger (28 open at start). Four
+actionable defect classes ported from the freestruct cross-walks (#47/#54
+are evidence posts), one pack-spec hookup the maintainer asked for, and two
+regression-surface findings found while working. Feature proposals
+(#28 #29 #31 #34-#43 #49-#51) left open - roadmap rows, not this pass.
+
+- **#33 (proven live against npm 1.1.0): generate404 shipped $1/$2 garbage.**
+  Function replacers use their return value LITERALLY; the four head-tag
+  lines on dist/404.html were `$1Page Not Found | Site$2` shaped and the
+  og:title/twitter:title/description/canonical tags were gone. Fixed with
+  group-aware callbacks ((m, a, b) => `${a}value${b}`). Same lesson, inverse
+  direction of the pass-9 $-expansion family. Pinned by a test asserting
+  no $1/$2 ever lands and the tags carry real values. NOTE: our own Pass 27
+  log line and the shipped 1.1.0 both carried this the moment
+  generate404() was rewritten; nothing in the battery caught it because
+  every prior 404 test asserted a substring that survives the $1 prefix.
+- **#53 (proven live): trailing-slash siteUrl doubled the canonical.**
+  `siteUrl: 'https://x/'` produced `https://x//` on every page's canonical
+  + og:url (inject-brand), sitemap locs, prerendered metas, and the
+  client-side usePageMeta base -- while robots.txt already stripped, which
+  made the miss look premeditated. Normalized at the five consumption seams
+  with one repeated regex and a #53 pointer comment (freestruct's
+  canonicalBase is the reference shape). Roots of trust: the config stays
+  validated as-is, the JOIN normalizes.
+- **#54 (the flag half): unknown dash-word CLI flags exit 1 loudly.**
+  `prestruct build --Force` used to ride silently as an ignored token:
+  checkFlags() now refuses with the supported-flag list, --help is
+  first-class on every subcommand, and the passthrough test pins
+  --force/-f/--clean still green. The source-tree-injection half is N/A for
+  prestruct by construction: inject-brand is hardwired to <workdir>/dist
+  and init is never-clobber - the wrong-tree damage class has no reachable
+  seam here. Pinned in tests/cli.test.js (6 tests, spawned-process).
+- **#52: unknown/retired config-key warnings.** validate-config.js exports
+  KNOWN_CONFIG_KEYS + RETIRED_CONFIG_KEYS (empty today: no shipped key was
+  ever retired without a seam) and configKeyWarnings(); the CLI's report()
+  prints `[prestruct] config warning: ...` during build/validate.
+  Diagnostics, not gates: a typo'd key can never silently no-op again, and
+  a green build stays green. ISSUE #52's sub-note ("the pack never runs in
+  CI") was already shipped by pass 25's crashtest.yml - no rework.
+- **crashtest + packstruct npm hookup (maintainer request).**
+  devDependencies now pin BOTH tools EXACTLY: crashtest@1.0.0 (the ledger's
+  harness - the pass-26 pin becomes the devDep itself, CI runs
+  `npx crashtest`, no --yes fetch, no float) and packstruct@1.0.0. New gate
+  `npm run lint:packs` = `packstruct lint packs/ --deep` (current pack:
+  1 pack checked, 1 module probed, 6 ids censused, CLEAN). Wired into
+  crashtest.yml before the harness step: a pack manifest declaring an entry
+  that does not ship dies at lint time (crashtest#16 class). AGENTS gates
+  list and packs/README updated. The full harness run also re-verified
+  35/35 REFUSED / 0 new / 0 regressed from the local devDep.
+- **Version ladder -> 1.2.0** (root pkg == init pkg == init/VERSION); the
+  CHANGELOG gains the Unreleased stanza with all four defect classes
+  written for cherry-pickers; CHANGELOG-maintained release truths updated.
+  Propsals and roadmap rows untouched.
+- **Blockers deferred to the next pass:** #29 (rrd v7 hosts die at
+  ssrLoadModule) needs the dual-mount engine layout work; #28 is a
+  platform-matrix; #34/#51 the audit command surface - all real, all
+  bigger than this pass, all now have recorded evaluation notes.
+
+Gates: battery (full run recorded below), sync, lint:packs, lint:docs,
+lint:claims, init build, example build, tarball e2e - statuses brought to
+green in the commit that carries this entry.
+
+---
+
 ## Pass 27 - dotall-trap fix: `[^"\r\n]` on 15 HTML-tag replacements, live mangle proven (2026-10-26)
 
 Issue-hunting pass. The gates were green (147/147 + docs/claims), so the

@@ -156,7 +156,10 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   const homeRoute   = routes.find(r => r.path === '/') || {}
   const title       = generateTitle(siteName, tagline)
   const description = homeRoute.meta?.description || null
-  const canonical   = `${siteUrl}/`
+  // Trailing-slash normalization (#53): the canonical + entire og block ride
+  // this base; a consumer pasting `https://x.example.com/` used to get
+  // `https://x.example.com//` -- validated form, doubled junction.
+  const canonical   = `${(siteUrl || '').replace(/\/$/, '')}/`
 
   const titleSafe       = toReplaceSafe(escapeHtmlAttr(title))
   const descriptionSafe = toReplaceSafe(escapeHtmlAttr(description))

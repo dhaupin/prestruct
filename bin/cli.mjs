@@ -26,7 +26,7 @@ process.on('unhandledRejection', (e) => console.error('[prestruct] unhandled rej
 const cliDir = path.dirname(fileURLToPath(import.meta.url))
 const packageRoot = path.resolve(cliDir, '..')
 
-const { validateConfig, formatDiagnostics } = await import(
+const { validateConfig, formatDiagnostics, configKeyWarnings, formatConfigWarnings } = await import(
   pathToFileURL(path.join(packageRoot, 'engine/scripts/validate-config.js'))
 )
 const { injectBrand } = await import(
@@ -85,14 +85,43 @@ async function loadConfig(workdir, { required = true } = {}) {
 
 function report(config) {
   // Returns the ok BOOLEAN (not an object) -- callers must not destructure it.
+  // Key warnings (#52) print alongside shape diagnostics but never fail: a
+  // typo'd key that does nothing says so loudly, diagnostics stay gates-free.
   const { ok, errors } = validateConfig(config)
   if (!ok) formatDiagnostics(errors).forEach(line => console.error(line))
+  formatConfigWarnings(configKeyWarnings(config)).forEach(line => console.warn(line))
   return ok
 }
+
+// -- quiet-mistake refusal (#54) --------------------------------------------
+//
+// A dash-shaped arg that is not a known flag was previously SILENTLY IGNORED
+// (build/validate/clean walked past it; init skipped it). The user meant a
+// flag and got, or lost, behavior they asked for with no signal -- the same
+// class freestruct hardened (26.16). Refuse loudly, exit 1, name the flags.
+// --help is a first-class flag on every command; print help and exit 0.
+
+function checkFlags(command, args, knownFlags) {
+  if (args.includes('--help')) {
+    console.log(HELP)
+    process.exit(0)
+  }
+  const unknown = args.filter(a => a.startsWith('-') && !knownFlags.includes(a))
+  if (unknown.length) {
+    console.error(`[prestruct] unknown flag(s): ${unknown.join(' ')} - the command takes no flags beyond: ${knownFlags.join(' ') || '(none)'}`)
+    console.error('[prestruct] run prestruct help for the command list')
+    process.exit(1)
+  }
+}
+
+const INIT_FLAGS   = []
+const BUILD_FLAGS  = ['--force', '-f', '--clean']
+const NO_FLAGS     = []
 
 // -- init ----------------------------------------------------------------------
 
 function cmdInit(args) {
+  checkFlags('init', args, INIT_FLAGS)
   const target = path.resolve(args.find(a => !a.startsWith('-')) || '.')
   const templateRoot = path.join(packageRoot, 'init')
   if (!fs.existsSync(templateRoot)) {
@@ -135,6 +164,7 @@ function cmdInit(args) {
 // -- build ---------------------------------------------------------------------
 
 async function cmdBuild(args) {
+  checkFlags('build', args, BUILD_FLAGS)
   const workdir = findWorkdir(args)
   const config = await loadConfig(workdir)
   if (!config) process.exit(1)
@@ -176,6 +206,7 @@ async function cmdBuild(args) {
 // -- validate / clean ----------------------------------------------------------
 
 async function cmdValidate(args) {
+  checkFlags('validate', args, NO_FLAGS)
   const workdir = findWorkdir(args)
   const config = await loadConfig(workdir)
   if (!config) process.exit(1)
@@ -185,6 +216,7 @@ async function cmdValidate(args) {
 }
 
 function cmdClean(args) {
+  checkFlags('clean', args, NO_FLAGS)
   const workdir = findWorkdir(args)
   const p = enginePaths(path.resolve(workdir))
   cleanCache({ cacheFile: p.cacheFile })
@@ -200,7 +232,9 @@ try {
     case 'build':    await cmdBuild(args); break
     case 'validate': await cmdValidate(args); break
     case 'clean':    cmdClean(args); break
-    case 'help':     console.log(HELP); break
+    case 'help':
+    case '--help':
+    case '-h':       console.log(HELP); break
     default:
       console.error(`[prestruct] unknown command: ${command}`)
       console.log(HELP)

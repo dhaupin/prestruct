@@ -53,8 +53,17 @@ jobs:
       - name: Install
         run: npm install --no-audit --no-fund
 
+      # packstruct is the shared /packs spec linter (crashtest#16 class): a
+      # manifest declaring an entry that does not ship dies HERE, at lint
+      # time, before the harness ever loads the pack.
+      - name: Lint the pack manifests (packstruct)
+        run: npm run lint:packs
+
+      # crashtest is a pinned devDependency (exact 1.0.0), so the gate runs
+      # against the tree the ledger was cut with -- no npx fetch, no float.
+      # Run WITHOUT --yes/--no-install: the devDep is the pin.
       - name: Run the proxy pack
-        run: npx --yes crashtest@1.0.0 run
+        run: npx crashtest run
 
       - name: Upload the hardening artifacts
         if: failure()

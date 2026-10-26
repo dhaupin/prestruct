@@ -203,7 +203,11 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
   const title   = escapeReplacement(escapeHtml(meta.title))
   const desc    = escapeReplacement(escapeHtml(meta.description))
   const ogImage = escapeReplacement(escapeHtml(meta.ogImage || globalOgImage || ''))
-  const url     = escapeReplacement(escapeHtml(`${siteUrl}${routePath === '/' ? '' : routePath}`))
+  // Trailing-slash normalization (#53): a `siteUrl` written with its trailing
+  // slash would otherwise join into `https://site//about` on every page's
+  // canonical + og:url.robots.txt already strips; this is the same contract
+  // at the injection seam.
+  const url     = escapeReplacement(escapeHtml(`${(siteUrl || '').replace(/\/$/, '')}${routePath === '/' ? '' : routePath}`))
 
   if (title) {
     html = html.replace(/<title>[^<]*<\/title>/,                                     `<title>${title}</title>`)
@@ -367,9 +371,10 @@ export function escapeXml(unsafe) {
  */
 export function generateSitemap(routes, siteUrl) {
   const now  = new Date().toISOString().split('T')[0]
+  const base = (siteUrl || '').replace(/\/$/, '') // #53: never join onto a doubled slash
   const urls = routes.map(r => `
   <url>
-    <loc>${escapeXml(siteUrl)}${r.path === '/' ? '' : escapeXml(r.path)}</loc>
+    <loc>${escapeXml(base)}${r.path === '/' ? '' : escapeXml(r.path)}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>${escapeXml(r.changefreq || 'monthly')}</changefreq>
     <priority>${escapeXml(r.priority || '0.5')}</priority>
@@ -421,21 +426,25 @@ export function generate404(shell, config, siteUrl) {
   // would expand $-sequences (same trap as replaceRootDiv).
   let html = shell.replace(/<div id="root"[^>]*><\/div>/, () => bodyLines.join('\n'))
   html = html.replace(/<title>[^<]*<\/title>/,               () => `<title>Page Not Found | ${siteName}</title>`)
+  // Group-aware function replacers (#33): a function replacer's return value
+  // is used LITERALLY -- `$1`/`$2` inside it do NOT expand (the inverse of the
+  // string-form $-expansion trap). Four tags used to ship as `$1...$2` literal
+  // garbage. Capture groups arrive as callback args 2/3 and are rebuilt here.
   html = html.replace(
     /(<meta\s+name="description"\s+content=")[^"\r\n]*(")/,
-    () => `$1The page you were looking for does not exist.$2`
+    (m, a, b) => `${a}The page you were looking for does not exist.${b}`
   )
   html = html.replace(
     /(<meta\s+property="og:title"\s+content=")[^"\r\n]*(")/,
-    () => `$1Page Not Found | ${siteName}$2`
+    (m, a, b) => `${a}Page Not Found | ${siteName}${b}`
   )
   html = html.replace(
     /(<meta\s+name="twitter:title"\s+content=")[^"\r\n]*(")/,
-    () => `$1Page Not Found | ${siteName}$2`
+    (m, a, b) => `${a}Page Not Found | ${siteName}${b}`
   )
   html = html.replace(
     /(<link\s+rel="canonical"\s+href=")[^"\r\n]*(")/,
-    () => `$1${v(siteUrl)}/$2`
+    (m, a, b) => `${a}${v((siteUrl || '').replace(/\/$/, ''))}/${b}`
   )
   // noindex -- 404 pages should not appear in search results
   html = html.replace(
