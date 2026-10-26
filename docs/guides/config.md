@@ -402,3 +402,91 @@ export default defineConfig({
   ]
 })
 ```
+## Family ride-alongs (2026-10 issue walk)
+
+Every option below is optional, missing-only, and config-gated: a host that
+sets none of them ships byte-identical HTML to a host on an older version.
+`init/ssr.config.example.js` carries the commented forms.
+
+### Structured-data defaults and per-route nodes
+
+- `jsonLdDefaults` (default on) - without `buildJsonLd`, the engine emits
+  Organization + WebSite built from `siteName`/`siteUrl`/`author`. Set
+  `jsonLdDefaults: false` to skip.
+- `route.jsonLd` (object or array) - per-route schema nodes shipped only on
+  that page (a FAQPage belongs on the FAQ page, not site-wide). Rebuild-safe:
+  the block is replaced, never stacked.
+- `searchUrl` - a search endpoint carrying a `{query}` slot; the home route
+  gains a WebSite node wrapping its SearchAction.
+
+### Head discovery and verification
+
+- `feed: { url, title?, type? }` - RSS/Atom autodiscovery link in every head.
+- `alternates` (site-wide) / `route.alternates` (per-route override, full
+  takeover) - `hreflang` alternates; values ride the same escape pipeline as
+  the primary metas, malformed entries drop silently.
+- `verification: { 'google-site-verification': '...', ... }` - verification
+  metas; keys must be plain `A-Za-z0-9._-` shapes.
+
+### llms.txt
+
+`llms: false` opts out; the engine otherwise writes `llms.txt` after the
+sitemap (one H1, a blockquote tagline, one Docs entry per route with
+description). Generated-only: a hand-rolled file is never overwritten.
+
+### IndexNow
+
+- `indexNow: { key: '<32-hex>' } | true | false` - the key file is written
+  into `dist/` on every build (`true` persists an auto-generated key in
+  `.prestruct/indexnow-key.txt`, generate-once so keyLocation stays stable).
+- `prestruct indexnow [--dry-run] [dist]` - POSTs the baked sitemap's URLs
+  to api.indexnow.org; `--dry-run` prints the payload off-network. Run it
+  against a DEPLOYED output only (`keyLocation` must resolve).
+
+### postBuild hooks
+
+```js
+// ssr.config.js
+runHooks: true,                                  // execution opt-in gate
+hooks: { postBuild: ['node scripts/inject-faq-schema.mjs'] },
+```
+
+The build pipeline owns the chain (the npm-script chain retired), so direct
+engine/CI invocations no longer silently skip custom post-build steps.
+Commands receive `PRESTRUCT_SITE_URL` / `PRESTRUCT_OUTPUT_DIR` in env plus
+`${SITE_URL}` / `${OUTPUT_DIR}` placeholder substitution (function replacers,
+never string form). Nothing executes without `runHooks: true` - logged
+loudly either way - and any nonzero hook exit fails the build.
+
+### Branded per-route OG images
+
+```js
+// ssr.config.js
+ogImageGeneration: { template: 'og-template.svg', font: './brand/bold.ttf' },
+```
+
+A 1200x630 SVG template with `{{ogTitle}}` / `{{ogDescription}}` / `{{ogUrl}}`
+slots renders into `dist/og/<route-slug>.png` per route; routes with their own
+`og:image` keep theirs (missing-only). Rasterization is the optional dev
+dependency `@resvg/resvg-js` - absent, generation skips loudly (the build
+stays green; the audit still grades the head) and templates should load the
+font via `ogImageGeneration.font` because system fonts are unreliable in
+build sandboxes.
+
+## Shared config dialect (prestruct <-> freestruct)
+
+A team running both engines writes site identity once; the documented
+subset maps across:
+
+| Field            | prestruct (`ssr.config.js`) | freestruct (`freestruct.config`) |
+|------------------|------------------------------|----------------------------------|
+| origin           | `siteUrl`                    | `site.url`                       |
+| display name     | `siteName`                   | `site.name`                      |
+| author           | `author`                     | `author`                         |
+| og image         | `ogImage` (string or `{url,width,height,alt,type}`) | `og.image` |
+| structured data  | `buildJsonLd()` + `jsonLdDefaults` + `route.jsonLd` | `jsonLd` (+ route nodes) |
+| sub-path installs| `platform`                   | `basePath`                       |
+| output dir       | `dist/` convention           | `outputDir`                      |
+
+Same posture both sides: values escape through one pipeline, malformed
+entries warn loudly, and `validate`/'audit' grade the same head vocabulary.

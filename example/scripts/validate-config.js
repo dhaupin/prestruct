@@ -34,6 +34,13 @@ export const KNOWN_CONFIG_KEYS = [
   'siteUrl', 'siteName', 'author', 'tagline', 'ogImage', 'keywords',
   'appLayoutPath', 'routes', 'notFound', 'robots', 'proxy', 'faqs',
   'deployId', 'deployIdFooter', 'buildJsonLd', 'fetchRoutes', 'platform',
+  // The family ride-along set (2026-10 issue walk): structured-data
+  // defaults and per-route nodes, the verification/discovery head set,
+  // IndexNow, the postBuild hook seam, and the llms.txt opt-out.
+  'jsonLdDefaults',
+  'alternates', 'verification', 'feed', 'searchUrl',
+  'indexNow', 'hooks', 'runHooks', 'ogImageGeneration',
+  'llms',
 ]
 
 // Retired keys: each entry names what owns the behavior now. Empty today --

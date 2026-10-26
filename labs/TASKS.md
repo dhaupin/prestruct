@@ -1,3 +1,57 @@
+## Pass 48 - the open-issues walk: every open issue fixed or earned closed (2026-10-26)
+
+The program: go through ALL open issues, fix in the engine, close with
+receipts. What landed (each with its own battery in tests/issue-walk.test.js
+or pinned by existing suites):
+
+- #34/#51/#37/#40 confirmed already landed: `prestruct audit` (grades,
+  duplicate-tag FAIL class, --json/--external/--internal) plus internal
+  linkcheck. Closed with audit verdicts, not re-forked.
+- #36 IndexNow: engine/scripts/indexnow.js - key shape validation,
+  generate-once persistence, <key>.txt emission, baked-sitemap submission
+  with --dry-run off-network mode; `prestruct indexnow` verb.
+- #41 postBuild hooks: engine/scripts/hooks.js - pipeline-owned chain,
+  runHooks opt-in gate, function-form placeholder substitution,
+  PRESTRUCT_* env hand-off, nonzero exits fail the build.
+- #29 RRD-7 hosts: import-analysis interop plugin rewrites named imports
+  into the dual-major namespace form before vite links the externalized
+  CJS graph (the root fix the npm-engine hosts needed).
+- #30/#35 JSON-LD: config-driven Organization+WebSite defaults (opt-out),
+  per-route jsonLd with rebuild-idempotent replace + @graph wrapping.
+- #49 SEO-gap set: feed autodiscovery, hreflang alternates (route
+  takeover), verification metas, home-only SearchAction, llms.txt
+  (generated-only, `llms: false` opt-out). External link audit was
+  already shipped (#40 sibling).
+- #43 ogImageTemplate: engine/scripts/ogimage.js - 1200x630 template
+  renders into dist/og/, optional @resvg/resvg-js skipped loudly when
+  absent, generated for EVERY route pre-loop (a cache-hit route in a
+  vite-cleared dist would otherwise point at a missing og file).
+- #42: generate404 no longer special-cases the four text tags - the 404
+  head rides injectMeta (the same single-line pipeline as every page);
+  only the genuinely-404 contracts remain (home-pointing canonical +
+  noindex + zero-JS strip), all function-replacer form.
+- Docs/CI: #28 (checkout/setup-node v7, upload-pages-artifact v4,
+  node 22 in CI lanes, ruby 3.4, jekyll 4.4), #50 (release posts get
+  trailing-slash permalinks + a real layout instead of extensionless
+  bytes), #39 (documented prestruct<->freestruct shared config dialect
+  table), #44 (digest verified, moduleCtx seam already present, nothing
+  to adopt for this repo's bound surface), #47/#55 umbrella receipts.
+
+Lesson (swap-generation trap): baseline slot writes that pick by mtime
+order silently re-seat stale captures - name by content generation, not
+by ls -t.
+
+Lesson (feature wiring vs the cache): anything that writes per-route
+artifacts outside the route loop must run for cache-hit routes too, or
+the incremental cache compiles a dist that pretends the artifacts exist.
+
+Gates at close: vitest 228/228, sync 9/9 byte-identity, packstruct
+--deep, docs lint x5, claims scan, example build 8/8 + audit 0/0, and
+the tarball e2e (second PASS run after a registry blip aborted the
+first).
+
+---
+
 # TASKS.md -- pass log for prestruct
 
 Working log, not documentation. One section per pass: what was done, what was

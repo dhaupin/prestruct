@@ -1,0 +1,320 @@
+/**
+ * tests/issue-walk.test.js
+ * Battery for the 2026-10 issue-walk surfaces (prestruct#29/30/35/36/41/42/43/49):
+ * IndexNow key + submission contract, the postBuild hook seam, the grouped
+ * head additions (per-route JSON-LD, feed discovery, hreflang, verification,
+ * SearchAction), config-driven JSON-LD defaults, the RRD-7 named-import
+ * interop rewrite, the llms.txt generator, and the OG-image generation
+ * block's validation + loud-skip posture.
+ */
+import { describe, it, expect } from 'vitest'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+
+import {
+  injectMeta,
+  mergeRoutes,
+  generateLlms,
+  rewriteRrdNamedImports,
+} from '../engine/scripts/prerender.js'
+
+import { buildDefaultJsonLd } from '../engine/scripts/inject-brand.js'
+
+import {
+  isValidIndexNowKey,
+  resolveIndexNowKey,
+  emitIndexNowKeyFile,
+  readSitemapUrls,
+  submitIndexNow,
+} from '../engine/scripts/indexnow.js'
+
+import { runPostBuildHooks } from '../engine/scripts/hooks.js'
+
+import {
+  resolveOgImageGeneration,
+  renderRouteOgImage,
+} from '../engine/scripts/ogimage.js'
+
+const tmpdir = (prefix) => fs.mkdtempSync(path.join(os.tmpdir(), prefix + '-'))
+const SITE = 'https://example.com'
+
+// -- IndexNow (#36) ------------------------------------------------------------
+
+describe('indexnow', () => {
+  it('accepts only the documented key shape', () => {
+    expect(isValidIndexNowKey('a'.repeat(32))).toBe(true)
+    expect(isValidIndexNowKey('A'.repeat(32))).toBe(false) // uppercase hex out
+    expect(isValidIndexNowKey('a'.repeat(31))).toBe(false)
+    expect(isValidIndexNowKey(null)).toBe(false)
+  })
+
+  it('resolves the config key first, then the persisted file, else generates once', () => {
+    const dir = tmpdir('in-key')
+    expect(resolveIndexNowKey({ indexNow: false }, dir)).toBe(null)
+    expect(resolveIndexNowKey({}, dir)).toBe(null)
+
+    const persisted = path.join(dir, 'indexnow-key.txt')
+    fs.writeFileSync(persisted, 'b'.repeat(32) + '\n', 'utf8')
+    const fromFile = resolveIndexNowKey({ indexNow: true }, dir)
+    expect(fromFile).toEqual({ key: 'b'.repeat(32), source: 'persisted (indexnow-key.txt)' })
+
+    const cfg = resolveIndexNowKey({ indexNow: { key: 'c'.repeat(32) } }, dir)
+    expect(cfg).toEqual({ key: 'c'.repeat(32), source: 'config' })
+
+    const fromGenerated = resolveIndexNowKey({ indexNow: true }, tmpdir('in-key2'))
+    expect(isValidIndexNowKey(fromGenerated.key)).toBe(true)
+    expect(fromGenerated.source).toBe('generated')
+  })
+
+  it('refuses a malformed config key instead of shipping a broken keyLocation', () => {
+    expect(resolveIndexNowKey({ indexNow: 'not-hex' }, tmpdir('in-bad'))).toBe(null)
+  })
+
+  it('emits <key>.txt into the output dir', () => {
+    const out = tmpdir('in-emit')
+    const file = emitIndexNowKeyFile('d'.repeat(32), out)
+    expect(fs.readFileSync(file, 'utf8').trim()).toBe('d'.repeat(32))
+    expect(path.basename(file)).toBe('d'.repeat(32) + '.txt')
+  })
+
+  it('readSitemapUrls walks the baked sitemap, null on absence/emptiness', () => {
+    const out = tmpdir('in-sm')
+    expect(readSitemapUrls(out)).toBe(null)
+    fs.writeFileSync(path.join(out, 'sitemap.xml'), '<urlset><url><loc>SITE/</loc><url></urlset>'.replace(/SITE/g, SITE), 'utf8')
+    expect(readSitemapUrls(out)).toEqual([SITE + '/'])
+  })
+
+  it('--dry-run submits nothing but prints the payload; not-configured fails clean', async () => {
+    const out = tmpdir('in-dry')
+    fs.writeFileSync(path.join(out, 'sitemap.xml'),
+      `<urlset><url><loc>${SITE}/</loc></url></urlset>`, 'utf8')
+    const dry = await submitIndexNow({ config: { indexNow: { key: 'e'.repeat(32) }, siteUrl: SITE }, configDir: out, outputDir: out, dryRun: true })
+    expect(dry).toEqual({ ok: true, status: 'dry-run', reason: 'dry-run' })
+    const off = await submitIndexNow({ config: {}, configDir: out, outputDir: out, dryRun: true })
+    expect(off).toEqual({ ok: false, status: null, reason: 'not-configured' })
+  })
+})
+
+// -- postBuild hooks (#41) ------------------------------------------------------
+
+describe('hooks.postBuild', () => {
+  it('is inert without a config seam', () => {
+    expect(runPostBuildHooks({})).toEqual([])
+    expect(runPostBuildHooks({ hooks: { postBuild: [] } })).toEqual([])
+  })
+
+  it('refuses to execute without runHooks: true (loud, nothing runs)', () => {
+    const dir = tmpdir('hooks-gate')
+    const sentinel = path.join(dir, 'sentinel.txt')
+    const failures = runPostBuildHooks({
+      hooks: { postBuild: [`node -e "require('fs').writeFileSync(process.argv[1], 'x')" ${JSON.stringify(sentinel)}`] },
+    })
+    expect(failures).toEqual([])
+    expect(fs.existsSync(sentinel)).toBe(false) // gate held
+  })
+
+  it('runs the chain when runHooks: true, substituting placeholders and env facts', () => {
+    const dir = tmpdir('hooks-run')
+    const outResult = path.join(dir, 'out.txt')
+    // The command learns the output dir from the PRESTRUCT_OUTPUT_DIR env var.
+    const failures = runPostBuildHooks({
+      runHooks: true,
+      hooks: { postBuild: ['node -e "require(\'fs\').writeFileSync(process.argv[1], process.env.PRESTRUCT_SITE_URL)" ${OUTPUT_DIR}/out.txt'] },
+    }, { siteUrl: SITE, outputDir: dir })
+    expect(failures).toEqual([])
+    expect(fs.readFileSync(outResult, 'utf8')).toBe(SITE)
+  })
+
+  it('collects nonzero hook exits as failures instead of riding through green', () => {
+    const failures = runPostBuildHooks({
+      runHooks: true,
+      hooks: { postBuild: ['node -e "process.exit(3)"'] },
+    }, { siteUrl: SITE, outputDir: os.tmpdir() })
+    expect(failures.length).toBe(1)
+    expect(failures[0].command).toContain('process.exit(3)')
+  })
+})
+
+// -- grouped head additions (#35 + #49) -----------------------------------------
+
+describe('injectMeta grouped head additions', () => {
+  const SHELL = '<html><head><title>s</title></head><div id="root"></div></html>'
+
+  it('injects per-route JSON-LD as its own block (single node)', () => {
+    const out = injectMeta(SHELL, { jsonLd: { '@type': 'FAQPage', name: 'F' } }, '/faq', SITE, '', null)
+    expect(out).toContain('<!-- JSON-LD (route) -->')
+    expect(out).toContain('"@type": "FAQPage"')
+  })
+
+  it('wraps multiple route nodes in a @graph', () => {
+    const out = injectMeta(SHELL,
+      { jsonLd: [{ '@type': 'FAQPage' }, { '@type': 'Service' }] }, '/faq', SITE, '', null)
+    expect(out).toContain('"@graph"')
+    expect(out).toContain('"@type": "FAQPage"')
+    expect(out).toContain('"@type": "Service"')
+  })
+
+  it('is rebuild-idempotent: a second pass replaces the route block, never stacks', () => {
+    const once = injectMeta(SHELL, { jsonLd: { '@type': 'FAQPage', name: 'One' } }, '/faq', SITE, '', null)
+    const twice = injectMeta(once, { jsonLd: { '@type': 'FAQPage', name: 'Two' } }, '/faq', SITE, '', null)
+    expect((twice.match(/JSON-LD \(route\)/g) || []).length).toBe(1)
+    expect(twice).toContain('Two')
+    expect(twice).not.toContain('One')
+  })
+
+  it('emits feed autodiscovery, hreflang alternates (route override wins), and verification metas', () => {
+    const out = injectMeta(SHELL,
+      {
+        alternates: [{ hreflang: 'de', href: SITE + '/de' }],
+      },
+      '/about', SITE, '',
+      {
+        feed: { url: SITE + '/feed.xml', title: 'Site feed' },
+        alternates: [{ hreflang: 'en', href: SITE }, { hreflang: 'x-default', href: SITE }],
+        verification: { 'google-site-verification': 'tok-123' },
+      })
+    expect(out).toContain('<link rel="alternate" type="application/rss+xml" title="Site feed" href="' + SITE + '/feed.xml" />')
+    expect(out).toContain('hreflang="de"')   // route override wins: full takeover
+    expect(out).not.toContain('hreflang="en"')
+    expect(out).not.toContain('hreflang="x-default"')
+    expect(out).toContain('<meta name="google-site-verification" content="tok-123" />')
+  })
+
+  it('SearchAction rides the home route only, wrapped in WebSite', () => {
+    const home = injectMeta(SHELL, {}, '/', SITE, '', { searchUrl: SITE + '/search?q={query}' })
+    const about = injectMeta(SHELL, {}, '/about', SITE, '', { searchUrl: SITE + '/search?q={query}' })
+    expect(home).toContain('"SearchAction"')
+    expect(home).toContain('"WebSite"')
+    expect(about).not.toContain('"SearchAction"')
+  })
+
+  it('junk values render nothing: malformed verification keys and non-object jsonLd drop silently', () => {
+    const out = injectMeta(SHELL, { jsonLd: 'not-a-node' }, '/about', SITE, '', {
+      verification: { 'bad key<n': 'x', good: '' },
+    })
+    expect(out).not.toContain('JSON-LD (route)')
+    expect(out).not.toContain('bad key')
+    expect(out).not.toContain('content="x"')
+  })
+})
+
+// -- JSON-LD defaults (#30) ------------------------------------------------------
+
+describe('inject-brand JSON-LD defaults', () => {
+  it('builds Organization + WebSite from config identity keys', () => {
+    const ld = buildDefaultJsonLd({ siteUrl: SITE + '/', siteName: 'Creadev', author: 'dhaupin' })
+    expect(ld['@context']).toBe('https://schema.org')
+    expect(ld['@graph'][0]).toEqual({ '@type': 'Organization', name: 'Creadev', url: SITE })
+    expect(ld['@graph'][1]).toEqual({ '@type': 'WebSite', name: 'Creadev', url: SITE })
+  })
+
+  it('falls back to the author as the org name and returns null with nothing derivable', () => {
+    expect(buildDefaultJsonLd({ author: 'dhaupin' })['@graph'][0].name).toBe('dhaupin')
+    expect(buildDefaultJsonLd({})).toBe(null)
+  })
+
+  it('injectBrand ships the defaults only when buildJsonLd is absent and not opted out', async () => {
+    const dir = tmpdir('inj-def')
+    const shell = '<html><head><title>x</title></head><body><div id="root"></div></body></html>'
+    fs.writeFileSync(path.join(dir, 'index.html'), shell, 'utf8')
+    const { injectBrand } = await import('../engine/scripts/inject-brand.js')
+    injectBrand(
+      { siteUrl: SITE, siteName: 'S', buildJsonLd: () => [] },
+      dir,
+    )
+    expect(fs.readFileSync(path.join(dir, 'index.html'), 'utf8')).not.toContain('ld+json')
+
+    injectBrand({ siteUrl: SITE, siteName: 'S' }, dir)
+    const injected = fs.readFileSync(path.join(dir, 'index.html'), 'utf8')
+    expect(injected).toContain('"@type": "Organization"')
+
+    injectBrand({ siteUrl: SITE, siteName: 'S', jsonLdDefaults: false }, dir)
+    expect(fs.readFileSync(path.join(dir, 'index.html'), 'utf8')).not.toContain('ld+json')
+  })
+})
+
+// -- RRD-7 named-import interop (#29) --------------------------------------------
+
+describe('rewriteRrdNamedImports', () => {
+  it('rewrites a named import into the dual-major namespace interop', () => {
+    const out = rewriteRrdNamedImports("import { Routes, Route, useLocation } from 'react-router-dom'\n")
+    expect(out).toContain("import * as rrdInteropNs_1 from 'react-router-dom'")
+    expect(out).toContain('const { Routes, Route, useLocation } = rrdInteropNs_1.default ?? rrdInteropNs_1')
+    expect(out).not.toMatch(/import\s+\{[^}]+\}\s+from\s+['"]react-router-dom['"]/)
+  })
+
+  it('numbers the namespace per statement (no duplicate consts across statements)', () => {
+    const out = rewriteRrdNamedImports([
+      "import { Routes } from 'react-router-dom'",
+      "import { Link } from 'react-router-dom'",
+    ].join('\n'))
+    expect(out).toContain('rrdInteropNs_1')
+    expect(out).toContain('rrdInteropNs_2')
+  })
+
+  it('leaves namespace imports and subpath imports untouched', () => {
+    const src = "import * as rrd from 'react-router-dom'\nimport { StaticRouter } from 'react-router-dom/server.js'\nimport { useState } from 'react'\n"
+    expect(rewriteRrdNamedImports(src)).toBe(src)
+  })
+})
+
+// -- llms.txt (#49) ---------------------------------------------------------------
+
+describe('generateLlms', () => {
+  const ROUTES = [
+    { path: '/', meta: { title: 'Home', description: 'Landing' } },
+    { path: '/about', meta: { title: 'About | Site' } },
+  ]
+
+  it('writes the llmstxt.org shape with absolute URLs', () => {
+    const dir = tmpdir('llms')
+    generateLlms(ROUTES, { siteUrl: SITE, siteName: 'Site', tagline: 'bake SEO' }, dir)
+    const text = fs.readFileSync(path.join(dir, 'llms.txt'), 'utf8')
+    expect(text).toContain('# Site')
+    expect(text).toContain('> bake SEO')
+    expect(text).toContain('- [Home](' + SITE + '/): Landing')
+    expect(text).toContain('- [About | Site](' + SITE + '/about)')
+  })
+
+  it('is generated-only: an existing llms.txt is never touched', () => {
+    const dir = tmpdir('llms2')
+    fs.writeFileSync(path.join(dir, 'llms.txt'), 'hand-rolled\n', 'utf8')
+    expect(generateLlms(ROUTES, { siteUrl: SITE }, dir)).toBe(null)
+    expect(fs.readFileSync(path.join(dir, 'llms.txt'), 'utf8')).toBe('hand-rolled\n')
+  })
+
+  it('is opted out by llms: false', () => {
+    const dir = tmpdir('llms3')
+    expect(generateLlms(ROUTES, { siteUrl: SITE, llms: false }, dir)).toBe(null)
+    expect(fs.existsSync(path.join(dir, 'llms.txt'))).toBe(false)
+  })
+})
+
+// -- OG image generation (#43) -----------------------------------------------------
+
+describe('ogImageGeneration', () => {
+  it('is inert unconfigured and loud-invalid otherwise', () => {
+    const dir = tmpdir('og')
+    expect(resolveOgImageGeneration({}, dir)).toBe(null)
+    expect(resolveOgImageGeneration({ ogImageGeneration: { template: 'nope.svg' } }, dir)).toBe(null)
+    expect(resolveOgImageGeneration({ ogImageGeneration: 'svg' }, dir)).toBe(null)
+  })
+
+  it('resolves a valid block: template read, dimensions normalized', () => {
+    const dir = tmpdir('og2')
+    fs.writeFileSync(path.join(dir, 'og.svg'), '<svg xmlns="http://www.w3.org/2000/svg"></svg>', 'utf8')
+    const gen = resolveOgImageGeneration({ ogImageGeneration: { template: 'og.svg' } }, dir)
+    expect(gen.template).toContain('<svg')
+    expect(gen.width).toBe(1200)
+    expect(gen.height).toBe(630)
+  })
+
+  it('skips loudly (null, not a crash) when no optional rasterizer is installed', () => {
+    const dir = tmpdir('og3')
+    fs.writeFileSync(path.join(dir, 'og.svg'), '<svg xmlns="http://www.w3.org/2000/svg"></svg>', 'utf8')
+    const gen = resolveOgImageGeneration({ ogImageGeneration: { template: 'og.svg' } }, dir)
+    expect(renderRouteOgImage(gen, { path: '/a', meta: { title: 'T' } }, SITE, dir)).toBe(null)
+    expect(fs.existsSync(path.join(dir, 'og'))).toBe(false)
+  })
+})

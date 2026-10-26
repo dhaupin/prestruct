@@ -12,6 +12,11 @@
  *   prestruct audit         Verify the BAKED dist/ (head hygiene, sitemap,
  *                           robots, 404 noindex) without touching it; exit 1
  *                           on FAIL-class findings, warnings never fail.
+ *   prestruct indexnow      Key file into dist/ + submit the baked sitemap
+ *                           URLs to api.indexnow.org (--dry-run prints the
+ *                           request body without touching the network); the
+ *                           submission only counts once the output is DEPLOYED
+ *                           (keyLocation must resolve).
  *   prestruct help          This text.
  *
  * The CLI runs inside the USER PROJECT: config comes from <workdir>/ssr.config.js,
@@ -41,6 +46,12 @@ const { prerender, cleanCache, enginePaths, generateSitemap, assertXmlSafe } = a
 const { auditOutput, auditExternalLinks, auditInternalLinks } = await import(
   pathToFileURL(path.join(packageRoot, 'engine/scripts/audit.js'))
 )
+const { runPostBuildHooks } = await import(
+  pathToFileURL(path.join(packageRoot, 'engine/scripts/hooks.js'))
+)
+const { submitIndexNow, emitIndexNowKeyFile, resolveIndexNowKey, readSitemapUrls } = await import(
+  pathToFileURL(path.join(packageRoot, 'engine/scripts/indexnow.js'))
+)
 
 const HELP = `
 prestruct -- build-time SEO prerender for Vite + React
@@ -49,8 +60,9 @@ prestruct -- build-time SEO prerender for Vite + React
                            Existing files are never clobbered.
   prestruct build [--force] [--clean]
                            Full pipeline: validate -> vite build -> inject
-                           meta -> prerender routes. --force rerenders all
-                           routes; --clean clears the incremental cache first.
+                           meta -> prerender routes -> hooks.postBuild.
+                           --force rerenders all routes; --clean clears the
+                           incremental cache first.
   prestruct validate       Validate ssr.config.js (exit 1 on bad config).
   prestruct audit [--json] [--external] [--internal] [dist]
                            Verify the BAKED output (per-page head hygiene,
@@ -63,6 +75,12 @@ prestruct -- build-time SEO prerender for Vite + React
                            (warn-grade, needs live network); --internal lists
                            unresolved internal hrefs (warn-grade). A target
                            dir defaults to the config-owning project's dist/.
+  prestruct indexnow [--dry-run] [dist]
+                           Write the IndexNow key file into dist/ and POST
+                           the baked sitemap URLs to api.indexnow.org.
+                           --dry-run prints the request body untouched
+                           (CI-safe). Runs against a DEPLOYED output only:
+                           keyLocation must resolve for engines to accept.
   prestruct clean          Clear the prerender route cache.
   prestruct help           This text.
 
@@ -134,6 +152,7 @@ function checkFlags(command, args, knownFlags) {
 const INIT_FLAGS   = []
 const BUILD_FLAGS  = ['--force', '-f', '--clean']
 const AUDIT_FLAGS  = ['--json', '--external', '--internal']
+const INDEXNOW_FLAGS = ['--dry-run']
 const NO_FLAGS     = []
 
 // -- init ----------------------------------------------------------------------
@@ -219,6 +238,53 @@ async function cmdBuild(args) {
     console.error(`[prestruct] prerender failed for ${result.failed}/${result.total} route(s) -- failing build`)
     process.exit(1)
   }
+
+  // hooks.postBuild (#41): the pipeline owns these, so direct engine/CI
+  // invocations can no longer silently skip them the way the old npm-script
+  // chain could. Nothing executes without runHooks: true (surfaced loudly);
+  // per-hook failures collect here and turn the build itself red.
+  const hookFailures = runPostBuildHooks(config, {
+    siteUrl: config.siteUrl || '',
+    outputDir: path.join(workdir, 'dist'),
+  })
+  if (hookFailures.length > 0) {
+    console.error(`[prestruct] ${hookFailures.length} postBuild hook(s) failed -- failing build`)
+    process.exit(1)
+  }
+}
+
+// -- indexnow ------------------------------------------------------------------
+// Configless by design (mirrors audit): when a config is discoverable it
+// supplies the key; without one, only --dry-run against a baked tree makes
+// sense (the key comes from config; no config = nothing to submit).
+async function cmdIndexNow(args) {
+  checkFlags('indexnow', args, INDEXNOW_FLAGS)
+  const dryRun = args.includes('--dry-run')
+  const explicitDir = args.find(a => !a.startsWith('-'))
+
+  let config = null
+  let workdir = process.cwd()
+  let dir = process.cwd()
+  while (dir !== path.dirname(dir)) {
+    const candidate = path.join(dir, 'ssr.config.js')
+    if (fs.existsSync(candidate)) {
+      workdir = dir
+      config = await loadConfig(dir, { required: false })
+      break
+    }
+    dir = path.dirname(dir)
+  }
+  const outputDir = explicitDir
+    ? path.resolve(process.cwd(), explicitDir)
+    : path.join(workdir, 'dist')
+
+  // Key-file emission runs on the verb too (not only build): a host that
+  // hand-curated dist/ still needs the keyLocation file to ship.
+  const resolved = config ? resolveIndexNowKey(config, enginePaths(path.resolve(workdir)).cacheDir) : null
+  if (resolved) emitIndexNowKeyFile(resolved.key, outputDir)
+
+  const result = await submitIndexNow({ config: config || {}, configDir: enginePaths(path.resolve(workdir)).cacheDir, outputDir, dryRun })
+  if (!result.ok) process.exit(1)
 }
 
 // -- audit ---------------------------------------------------------------------
@@ -310,6 +376,7 @@ try {
     case 'build':    await cmdBuild(args); break
     case 'validate': await cmdValidate(args); break
     case 'audit':    await cmdAudit(args); break
+    case 'indexnow': await cmdIndexNow(args); break
     case 'clean':    cmdClean(args); break
     case 'help':
     case '--help':

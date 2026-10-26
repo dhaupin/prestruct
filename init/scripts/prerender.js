@@ -41,6 +41,7 @@ import crypto from 'crypto'
 import { fileURLToPath, pathToFileURL } from 'url'
 
 import { validateConfig, formatDiagnostics } from './validate-config.js'
+import { resolveOgImageGeneration, renderRouteOgImage } from './ogimage.js'
 
 // Root-package re-export: `import { defineConfig } from 'prestruct'`
 // (binding stays out of this file's scope to avoid an unused-import)
@@ -200,7 +201,55 @@ export function replaceRootDiv(shell, appHtml) {
  * @param {?string} globalOgImage - config-level ogImage fallback
  * @returns {string} updated html
  */
-export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
+// llms.txt (#49 family): one H1, a blockquote tagline, then a Docs section
+// listing every indexable route's title, absolute URL and description - the
+// AI-consumable site summary in the llmstxt.org shape. The prerender pass
+// already carries every route's meta, so this costs no new scanning.
+// Generated-only: an existing llms.txt (hand-rolled or SSG-written) is
+// never touched, same contract as sitemap.xml. Opt-out: `llms: false`.
+/**
+ * One line of plain text, whatever it was given: newlines split list
+ * entries silently, control characters ride in as garbage. Bad bytes
+ * drop, whitespace collapses.
+ */
+function oneline(value) {
+  return String(value)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .replace(/[\r\n]+/g, ' ')
+    .trim()
+}
+
+/**
+ * Write llms.txt into dist. Routes only: the prerendered route set (the
+ * same gate sitemap honors). @returns {string|null} the written path.
+ */
+export function generateLlms(routes, config, distDir) {
+  if (config && config.llms === false) return null
+  const target = path.join(distDir, 'llms.txt')
+  if (fs.existsSync(target)) {
+    console.log('[prerender] llms.txt exists - leaving it untouched')
+    return null
+  }
+  const base = ((config && config.siteUrl) || '').replace(/\/$/, '')
+  const lines = []
+  lines.push('# ' + oneline((config && config.siteName) || 'Site'))
+  const tagline = config && config.tagline
+  if (tagline) lines.push('', '> ' + oneline(tagline))
+  lines.push('', '## Docs', '')
+  let count = 0
+  for (const r of (routes || [])) {
+    if (!r || typeof r.path !== 'string') continue
+    const title = oneline((r.meta && r.meta.title) || r.path)
+    const desc = (r.meta && r.meta.description) ? ': ' + oneline(r.meta.description) : ''
+    lines.push('- [' + title + '](' + base + (r.path === '/' ? '/' : r.path) + ')' + desc)
+    count++
+  }
+  fs.writeFileSync(target, lines.join('\n') + '\n', 'utf-8')
+  console.log('[prerender] llms.txt: emitted for ' + count + ' route(s)')
+  return target
+}
+
+export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras = null) {
   const title   = escapeReplacement(escapeHtml(meta.title))
   const desc    = escapeReplacement(escapeHtml(meta.description))
   // og:image per-route override, string shorthand OR object form (object
@@ -231,6 +280,86 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
   if (ogImage) {
     html = html.replace(/(<meta\s+property="og:image"\s+content=")[^"\r\n]*(")/,      `$1${ogImage}$2`)
     html = html.replace(/(<meta\s+name="twitter:image"\s+content=")[^"\r\n]*(")/,     `$1${ogImage}$2`)
+  }
+
+  // -- Grouped head additions (missing-only, config-gated: a host that opts
+  // out renders identical HTML to before). Values ride the same pipeline as
+  // the primary metas: escapeHtml for the markup class, escapeReplacement
+  // for the $-syntax class. The tail is applied with a FUNCTION replacer so
+  // replacement syntax can never resurrect inside it.
+  let tail = ''
+  const headAdd = (line) => { tail += '\n  ' + line }
+
+  // Feed autodiscovery: feed readers only learn a feed exists from <head>.
+  const feed = extras && extras.feed
+  if (feed && typeof feed.url === 'string' && feed.url) {
+    const fType  = feed.type  || 'application/rss+xml'
+    const fTitle = feed.title ? ` title="${escapeReplacement(escapeHtml(feed.title))}"` : ''
+    headAdd(`<link rel="alternate" type="${escapeReplacement(escapeHtml(fType))}"${fTitle} href="${escapeReplacement(escapeHtml(feed.url))}" />`)
+  }
+
+  // hreflang alternates: site-wide set, per-route override (swap semantics).
+  const alternates = (meta && meta.alternates) || (extras && extras.alternates)
+  if (Array.isArray(alternates)) {
+    for (const a of alternates) {
+      if (!a || typeof a.href !== 'string' || !a.href || typeof a.hreflang !== 'string' || !a.hreflang) continue
+      headAdd(`<link rel="alternate" hreflang="${escapeReplacement(escapeHtml(a.hreflang))}" href="${escapeReplacement(escapeHtml(a.href))}" />`)
+    }
+  }
+
+  // Verification metas (site verifiers for search consoles, tooling): keys
+  // must be plain meta-name shapes, values escaped. A $ or quote inside a
+  // key would otherwise become markup or replacement syntax.
+  const verification = extras && extras.verification
+  if (verification && typeof verification === 'object' && !Array.isArray(verification)) {
+    for (const [vName, vValue] of Object.entries(verification)) {
+      if (typeof vValue !== 'string' || vValue === '') continue
+      if (!/^[A-Za-z0-9._-]+$/.test(vName)) continue
+      headAdd(`<meta name="${escapeReplacement(escapeHtml(vName))}" content="${escapeReplacement(escapeHtml(vValue))}" />`)
+    }
+  }
+
+  // Per-route JSON-LD (#35): route-scoped schema nodes ship on the pages
+  // that carry them (FAQPage belongs on the FAQ page, not site-wide). The
+  // home route may also wrap the site's query interface (SearchAction) when
+  // the host configures a searchUrl with a {query} slot.
+  const routeNodes = []
+  const searchUrl = extras && routePath === '/' && typeof extras.searchUrl === 'string' ? extras.searchUrl : null
+  if (searchUrl && searchUrl.includes('{query}')) {
+    routeNodes.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      url: `${(siteUrl || '').replace(/\/$/, '')}/`,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: searchUrl },
+        'query-input': 'required name=query',
+      },
+    })
+  }
+  const routeJsonLd = meta && meta.jsonLd
+  if (Array.isArray(routeJsonLd)) {
+    for (const n of routeJsonLd) {
+      if (n && typeof n === 'object' && !Array.isArray(n)) routeNodes.push(n)
+    }
+  } else if (routeJsonLd && typeof routeJsonLd === 'object') {
+    routeNodes.push(routeJsonLd)
+  }
+  if (routeNodes.length > 0) {
+    const payload = routeNodes.length === 1
+      ? routeNodes[0]
+      : { '@context': 'https://schema.org', '@graph': routeNodes }
+    // Rebuild idempotence: strip any previously injected route block first.
+    html = html.replace(/\n\s*<!-- JSON-LD \(route\) -->[\s\S]*?<\/script>(?=[\s\S]*?<\/head>)/, '')
+    const script = '<script type="application/ld+json">'
+      + JSON.stringify(payload, null, 2).replace(/</g, '\\u003c')
+      + '</script>'
+    headAdd('<!-- JSON-LD (route) -->')
+    headAdd(script)
+  }
+
+  if (tail) {
+    html = html.replace('</head>', function () { return tail + '\n  </head>' })
   }
 
   return html
@@ -493,26 +622,27 @@ export function generate404(shell, config, siteUrl) {
   // Function replacer: bodyLines carry user text; string-form replacement
   // would expand $-sequences (same trap as replaceRootDiv).
   let html = shell.replace(/<div id="root"[^>]*><\/div>/, () => bodyLines.join('\n'))
-  html = html.replace(/<title>[^<]*<\/title>/,               () => `<title>Page Not Found | ${siteName}</title>`)
-  // Group-aware function replacers (#33): a function replacer's return value
-  // is used LITERALLY -- `$1`/`$2` inside it do NOT expand (the inverse of the
-  // string-form $-expansion trap). Four tags used to ship as `$1...$2` literal
-  // garbage. Capture groups arrive as callback args 2/3 and are rebuilt here.
-  html = html.replace(
-    /(<meta\s+name="description"\s+content=")[^"\r\n]*(")/,
-    (m, a, b) => `${a}The page you were looking for does not exist.${b}`
-  )
-  html = html.replace(
-    /(<meta\s+property="og:title"\s+content=")[^"\r\n]*(")/,
-    (m, a, b) => `${a}Page Not Found | ${siteName}${b}`
-  )
-  html = html.replace(
-    /(<meta\s+name="twitter:title"\s+content=")[^"\r\n]*(")/,
-    (m, a, b) => `${a}Page Not Found | ${siteName}${b}`
-  )
+  // #42 (the root fix behind the replacer tragedy #33/#34): the four text
+  // tags ride the SAME injection pipeline as every page -- injectMeta owns
+  // title/description/og:title/twitter:title with its single-line,
+  // class-excluding regexes and the shared escape pipeline. No 404-specific
+  // replacer remains for any future head tag to trip over.
+  html = injectMeta(html, {
+    title: `Page Not Found | ${siteName}`,
+    description: 'The page you were looking for does not exist.',
+  }, '/', siteUrl, config && config.ogImage)
+  // The 404's canonical contract is deliberate and 404-only: point at the
+  // home origin (with the trailing slash every non-route URL normalizes
+  // to), unlike a content page's self-canonical. Function replacers, same
+  // as before -- the literal-result guarantee that fixed #33.
+  const homeCanonical = `${v((siteUrl || '').replace(/\/$/, ''))}/`
   html = html.replace(
     /(<link\s+rel="canonical"\s+href=")[^"\r\n]*(")/,
-    (m, a, b) => `${a}${v((siteUrl || '').replace(/\/$/, ''))}/${b}`
+    (m, a, b) => `${a}${homeCanonical}${b}`
+  )
+  html = html.replace(
+    /(<meta\s+property="og:url"\s+content=")[^"\r\n]*(")/,
+    (m, a, b) => `${a}${homeCanonical}${b}`
   )
   // noindex -- 404 pages should not appear in search results
   html = html.replace(
@@ -599,6 +729,45 @@ export function mergeRoutes(staticRoutes = [], fetchedRoutes) {
   return [...out.values()]
 }
 
+// react-router-dom v7 named-import interop (#29): v7 ships CJS, and vite's
+// SSR graph externalizes node_modules entirely, so a HOST layout's
+// `import { useLocation } from 'react-router-dom'` dies at link time
+// ("Named export 'useLocation' not found") before any engine hook can
+// intercede. Fix at import-analysis: a pre-transform rewrites the layout's
+// named-import statement into the namespace-interop shape the scaffold
+// itself uses (v6 ESM namespace or v7 CJS default), matching both majors.
+/**
+ * Rewrite `import { A, B } from 'react-router-dom'` statements into the
+ * dual-major namespace interop form. Exported so the battery can pin the
+ * rewrite offline against both import spoken forms.
+ *
+ * @param {string} source
+ * @returns {string}
+ */
+export function rewriteRrdNamedImports(source) {
+  let n = 0
+  return source.replace(
+    /import\s+\{([^}]+)\}\s+from\s+(['"])react-router-dom\2/g,
+    (_m, names, q) => {
+      const bindings = names.split(',').map(function (s) { return s.trim() }).filter(Boolean).join(', ')
+      const ns = `rrdInteropNs_${++n}`
+      return `import * as ${ns} from ${q}react-router-dom${q}; const { ${bindings} } = ${ns}.default ?? ${ns}`
+    },
+  )
+}
+
+// Applied as a vite pre-plugin so the rewrite lands before import analysis.
+const rrdInteropPlugin = {
+  name: 'prestruct-rrd-cjs-interop',
+  enforce: 'pre',
+  transform(code, id) {
+    if (id.includes('node_modules')) return null // never touch the externals
+    if (!code.includes('react-router-dom')) return null
+    const out = rewriteRrdNamedImports(code)
+    return out === code ? null : { code: out, map: null }
+  },
+}
+
 // StaticRouter loader: react-router-dom's exports map differs by version.
 // v6 exposes the SSR entry as a './server.js' subpath; v7 re-exports
 // StaticRouter from the package root. `importer` is injectable so the v7
@@ -674,6 +843,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     root: p.root,
     server: { middlewareMode: true },
     appType: 'custom',
+    plugins: [rrdInteropPlugin],
     customLogger: {
       info:           () => {},
       warn:           (msg) => { if (!msg.includes('ExperimentalWarning')) process.stderr.write('[prerender:warn] ' + msg + '\n') },
@@ -701,6 +871,20 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     const cache     = readCache({ cacheFile: p.cacheFile })
     // Honest per-route sitemap dates: consumed by generateSitemap's <lastmod>.
     const routeMtimes = new Map()
+    // Per-route OG image generation (#43): resolved once per run, rendered
+    // for EVERY route in the set before the render loop -- a cache-hit route
+    // must still ship its (new-template) PNG, or a vite-cleared dist would
+    // carry head tags pointing at a missing file. Routes with their own
+    // og:image override keep theirs (missing-only).
+    const ogImageGeneration = resolveOgImageGeneration(cfg, p.root)
+    const routeOgOverrides = new Map()
+    if (ogImageGeneration) {
+      for (const route of ROUTES) {
+        if (route && route.meta && route.meta.ogImage) continue
+        const generated = renderRouteOgImage(ogImageGeneration, route, siteUrl, p.dist)
+        if (generated) routeOgOverrides.set(route.path, `${siteUrl.replace(/\/$/, '')}${generated.src}`)
+      }
+    }
 
     console.log(`[prerender] Cache: ${Object.keys(cache).length} routes cached${force ? ' (forcing rebuild)' : ''}`)
 
@@ -742,7 +926,14 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
         // Attribute-tolerant root-div injection (carries inject-brand attrs)
         let html = replaceRootDiv(shell, appHtml)
-        html = injectMeta(html, route.meta || {}, route.path, siteUrl, cfg.ogImage)
+        // Per-route branded og:image when generated (#43); global otherwise.
+        const routeOg = routeOgOverrides.get(route.path) || cfg.ogImage
+        html = injectMeta(html, route.meta || {}, route.path, siteUrl, routeOg, {
+          feed: cfg.feed,
+          alternates: cfg.alternates,
+          verification: cfg.verification,
+          searchUrl: cfg.searchUrl,
+        })
 
         // Save to cache with a signature over exactly these rendered inputs
         cache[route.path] = { html, time: Date.now(), sig: cacheSignature(route, siteUrl, shell) }
@@ -767,6 +958,9 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
     // sitemap.xml -- overwrites the static one in public/, honest lastmods
     fs.writeFileSync(path.join(p.dist, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl, routeMtimes), 'utf-8')
+
+    // llms.txt -- generated-only after the sitemap (same baked route set)
+    generateLlms(ROUTES, cfg, p.dist)
     console.log('[prerender] ok /sitemap.xml')
 
     // robots.txt -- opt-in only (config.robots): without it the author-owned

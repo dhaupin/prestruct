@@ -127,6 +127,35 @@ function defaultGetDeployId() {
  * never exits.
  *
  * @param {object} config - full ssr.config.js export
+/**
+ * Config-driven JSON-LD defaults (#30): Organization + WebSite, built from
+ * the same siteName/siteUrl/author keys the head already consumes. A host
+ * that never defines buildJsonLd still ships both blocks. Exported for the
+ * battery: the shape is a contract, not an implementation detail.
+ *
+ * @param {{siteUrl?: string, siteName?: string, author?: string}} config
+ * @returns {object|null} wrapped payload ({@graph}) or null when nothing
+ *   is derivable (no siteUrl AND no siteName/author).
+ */
+export function buildDefaultJsonLd({ siteUrl, siteName, author } = {}) {
+  const base = siteUrl ? siteUrl.replace(/\/$/, '') : ''
+  const nodes = []
+  if (siteName || author || base) {
+    const org = { '@type': 'Organization' }
+    if (siteName || author) org.name = siteName || author
+    if (base) org.url = base
+    nodes.push(org)
+  }
+  // WebSite is only emitted with BOTH identity facts: a name-less or
+  // URL-less WebSite node is schema-invalid, not "shorter defaults".
+  if (siteName && base) {
+    nodes.push({ '@type': 'WebSite', name: siteName, url: base })
+  }
+  if (nodes.length === 0) return null
+  return { '@context': 'https://schema.org', '@graph': nodes }
+}
+
+/**
  * @param {string} [distDir=resolve('dist')] - build output directory
  * @param {{getDeployId?: Function, projectRoot?: string}} [opts] - injection hooks
  * @returns {void}
@@ -135,7 +164,7 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   const {
     platform = 'cloudflare',
     siteUrl, siteName, author, tagline, ogImage, keywords,
-    routes = [], buildJsonLd, proxy = {},
+    routes = [], buildJsonLd, proxy = {}, jsonLdDefaults,
   } = config
 
   // Only generate Cloudflare-specific files (_headers, _redirects)
@@ -310,6 +339,20 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
     <!-- JSON-LD Structured Data -- generated from ssr.config.js -->
     <script type="application/ld+json">
     ${JSON.stringify(payload, null, 2).replace(/</g, '\\u003c')}
+    </script>`
+    }
+  } else if (jsonLdDefaults !== false) {
+    // Config-driven defaults (#30): a host that never defines buildJsonLd
+    // used to ship zero structured data even though config already carries
+    // siteName/siteUrl/author - the exact data Organization/WebSite need.
+    // Defaults emit those two nodes; jsonLdDefaults: false opts out. The
+    // payload walks the same object/array wrapper as the host-provided form.
+    const defaults = buildDefaultJsonLd({ siteUrl, siteName, author })
+    if (defaults) {
+      jsonLdBlock = `
+    <!-- JSON-LD Structured Data -- engine defaults (set jsonLdDefaults: false in ssr.config.js to skip) -->
+    <script type="application/ld+json">
+    ${JSON.stringify(defaults, null, 2).replace(/</g, '\\u003c')}
     </script>`
     }
   }
