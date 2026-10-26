@@ -21,6 +21,9 @@ pre-push loop is a silent-red generator. The lint gates we run by hand
 eslint rides only CI. Candidate follow-up: a `npm run gate` aggregate
 that includes `cd init && npm run lint` so the pre-push loop cannot
 forget a lane again.
+Acceptance closed: Test run 40418101225 at 51950a5 walked both lanes
+green (all 12 steps success), all six checks green on the head,
+prestruct#56 closed as completed with the run receipts.
 
 ## Pass 53 - the remaining labs staging docs land on their trackers (2026-10-26)
 
