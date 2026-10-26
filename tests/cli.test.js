@@ -10,7 +10,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { execFileSync, spawnSync } from 'child_process'
-import { mkdtempSync, existsSync, readFileSync } from 'fs'
+import { mkdtempSync, existsSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -70,5 +70,22 @@ describe('cli refusal contract (#54)', () => {
     expect(r.status).toBe(1)
     expect(r.stderr).toContain('ssr.config.js not found')
     expect(r.stderr).not.toContain('unknown flag')
+  })
+
+  it('findWorkdir reads the positional anywhere in argv, not just args[0]', () => {
+    // The dir arg used to be read only from args[0], so `build --force dir`
+    // saw the flag first and searched cwd upward for a config -- silently
+    // building the wrong tree. A config in the positional dir must be found
+    // with the flag on either side; the build then proceeds past validation
+    // (and dies at vite, which is absent in the scratch env).
+    const proj = mkdtempSync(join(tmpdir(), 'prestruct-pos-'))
+    writeFileSync(join(proj, 'ssr.config.js'),
+      "export default { siteUrl: 'https://x.com', routes: [{ path: '/' }] }\n")
+    for (const argv of [['build', '--force', proj], ['build', proj, '--force']]) {
+      const r = run(argv, { cwd: mkdtempSync(join(tmpdir(), 'prestruct-pos-cwd-')) })
+      expect(r.stderr).not.toContain('ssr.config.js not found')
+      expect(r.stderr).not.toContain('unknown flag')
+      expect(r.status).not.toBe(0) // vite build failure, which is expected here
+    }
   })
 })

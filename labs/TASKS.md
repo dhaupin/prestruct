@@ -1,3 +1,38 @@
+## Pass 50 - second QC walk: island runtime, CLI args, validator edges (2026-10-26)
+
+Four boundary-class fixes, each with a regression test. Full gates pass.
+
+- **islands.js observer lifecycle (engine/src, shipped to init/ + example/):**
+  mountIslands is called after every SPA navigation, and a 'visible' island
+  below the fold survives each scan as the SAME element. The old observe()
+  stacked a fresh IntersectionObserver on it per scan, and mount() left the
+  one-shot observers connected until their own callback ran. Now: an
+  `observing` WeakSet guards the pending set, a WeakMap tracks the live
+  observer per element, and mount() disconnects exactly the observer that
+  got it there. Tests pin one observer across three re-scans, disconnects
+  === 1 after intersect, and no re-observation of a mounted island.
+- **bin/cli.mjs findWorkdir positional:** only args[0] was treated as the
+  workdir, so `prestruct build --force dir` saw the flag first and silently
+  built cwd instead of dir (cmdInit/cmdAudit already scanned for the first
+  non-flag; build/validate were the odd ones out). Pinned by a live-process
+  test running the positional on BOTH sides of the flag.
+- **change frequency set closed (validate-config.js):** the validator knew
+  four <changefreq> values and falsely refused half the sitemap protocol
+  -- 'hourly', 'always' and 'never' are legal. One battery check now runs
+  all seven spec values clean.
+- **Seam re-sweep (inject-brand/audit/ogimage/cli exec-finish):** every
+  exec site is a fixed command or a config-owned boolean chain, the audit's
+  fetch rides a bounded AbortSignal with a proper UA string, and
+  ogimage's lazy CJS resolver fails closed. No new $-surface or
+  replacement-string risk: the grouped head additions and both root-div
+  swaps are already function-replacer/slice-assembly only.
+
+Gates: 239/239 battery, sync:check byte-identity, packstruct --deep,
+docs frontmatter+language+truthfulness, fiction signatures. One flake
+observed once: tests/cli.test.js hit a 33s cold-npx spawn timeout on a
+fresh scratch env and passed on rerun (1.9s) - the spawn contract, not
+the CLI, is the slow thing cold.
+
 ## Pass 49 - the QC sweep: gaps, edges, vulns, perf (2026-10-26)
 
 Fresh-eyes QC over everything Pass 48 shipped. Four findings, four fixes,

@@ -88,10 +88,13 @@ prestruct -- build-time SEO prerender for Vite + React
 `
 
 function findWorkdir(args) {
-  // Explicit workdir wins; otherwise walk up from cwd until ssr.config.js is found
-  const [first] = args
-  if (first && !first.startsWith('-')) {
-    return path.resolve(first)
+  // Explicit workdir wins; otherwise walk up from cwd until ssr.config.js is
+  // found. Positional is position-independent (first non-flag), same contract
+  // as cmdInit/cmdAudit -- `prestruct build --force dir` used to read only
+  // args[0], see the flag, and silently build from cwd instead of dir.
+  const positional = args.find(a => !a.startsWith('-'))
+  if (positional) {
+    return path.resolve(positional)
   }
   let dir = process.cwd()
   while (dir !== path.dirname(dir)) {

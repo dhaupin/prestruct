@@ -99,10 +99,10 @@ describe('mountIslands -- load strategies', () => {
 
   // Controllable IO fake: engine does new IntersectionObserver(cb).observe(el)
   class FakeIO {
-    constructor(cb) { this.cb = cb; FakeIO.instances.push(this) }
+    constructor(cb) { this.cb = cb; this.disconnects = 0; FakeIO.instances.push(this) }
     observe(el) { this.el = el }
     unobserve() {}
-    disconnect() {}
+    disconnect() { this.disconnects++ }
     fire(isIntersecting = true) { this.cb([{ isIntersecting }], this) }
   }
   FakeIO.instances = []
@@ -201,5 +201,28 @@ describe('mountIslands -- load strategies', () => {
     expect(FakeIO.instances).toHaveLength(0)
     await flush()
     expect(island.innerHTML).not.toContain('f')
+  })
+
+  it('re-scans before intersection do NOT stack duplicate observers on a visible island', () => {
+    // mountIslands runs after EVERY SPA navigation; a homepage that keeps a
+    // 'visible' island below the fold across scans must carry ONE observer,
+    // not one per scan.
+    const [island] = el('<pre-island data-pre-island="a" data-pre-load="visible"></pre-island>')
+    mountIslands({ a: Comp })
+    mountIslands({ a: Comp })
+    mountIslands({ a: Comp })
+    expect(FakeIO.instances).toHaveLength(1)
+  })
+
+  it('mount disconnects the waiting observer exactly once, and a re-scan never re-observes a mounted island', async () => {
+    const [island] = el('<pre-island data-pre-island="a" data-pre-load="visible"></pre-island>')
+    mountIslands({ a: Comp })
+    const io = FakeIO.instances[0]
+    io.fire(true)
+    await flush()
+    expect(io.disconnects).toBe(1)
+    // Post-mount re-scan (next navigation over the same DOM) observes nothing.
+    mountIslands({ a: Comp })
+    expect(FakeIO.instances).toHaveLength(1)
   })
 })

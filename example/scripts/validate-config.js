@@ -10,7 +10,11 @@
  */
 
 const PLATFORMS = ['cloudflare', 'vercel', 'netlify']
-const CHANGEFREQS = ['daily', 'weekly', 'monthly', 'yearly']
+// The full sitemap-protocol set, not the common four: 'hourly', 'always'
+// and 'never' are legal <changefreq> values, and correctly refusing nothing
+// the protocol accepts is the validator's job (a false "not in" error is
+// just a hard-to-name refusal of a host's honest config).
+const CHANGEFREQS = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never']
 
 // Identity helper: `import { defineConfig } from 'prestruct'` for type-aware
 // ssr.config.js files. No preprocessing -- config is passed through.

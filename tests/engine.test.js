@@ -116,6 +116,18 @@ describe('validateConfig', () => {
     expect(errors.some(e => e.includes('changefreq'))).toBe(true)
   })
 
+  it('accepts the full sitemap-protocol changefreq set (hourly/always/never)', () => {
+    // The validator once knew only four values and falsely refused half the
+    // protocol. Every spec value must validate clean.
+    for (const changefreq of ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never']) {
+      const { ok, errors } = validateConfig({
+        siteUrl: 'https://x.com',
+        routes: [{ path: '/', changefreq }],
+      })
+      expect(ok, `changefreq "${changefreq}" refused: ${errors.join('; ')}`).toBe(true)
+    }
+  })
+
   it('flags unknown platform', () => {
     const { ok } = validateConfig({ siteUrl: 'https://x.com', routes: [], platform: 'heroku' })
     expect(ok).toBe(false)
