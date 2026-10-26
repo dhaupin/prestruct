@@ -4,7 +4,7 @@
   "description": "Build-time SEO prerender layer for Vite + React + Cloudflare Pages",
   "type": "module",
   "scripts": {
-    "build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js && node scripts/audit.js",
+    "build": "vite build && node scripts/inject-brand.js && node scripts/prerender.js && node scripts/audit-if-configured.cjs",
     "test": "vitest",
     "test:run": "vitest run",
     "lint": "eslint . --ext js,mjs",

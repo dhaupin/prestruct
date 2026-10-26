@@ -47,15 +47,26 @@ jobs:
       - name: Lint
         run: cd init && npm run lint
 
-      - name: Build
+      # The tracked template tree: builds green without a config (the audit
+      # step is config-aware: init/scripts/audit-if-configured.cjs refuses
+      # with a named skip when ssr.config.js is absent, per the unconfigured
+      # scaffold contract).
+      - name: Build the template shell
         run: cd init && npm run build
+
+      # The audited gate: the example is the tracked CONFIGURED project --
+      # its build ends in the real prestruct audit (verified locally:
+      # 0 failures / 0 warnings / exit 0). A head regression now fails CI,
+      # not only a local build.
+      - name: Build + audit the example
+        run: cd example && npm install --no-audit --no-fund && npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: dist
-          path: dist/
+          name: init-dist
+          path: init/dist/
           retention-days: 7
 
       - name: Upload test coverage

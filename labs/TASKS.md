@@ -5,6 +5,56 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 47 - stabilization start: cherry-picks land in-house, the audit goes online in CI (2026-10-26)
+
+The maintainer's program: stabilize prestruct, get the audit online, solve
+issues, cherry-pick solves into the in-house family. Delivered:
+
+- **Family state re-probed:** gistory main moved 2e0d049 -> d49686f (ferry
+  snapshots + brain-stone mirrors + a new poststruct/eyestruct wordprint
+  transfer stone -- clone ff-pulled). The staging CODE is untouched
+  (bin/cli.mjs not in the diff), so both beta bugs stay open upstream and
+  the trial receipts stand. Target repos unchanged (poststruct 22fc13c /
+  monoforge f8e45fb / eyestruct de0c79d -- still stubs); gistory-sync
+  still E404.
+- **Cherry-picked the beta solves INTO poststruct's staging clone (the
+  "solve in house" step):** bin/cli.mjs B1 (leading verb is grammar, not
+  a directory -- `poststruct audit dist` now works; before: "No audit/
+  directory" exit 2, after: counts {fail:1,warn:4} exit 1 correct) and
+  B2 (--module parsed position-independently; CLI-side filter on finding
+  ids since engine opts only feed the site module; `--module head` ->
+  {fail:0,warn:4} all-head ids, counts recomputed for schema honesty).
+  Battery after patch: self-test PASS 8/8 expected FAIL ids. One-file
+  patch, receipts in labs/issues-stabilization.md Issue 2 for the next
+  ferry/PR.
+- **The audit went ONLINE in CI, and the walk caught a real red first:**
+  init's own unconfigured build FAILS the audit (6 fails / 9 warns --
+  inject-brand skips without ssr.config.js; the shell ships placeholder
+  meta the audit CORRECTLY grades red). Left that red in place where it
+  belongs (a configured site) and restructured:
+  - init/scripts/audit-if-configured.cjs (init-owned, NOT engine-synced):
+    runs scripts/audit.js when ssr.config.js exists -- exit carries
+    through -- and refuses with a NAMED SKIP otherwise. init's build
+    verified green: exit 0 + the skip lines.
+  - test.yml gains the audited gate: the EXAMPLE (tracked configured
+    project) installs + builds + ends in the real audit -- measured
+    locally first per the gates-first rule: **0 failures / 0 warnings,
+    exit 0**. Head regressions now fail CI, not just local builds.
+  - test.yml artifact path fixed (root `dist/` does not exist in this
+    layout -> init/dist/, name init-dist).
+- **labs/issues-stabilization.md:** three paste-ready issue bodies --
+  (1) the CI audit-gate walkthrough for prestruct's tracker; (2) the
+  poststruct B1/B2 patch, battery-proven, ready for the next ferry/PR;
+  (3) the crashtest 1.2.0 bump reminder (mechanized already; read-only
+  CI lane holds since pass 42).
+
+Gates run before commit: battery + sync + packstruct + docs + claims.
+Next: the remaining open prestruct issues are the feature rows (#35/36/
+39/41/43/49) and the cross-repo ledger -- candidates by value fr(n) are
+the twin-upstream re-land once the family pushes land.
+
+---
+
 ## Pass 46 - gistory report addendum + the prestruct-shapes contract drafted (2026-10-26)
 
 The maintainer asked for new issues recorded into gistory and to continue.
