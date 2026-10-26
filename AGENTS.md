@@ -634,20 +634,27 @@ var url = data.url && data.url.startsWith(baseurl)
 
 ---
 
-## Docs frame: header layout + accordion
+## Docs frame: the flowforge rig shape (adopted 2026-10-26)
 
-Desktop layout with wordmark -> nav -> actions (search/theme):
+`docs/_layouts/default.html` is the adopted dhaupin/flowforge docs rig
+(docs/_layouts/default.html, brand-data-only diff): fixed header with
+search trigger > GitHub icon > theme switch > hamburger, slide-out mobile
+sidebar driven by `docs/_data/nav.yml` (groups of `{title, items}`), and a
+pagefind modal search on Ctrl/Cmd+K.
 
-- Use `order` CSS property to control flex child positions
-- Nav gets `order:1`, actions get `order:2` (actions rightmost)
-- In mobile query, reset nav `order:0`
-- Use `flex-grow:1` + `justify-content:flex-end` on nav to push actions right
-- Mobile uses absolute positioning for hamburger and actions
-
-Submenu accordion behavior:
-- JS closes any open submenu before opening a new one
-- `this.parentElement.parentElement.querySelectorAll('.nav-folder.open')` finds siblings
-- Toggle class: if already open, closes it; if closed, opens it
+- **Tokens own the palette.** `--paper/--surface/--raised/--ink/--ink-soft/
+  --accent/--accent-deep/--moss/--err/--line/--code-bg`; the light theme is
+  a second block of the SAME token set. No rule hardcodes a hex.
+- **Theme:** `html[data-theme]` attribute, key `prestruct-theme`, dark is
+  the default sheet; only a persisted light theme is flipped at bootstrap
+  (inline, before first paint). The icon is the ACTION (sun shows in dark).
+- **The K shortcut lives in CSS** (`.search-key::after`), never in HTML
+  text: pagefind indexes literal hint text (the \\\\u2318K lesson above).
+- **Departure from the rig:** no freestruct engine runs on these docs, so
+  the head keeps the baked canonical/OG/JSON-LD block (the rig's trimmed
+  head contract is only for freestruct-fed sites). Prism was dropped with
+  the adoption: docs highlighting is kramdown/rouge server-side and the
+  Rouge token colors ride the theme tokens.
 
 **Future work (docs frame + search):**
 

@@ -3,7 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#080808" />
+  <!-- No-flash theme bootstrap: the token sheet defaults to dark (the family
+       convention, dhaupin/flowforge web styles); only a persisted light theme
+       flips html[data-theme]. Runs before first paint, before the bundle. -->
+  <script>
+    try {
+      if (localStorage.getItem('prestruct-theme') === 'light') {
+        document.documentElement.dataset.theme = 'light';
+      }
+    } catch (e) {}
+  </script>
+  <meta name="theme-color" content="#10131a" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f6fa" />
 
   <!-- Primary SEO (populated by inject-brand.js) -->
   <title>prestruct | SEO prerendering for Vite + React</title>

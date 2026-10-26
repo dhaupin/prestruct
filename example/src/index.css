@@ -1,47 +1,49 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* -- Tokens ------------------------------------------------------------------- */
+/* Tokens -- the family sheet (dhaupin/flowforge web/src/styles.css, adopted
+   2026-10-26 for docs + example parity). Dark is default; the light block is
+   the SAME token set re-valued below. No layout class hardcodes a hex. */
 :root {
-  --bg:         #080808;
-  --bg-1:       #0e0e0e;
-  --bg-2:       #141414;
-  --border:     #1e1e1e;
-  --border-2:   #2a2a2a;
-  --text:       #e2e0db;
-  --text-2:     #8a8680;
-  --text-3:     #4a4845;
-  --accent:     #c8f000;
-  --accent-dim: #8aaa00;
-  --red:        #ff4444;
-  --yellow:     #f0c000;
-  --green:      #00d084;
+  --paper:            #10131a;
+  --surface:          #161b24;
+  --raised:           #1d2430;
+  --ink:              #e7eaf1;
+  --ink-soft:         #98a2b3;
+  --accent:           #6d8cff;
+  --accent-deep:      #5166c7;
+  --moss:             #3fae72;   /* success / positive green */
+  --err:              #e06557;   /* violation / negative red */
+  --line:             #2a3140;
+  --code-bg:          #0d1017;
+  --nav-bg:           rgba(16, 19, 26, 0.88);
+  --accent-contrast:  #0b1020;   /* text that sits ON an accent background */
   --font:       'Geist', system-ui, sans-serif;
   --mono:       'Geist Mono', ui-monospace, monospace;
   --radius:     4px;
   --max:        860px;
 }
 
-/* Light mode */
+/* Light mode: same identity, ink on pale paper (the family light block). */
 :root[data-theme="light"] {
-  --bg:         #f8f8f6;
-  --bg-1:       #f2f2ef;
-  --bg-2:       #eaeae8;
-  --border:     #d8d8d4;
-  --border-2:   #c8c8c4;
-  --text:       #1a1a18;
-  --text-2:     #5a5a58;
-  --text-3:     #8a8a88;
-  --accent:     #8aaa00;
-  --accent-dim: #c8f000;
+  --paper:            #f5f6fa;
+  --surface:          #ffffff;
+  --raised:           #e6e9f2;
+  --ink:              #171b26;
+  --ink-soft:         #5b6575;
+  --accent:           #4055c5;
+  --accent-deep:      #33449e;
+  --moss:             #2e7d4f;
+  --err:              #b04b3f;
+  --line:             #d9dee9;
+  --code-bg:          #e9ecf3;
+  --nav-bg:           rgba(245, 246, 250, 0.88);
+  --accent-contrast:  #ffffff;
 }
 
-/* Light mode body tweaks */
+/* Light mode body tweak: the scanline overlay is a dark-mode texture. */
 :root[data-theme="light"] body {
   background-image: none;
-}
-
-:root[data-theme="light"] .site-header {
-  background: #f8f8f6;
 }
 
 /* -- Base ---------------------------------------------------------------------- */
@@ -49,8 +51,8 @@ html { font-size: 16px; scroll-behavior: smooth; }
 
 body {
   font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
   line-height: 1.6;
   min-height: 100vh;
   /* Subtle scanline texture */
@@ -69,8 +71,8 @@ a:hover { text-decoration: underline; }
 code, pre {
   font-family: var(--mono);
   font-size: 0.85em;
-  background: var(--bg-2);
-  border: 1px solid var(--border-2);
+  background: var(--code-bg);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.15em 0.45em;
   color: var(--accent);
@@ -101,8 +103,8 @@ pre code {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
   padding: 0 2rem;
   height: 52px;
   display: flex;
@@ -140,7 +142,7 @@ pre code {
   font-family: var(--mono);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink);
   letter-spacing: 0.02em;
   display: flex;
   align-items: center;
@@ -165,22 +167,22 @@ pre code {
   font-family: var(--mono);
   font-size: 0.75rem;
   font-weight: 400;
-  color: var(--text-2);
+  color: var(--ink-soft);
   letter-spacing: 0.04em;
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius);
   transition: color 0.15s, background 0.15s;
 }
 
-.nav-link:hover { color: var(--text); background: var(--bg-2); text-decoration: none; }
+.nav-link:hover { color: var(--ink); background: var(--raised); text-decoration: none; }
 .nav-link.active { color: var(--accent); }
 
 .nav-github {
   font-family: var(--mono);
   font-size: 0.72rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
   padding: 0.35rem 0.75rem;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   margin-left: 0.5rem;
   display: flex;
@@ -190,16 +192,16 @@ pre code {
 }
 
 .nav-github:hover {
-  color: var(--text);
-  border-color: var(--text-3);
+  color: var(--ink);
+  border-color: var(--ink-soft);
   text-decoration: none;
 }
 
 .theme-toggle {
   background: none;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  color: var(--text-3);
+  color: var(--ink-soft);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -210,12 +212,12 @@ pre code {
 }
 
 .theme-toggle:hover {
-  color: var(--text);
-  border-color: var(--text-3);
+  color: var(--ink);
+  border-color: var(--ink-soft);
 }
 
 .island-loading {
-  color: var(--text-3);
+  color: var(--ink-soft);
   font-size: 0.85rem;
   font-family: var(--mono);
 }
@@ -238,7 +240,7 @@ pre code {
 /* -- Hero ---------------------------------------------------------------------- */
 .hero {
   padding: 5rem 0 4rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
   position: relative;
   overflow: hidden;
 }
@@ -249,8 +251,8 @@ pre code {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 40px 40px;
   opacity: 0.4;
   mask-image: radial-gradient(ellipse 80% 100% at 50% 0%, black 40%, transparent 100%);
@@ -293,7 +295,7 @@ pre code {
 
 .hero-sub {
   font-size: 1.05rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.7;
   max-width: 520px;
   margin-bottom: 2.5rem;
@@ -324,25 +326,25 @@ pre code {
 
 .btn-primary {
   background: var(--accent);
-  color: #080808;
+  color: var(--accent-contrast);
   border-color: var(--accent);
 }
 
 .btn-primary:hover {
-  background: #d4ff00;
+  background: var(--accent);
   text-decoration: none;
-  color: #080808;
+  color: var(--accent-contrast);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--text-2);
-  border-color: var(--border-2);
+  color: var(--ink-soft);
+  border-color: var(--line);
 }
 
 .btn-ghost:hover {
-  color: var(--text);
-  border-color: var(--text-3);
+  color: var(--ink);
+  border-color: var(--ink-soft);
   text-decoration: none;
 }
 
@@ -350,7 +352,7 @@ pre code {
 .pipeline {
   margin: 3.5rem 0 0;
   padding: 2rem 0 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
 }
 
 .pipeline-label {
@@ -358,7 +360,7 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin-bottom: 1.25rem;
 }
 
@@ -373,8 +375,8 @@ pre code {
 .pipeline-step {
   flex: 1;
   min-width: 140px;
-  background: var(--bg-1);
-  border: 1px solid var(--border-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
   padding: 1rem 1.25rem;
   position: relative;
 }
@@ -387,9 +389,9 @@ pre code {
   transform: translateY(-50%);
   font-family: var(--mono);
   font-size: 0.85rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
   z-index: 1;
-  background: var(--bg);
+  background: var(--paper);
   padding: 0 2px;
 }
 
@@ -405,14 +407,14 @@ pre code {
 
 .step-desc {
   font-size: 0.78rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.4;
 }
 
 /* -- Sections ------------------------------------------------------------------ */
 .section {
   padding: 4rem 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 .section:last-child { border-bottom: none; }
@@ -422,7 +424,7 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin-bottom: 2rem;
   display: flex;
   align-items: center;
@@ -433,7 +435,7 @@ pre code {
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: var(--line);
 }
 
 /* -- Feature grid -------------------------------------------------------------- */
@@ -441,14 +443,14 @@ pre code {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
+  background: var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
 }
 
 .feature {
-  background: var(--bg-1);
+  background: var(--surface);
   padding: 1.5rem;
 }
 
@@ -470,21 +472,21 @@ pre code {
 
 .feature-desc {
   font-size: 0.82rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.55;
 }
 
 /* -- Proof panel --------------------------------------------------------------- */
 .proof-panel {
-  background: var(--bg-1);
-  border: 1px solid var(--border-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
 }
 
 .proof-bar {
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
+  background: var(--raised);
+  border-bottom: 1px solid var(--line);
   padding: 0.6rem 1rem;
   display: flex;
   align-items: center;
@@ -495,13 +497,13 @@ pre code {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--border-2);
+  background: var(--line);
 }
 
 .proof-url {
   font-family: var(--mono);
   font-size: 0.72rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin-left: auto;
 }
 
@@ -513,20 +515,20 @@ pre code {
   font-family: var(--mono);
   font-size: 0.78rem;
   line-height: 1.8;
-  color: var(--text-2);
+  color: var(--ink-soft);
 }
 
-.proof-line .hl-tag    { color: #7c9ec8; }
-.proof-line .hl-attr   { color: #c8a07c; }
-.proof-line .hl-value  { color: #a8c878; }
-.proof-line .hl-muted  { color: var(--text-3); }
+.proof-line .hl-tag    { color: var(--accent); }
+.proof-line .hl-attr   { color: var(--ink-soft); }
+.proof-line .hl-value  { color: var(--moss); }
+.proof-line .hl-muted  { color: var(--ink-soft); }
 
 /* -- How it works -------------------------------------------------------------- */
 .steps {
   display: flex;
   flex-direction: column;
   gap: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   /* No overflow:hidden -- it clips the horizontal scrollbar on <pre> blocks
      inside .step-body. Border-radius is preserved by the border itself. */
@@ -535,7 +537,7 @@ pre code {
 .step {
   display: grid;
   grid-template-columns: 52px 1fr;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 .step:last-child { border-bottom: none; }
@@ -543,18 +545,18 @@ pre code {
 .step-num {
   font-family: var(--mono);
   font-size: 0.75rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-1);
-  border-right: 1px solid var(--border);
+  background: var(--surface);
+  border-right: 1px solid var(--line);
   padding: 1.25rem 0;
 }
 
 .step-body {
   padding: 1.25rem 1.5rem;
-  background: var(--bg);
+  background: var(--paper);
   min-width: 0; /* prevent grid blowout on mobile when children contain wide pre/code */
 }
 
@@ -567,24 +569,24 @@ pre code {
 
 .step-text {
   font-size: 0.82rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.6;
 }
 
 /* -- Callout ------------------------------------------------------------------- */
 .callout {
-  background: var(--bg-1);
-  border: 1px solid var(--border-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 1rem 1.25rem;
   font-size: 0.85rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.6;
   margin: 1.5rem 0;
 }
 
-.callout strong { color: var(--text); }
+.callout strong { color: var(--ink); }
 
 /* -- Quick start --------------------------------------------------------------- */
 .quickstart {
@@ -600,13 +602,13 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin-bottom: 0.5rem;
 }
 
 /* -- Footer -------------------------------------------------------------------- */
 .site-footer {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
   padding: 2rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -636,7 +638,7 @@ pre code {
   font-family: var(--mono);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink);
   letter-spacing: 0.02em;
 }
 
@@ -648,32 +650,32 @@ pre code {
   grid-column: 1 / -1;
   font-family: var(--mono);
   font-size: 0.72rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
   margin-top: 1rem;
 }
 
 .footer-legal a {
-  color: var(--text-3);
+  color: var(--ink-soft);
   transition: color 0.15s;
 }
 
 .footer-legal a:hover {
-  color: var(--text);
+  color: var(--ink);
   text-decoration: none;
 }
 
 .footer-deploy-id {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--text-3);
-  background: var(--bg-2);
+  color: var(--ink-soft);
+  background: var(--raised);
   padding: 0.15rem 0.4rem;
   border-radius: 3px;
   margin-right: 0.5rem;
@@ -699,7 +701,7 @@ pre code {
 }
 
 .footer-divider {
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin: 0 0.35rem;
 }
 
@@ -712,7 +714,7 @@ pre code {
 .footer-link {
   font-family: var(--mono);
   font-size: 0.72rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
   padding: 0.35rem 0.6rem;
   border-radius: var(--radius);
   transition: color 0.15s, background 0.15s;
@@ -720,8 +722,8 @@ pre code {
 }
 
 .footer-link:hover {
-  color: var(--text);
-  background: var(--bg-2);
+  color: var(--ink);
+  background: var(--raised);
   text-decoration: none;
 }
 
@@ -732,7 +734,7 @@ pre code {
 /* -- Page heading (inner pages) ------------------------------------------------ */
 .page-hero {
   padding: 3.5rem 0 3rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 .page-kicker {
@@ -740,7 +742,7 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin-bottom: 1rem;
 }
 
@@ -754,7 +756,7 @@ pre code {
 
 .page-sub {
   font-size: 1rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.7;
   max-width: 520px;
 }
@@ -783,7 +785,7 @@ pre code {
   height: 32px;
   padding: 0;
   background: transparent;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   cursor: pointer;
   flex-shrink: 0;
@@ -794,7 +796,7 @@ pre code {
   display: block;
   width: 14px;
   height: 1px;
-  background: var(--text-2);
+  background: var(--ink-soft);
   transition: transform 0.2s, opacity 0.2s;
 }
 
@@ -820,9 +822,9 @@ pre code {
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    background: var(--bg);
+    background: var(--paper);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--line);
     padding: 0.5rem 0;
     z-index: 9;
   }
@@ -842,7 +844,7 @@ pre code {
 }
 
 /* -- Wordmark --------------------------------------------------------------- */
-.wordmark-bracket { color: var(--text-3); font-weight: 300; }
+.wordmark-bracket { color: var(--ink-soft); font-weight: 300; }
 .wordmark-accent  { color: var(--accent); }
 
 /* -- Benefit grid ----------------------------------------------------------- */
@@ -850,8 +852,8 @@ pre code {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
+  background: var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
   margin-top: 0;
@@ -871,7 +873,7 @@ pre code {
 }
 
 .benefit {
-  background: var(--bg-1);
+  background: var(--surface);
   padding: 1.75rem 1.5rem;
 }
 
@@ -894,13 +896,13 @@ pre code {
 
 .benefit-desc {
   font-size: 0.82rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.6;
 }
 
 /* -- Compare table ---------------------------------------------------------- */
 .compare {
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -908,17 +910,17 @@ pre code {
 .compare-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 .compare-row:last-child { border-bottom: none; }
-.compare-row.header { background: var(--bg-2); }
+.compare-row.header { background: var(--raised); }
 
 .compare-cell {
   padding: 0.85rem 1.25rem;
   font-size: 0.82rem;
-  color: var(--text-2);
-  border-right: 1px solid var(--border);
+  color: var(--ink-soft);
+  border-right: 1px solid var(--line);
 }
 
 .compare-cell:last-child { border-right: none; }
@@ -927,23 +929,23 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
 }
 
-.compare-cell.good  { color: var(--accent-dim); }
-.compare-cell.bad   { color: var(--text-2); opacity: 0.6; } /* .label rule below wins on label cells -- intentional */
-.compare-cell.label { color: var(--text); font-weight: 500; }
+.compare-cell.good  { color: var(--accent-deep); }
+.compare-cell.bad   { color: var(--ink-soft); opacity: 0.6; } /* .label rule below wins on label cells -- intentional */
+.compare-cell.label { color: var(--ink); font-weight: 500; }
 
 /* -- Scrollbars ---------------------------------------------------------------- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
-* { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
+* { scrollbar-width: thin; scrollbar-color: var(--line) var(--paper); }
 
 /* -- View source widget ----------------------------------------------------- */
 .vsw {
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
   font-family: var(--mono);
@@ -951,8 +953,8 @@ pre code {
 }
 
 .vsw-bar {
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
+  background: var(--raised);
+  border-bottom: 1px solid var(--line);
   padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
@@ -964,7 +966,7 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
 }
 
 .vsw-route {
@@ -975,25 +977,25 @@ pre code {
 .vsw-body {
   max-height: 320px;
   overflow-y: auto;
-  background: var(--bg-1);
+  background: var(--surface);
   padding: 1rem 1.25rem;
 }
 
 .vsw-line {
   line-height: 1.7;
-  color: var(--text-2);
+  color: var(--ink-soft);
   white-space: pre-wrap;
   word-break: break-all;
 }
 
-.vsw-line .t  { color: #7c9ec8; }   /* tag */
-.vsw-line .a  { color: #c8a07c; }   /* attr */
-.vsw-line .v  { color: #a8c878; }   /* value */
-.vsw-line .m  { color: var(--text-3); } /* muted/comment */
+.vsw-line .t  { color: var(--accent); }   /* tag */
+.vsw-line .a  { color: var(--ink-soft); }   /* attr */
+.vsw-line .v  { color: var(--moss); }   /* value */
+.vsw-line .m  { color: var(--ink-soft); } /* muted/comment */
 .vsw-line .ac { color: var(--accent); } /* accent */
 
 .vsw-loading {
-  color: var(--text-3);
+  color: var(--ink-soft);
   padding: 1rem 0;
   text-align: center;
   font-size: 0.78rem;
@@ -1004,8 +1006,8 @@ pre code {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
+  background: var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -1029,7 +1031,7 @@ pre code {
 }
 
 .tool-card {
-  background: var(--bg-1);
+  background: var(--surface);
   padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -1039,7 +1041,7 @@ pre code {
 }
 
 .tool-card:hover {
-  background: var(--bg-2);
+  background: var(--raised);
   text-decoration: none;
 }
 
@@ -1054,13 +1056,13 @@ pre code {
 .tool-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .tool-desc {
   font-size: 0.78rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.5;
 }
 
@@ -1068,20 +1070,20 @@ pre code {
   margin-top: auto;
   padding-top: 0.5rem;
   font-size: 0.72rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
 }
 
 /* -- CodeBlock component --------------------------------------------------- */
 .cb {
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
   margin: 0;
 }
 
 .cb-bar {
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
+  background: var(--raised);
+  border-bottom: 1px solid var(--line);
   padding: 0.45rem 1rem;
   display: flex;
   align-items: center;
@@ -1093,11 +1095,11 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
 }
 
 .cb-pre {
-  background: var(--bg-1);
+  background: var(--surface);
   margin: 0;
   padding: 1.1rem 1.25rem;
   overflow-x: auto;
@@ -1111,20 +1113,20 @@ pre code {
   padding: 0;
   font-size: 0.8rem;
   line-height: 1.75;
-  color: var(--text-2);
+  color: var(--ink-soft);
 }
 
 /* Syntax token colours */
-.tok-tag   { color: #7c9ec8; }   /* HTML tag names */
-.tok-attr  { color: #c8a07c; }   /* Attribute names */
-.tok-val   { color: #a8c878; }   /* Quoted values */
-.tok-kw    { color: #c792ea; }   /* JS keywords */
-.tok-fn    { color: #7ca8c8; }   /* Function / command names */
-.tok-str   { color: #a8c878; }   /* JS strings */
-.tok-cmt   { color: var(--text-3); font-style: italic; }
-.tok-num   { color: #f78c6c; }   /* Numbers */
-.tok-punct { color: #89ddff; }   /* Punctuation */
-.tok-plain { color: var(--text-2); }
+.tok-tag   { color: var(--accent); }   /* HTML tag names */
+.tok-attr  { color: var(--ink-soft); }   /* Attribute names */
+.tok-val   { color: var(--moss); }   /* Quoted values */
+.tok-kw    { color: var(--accent); }   /* JS keywords */
+.tok-fn    { color: var(--accent-deep); }   /* Function / command names */
+.tok-str   { color: var(--moss); }   /* JS strings */
+.tok-cmt   { color: var(--ink-soft); font-style: italic; }
+.tok-num   { color: var(--accent-deep); }   /* Numbers */
+.tok-punct { color: var(--ink-soft); }   /* Punctuation */
+.tok-plain { color: var(--ink-soft); }
 
 /* -- DSL utility classes --------------------------------------------------- */
 /*
@@ -1152,7 +1154,7 @@ pre code {
 /* Section intro paragraph -- body copy under a section-label */
 .u-section-intro {
   font-size: 0.9rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.7;
   margin-bottom: 1.5rem;
 }
@@ -1163,7 +1165,7 @@ pre code {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--ink-soft);
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
@@ -1193,22 +1195,22 @@ pre code {
   width: 26px;
   height: 26px;
   background: transparent;
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  color: var(--text-3);
+  color: var(--ink-soft);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
 
 .cb-copy:hover {
-  color: var(--text-2);
-  border-color: var(--text-3);
+  color: var(--ink-soft);
+  border-color: var(--ink-soft);
 }
 
 .cb-copy--done {
-  color: var(--green);
-  border-color: var(--green);
+  color: var(--moss);
+  border-color: var(--moss);
 }
 
 .cb-label--lang {
@@ -1218,27 +1220,27 @@ pre code {
 /* -- tool-card CTA variant ------------------------------------------------- */
 .tool-card--cta {
   border-left: 3px solid var(--accent);
-  background: var(--bg-2);
+  background: var(--raised);
 }
 
 .tool-card--cta .tool-label { color: var(--accent); }
 .tool-card--cta .tool-arrow { color: var(--accent); }
-.tool-card--cta:hover       { background: var(--bg-1); }
+.tool-card--cta:hover       { background: var(--surface); }
 
 /* -- islands --------------------------------------------------------------- */
 
 .island-fallback {
-  color: var(--text-3);
+  color: var(--ink-soft);
   font-size: 0.85rem;
   font-family: var(--mono);
   padding: 1rem 0;
 }
 
 .trail-island {
-  border: 1px solid var(--border-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1.5rem;
-  background: var(--bg-1);
+  background: var(--surface);
 }
 
 .trail-label {
@@ -1262,37 +1264,37 @@ pre code {
   align-items: baseline;
   gap: 0.75rem;
   padding: 0.6rem 0.75rem;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
+  background: var(--raised);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   text-decoration: none;
   transition: border-color 0.15s;
 }
 
 .trail-item:hover {
-  border-color: var(--border-2);
+  border-color: var(--line);
   text-decoration: none;
 }
 
 .trail-path {
   font-size: 0.9rem;
-  color: var(--text);
+  color: var(--ink);
   flex-shrink: 0;
 }
 
 .trail-url {
   font-family: var(--mono);
   font-size: 0.75rem;
-  color: var(--text-3);
+  color: var(--ink-soft);
 }
 
 .trail-note {
   font-size: 0.8rem;
-  color: var(--text-2);
+  color: var(--ink-soft);
   line-height: 1.6;
   margin: 0;
   padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
 }
 
 .trail-note code {
@@ -1301,11 +1303,11 @@ pre code {
 
 /* Accordion DSL */
 .accordion { max-width: 800px; margin-top: 2rem }
-.accordion-item { margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem }
+.accordion-item { margin-bottom: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem }
 .accordion-q { cursor: pointer; font-weight: 600 }
-.accordion-a { margin-top: 0.5rem; color: var(--text-2) }
-.accordion-a code { font-size: 0.85em; background: var(--bg-2); border: 1px solid var(--border-2); border-radius: var(--radius); padding: 0.15em 0.45em }
+.accordion-a { margin-top: 0.5rem; color: var(--ink-soft) }
+.accordion-a code { font-size: 0.85em; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.15em 0.45em }
 
-.footer-cta { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.4rem 0.7rem; color: var(--text); font-size: 0.8rem; text-decoration: none; transition: background 0.2s }
-.footer-cta:hover { background: var(--bg-1); border-color: var(--text-3) }
+.footer-cta { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.4rem 0.7rem; color: var(--ink); font-size: 0.8rem; text-decoration: none; transition: background 0.2s }
+.footer-cta:hover { background: var(--surface); border-color: var(--ink-soft) }
 .footer-cta svg { opacity: 0.7 }

@@ -5,6 +5,54 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 31 - flowforge theme adopted (docs + example); shim-retirement issue drafted (2026-10-26)
+
+The maintainer's ask: family parity on the theme (flowforge's is better and
+newer), plus a heads-up to flowforge that their repair-404 shim can retire
+once a prestruct release carries the Pass 28 fix.
+
+- **/docs adopts the flowforge rig wholesale.** `docs/_layouts/default.html`
+  is now the flowforge docs layout with a brand-data-only diff: theme key
+  `prestruct-theme`, brand split `pre|struct`, dhaupin/prestruct links,
+  prestruct footer identity, the prestruct baked SEO head kept (departure:
+  no freestruct engine on these docs), and the K shortcut rendered by CSS
+  (`.search-key::after`) so pagefind never indexes hint text - our Pass-7-era
+  lesson rides into the adopted frame. `site.data.nav` already had the exact
+  group shape the rig consumes; the sidebar lit up from it unmodified.
+  Prism scripts left with the old frame (kramdown/rouge is the highlighter;
+  the rig's Rouge token colors replaced dead client-side prism CSS).
+- **/example adopts the family token sheet.** `example/src/index.css` now
+  declares the web styles.css tokens (`--paper/--surface/--raised/--ink/
+  --ink-soft/--accent/--accent-deep/--moss/--err/--line/--code-bg/--nav-bg/
+  --accent-contrast`) with the one-sheet-wins values, light block mirrored;
+  ALL pre-hoc hex hardcodes are now tokens, including the syntax-token spans
+  (.tok-*/.hl-*/.vsw-*) remapped to the rig's Rouge vocabulary and the
+  button pair (#d4ff00/#080808 -> accent + accent-contrast). Toggle: key
+  `prestruct-theme` (one key repo-wide), dark default per family convention;
+  `example/index.html` gained the no-flash inline bootstrap (before first
+  paint, before the bundle) + media-split theme-color metas.
+- **The issue draft.** `labs/flowforge-shim-retirement-issue.md` tells
+  flowforge their `repair-404.cjs` workaround for prestruct#33 can retire at
+  their pin bump once 1.2.0 ships (their MANIFEST pins the retirement to
+  exactly that event). This workspace has no GitHub write auth for the
+  flowforge tracker, so the draft is a paste-ready handoff (same shape as
+  the family's cross-repo posts).
+- **Acceptance checks.** Example: full build 8/8, prerendered index carries
+  the bootstrap + media theme-colors, shipped CSS carries the family values
+  (grep-based, since the CSS is token-sourced). Docs gates: style/links/
+  frontmatter/language/truthfulness all PASS on the swapped layout. Ruby is
+  not installed in this VM, so the Jekyll render itself stays verified by
+  CI's docs build (the same split as every docs-frame change to date).
+- **Note for future self:** the docs-side light tokens were transcribed from
+  the flowforge web sheet; if flowforge reconciles its doc-sheet values to
+  the web sheet again (their MANIFEST tracks that), re-cut the two blocks
+  here in the same commit as their receipt bump.
+
+Gates: battery untouched (no engine change), docs suite PASS, example build
+8/8 with dist inspected.
+
+---
+
 ## Pass 30 - docs-frame defect pair + convention amendments (2026-10-26)
 
 Second ledger pass; all four are docs-side, all verifiable with the docs
