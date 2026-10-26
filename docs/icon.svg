@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="prestruct">
+  <!--
+    docs/icon.svg - the docs-site header brand mark (22px, rendered at
+    .brand-logo). Palette rides the og-image brand sheet: accent yellow
+    #c8f000 on the #080808 site dark. Simple shape language: the layered
+    "pre-structure" - three stacked slabs being structured into place.
+    Mark is self-contained (no external fonts); legible against dark and
+    light docs themes via the accent + raised-surface neutral.
+  -->
+  <defs>
+    <clipPath id="tile">
+      <rect x="0" y="0" width="64" height="64" rx="12" ry="12"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <!-- dark tile base (matches the site dark; survives light themes inside the rounded tile) -->
+    <rect x="0" y="0" width="64" height="64" fill="#080808"/>
+
+    <!-- three stacked structure slabs, top-down: the accent one is the "pre" edge -->
+    <g>
+      <!-- top slab: accent, offset left - the built edge coming in -->
+      <rect x="14" y="14" width="26" height="10" rx="2" fill="#c8f000"/>
+      <!-- middle slab: neutral raised surface -->
+      <rect x="24" y="27" width="26" height="10" rx="2" fill="#1d2430" stroke="#2c3542" stroke-width="1"/>
+      <!-- bottom slab: neutral, wider - the base sitting in place -->
+      <rect x="24" y="40" width="26" height="10" rx="2" fill="#161b24" stroke="#2c3542" stroke-width="1"/>
+    </g>
+  </g>
+</svg>

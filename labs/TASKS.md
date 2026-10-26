@@ -5,6 +5,43 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 44 - the docs logo shipped, found + proven the beta-eyes way (2026-10-26)
+
+The maintainer reported the docs site shows NO logo and asked for the beta
+eyes to look at what we have. Findings matched the eyestruct founding
+receipt exactly, without even needing the browser lane:
+
+- **The bug:** docs/_layouts/default.html:197 loads
+  `<img src="{{ site.baseurl }}/icon.svg" class="brand-logo">` -- and
+  docs/icon.svg DID NOT EXIST. Every page shipped a broken header image
+  plus a 404. Pure asset-chain audit repro'd the user's on-screen finding;
+  the classic "DOM gates green, pixels missing" class the eyestruct PRD
+  was founded on.
+- **The fix:** docs/icon.svg created -- a self-contained brand mark riding
+  the og-image brand sheet (accent #c8f000 on the #080808 site dark; three
+  stacked structure slabs, the accent one offset as the "pre" edge). No
+  fonts, no external refs, decorative img contract unchanged (alt="" +
+  aria-hidden, layout untouched -- the file it referenced now exists,
+  which is the whole fix).
+- **The beta-eyes verification chain (the method working on its first
+  external repo):** (1) reference-vs-asset audit found the gap; (2) the
+  eyestruct raster gate PASSES the committed mark: strict parse + render +
+  byte-size sanity OK (862 bytes opaque); (3) the honest LOOK: resvg
+  rendered a 128px inspection copy from the same renderer and the pixels
+  were viewed (beta/gistory/icon-render-check.png, since removed) --
+  accent slab legible, tile matches both themes, no escape-soup. Receipt
+  embedded in the session summary for the record.
+- **Scope held:** nothing else moved. The existing .brand-logo CSS sizes
+  it; the layout contract needed a file, and got one that re-rasterizes
+  clean in CI if wired to the eyestruct gate later.
+
+Gates: lint:docs green (frontmatter/language/style/links), vitest
+200/200. Next: wire the docs raster gate into CI if the repo adopts the
+eyestruct spine; poststruct-shapes contract remains the next real
+adoption (pass 40).
+
+---
+
 ## Pass 43 - the betas verified for online: all three trees battery-green, targets measured stub-level, bring-online runbook written (2026-10-26)
 
 The maintainer confirmed the gistory fragments are real repos and wants
