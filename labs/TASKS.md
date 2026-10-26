@@ -5,6 +5,45 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 29 - crashtest 1.1.0 adopted; harness upgrades become one command (2026-10-26)
+
+The maintainer's request: crashtest moves fast (1.1.0 shipped, 1.2 next) -- make
+the repo's pinned lane update-friendly instead of a manual four-file ballet.
+
+- **The mechanism.** `npm run crashtest:bump <version>`
+  (`scripts/crashtest-bump.mjs`): registry existence check -> exact devDep
+  install -> harness run (regenerates labs/; nonzero exit stops) -> verifies
+  `labs/run-meta.json.crashtestVersion == target` -> prints tally + baseline
+  diff + the one-commit checklist. Exit codes: 0 ok, 1 stage failure, 2 usage.
+- **The invariant got teeth.** tests/qc.test.mjs gains "crashtest devDep pin
+  equals the committed ledger stamp" -- a half-bump (pin moved, ledger stale,
+  or a manual npx run that rewrote the stamp) now fails the battery on main
+  instead of silently re-scoping the gate. This is pass 26's floating-@1
+  lesson enforced structurally, not by memory.
+- **Real adoption run (the proof it works):** `crashtest:bump 1.1.0` -> pin
+  1.0.0 -> 1.1.0, tally 54/54 REFUSED / 0 EXPLOITED, baseline 0 new / 0
+  regressed, devDep pin == ledger stamp == 1.1.0. The ledger diff is a PURE
+  addition: 19 governance/memory skip rows (undeclared-vocabulary knobs),
+  zero verdict changes among the original 35. The QC parity test passes on
+  the new tree.
+- **Why adopting 1.1.0 is safe now but wasn't a demand before:** its 19 new
+  rows remain permanent skip rows for knobs this target never declares --
+  zero applicable-coverage gain, which is what pass 26 declined to chase.
+  The difference after this pass is that the bump is cheap enough that the
+  ledger tracks the harness line instead of defending a pin it no longer
+  benefits from. 1.2.0 lands the same way: one command, one commit.
+- **Doc truths swept:** workflow header (pin rationale now names the bump
+  command), packs/README, CHANGELOG Unreleased stanza, PRD Adversarial-QA
+  row (35/35@1.0.0 -> 54/54@1.1.0 + bump command), roadmap ledger line.
+  Found-and-fixed in the same sweep: README's layout table still said the
+  pack was v0.2.0 (shipped v0.3.0 for four passes) -- a stale-truth miss the
+  truthfulness gate does not cover because it can't know pack versions.
+
+Gates: battery (qc now 7 tests), sync untouched (no engine change),
+lint:packs/docs/claims, and the bump's own harness run recorded above.
+
+---
+
 ## Pass 28 - issue-ledger workday: #33 #53 #54 #52 solved; crashtest+packstruct npm hookup; 1.2.0 ladder (2026-10-26)
 
 First pass driven by the GitHub issue ledger (28 open at start). Four

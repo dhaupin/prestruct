@@ -19,7 +19,8 @@ next planned release (1.2.x) until it is tagged.
   { aeo: true }` per-vendor AI-crawler policy)
 - `fetchRoutes()` build-time CMS hook
 - Islands architecture and the optional bot proxy pair (VPS + Worker)
-- In-repo crashtest pack (v0.3.0, five wire-level shapes) + 35/35 ledger
+- In-repo crashtest pack (v0.3.0, five wire-level shapes) + 54-row ledger at
+  harness 1.1.0 (upgrades are one command: `npm run crashtest:bump <version>`)
 
 ## Planned
 

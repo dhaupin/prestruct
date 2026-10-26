@@ -35,6 +35,17 @@ test('init copies match their engine sources byte-for-byte', () => {
   }
 })
 
+test('crashtest devDep pin equals the committed ledger stamp (update-friendly contract)', () => {
+  // The gate runs the DEVDEP, and the committed labs/ ledger is only
+  // meaningful for the harness version that wrote it. The bump tool
+  // (`npm run crashtest:bump <version>`) keeps them together; this test
+  // fails any tree where they drift apart -- a hanging npx run, a devDep
+  // bump without a ledger regen, or vice versa. Pass 26's lesson as a pin.
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
+  const meta = JSON.parse(readFileSync('labs/run-meta.json', 'utf8'))
+  expect(pkg.devDependencies.crashtest).toBe(meta.crashtestVersion)
+})
+
 test('code imports react-router-dom/server.js with explicit extension', () => {
   // Pure-JS scan (no external rg dependency, no PCRE2 availability games --
   // the previous rg --pcre2 version passed vacuously wherever rg was missing).

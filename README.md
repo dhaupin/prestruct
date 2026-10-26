@@ -101,7 +101,7 @@ after hydration.
 | `bin/cli.mjs` | The `prestruct` executable (init/build/validate/clean). |
 | `init/` | Project template `prestruct init` scaffolds, including `scripts/proxy.js` (VPS) and `proxy.worker.js` (Cloudflare Worker). |
 | `example/` | Working demo site (8 routes), kept byte-identical to engine via `scripts/sync-engine.mjs`. |
-| `packs/` | In-repo crashtest pack (`public/prestruct-proxy` v0.2.0) attacking the bot-proxy pair on both runtimes. |
+| `packs/` | In-repo crashtest pack (`public/prestruct-proxy` v0.3.0) attacking the bot-proxy pair on both runtimes. |
 | `docs/` | Full docs site, AGENTS-built with Pagefind. |
 | `tests/` | vitest battery, including the engine sync contract test. |
 

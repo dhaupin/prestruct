@@ -47,8 +47,10 @@ records only what cherry-pickers must act on.
 
 - `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared
   `/packs` spec linter (crashtest#16 class: manifest declares an entry that
-  does not ship). The crashtest CI lane runs the repo's own pinned
-  `crashtest@1.0.0` devDependency and never a floating `@1` fetch.
+  does not ship). The crashtest CI lane runs the repo's own exact
+  `crashtest` devDependency pin and never a floating `@1` fetch; harness
+  upgrades are one command: `npm run crashtest:bump <version>`
+  (pin install + harness run + ledger regen + pin/stamp verification).
 
 ---
 

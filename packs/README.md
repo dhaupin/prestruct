@@ -15,8 +15,10 @@ against this repo's own deployed copies.
 `/packs` convention (`pack.json` schemaVersion 1). `npm run lint:packs` runs
 `packstruct lint packs/ --deep` -- a manifest declaring an entry that does not
 actually ship dies at lint time, before the harness ever loads the pack. The
-crashtest CI lane uses the repo's own pinned devDependency
-(`crashtest@1.0.0` exact), never a floating `@1` fetch.
+crashtest CI lane runs the repo's own exact devDependency pin, never a floating
+`@1` fetch -- and harness upgrades are one command:
+`npm run crashtest:bump <version>` (pin install + harness run + ledger regen
++ pin/stamp verification in one commit's worth of state).
 
 ## Adopting this pack in another repo (crashtest v0.3+)
 
