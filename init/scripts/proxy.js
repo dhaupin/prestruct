@@ -96,6 +96,8 @@ export function isBot(ua) {
 // the module was imported from.
 const CACHE_DIR    = path.resolve(process.env.PRESTRUCT_CACHE_DIR || '.prestruct_cache')
 const CACHE_TTL    = 1000 * 60 * 60 * 24   // 24 hours -- adjust if needed
+// Size cap: env-overridable (PRESTRUCT_CACHE_MAX_MB) so eviction behavior is
+// reachable on small disks and in tests; the hard default stays 500MB.
 const MAX_CACHE_SIZE = 500 * 1024 * 1024    // 500MB max cache size
 
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true })
@@ -124,31 +126,49 @@ function cacheWrite(key, html) {
 
 // Cleanup old/large cache files
 let lastCleanup = 0
-function cleanupCache() {
+
+// Eviction only ever touches cache-shaped files: a 64-hex `.html` written by
+// this proxy's cacheWrite. Walk 2026-10 finding: the old implementation
+// readdirSync'd the WHOLE cache dir and evicted the OLDEST FILES whatever
+// they were -- with the documented PRESTRUCT_CACHE_DIR override, an operator
+// mounting a shared/large directory as the cache could have their non-proxy
+// files deleted once the directory crossed the size limit. Decoys stay put.
+// The size cap is also an env knob now (PRESTRUCT_CACHE_MAX_MB, default 500)
+// so operators on small disks can turn eviction on before it matters -- and
+// so tests can exercise real eviction without 500MB of fixtures.
+const CACHE_FILE_SHAPE = /^[0-9a-f]{64}\.html$/
+export function cleanupCache({ force = false } = {}) {
   const now = Date.now()
-  // Only run cleanup once per minute max
-  if (now - lastCleanup < 60000) return
+  // Only run cleanup once per minute max (force bypasses for tests)
+  if (!force && now - lastCleanup < 60000) return
   lastCleanup = now
 
   try {
-    const files = fs.readdirSync(CACHE_DIR).map(f => {
-      const p = path.join(CACHE_DIR, f)
-      const stat = fs.statSync(p)
-      return { path: p, size: stat.size, mtime: stat.mtimeMs }
-    })
+    const maxCacheSize = Math.max(1, parseInt(process.env.PRESTRUCT_CACHE_MAX_MB || '500', 10) || 500) * 1024 * 1024
+    const files = fs.readdirSync(CACHE_DIR)
+      .filter(f => CACHE_FILE_SHAPE.test(f))
+      .map(f => {
+        const p = path.join(CACHE_DIR, f)
+        const stat = fs.statSync(p)
+        return { path: p, size: stat.size, mtime: stat.mtimeMs }
+      })
 
     // Calculate total size
     let totalSize = files.reduce((sum, f) => sum + f.size, 0)
 
     // If over limit, remove oldest files
-    if (totalSize > MAX_CACHE_SIZE) {
+    if (totalSize > maxCacheSize) {
       files.sort((a, b) => a.mtime - b.mtime)
-      while (totalSize > MAX_CACHE_SIZE * 0.8 && files.length > 0) {
+      const evicted = []
+      while (totalSize > maxCacheSize * 0.8 && files.length > 0) {
         const oldest = files.shift()
         fs.unlinkSync(oldest.path)
         totalSize -= oldest.size
+        evicted.push(oldest.path)
       }
-      console.log('[proxy] Cache cleaned up, removed', files.length, 'files')
+      // The old log printed the REMAINING count as "removed" -- misleading ops
+      // signal during incidents.
+      console.log('[proxy] Cache cleaned up, removed', evicted.length, 'files')
     }
   } catch (err) {
     console.warn('[proxy] Cache cleanup failed:', err.message)

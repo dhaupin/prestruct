@@ -11,6 +11,7 @@ import {
   refreshSecretMatches,
   isBot as workerIsBot,
   cacheKey as workerCacheKey,
+  cacheKeyFor as workerCacheKeyFor,
 } from '../init/scripts/proxy.worker.js'
 
 /**
@@ -236,5 +237,19 @@ describe('Worker helper surface', () => {
   it('default export is a fetch handler (no puppeteer at import time)', () => {
     expect(typeof workerProxy).toBe('object')
     expect(typeof workerProxy.fetch).toBe('function')
+  })
+
+  it('cacheKeyFor keeps the legacy encoding (and existing cache entries) for normal URLs', async () => {
+    expect(await workerCacheKeyFor('/blog/post-1?ref=twitter')).toBe(workerCacheKey('/blog/post-1?ref=twitter'))
+  })
+
+  it('cacheKeyFor hashes oversized keys instead of letting KV reject them (walk 2026-10)', async () => {
+    // KV key cap is 512 bytes: a long query string used to make the
+    // already-successful render 500 on the CACHE.put/cacheRead path.
+    const long = '/x?' + 'q='.repeat(300)
+    const k = await workerCacheKeyFor(long)
+    expect(k.startsWith('prestruct:sha256:')).toBe(true)
+    expect(k.length).toBeLessThan(100) // 64-hex + prefix
+    expect(await workerCacheKeyFor(long)).toBe(k) // deterministic across probes
   })
 })

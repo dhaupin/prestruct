@@ -5,6 +5,49 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 36 - every surface: the proxy pair walked, three findings fixed + pinned (2026-10-26)
+
+Continued the walk to the remaining surfaces: engine stragglers (clean),
+vite configs (clean), and the proxy pair -- the biggest un-walked surface
+(init-owned, crashtest-covered but never source-walked).
+
+- **VPS cleanupCache deleted ANY file in the cache dir.** readdirSync'd the
+  whole directory and evicted the OLDEST FILES whatever they were -- with
+  the documented PRESTRUCT_CACHE_DIR override, an operator mounting a
+  shared/large directory could have NON-PROXY files deleted once the dir
+  crossed the size cap. Eviction now touches only cache-shaped files
+  (64-hex `.html` from cacheWrite); decoys survive. The size cap became an
+  env knob (PRESTRUCT_CACHE_MAX_MB, default 500) so small-disk operators
+  can reach eviction behavior and tests can exercise real eviction without
+  a 500MB fixture. Also fixed the ops log: the old line printed the
+  REMAINING count as "removed" -- a misleading signal during incidents.
+- **Worker KV key could still blow the 512-byte cap.** Long query strings
+  overflowed `prestruct:` + encodeURIComponent, and the put/get REJECTS
+  would turn an already-successful render into a post-render 500.
+  cacheKeyFor(): legacy encoding stays the key for every normal URL
+  (byte-identical existing cache entries); only oversized keys fall back
+  to SHA-256 hex under a shape-tagged prefix (collision-proof per the
+  shared cache-key lesson). fetch() wired to it.
+- **Pins.** tests/proxy-cleanup.test.js imports the proxy lazily with the
+  env overrides already set (CACHE_DIR is import-time) and exercises real
+  eviction: 8 x 200KB cache files + 1MB cap -> oldest evicted, newest
+  survives, decoys untouched (the first attempt taught us the honest
+  corollary: decoy sizes no longer COUNT toward the cache total once the
+  filter is in -- which is exactly correct). Worker cacheKeyFor pins:
+  legacy key parity for normal URLs, hashed fallback shape + determinism
+  for oversized.
+- Harness lessons recorded: `await` inside a non-async function killed
+  proxy.test.js's whole file compile; a 1.2MB decoy over the 80% floor
+  evicts ALL cache files (boundary-case behavior worth knowing before
+  pointing the override at a shared dir).
+- vite.config pair + remaining engine stragglers (inject-brand CLI wrapper,
+  prerender stats/cache-tail, islands): walked, nothing to change.
+
+Acceptance: proxy suites 24/24, full battery + e2e gates below; commit
+follows.
+
+---
+
 ## Pass 35 - engine walk + issue close-out + freestruct round 2 (2026-10-26)
 
 The maintainer's ask: close the issues, more freestruct rounds, walk the

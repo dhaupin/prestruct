@@ -91,6 +91,23 @@ export function cacheKey(url) {
   return `prestruct:${encodeURIComponent(url)}`
 }
 
+// Walk 2026-10 finding: KV keys are capped at 512 bytes -- a long query
+// string (tracked urls, exported search params) blows past the cap and the
+// KV put/get REJECTS, turning an already-successful render into a 500 on
+// the response path. The legacy encoding stays the key for every normal
+// URL (byte-identical existing cache entries); only oversized keys fall
+// back to SHA-256 hex (collision-proof per the shared cache-key lesson)
+// under a shape-tagged prefix. crypto.subtle is available in Workers AND any
+// Web-Crypto runtime; Node >=20 ships it as a global.
+export async function cacheKeyFor(url) {
+  const legacy = cacheKey(url)
+  if (legacy.length <= 500) return legacy
+  const bytes = new TextEncoder().encode(String(url))
+  const digest = await crypto.subtle.digest('SHA-256', bytes)
+  const hex = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('')
+  return `prestruct:sha256:${hex}`
+}
+
 // -- Secret compare (constant time) -------------------------------------------
 // Workers cannot import node:crypto, so there is no timingSafeEqual here.
 // The XOR form is the standard constant-time comparator available in any
@@ -152,7 +169,7 @@ export default {
     const forceRefresh = refreshSecretMatches(SECRET, refreshToken)
 
     const TTL = parseInt(env.CACHE_TTL_SECONDS || '86400', 10)
-    const key = cacheKey(requestUrl.pathname + requestUrl.search)
+    const key = await cacheKeyFor(requestUrl.pathname + requestUrl.search)
 
     // Try KV cache first (payload is the {html, cachedAt} JSON we now store)
     if (!forceRefresh) {
