@@ -5,6 +5,57 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+
+## Pass 37 - fine-grained assets: deploy/runtime units + scaffold statics + the docs the guides lead to (2026-10-26)
+
+After pass 36 closed the proxy pair, the noted remainder was "fine-grained
+assets." Walked them: pm2 ecosystem.cjs, systemd unit, wrangler.toml,
+proxy.package.json, init/ssr.config.example.js, init/index.html,
+init/.gitignore/.npmignore, init/public/_headers + _redirects,
+example/public/_headers + _redirects (plus llms.txt, site.webmanifest), and
+README-proxy.md end to end against the shipped code.
+
+- **README-proxy.md told VPS operators to put the cache-refresh secret INTO
+  ssr.config.js.** Step 7 ("Update ssr.config.js") showed `secret:
+  'a-long-random-string'` as a config field, with the Worker section doing the
+  same line ("same value as wrangler secret"). That contradicts every shipped
+  contract: ssr.config.example.js, config.md, api.md, migration.md
+  ("a config proxy.secret was never read") and AGENTS.md all state the secret
+  is the PRESTRUCT_SECRET env var -- a config-side key is silently ignored
+  AND the example invited committing a shared secret to the repo. Both block
+  examples rewritten: config uses `url`/`targetUrl`/`botList` only, with an
+  explicit env-or-wrangler-secret note in each. Sweep for the same pattern
+  (`proxy.secret` / a quoted `secret:` value): the only remaining matches are
+  the migration note and a test pinning the retired key's absence -- correct
+  usages both.
+- Everything else clean, and cross-checked rather than assumed: the systemd
+  unit referenced by ecosystem.cjs exists (scripts/prestruct-proxy.service,
+  env-file pattern, hardening features intact); wrangler.toml's
+  CACHE_TTL_SECONDS IS read by the Worker (`env.CACHE_TTL_SECONDS ||
+  '86400'`); the scaffold _headers/_redirects carry all the AGENTS.md
+  lessons and no `*.js`/`*.css` glob rules and no SPA fallback; the
+  init/.npmignore backstop matches the disk-state lesson.
+- Boundary noted (not fixed, deliberate): proxy.package.json pins
+  @cloudflare/puppeteer as a devDependency -- correct for the VPS install
+  surface (the server never imports it; proxy.worker.js loads it lazily and
+  only on Worker deploys), but the pinned version predates current CF
+  Browser Rendering API guidance. Left alone: bumping without a Workers
+  Paid project to deploy against is untestable here. Next pass with a live
+  Worker project should verify the pin and raise it.
+
+Gates: vitest 200/200 (12 files), sync:check byte-identity, packstruct --deep,
+lint:docs (frontmatter/language/truthfulness), lint:claims, tarball e2e all
+green (deps reinstalled via npm ci after the runner restart wiped
+node_modules -- passing results from earlier turns do not carry).
+
+Next: the engine's remaining fine-grained assets worth a source walk are the
+crashtest.config.js harness itself and the packs/ fixtures (packstruct --
+deep sweeps behavior, but nobody has stepped through fixture intent); then a
+docs assets pass for the docs-site partials beyond the frame.
+
+---
+---
+
 ## Pass 36 - every surface: the proxy pair walked, three findings fixed + pinned (2026-10-26)
 
 Continued the walk to the remaining surfaces: engine stragglers (clean),

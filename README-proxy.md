@@ -124,11 +124,14 @@ proxy.yoursite.com {
 ```js
 proxy: {
   url:       'https://proxy.yoursite.com',
-  secret:    'a-long-random-string',   // same value as PRESTRUCT_SECRET env
   targetUrl: null,                     // defaults to siteUrl
   botList:   [ /* ... */ ],
 },
 ```
+
+No `secret` key here: the cache-refresh secret is the `PRESTRUCT_SECRET`
+env var where the proxy runs (step 4) -- the build never reads a config-side
+secret, and an unset env var disables refresh entirely (feature off, not open).
 
 ### 8. Rebuild and deploy
 
@@ -204,11 +207,13 @@ Point a custom domain at it via the CF dashboard if preferred.
 ```js
 proxy: {
   url:       'https://prestruct-proxy.your-account.workers.dev',
-  secret:    'same-value-as-wrangler-secret',
   targetUrl: null,
   botList:   [ /* ... */ ],
 },
 ```
+
+The Worker secret stays out of config entirely: it lives in `wrangler secret
+put PRESTRUCT_SECRET` (step 5) -- no `secret` key in `ssr.config.js` is read.
 
 ### 8. Rebuild and deploy CF Pages
 
