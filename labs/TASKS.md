@@ -5,6 +5,55 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 42 - the house tools walked back at ourselves: CI moved to the read-only lane, id-census declined with a receipt (2026-10-26)
+
+The maintainer's challenge: "did you grab packstruct and crashtest? It'll
+help you understand it all." Answer: both were already pinned EXACT and in
+daily use (the gates + the 54-run campaign), so the honest continuation was
+to walk their full surfaces for capabilities we don't exercise -- and adopt
+only what can fail.
+
+- **Verified inventory:** `crashtest packs --json` -> one pack,
+  prestruct-proxy v0.4.0, 5 attacks, armedByKey moduleCtx (machine blob
+  clean). `crashtest run --module-plan` -> 54 attack ids, 54 WILL-FIRE /
+  0 NEEDS-ARMING / 0 SKIPPED-FILTER (the plan is static; the run report is
+  the honest capability ledger).
+- **ADOPTED: the CI lane now runs the read-only contract.** The workflow's
+  gate step ran plain `npx crashtest run` -- the READ-WRITE lane, which
+  rewrites labs/crashledger.json + hardening.md + run-meta.json on every CI
+  execution (PRs / forks included). The harness's own docs name the
+  read-only CI mode: `run --expect-baseline <ledger>` (exit rules
+  unchanged; labs/ is diffed, never written). Verified locally before
+  wiring: same 54/54 tally (106 ops / 208 requests), exit 0, and
+  md5sum -c proves labs/crashledger.json + run-meta.json stayed
+  byte-identical -- the run even self-reports "read-only diff - no
+  ledger/report written". The committed ledger stays canonical: cut by
+  bump/canonical runs, diffed by CI. Workflow comment now records the
+  contract and the verification receipt.
+- **DECLINED with a receipt: packstruct's `--against` id-collision
+  census.** First try (`--against engine/`) failed honestly: the sweep
+  imports every source file to harvest library ids and hit template
+  artifacts (engine/vite.config.js imports @vitejs/plugin-react --
+  not runtime-installable), seeding 0 ids and FAILing. The faithful
+  target is the runtime library: `--against engine/scripts/` ran green
+  but seeded 0 library ids -- the engine exports function names
+  (prerender, injectBrand, audit...), not pack-shaped ids, so there is
+  nothing for the census to collide against. A gate that cannot fail is
+  ceremony, not protection; lint:packs stays `lint --deep` (which DOES
+  fail: manifest-vs-disk conformance, the crashtest#16 class). Recorded
+  so the next host that ships a module library adopts it knowingly.
+- **Boundary learned (the packstruct --against semantics):** the census
+  imports candidate sources to enumerate ids. Directories that mix
+  runtime library code with template/build artifacts will false-FAIL on
+  the first import-dep-less file -- pass a runtime-only dir, and expect
+  0 seeds to mean "no library id space", not "pass".
+
+Gates re-run green before commit. Next: crashtest:bump 1.2.0 when it
+ships; the poststruct M1 prestruct-shapes contract from pass 40 stays the
+next real adoption.
+
+---
+
 ## Pass 41 - the gistory beta report ships paste-ready; write-auth probes failed honestly (2026-10-26)
 
 The maintainer asked for the beta findings reported to dhaupin/gistory. Both

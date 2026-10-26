@@ -64,8 +64,14 @@ jobs:
       # crashtest is an exact devDependency, so the gate runs against the tree
       # the ledger was cut with -- no npx fetch, no float. Bump it with
       # `npm run crashtest:bump <version>` (header comment above).
+      # CI runs the READ-ONLY lane (--expect-baseline): full campaign, exit
+      # rules unchanged (0 held / 1 new-EXPLOITED-or-regression / 2 config),
+      # but labs/ is diffed, never rewritten -- the committed ledger is cut by
+      # bump/canonical runs, and a CI execution writing it would make every
+      # PR/fork run leak drive-by ledger churn into the checkout. Verified
+      # locally: same 54/54 tally, byte-identical labs/ artifacts.
       - name: Run the proxy pack
-        run: npx crashtest run
+        run: npx crashtest run --expect-baseline labs/crashledger.json
 
       - name: Upload the hardening artifacts
         if: failure()
