@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "prestruct/desktop-1280-dark/current.png",
+    "note": "first committed docs baseline: /prestruct/ dark, chrome 154.0.8037.57 via tier-4 puppeteer cache; brand chip live in header; text rendering requires host fontconfig (fonts-dejavu via FONTCONFIG_FILE)",
+    "ratified": false,
+    "id": "row-0001",
+    "ts": 1793044407401
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "prestruct/desktop-1280-light/current.png",
+    "note": "docs light capture is byte-identical to dark at 1280x800: the flowforge rig theme is persisted-attr-driven so prefers-color-scheme emulation never repaints (beta finding, not a bug in the page); a future light theme will trip diff against this row",
+    "ratified": false,
+    "id": "row-0002",
+    "ts": 1793044407466
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "home/desktop-1280-dark/current.png",
+    "note": "first committed example-site baseline: prestruct.creadev.org home dark via chrome 154.0.8037.57; header chip live next to the [ pre struct ] wordmark",
+    "ratified": false,
+    "id": "row-0003",
+    "ts": 1793044407516
+  }
+]

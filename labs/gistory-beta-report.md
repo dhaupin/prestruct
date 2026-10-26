@@ -152,3 +152,50 @@ Happy to keep exercising the next staging cuts; prestruct's side (publish
 0.x gate + the robots-contract note for `prestruct-shapes`) already
 landed on dhaupin/prestruct@856a389 with full receipts in
 labs/beta-gistory-trial.md.
+
+## Pass: eyes capture wire proven against the shipped brand (2026-10-26)
+
+Goal: "use the eyes to make sure it landed everywhere" after the
+prestruct-logo.jpg brand adoption pushed to main. This was the first run
+of eyestruct's `look` verb on a machine with no browser, no fonts, and no
+root.
+
+- **Environment bring-up (the tier-4 cache justifies itself):** engine's
+  discovery order held exactly as written in lib/engine.js. On a VM with
+  no system chrome, `@puppeteer/browsers install chrome@154.0.8037.57`
+  into `~/.cache/puppeteer` was found by tier 4 with zero flags -- the
+  pinned-buildId style gistory already uses elsewhere (local-chrome@154
+  parity across captures).
+- **Launch blockers were honest:** chrome 154 needs ~16 shared libs
+  (libnspr4/nss/atk/cups...) and zero system fonts on the VM produced the
+  known CAPTURE_TOO_SKELETAL-adjacent failure shape -- 9411B page shot
+  with no glyphs at all ("look: 9411B" vs 91409B after fonts). By
+  extracting the Ubuntu noble .deb runtime deps + fonts into the home dir
+  and driving `LD_LIBRARY_PATH` + `FONTCONFIG_FILE`, the same engine ran
+  unmodified. No code changes were needed in eyestruct -- this is a fleet
+  env recipe, recorded here for the next hostless capture.
+- **Captures taken (all ratified:false, canon CI-cut per the law):**
+  docs `/prestruct/` dark, docs light, and prestruct.creadev.org home
+  dark at 1280x800. All show the new lime brand chip live: docs header
+  (`brand-icon.png`) and example header (`logo-chip.png` next to the
+  `[ pre struct ]` wordmark). Byte-verified 12/12 live assets equal to
+  the committed cut before the capture (favicon.ico/PNG sets, both
+  maskables, webmanifest, apple-touch-icon, logo-chip, brand-icon).
+- **Beta finding D1 -- the theme matrix collapses on persist-attr rigs:**
+  docs dark vs light captures are byte-IDENTICAL at 1280x800 (the
+  flowforge rig convention is a persisted `html[data-theme]`, so
+  `prefers-color-scheme` emulation cannot repaint it). The manifest's
+  route x theme matrix was authored for sites that honor the media query.
+  Spec gap candidate for eyestruct M1: a `--evaluate`/localStorage
+  pre-seed flag on `look` so persisted-theme sites can shoot both themes
+  (the ledger row notes carry the finding in-band).
+- **Beta finding D2 -- hostless capture needs a documented env contract:**
+  the engine is cleanly exec-injectable, but the LD_LIBRARY_PATH +
+  FONTCONFIG_FILE bring-up lived in ad-hoc shell. Worth a `eyestruct env`
+  (or docs recipe) verb so the fleet can certify hostless captures without
+  rediscovering the .deb extraction dance. Gate itself stayed
+  environment-free (browserless spine held: 3 artifacts / 3 rows, exit 0).
+- **State:** prestruct `labs/.eyes/` now carries its first committed
+  baselines + manifest pin `local-chrome@154.0.8037.57` (grass-green
+  `gate` verb), a mirror of gistory's own headless spine proving one
+  `.eyes` layout serves multiple repos unchanged.

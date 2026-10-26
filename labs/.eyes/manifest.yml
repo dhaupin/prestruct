@@ -1,6 +1,7 @@
 pin:
-  browser-image: pending@no-pinned-browser-yet
+  browser-image: local-chrome@154.0.8037.57
   renderer: resvg@2.6.2
 routes:
+  - path: /                view: desktop-1280-dark  theme: dark  viewport: 1280x800
   - path: /prestruct/          view: desktop-1280-dark  theme: dark  viewport: 1280x800
   - path: /prestruct/          view: desktop-1280-light theme: light viewport: 1280x800
