@@ -1,10 +1,18 @@
-# Beta report for dhaupin/gistory (paste-ready issue body)
+# Beta report for dhaupin/gistory (filed as tracker issues #7 #8 #9 #10)
 
-> Paste-ready: this workspace has no GitHub write auth (anonymous API is
-> rate-limited, no credential helper in the shell) -- the fleet convention is
-> paste-ready reports until write access exists. Written against
-> gistory@2a92d6c as cloned 2026-10-26 by the prestruct beta trial
-> (pass 40; full receipts: labs/beta-gistory-trial.md).
+> Filed directly on dhaupin/gistory on 2026-10-26 via the connected GitHub
+> integration (all four upheld by a fresh shallow-clone re-check at d577b3e;
+> no duplicates existed at the time of filing):
+>
+> - #7 -- poststruct staging: B1 verb-swallowed dir + B2 comma-operator --module
+> - #8 -- monoforge staging doctor: the three false-positive classes (B3)
+> - #9 -- eyestruct staging: C1 ergonomics, D1 theme-matrix persistence, D2 env contract
+> - #10 -- gistory itself: B4 install 404 + C4 repoparity README row
+>
+> Written against gistory@2a92d6c as cloned 2026-10-26 by the prestruct beta
+> trial (pass 40; full receipts: labs/beta-gistory-trial.md). This file stays
+> as the consolidated receipts document behind the four issues; findings used
+> to live here as paste-ready drafts until repo write landed via Composio.
 
 ---
 
