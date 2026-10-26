@@ -5,6 +5,56 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 40 - the gistory betas pulled; their premises exercised against prestruct (2026-10-26)
+
+The maintainer's ask: pull dhaupin/gistory's three nested staging betas
+(poststruct, monoforge, eyestruct -- all struct-family siblings) and exercise
+prestruct to support their premises. Clone lives at gitignored beta/gistory
+(outside the prod workflow; nothing from it is committed). Full receipts:
+labs/beta-gistory-trial.md.
+
+- **poststruct (audit-what-shipped leg).** Its engine audited prestruct's
+  baked init/dist: 1 FAIL (robots missing) + 4 WARN; prestruct audit on the
+  SAME tree: 0 FAIL + 4 aligned WARNs. The one divergence is prestruct's
+  documented robots opt-in contract (engine-graded only when config.robots
+  is set) -- recorded as the contract the future prestruct-shapes pack must
+  carry, so the pack never false-FAILs a deliberate robots opt-out.
+- **poststruct beta bugs found (paste-ready upstream):** the documented
+  `poststruct audit dist` form cannot work -- bin/cli.mjs swallows the
+  `audit` verb as the dir argument, so the real invocation must drop the
+  verb; the `--module` flag is parsed as `(args.find(...), null)` (comma
+  operator) and is always null. The engine itself works; the CLI wrapper
+  lies about the README contract.
+- **monoforge (the factory doctor).** Scoped run (beta stashed): 5 FAIL +
+  1 WARN. CLOSED the one honest gap: prestruct's publish.yml now refuses
+  v0.* tags with a named error -- the family ladder premise (0.x is the
+  manual-bootstrap era; the OIDC lane publishes 1.0.0+ only), same contract
+  the doctor checks. The other four are doctor false-positive classes
+  (exports `./engine/*` glob-unaware; files-path blind to `!`-negation
+  excludes; walkFiles ignores .gitignore so untracked scratch hit the dash
+  law; all their rows pointed at the beta clone -- prestruct's own prose is
+  dash-clean). Hand upstream as paste-ready findings, not prestruct bends.
+- **eyestruct (the visual-ledger leg).** Raster gate PASS on prestruct's
+  shipped og-image.svg (55,462 bytes opaque) -- the pass-32 rasterization
+  discipline already satisfies the committed-visual-artifact premise. Two
+  bonus receipts for THEIR contract: the PNG was refused as RASTER_BAD_XML
+  (named reason, no crash -- receipt 4 as designed) and the gate's
+  MISSING_RENDER refusal before the optional renderer was installed
+  (capability gaps exit 2 with a name). `@resvg/resvg-js` installed
+  --no-save inside the beta tree only.
+- **Honest beta state:** gistory-sync is NOT on npm (registry 404) despite
+  the README install line -- the engine exists in the repo tree only; the
+  manual 0.9.0 ladder has not fired. The staging CLIs are zero-dep and ran
+  with plain node; nothing touched prestruct's dep tree.
+
+Gates: publish.yml is a workflow-file change only (no runtime surface); the
+5 pre-push gates re-ran green before commit. Next: paste the poststruct CLI
+bug + monoforge doctor false-positive findings upstream when write auth
+exists; revisit when poststruct's M1 ships -- `prestruct-shapes` is our
+first customer and the shapes are now specified from exercise receipts.
+
+---
+
 ## Pass 39 - release button-up sweep, freestruct-round style (2026-10-26)
 
 The maintainer asked for the freestruct release cadence checked and mirrored

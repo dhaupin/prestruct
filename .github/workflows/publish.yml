@@ -46,6 +46,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The family ladder gate (the stamped-repo premise, same contract the
+      # struct-family doctor checks): 0.x is the manual bootstrap era -- a
+      # v0.x tag must never reach npm through this workflow. prestruct's
+      # ladder starts at 1.0.0; a 0.x tag here means someone mis-tagged.
+      - name: Refuse 0.x tags
+        if: startsWith(github.ref, 'refs/tags/v0.')
+        run: |
+          echo "publish.yml refuses 0.x refs: 0.x is the manual-ladder era."
+          echo "This OIDC workflow publishes 1.0.0+ from v* tags only."
+          exit 1
+
       # Trusted publishing needs node >= 22.14 / npm >= 11.5.1
       - uses: actions/setup-node@v4
         with:
