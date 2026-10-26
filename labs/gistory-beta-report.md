@@ -106,6 +106,40 @@ curious visitor to a 404. Either gate the line with "coming soon", or add
 a workaround install (e.g. `npm i github:dhaupin/gistory#main`, which we
 have not verified works as an npm specifier for this layout).
 
+## Addendum (same day later -- three more exercise rounds): new findings + extra receipts
+
+- **C1 -- eyestruct CLI ergonomics (feedback, not a bug):** flags BEFORE
+  the command die with the named `UNKNOWN_COMMAND` refusal
+  (`eyestruct --manifest X gate` refuses; `eyestruct gate --manifest X`
+  works). The README's usage block always shows command-first, so the
+  contract is documented -- it just took us one retry to learn. Cheap
+  ergonomics win if ever wanted: accept global flags before the verb.
+  The refusal itself kept the no-stack-trace contract perfectly.
+- **C2 -- eyestruct gate/ledger semantics verified beyond the demo we
+  seeded (positive):** we adopted `labs/.eyes/` in our repo to your
+  manifest schema (pin honest: renderer resvg@2.6.2 measured;
+  browser-image pending@no-pinned-browser-yet until a pinned Chromium
+  exists here) and ran YOUR binaries against it: `gate` exit 0 ("0
+  visual artifact(s) all explained by 0 ledger row(s)"), `ledger list`
+  exit 0 ("(empty ledger)"). Schema is a strict hand-editable subset and
+  the gate's pairing law (artifact-without-row = UNRECORDED,
+  row-without-artifact = DANGLING_ROW, both exit 1) is exactly what a
+  crashledger wants for appearance.
+- **C3 -- all three trees' own batteries PASS from our side (positive,
+  independent run):** poststruct self-test 8/8 expected FAIL ids;
+  monoforge self-test 5 asserts (bad config refused / stray dir refused /
+  stamp ok / unfilled doctor FAIL / refilled PASS); eyestruct node:test
+  23 tests, 15 pass, 0 fail, 8 skip (the browser-capture lane -- honest
+  for the browserless-spine 0.9.0 cut, and the raster row inside refuses
+  without a renderer, exit 2, never fake-passes).
+- **C4 -- repoparity note (informational for the roads-around):** the
+  three target repos are live but stub-level (2-6 scaffold files each,
+  HEADs poststruct 22fc13c, monoforge f8e45fb, eyestruct de0c79d) while
+  the staging trees carry 53/63/94 verified files. One push per repo
+  brings each online; happy to diff the parity table any time.
+- **B4 still open as of the last check:** `gistory-sync` remains E404 on
+  the registry.
+
 ## Environment notes
 
 - The three staging CLIs are zero-dep and ran with plain node (no `npm i`

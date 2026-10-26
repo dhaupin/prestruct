@@ -5,6 +5,43 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 46 - gistory report addendum + the prestruct-shapes contract drafted (2026-10-26)
+
+The maintainer asked for new issues recorded into gistory and to continue.
+Two deliverables shipped:
+
+- **Addendum in labs/gistory-beta-report.md** (the paste-ready issue body):
+  C1 eyestruct CLI ergonomics receipt (flags before the command die with
+  the named UNKNOWN_COMMAND refusal -- feedback, not a bug; the README
+  documents command-first); C2 the gate/ledger conformance receipts from
+  adopting labs/.eyes in OUR repo and running THEIR binaries against it
+  (gate exit 0 on the pending-pin seed; the UNRECORDED/DANGLING_ROW
+  pairing law verified in the contract text); C3 all three trees' own
+  batteries PASS from an independent run (poststruct 8/8 expected FAIL
+  ids, monoforge 5 asserts, eyestruct 15/0/8-skip); C4 the repoparity
+  note (live repos are stubs vs staged trees -- the last-mile push is the
+  online trigger); B4 re-checked, gistory-sync still E404.
+- **labs/poststruct-shapes-contract.md: the M1 pack spec, paste-ready
+  upstream.** Encodes the contracts we VERIFIED by cross-running the two
+  engines on the same trees: (1) robots is the OPT-IN contract -- pack
+  robots-checks gate on ctx.robots, sitemap-without-robots on an opted-out
+  site is not a finding (the #1 divergence, would false-FAIL otherwise);
+  (2) the 404 keeps only its noindex contract (prestruct/404-noindex-solo
+  FAILs indexable signals or missing noindex; all other checks skip 404);
+  (3) landed-injection FAIL on shell defaults surviving prerender;
+  (4) data-server-rendered FAIL on routes; (5) deploy-id dup FAIL +
+  freshness warn (idempotent-injection class); (6) og companions from the
+  object form (#38); (7) trailing-slash canonical integrity (#53 class);
+  (8) dead /assets ref FAIL (the stale-restored-cache class). Manifest +
+  ctx-arm + self-audit fixture requirement per poststruct's PRD spec;
+  network/renderer surface deliberately excluded (their fence).
+
+Gates: lint:docs green (language gate over the new prose), vitest 200/200.
+Next: when the family pushes land, publish the pack ONCE poststruct's M1
+loader exists -- this file is the spec, the repo shape follows it.
+
+---
+
 ## Pass 45 - ops home adopted at labs/.eyes; third missing-asset finding closes the visual sweep (2026-10-26)
 
 The maintainer's beta heads-up set the ops convention: operational state of
@@ -1549,7 +1586,7 @@ guides, correct relative to the file). Commit: f279122 (6 files, +280/-185).
   table updated (robots.txt, cache stats, migration refresh remain P2 open).
 - PLAN.md feature table refreshed to current reality (engine single-source,
   CLI, validation, fetchRoutes all Done; NPM package = built but dormant;
-  bots/starters Done) and "Current" list now says v1.0.0 unpublished.
+  bots/starters Done) and "Current" list now says v1.0.0 upublished.
 
 **Verified:** sync check 5/5 byte-identical engine->init+example; vitest
 68/68; node --check on engine + ecosystem.cjs; ecosystem loads via require.
@@ -1891,7 +1928,7 @@ research turned up):**
   and no tags/releases exist to verify either.
 - freestruct#8 - README config example is invalid YAML (nested site/twitter/
   og keys lost their indentation).
-- (freestruct#2 - packaging/unpublished-npm was already open; not duplicated.)
+- (freestruct#2 - packaging/upublished-npm was already open; not duplicated.)
 
 **Verified:** lint:docs PASS (style/links/frontmatter/language/truthfulness),
 lint:claims PASS, vitest 102/102, sync check 5/5. No ruby/bundle in the
