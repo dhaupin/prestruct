@@ -58,5 +58,25 @@
     "ratified": false,
     "id": "row-0006",
     "ts": 1793045447668
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "prestruct/desktop-1280-dark/current.png",
+    "note": "Rouge-coverage adopt: the previous swap accidentally re-captured the pre-retheme generation (91409B; swap picked second-newest instead of newest). This baseline is the live post-rouge-vocabulary index, 101409B; diff receipt DIFFERS 91409B->101409B",
+    "ratified": false,
+    "id": "row-0007",
+    "ts": 1793045844751
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "prestruct/desktop-1280-light/current.png",
+    "note": "Rouge-coverage adopt, light slot: same fix as dark (stale-generation correction); stays byte-identical to dark, finding D1",
+    "ratified": false,
+    "id": "row-0008",
+    "ts": 1793045844818
   }
 ]
