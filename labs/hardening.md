@@ -41,7 +41,7 @@
 - prestruct-proxy/malformed-target-fuzz: 8 hostile shapes × 2 surface arms: all clean (4xx/3xx)
 - prestruct-proxy/bot-render-fallback: bot render failure fell through to the live-site 302 on every surface (render never reached Chromium)
 - prestruct-proxy/refresh-strict-parity: refresh probes (no-header control + 5 hostile tokens) never crashed or reshaped the response
-- prestruct-proxy/cache-key-variant-parity: 2 URL variants x 2 surface(s) (vps+worker): each variant served its own seeded bytes, no collision; non-bot requests saw no cached bytes
+- prestruct-proxy/cache-key-variant-parity: 3 URL variants x 2 surface(s) (vps+worker): each variant served its own seeded bytes, no collision; worker seeding included the poisoned oversized-legacy probe; non-bot requests saw no cached bytes
 - proto-hygiene/head-get-parity: 2 route(s): HEAD mirrors GET (no throws, no status drift beyond honest 405) + 1 info note(s)
 - proto-hygiene/request-shape-flood: 2 route(s) x 18 bare shapes (query chaos, path shapes, header casings) all landed 4xx-or-cleaner with case-parity intact
 - race/double-submit-idempotency: route "charge" not declared on this target - race skipped (declare it for coverage)
@@ -67,7 +67,7 @@
 ### 🔒 BOUNDED (0)
 
 ## Cost economics
-- total: 99 backend ops across 206 in-process requests from 54 attacks
+- total: 106 backend ops across 208 in-process requests from 54 attacks
   - auth/identity-spoof-headers: 0 ops / 0 requests
   - auth/secret-watermark: 0 ops / 0 requests
   - auth/privilege-escalation: 0 ops / 0 requests
@@ -102,7 +102,7 @@
   - prestruct-proxy/malformed-target-fuzz: 16 ops / 26 requests
   - prestruct-proxy/bot-render-fallback: 9 ops / 32 requests
   - prestruct-proxy/refresh-strict-parity: 12 ops / 44 requests
-  - prestruct-proxy/cache-key-variant-parity: 12 ops / 50 requests
+  - prestruct-proxy/cache-key-variant-parity: 19 ops / 52 requests
   - proto-hygiene/head-get-parity: 4 ops / 4 requests
   - proto-hygiene/request-shape-flood: 36 ops / 40 requests
   - race/double-submit-idempotency: 0 ops / 0 requests

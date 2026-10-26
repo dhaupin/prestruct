@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "prestruct-proxy",
   "description": "Adversarial pack for prestruct's HTTP surface: the VPS render proxy (express) and the Cloudflare Worker proxy -- method contract, malformed-target fuzz, bot render fallback, cache-refresh strictness, cache-key variant parity.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "entry": "index.js",
   "armedByKey": "prestruct-proxy"
 }

@@ -174,7 +174,7 @@
     {
       "id": "prestruct-proxy/cache-key-variant-parity",
       "verdict": "REFUSED",
-      "detail": "2 URL variants x 2 surface(s) (vps+worker): each variant served its own seeded bytes, no collision; non-bot requests saw no cached bytes"
+      "detail": "3 URL variants x 2 surface(s) (vps+worker): each variant served its own seeded bytes, no collision; worker seeding included the poisoned oversized-legacy probe; non-bot requests saw no cached bytes"
     },
     {
       "id": "proto-hygiene/head-get-parity",

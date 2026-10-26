@@ -192,8 +192,16 @@ export default {
         // response ships a dead asset hash -- the EXPLOITED signature.
         const uA = '/cache-key-parity/one?ref=alpha';
         const uB = '/cache-key-parity/one?ref=beta';
+        // Oversized query: with the legacy `prestruct:${encodeURIComponent(url)}`
+        // key shape this variant blows KV's 512-byte cap (URL itself >500 bytes
+        // after encoding), so the worker contract says it MUST be keyed under
+        // the hashed shape instead. Seeded both ways: the HASHED key carries
+        // the variant's real marker, and the LEGACY key carries a poisoned one
+        // -- serving the poison proves the legacy key is still being consulted
+        // (real KV would have put()ed/rejected it outright).
+        const uC = '/cache-key-parity/one?len=' + 'x'.repeat(600);
         const marker = (v) => `<!--prestruct-crashtest:cache-key-variant-${v}--><!doctype html><html><body class="crashtest-seed"><script src="/assets/index-${v}DEAD.js"></script></body></html>`;
-        const bodies = { u1: marker('AAA'), u2: marker('BBB') };
+        const bodies = { u1: marker('AAA'), u2: marker('BBB'), uC: marker('CCC'), uL: marker('LGD') };
         const surfaces = armed(c);
         if (!surfaces.length) return skip('no surfaces armed');
         const bad = [];
@@ -214,12 +222,32 @@ export default {
                 await kv.put(`prestruct:${encodeURIComponent(u)}`, JSON.stringify({ html, cachedAt: 'crashtest-seed' }));
                 cleanup.push(() => kv.delete(`prestruct:${encodeURIComponent(u)}`));
               }
+              // Oversized variant, hashed shape ONLY for the expected marker:
+              // SHA-256 digests match node:crypto bit-for-bit with WebCrypto,
+              // so the key is derived here from the documented format without
+              // importing the target. A worker predating the hashed fallback
+              // never consults this key -> honest "seed not consulted" skip;
+              // a worker STILL using the legacy shape for oversized URLs hits
+              // the poisoned legacy entry below and fails loudly.
+              {
+                const hex = createHash('sha256').update(uC).digest('hex');
+                await kv.put(`prestruct:sha256:${hex}`, JSON.stringify({ html: bodies.uC, cachedAt: 'crashtest-seed' }));
+                cleanup.push(() => kv.delete(`prestruct:sha256:${hex}`).catch(() => {}));
+              }
+              {
+                const legacy = `prestruct:${encodeURIComponent(uC)}`;
+                await kv.put(legacy, JSON.stringify({ html: bodies.uL, cachedAt: 'crashtest-seed' }));
+                cleanup.push(() => kv.delete(legacy).catch(() => {}));
+              }
             } else if (kind === 'vps') {
               if (!vpsDir) {
                 return skip(`cacheDir not armed on ${kind} (set moduleCtx['prestruct-proxy'].cacheDir + PRESTRUCT_CACHE_DIR before importing scripts/proxy.js)`);
               }
               await mkdir(vpsDir, { recursive: true });
-              for (const [u, html] of [[uA, bodies.u1], [uB, bodies.u2]]) {
+              // The VPS filename scheme is already full-URL SHA-256: no size
+              // cap, no fallback shape -- so the oversized variant seeds under
+              // the same scheme and must behave exactly like its siblings.
+              for (const [u, html] of [[uA, bodies.u1], [uB, bodies.u2], [uC, bodies.uC]]) {
                 const key = createHash('sha256').update(u).digest('hex');
                 await writeFile(join(vpsDir, `${key}.html`), html);
                 cleanup.push(() => unlink(join(vpsDir, `${key}.html`)).catch(() => {}));
@@ -228,7 +256,7 @@ export default {
             let seededOk = false;
             // Variant A must come back as A's bytes; B's marker anywhere in
             // that response is the collision class. B mirrored.
-            for (const [u, mine, theirs, v] of [[uA, bodies.u1, bodies.u2, 'A'], [uB, bodies.u2, bodies.u1, 'B']]) {
+            for (const [u, mine, theirs, v] of [[uA, bodies.u1, bodies.u2, 'A'], [uB, bodies.u2, bodies.u1, 'B'], [uC, bodies.uC, bodies.u1, 'C']]) {
               const rec = await harness.run(route, { url: u, headers: { 'user-agent': botUA } });
               if (rec.threw || rec.status === null) {
                 bad.push(`${route}/${kind} seeded variant ${v} crashed surface: ${rec.error?.message ?? ''}`);
@@ -249,6 +277,8 @@ export default {
               const text = await rec.response.text();
               if (text.includes(theirs)) {
                 bad.push(`${route}/${kind} variant ${v} was served the OTHER variant's bytes (cache-key collision -- stale-asset leak)`);
+              } else if (v === 'C' && kind === 'worker' && text.includes(bodies.uL)) {
+                bad.push(`${route}/${kind} variant C was served the POISONED legacy-key entry (hashed fallback not in effect -- real KV rejects that key outright)`);
               } else if (!text.includes(mine)) {
                 bad.push(`${route}/${kind} variant ${v} served 2xx but its marker bytes are gone (cache served something else)`);
               }
@@ -265,12 +295,16 @@ export default {
           }
           if (bad.length) return exp(`${bad.length} cache-key violation(s): ${bad.slice(0, 3).join(' | ')}`);
           const kinds = surfaces.map(([, k]) => k).join('+');
+          const variantCount = [[uA], [uB], [uC]].length;
+          const kindKeyNote = surfaces.some(([, k]) => k === 'worker')
+            ? '; worker seeding included the poisoned oversized-legacy probe'
+            : '';
           const skippedNote = skipped.length
             ? `; UNPROVED on ${skipped.length} seeded-check(s) -- re-arm seeding before counting those as coverage`
             : '';
           if (!provedSurfaces)
             return skip(`seed never consulted on any surface${skippedNote}`);
-          return ref(`2 URL variants x ${surfaces.length} surface(s) (${kinds}): each variant served its own seeded bytes, no collision; non-bot requests saw no cached bytes${skippedNote}`, { variants: [uA, uB] });
+          return ref(`${variantCount} URL variants x ${surfaces.length} surface(s) (${kinds}): each variant served its own seeded bytes, no collision${kindKeyNote}; non-bot requests saw no cached bytes${skippedNote}`, { variants: [uA, uB, uC] });
         } finally {
           for (const fn of cleanup) await fn();
         }

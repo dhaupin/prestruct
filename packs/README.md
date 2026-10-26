@@ -6,7 +6,7 @@ against a live target: route names, method matrices, and env wiring come
 from the host config (`moduleCtx`), never hardcoded in the pack.
 
 **This repo's own pack:** [`packs/public/prestruct-proxy`](public/prestruct-proxy)
-(v0.3.0) - the five-shape contract suite for the render-proxy pair
+(v0.4.0) - the five-shape contract suite for the render-proxy pair
 (`scripts/proxy.js` express + `scripts/proxy.worker.js` Cloudflare Worker),
 crosslinked to [`crashtest.config.js`](../crashtest.config.js), which arms it
 against this repo's own deployed copies.
@@ -55,7 +55,7 @@ positive.
 | `malformed-target-fuzz` | hostile paths/queries fail 4xx, never 5xx or a throw |
 | `bot-render-fallback` | a bot whose render is impossible still exits via the live-site 302 |
 | `refresh-strict-parity` | `x-prestruct-refresh` probes never crash the surface; an unset secret means the feature is off |
-| `cache-key-variant-parity` | two URL variants of one route (same path, different query), seeded into the render cache, are each served only their own bytes; cached bytes never leak to non-bot requests |
+| `cache-key-variant-parity` | two URL variants of one route (same path, different query), seeded into the render cache, are each served only their own bytes; cached bytes never leak to non-bot requests; an oversized-query variant is served only under the documented hashed key -- the oversized legacy entry is POISONED and must never be served |
 
 ## Arms (moduleCtx keys)
 
