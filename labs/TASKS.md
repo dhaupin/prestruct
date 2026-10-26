@@ -5,6 +5,98 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 27 - dotall-trap fix: `[^"\r\n]` on 15 HTML-tag replacements, live mangle proven (2026-10-26)
+
+Issue-hunting pass. The gates were green (147/147 + docs/claims), so the
+search went line-by-line against the repo's own battle lessons. Result: the
+title-regex dotall lesson from pass 7 was applied to exactly ONE regex of
+its class -- the eight `injectMeta` meta-tag replacements, the four
+`generate404` head replacements, and the script/modulepreload strips kept
+the unfixed shape.
+
+- **The defect.** `content="[^"]*"` + `/s` can pair a prose fragment with a
+  closing quote far below: any shell comment like
+  `<!-- <meta property="og:title" content=" -->` made the og:title
+  replacement start ON THE COMMENT and consume through the real tag's
+  closing quote, landing the new title inside the comment and shredding the
+  real tag's opener. Proven live BEFORE the fix: a shell with a commented
+  og:title note produced `<meta property="og:title" content="My Route | Site"og:title" content="Real Route" />` -- shipped mangle on every
+  prerendered page of that site. The init-style shell comment conventions
+  ("Do not add brand meta here directly", commented favicon/manifest links)
+  are exactly the prose this trap feeds on.
+- **The sharpened lesson.** See AGENTS.md. The `s` flag was never the
+  boundary: `[^" ]` matches newlines WITHOUT any flag, so "removing dotall"
+  while keeping `[^" ]*` is a no-op. Single-line matching means excluding
+  the line terminators in the class itself: `[^\"\r\n]*`.
+- **Fixed:** 12 metas/link regex lines in injectMeta + generate404, plus the
+  script/modulepreload strips in generate404 (`[^>\r\n]`) -- same class,
+  bounded by the next `>` but still cross-line-able. The 404 robots strip
+  needed no defensive change: its trailing `/\?>` anchor already forbids the
+  cross-line match; the new test pins that fact rather than assuming it.
+- **Regression pair** in tests/engine.test.js (og:title fragment into
+  injectMeta; robots fragment into generate404). The og:title test ran RED
+  against the old regex, GREEN after the fix. Battery 149/149 (147 + 2) on
+  the first post-fix run; `sync-engine.mjs` caught the contract drift
+  between edit and generator (generated 11 files, check 5/5 byte-identical).
+- **End-to-end proof:** example rebuilt through its own synced copy (vite ->
+  inject-brand -> prerender --force): 8/8 pages, `/about` ships per-route
+  title/description/canonical/og/twitter intact -- the real-document path
+  the fix must not regress.
+- Considered and left alone: `connectSrcRegex` in inject-brand is already
+  single-line ([^\n]*), and the islands/usePageMeta surfaces carry no HTML
+  replacement regexes.
+
+Gates: battery 149/149, sync 5/5, docs + claims (run below), example build
+8/8 with meta inspected by hand.
+
+---
+
+## Pass 26 - crashtest CI pin (floating harness), example AEO robots shipped, R2/R3 closed (2026-10-26)
+
+Repo survey pass. All five gates were green at HEAD before touching
+anything (battery 147/147, sync 5/5, docs style/links/frontmatter/language/
+truthfulness, fiction signatures), so the work here is two real defects
+found by looking, not a green-field feature.
+
+- **The new CI lane floated its harness.** `crashtest.yml` (Pass 25) ran
+  `npx --yes crashtest@1 run`; crashtest 1.1.0 is now on npm, so the gate
+  silently moved from the committed 35-row baseline to 54 rows. All 19 new
+  rows are permanent skip rows (`governance/*`, `memory/*` -- "knob not
+  declared on this target"), i.e. zero applicable coverage for a proxy pack
+  that declares no such vocabulary. That is the same false-coverage optics
+  Pass 16 refused for the build-time surfaces: more rows, no more proof.
+  Fixed by pinning `crashtest@1.0.0` (the version the committed labs trio
+  was produced with) and documenting the bump rule in the workflow: bump and
+  regenerate `labs/` in the SAME commit, and only when the new rows apply.
+  Proof the pin is the right one: `npx --yes crashtest@1.0.0 run` reproduces
+  the committed ledger exactly (35/35 REFUSED, 0 EXPLOITED, 99 ops / 206
+  requests, "0 new / 0 regressed") -- the only diff is `generatedAt`.
+- **R2 shipped: the example now runs the AEO preset.** `robots: { aeo: true }`
+  in `example/ssr.config.js`, and `example/public/robots.txt` deleted. The
+  passthrough file was dead weight the moment generation was on (prerender
+  writes `dist/robots.txt` after vite copies `public/`), and its content was
+  the OPPOSITE policy -- it allowed GPTBot, ClaudeBot and Google-Extended.
+  Two robots files disagreeing is exactly the drift the opt-in contract
+  exists to avoid. Verified live: example build 8/8 pages, `dist/robots.txt`
+  carries the 6 search-allow groups, 5 training-block groups, sitemap line.
+- **R3 closed honestly.** Pass 25 made the decision the row was waiting on
+  (published package, not a pinned checkout or composite action) but left
+  the PRD row saying "decide". Both R2 and R3 are now marked SHIPPED there.
+- **Lesson: a floating `npx pkg@1` inside a gate is version drift in a
+  commit nobody reviews.** The gate's meaning is a property of the harness
+  version, and so is the baseline row count -- "0 new / 0 regressed" stays
+  green while the row set underneath it changes. Pin the version the ledger
+  was cut with, and treat a bump as a reviewed change with its ledger.
+- **Lesson: generated-vs-committed is not the only drift direction.** Pass 22
+  caught a STALE harness silently rewriting the baseline downward; this pass
+  caught a NEWER one rewriting it upward. Either way the committed ledger
+  stops describing the gate.
+
+Gates: battery 147/147, sync 5/5, docs audit PASS, fiction scan PASS, example
+build 8/8 with the AEO robots output inspected by hand.
+
+---
+
 ## Pass 25 - crashtest wired into CI, ledger npm-parity, announcement count fix (2026-10-22)
 
 - Spot-run of the PUBLISHED crashtest@1.0.0 via npx against the committed

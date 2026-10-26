@@ -132,6 +132,27 @@ describe('prerender pure functions (import surface)', () => {
     expect(out).toContain('<title>Costs $100</title>')
   })
 
+  it('does not let a commented-out og:title fragment start a cross-line match (dotall trap class)', () => {
+    // Same class as the Pass-7 title-regex trap: shell prose carries the
+    // literal `content="` of a commented-out og:title with no closing quote
+    // on its own line. A cross-line `[^"]*` pairs the fragment with the REAL
+    // tag's closing quote, lands the replacement inside the comment and
+    // shreds both tags. Matched proven live before the single-line fix.
+    const shell = [
+      '<html><head>',
+      '<!-- <meta property="og:title" content=" -->',
+      '<meta property="og:title" content="Real Route" />',
+      '</head><div id="root"></div></html>',
+    ].join('\n')
+    const out = injectMeta(shell, { title: 'Trap Check | Site' }, '/x', siteUrl, '')
+    // The REAL tag gets the route title
+    expect(out).toContain('<meta property="og:title" content="Trap Check | Site" />')
+    // The comment survives byte-for-byte; the match never starts on it
+    expect(out).toContain('<!-- <meta property="og:title" content=" -->')
+    // No shredded debris between the two
+    expect(out).not.toContain('"og:title" content="Real Route"')
+  })
+
   it('generates sitemap entries', () => {
     const xml = generateSitemap([{ path: '/', priority: '1.0' }, { path: '/about' }], siteUrl)
     expect(xml).toContain(`<loc>${siteUrl}</loc>`)
@@ -189,6 +210,26 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('&amp;')
     expect(html).toContain('$&')
     expect(html).not.toContain('$& (lost page)$&')
+  })
+
+  it('robots noindex does not eat a cross-line commented robots fragment (dotall trap class)', () => {
+    // Same class as above: the robots-strip regex used `[^"]*` + dotall, so
+    // a commented-out robots meta without a closing quote on its line paired
+    // with the real tag's closing quote and consumed both lines.
+    const shell = [
+      '<html><head>',
+      '<!-- <meta name="robots" content=" -->',
+      '<meta name="robots" content="index, follow" />',
+      '<meta name="author" content="a">',
+      '</head><div id="root"></div></html>',
+    ].join('\n')
+    const html = generate404(shell, { siteName: 'Test' }, siteUrl)
+    // The real robots meta is still replaced with the noindex directive
+    expect(html).toContain('noindex, nofollow')
+    // The comment survives byte-for-byte
+    expect(html).toContain('<!-- <meta name="robots" content=" -->')
+    // The comment opener did not swallow the line after it
+    expect(html).not.toContain(' --> <meta name="author"')
   })
 })
 

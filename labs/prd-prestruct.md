@@ -25,7 +25,7 @@ Verified against the engine at HEAD, not memory:
 | Template (`init/`) | byte-identical to engine via `scripts/sync-engine.mjs`; scaffold imports are dual-major safe (`rrdNS.default ?? rrdNS` interop form); ships the proxy pair, wrangler.toml, pm2/systemd starters, self-testing zip battery |
 | Platform state | vite 6.4.5 + vitest 5.0.5 (battery 147/147, tinypool pinned ^2.2.0 via overrides), react-router dual-major (battery pins v6, example runs v7 live), Node engines >=20, react 18 |
 | Example | 8 routes on rrd 7.18.4/rendered 8/8; audit 0 findings; AEO-era docs |
-| Adversarial QA | in-repo crashtest pack `packs/public/prestruct-proxy` v0.3.0 (5 shapes incl. cache-key variant parity), ledger 35/35 REFUSED |
+| Adversarial QA | in-repo crashtest pack `packs/public/prestruct-proxy` v0.3.0 (5 shapes incl. cache-key variant parity), ledger 35/35 REFUSED, CI lane pinned at crashtest 1.0.0 |
 | Docs | Jekyll + Pagefind site, 23 guides, truthfulness/fiction gates in CI |
 
 ---
@@ -76,8 +76,8 @@ forward rows.
 | Row | Why now | Notes |
 |---|---|---|
 | R1: tag v1.1.0 when the maintainer is ready -- SHIPPED (tagged v1.1.0, publish.yml + release.yml fired) | main carried five consumer-facing bug fixes (#18 #19 #20 #21 #23), the AEO preset, the pack v0.3.0, and the supply-chain hardening; all now published on npm 1.1.0 | Tag pipeline proven; npm scan-visibility caveat documented in CHANGELOG. |
-| R2: flip the example's robots to the AEO preset | the docs' flagship feature is not demonstrated on the docs' own site; one-line config + live verify | example `public/robots.txt` is author-owned passthrough today. |
-| R3: decide the crashtest CI lane | #24/#25 parked twice on "how does an external harness enter CI" -- pinned checkout vs published pack vs composite action; on-tag option cheapest | Ledger is CI-comparable already; owning an exit rule makes alerts meaningful. |
+| R2: flip the example's robots to the AEO preset -- SHIPPED (2026-10-26) | the docs' flagship feature was not demonstrated on the docs' own site | example runs `robots: { aeo: true }`; `public/robots.txt` deleted (prerender owns `dist/robots.txt` now); build verified 8/8 with the 6-allow / 5-block preset + sitemap line. |
+| R3: decide the crashtest CI lane -- SHIPPED (pass 25 wired it, pass 26 pinned it) | #24/#25 parked twice on "how does an external harness enter CI" | Lane = published package on PR + push + dispatch (`npx --yes crashtest@1.0.0 run`, exit code is the gate). Version PINNED: a floating `@1` silently re-scoped the gate when 1.1.0 shipped 19 skip-only rows. |
 | R4: RENDER_LANE=puppeteer (opt-in) | proves the bot render SUCCESS path (snapshot discipline) -- today every lane is browser-free by design | The only unproven proxy path; needs Chromium-in-CI cost sign-off + a deterministic cache namespace. |
 | R5: prestruct-build pack | #25 analysis: the build-time surfaces (404 theme, JSON-LD emit, status opt-out) are unit-pinned but have no wire-level ledger; that is a separate pack, never more shapes in the proxy pack | Would need a scenario vocabulary decision on the crashtest side first. |
 | R6: react 19 evaluation | zero advisories to react 18 -- priority LOW, churn HIGH | Battery + example render are the acceptance gate. |

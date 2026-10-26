@@ -207,19 +207,19 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage) {
 
   if (title) {
     html = html.replace(/<title>[^<]*<\/title>/,                                     `<title>${title}</title>`)
-    html = html.replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/s,        `$1${title}$2`)
-    html = html.replace(/(<meta\s+name="twitter:title"\s+content=")[^"]*(")/s,       `$1${title}$2`)
+    html = html.replace(/(<meta\s+property="og:title"\s+content=")[^"\r\n]*(")/,      `$1${title}$2`)
+    html = html.replace(/(<meta\s+name="twitter:title"\s+content=")[^"\r\n]*(")/,     `$1${title}$2`)
   }
   if (desc) {
-    html = html.replace(/(<meta\s+name="description"\s+content=")[^"]*(")/s,         `$1${desc}$2`)
-    html = html.replace(/(<meta\s+property="og:description"\s+content=")[^"]*(")/s,  `$1${desc}$2`)
-    html = html.replace(/(<meta\s+name="twitter:description"\s+content=")[^"]*(")/s, `$1${desc}$2`)
+    html = html.replace(/(<meta\s+name="description"\s+content=")[^"\r\n]*(")/,       `$1${desc}$2`)
+    html = html.replace(/(<meta\s+property="og:description"\s+content=")[^"\r\n]*(")/, `$1${desc}$2`)
+    html = html.replace(/(<meta\s+name="twitter:description"\s+content=")[^"\r\n]*(")/, `$1${desc}$2`)
   }
-  html = html.replace(/(<meta\s+property="og:url"\s+content=")[^"]*(")/s,            `$1${url}$2`)
-  html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/s,                 `$1${url}$2`)
+  html = html.replace(/(<meta\s+property="og:url"\s+content=")[^"\r\n]*(")/,          `$1${url}$2`)
+  html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"\r\n]*(")/,               `$1${url}$2`)
   if (ogImage) {
-    html = html.replace(/(<meta\s+property="og:image"\s+content=")[^"]*(")/s,        `$1${ogImage}$2`)
-    html = html.replace(/(<meta\s+name="twitter:image"\s+content=")[^"]*(")/s,       `$1${ogImage}$2`)
+    html = html.replace(/(<meta\s+property="og:image"\s+content=")[^"\r\n]*(")/,      `$1${ogImage}$2`)
+    html = html.replace(/(<meta\s+name="twitter:image"\s+content=")[^"\r\n]*(")/,     `$1${ogImage}$2`)
   }
 
   return html
@@ -422,24 +422,24 @@ export function generate404(shell, config, siteUrl) {
   let html = shell.replace(/<div id="root"[^>]*><\/div>/, () => bodyLines.join('\n'))
   html = html.replace(/<title>[^<]*<\/title>/,               () => `<title>Page Not Found | ${siteName}</title>`)
   html = html.replace(
-    /(<meta\s+name="description"\s+content=")[^"]*(")/s,
+    /(<meta\s+name="description"\s+content=")[^"\r\n]*(")/,
     () => `$1The page you were looking for does not exist.$2`
   )
   html = html.replace(
-    /(<meta\s+property="og:title"\s+content=")[^"]*(")/s,
+    /(<meta\s+property="og:title"\s+content=")[^"\r\n]*(")/,
     () => `$1Page Not Found | ${siteName}$2`
   )
   html = html.replace(
-    /(<meta\s+name="twitter:title"\s+content=")[^"]*(")/s,
+    /(<meta\s+name="twitter:title"\s+content=")[^"\r\n]*(")/,
     () => `$1Page Not Found | ${siteName}$2`
   )
   html = html.replace(
-    /(<link\s+rel="canonical"\s+href=")[^"]*(")/s,
+    /(<link\s+rel="canonical"\s+href=")[^"\r\n]*(")/,
     () => `$1${v(siteUrl)}/$2`
   )
   // noindex -- 404 pages should not appear in search results
   html = html.replace(
-    /<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/s,
+    /<meta\s+name="robots"\s+content="[^"\r\n]*"\s*\/?>/,
     ''
   )
   html = html.replace(
@@ -451,8 +451,8 @@ export function generate404(shell, config, siteUrl) {
   // imported chunk next to the entry script, and a modulepreload link makes
   // the browser PREFETCH the 160KB vendor bundle on a page whose whole
   // contract is zero JS loads (caught by the 2026-10 perf/page-weight audit).
-  html = html.replace(/<script type="module"[^>]*><\/script>/, '')
-  html = html.replace(/<link[^>]*rel="modulepreload"[^>]*>/g, '')
+  html = html.replace(/<script type="module"[^>\r\n]*><\/script>/, '')
+  html = html.replace(/<link[^>\r\n]*rel="modulepreload"[^>\r\n]*>/g, '')
 
   return html
 }

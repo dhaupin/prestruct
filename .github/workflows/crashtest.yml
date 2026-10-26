@@ -16,6 +16,16 @@
 # previously REFUSED regresses. The regenerated labs/*. artifacts are run
 # stamps, not required to match HEAD byte-for-byte (timestamps move); they
 # upload as an artifact on failure for triage.
+#
+# The harness version is PINNED, deliberately, and the pin tracks the version
+# the committed labs/ ledger was produced with. `crashtest@1` floats to the
+# newest 1.x: 1.1.0 exists and adds 19 rows (35 -> 54) without changing a single
+# existing verdict -- and all 19 are permanent skip rows for governance/memory
+# vocabulary this target never declares, so they buy prestruct zero applicable
+# coverage while rewriting the baseline. A floating gate changes what CI means
+# with no repo change to review. Bump the pin and regenerate the labs/ ledger
+# IN THE SAME COMMIT (`npx --yes crashtest@<version> run`, then commit labs/),
+# and only when the new rows actually apply to this target.
 
 name: crashtest
 
@@ -44,7 +54,7 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Run the proxy pack
-        run: npx --yes crashtest@1 run
+        run: npx --yes crashtest@1.0.0 run
 
       - name: Upload the hardening artifacts
         if: failure()

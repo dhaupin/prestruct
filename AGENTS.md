@@ -798,6 +798,19 @@ closing tag on its own line, so the matcher auto-skips it. Rule: never use
 dotall on a regex that replaces an HTML tag; shell prose (in comments like
 `<!-- title, description, ... -->`) is the built-in trap.
 
+**Lesson: dotall trap sharpened (2026-10-26) -- the flag is not the boundary.**
+The 2026 fix shipped `<title>` with `[^<]*`, but the meta-tag replacements
+next door kept `content="[^"]*"` + `/s` and mangled every shell that carried
+a commented-out og:title note (the replacement landed INSIDE the comment; the
+real tag's opening was shredded -- proven live in pass 27). The operative
+surface was never the `s` flag: `[^" ]` matches newlines without any flag, so
+"removing dotall" while keeping `[^" ]*` fixes nothing. Single-line matching
+means excluding the line terminators IN THE CLASS: `[^\"\r\n]*`. The
+regression pair lives in `tests/engine.test.js` (og:title fragment into
+injectMeta, robots fragment into generate404); the 404 robots strip needs no
+anchor change because its trailing `/\?>` already forbids the cross-line
+match -- the test pins that, it does not assume it.
+
 **Lesson: CLI-to-engine flag pass-through.** The engine accepted
 `--force`/`--clean` (`prerender(cfg, {force})`, `cleanCache()`) but `bin/cli.mjs`
 only passed `{root}` in the call site for `prestruct build`: `--force` was

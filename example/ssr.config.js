@@ -13,6 +13,11 @@ export default {
   // Show deploy ID in footer (requires deployId: true)
   deployIdFooter: false,
 
+  // AEO preset: search crawlers allowed, training/data-use crawlers blocked.
+  // The site documents this preset, so it runs it. Prerender writes
+  // dist/robots.txt itself -- there is no public/robots.txt to drift from it.
+  robots: { aeo: true },
+
   faqs: [
     {
       q: 'How do I add this to my existing Vite + React app?',
