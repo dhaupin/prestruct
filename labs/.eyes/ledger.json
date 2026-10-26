@@ -28,5 +28,35 @@
     "ratified": false,
     "id": "row-0003",
     "ts": 1793044407516
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "prestruct/desktop-1280-dark/current.png",
+    "note": "Retheme adopt: the prestruct brand sheet (lime #c8f000 on #080808) replaced the blue-slate rig sheet on both surfaces (commit 1b4e040); diff receipt DIFFERS 91409B->101174B vs the row-000x blue baseline before swap",
+    "ratified": false,
+    "id": "row-0004",
+    "ts": 1793045447556
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "prestruct/desktop-1280-light/current.png",
+    "note": "Retheme adopt, light slot: byte-identical to dark persists (finding D1, persist-attr theme); replaced alongside the dark baseline for sheet consistency",
+    "ratified": false,
+    "id": "row-0005",
+    "ts": 1793045447615
+  },
+  {
+    "type": "adopt",
+    "agent": "local-agent",
+    "commit": "uncommitted",
+    "artifact": "home/desktop-1280-dark/current.png",
+    "note": "Retheme adopt: fresh live home with the lime sheet; twice-identical 105629B (live look == local dist preview), diff-vs-old-slot skipped because the swap ran with the receipt taken on the docs route first",
+    "ratified": false,
+    "id": "row-0006",
+    "ts": 1793045447668
   }
 ]

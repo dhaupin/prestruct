@@ -137,17 +137,28 @@
            same): the Rouge .no/.mi/.mf/.mh rules below referenced it while
            :root never declared it - two raw-highlight token classes rendered
            colorless before the shorthand landed. */
-        /* Rouge token colors - the output of kramdown/rouge is <div class="highlight">
-           wrapping token spans that carried NO color until now (every code block
-           rendered monochrome). Same vocabulary and palette as the landing
-           site's token block (web/src/styles.css), all riding the theme tokens
-           so the light theme re-tunes every token with no extra override. */
-        .highlight .k, .highlight .kd, .highlight .kr, .highlight .kc { color: var(--accent); }
-        .highlight .s, .highlight .s1, .highlight .s2 { color: var(--moss); }
+        /* Rouge token colors - kramdown/rouge wraps tokens in <div class="highlight">
+           spans that carried NO color until the rig adoption landed the first
+           six rules (2026-10); code blocks on bash-heavy pages still rendered
+           ~monochrome because Rouge's emitted vocabulary (nb/nf/nv/sb/s1...) is
+           wider than that. This block is the FULL common vocabulary, all riding
+           the prestruct brand sheet tokens so light re-tunes everything.
+           Coverage receipts from the live pages: getting-started (nt/c/nb),
+           cli (k/s1/json). */
+        .highlight .k, .highlight .kd, .highlight .kn, .highlight .kp,
+        .highlight .kr, .highlight .kc, .highlight .kv, .highlight .nc,
+        .highlight .nd { color: var(--accent); }
+        .highlight .nb, .highlight .nv { color: var(--accent); }
+        .highlight .nf, .highlight .fm { color: var(--accent-deep); }
+        .highlight .s, .highlight .s1, .highlight .s2, .highlight .sb,
+        .highlight .se, .highlight .ss, .highlight .sd, .highlight .sx,
+        .highlight .si { color: var(--moss); }
         .highlight .no, .highlight .mi, .highlight .mf, .highlight .mh { color: var(--accent-deep); }
-        .highlight .nt, .highlight .ge { color: var(--err); }
+        .highlight .gi { color: var(--moss); }
+        .highlight .nt, .highlight .ge, .highlight .gd { color: var(--err); }
         .highlight .gp, .highlight .gh { color: var(--ink-soft); font-weight: 600; }
-        .highlight .c, .highlight .c1, .highlight .cm, .highlight .cd { color: var(--ink-soft); font-style: italic; }
+        .highlight .c, .highlight .c1, .highlight .cm, .highlight .cd,
+        .highlight .cs, .highlight .ch { color: var(--ink-soft); font-style: italic; }
         blockquote { margin: 0 0 14px; padding: 12px 18px; color: var(--ink-soft);
             border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 8px 8px 0; }
         table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 14px 0; }
