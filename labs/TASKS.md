@@ -1,3 +1,40 @@
+## Pass 53 - the remaining labs staging docs land on their trackers (2026-10-26)
+
+The "are ALL the staging docs filed?" sweep. Inventory of every
+paste-ready/handoff document still in labs/, duplicate-check against
+each tracker, then direct filing through the GitHub integration. After
+this pass every issue-shaped labs doc is either filed and deleted (the
+new default) or kept as a receipts document; none remain as drafts.
+
+- **flowforge#7** -- the highlighting issue (six-token rouge block,
+  bash-heavy pages ~monochrome, web hand-painted comment hole; prebuilt
+  palette-independent CSS from prestruct@c915760's verified fix).
+- **freestruct#30** -- the sibling highlighting issue (same partial
+  block + the fence-language census: most docs fences are bare ```).
+- **flowforge#8** -- the repair-404.cjs shim-retirement handoff (the
+  upstream fix shipped in prestruct's 1.2.0 ladder; the shim retired at
+  the family's pin bump per their own MANIFEST trigger words). This one
+  existed only as a draft from the theme-adoption round.
+- **prestruct#56** -- the CI-gates tracking issue (example lane + the
+  config-aware template build + init/dist artifact fix).
+- **prestruct#57** -- the crashtest 1.2.0 bump tracking issue (the
+  mechanized `crashtest:bump` runbook reminder). Its poststruct B1/B2
+  sibling content was already filed as gistory#7, so no duplicate.
+- **Staging docs deleted:** flowforge-shim-retirement-issue.md,
+  issues-highlighting.md, issues-stabilization.md (all now tracked
+  by issue numbers), and issues-closeout.md -- the closeout targets
+  (#34/#37/#38/#40/#51/#55 etc.) were already closed on the prestruct
+  tracker with receipt verdicts before this pass, so the paste-ready
+  close comments were obsolete rather than unfiled; commit history
+  remains the source per the changelog rule.
+- **Kept on purpose:** gistory-beta-report.md (the consolidated
+  receipts document behind gistory#7-#10, header updated to the filed
+  state), beta-gistory-trial.md (full trial receipts),
+  gistory-online-plan.md (runbook, not an issue),
+  poststruct-shapes-contract.md (contract doc).
+
+
+
 ## Pass 52 - dependency audit + cross-repo fix-class sweep (2026-10-26)
 
 The "is our stack current?" pass, run against the family too.
