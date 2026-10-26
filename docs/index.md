@@ -45,7 +45,7 @@ Trailing slashes, dynamic routes, redirects, route configuration.
 
 <a href="guides/config" class="guide-card">
 <h4>Config</h4>
-Full `ssr.config.js` reference: routes, meta, islands, JSON-LD, proxy.
+Full <code>ssr.config.js</code> reference: routes, meta, islands, JSON-LD, proxy.
 </a>
 
 <a href="guides/getting-started" class="guide-card">
@@ -55,7 +55,7 @@ From an empty Vite app to a deployed prerendered site in minutes.
 
 <a href="guides/cli" class="guide-card">
 <h4>CLI</h4>
-`prestruct init / build / validate / clean`, flags, and the pipeline steps.
+<code>prestruct init / build / validate / clean</code>, flags, and the pipeline steps.
 </a>
 
 <a href="guides/structured-data" class="guide-card">
@@ -75,8 +75,8 @@ Moving from vendored prerender scripts or another SSR setup to prestruct.
 
 <a href="guides/api" class="guide-card">
 <h4>API</h4>
-Engine entry points: `prerender()`, `injectBrand()`, `validateConfig()`,
-`buildJsonLd()`, deep package imports.
+Engine entry points: <code>prerender()</code>, <code>injectBrand()</code>,
+<code>validateConfig()</code>, <code>buildJsonLd()</code>, deep package imports.
 </a>
 
 <a href="guides/advanced-islands" class="guide-card">
@@ -86,8 +86,10 @@ Load strategies, registry patterns, fallback content, island data flow.
 
 <a href="guides/build-optimization" class="guide-card">
 <h4>Build Optimization</h4>
-Incremental cache, `--force`/`--clean`, CI health-check snapshot.
+Incremental cache, <code>--force</code>/<code>--clean</code>, CI health-check snapshot.
 </a>
+
+</div>
 
 ## Why Cloudflare Pages?
 

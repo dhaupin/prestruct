@@ -151,6 +151,8 @@ pre code {
 }
 
 .header-wordmark:hover { text-decoration: none; color: var(--accent); }
+.header-chip { width: 20px; height: 20px; border-radius: 5px; display: block; }
+html[data-theme="light"] .header-chip { border: 1px solid var(--line); }
 
 .wordmark-slash {
   color: var(--accent);

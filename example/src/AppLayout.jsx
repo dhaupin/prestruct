@@ -113,6 +113,7 @@ export default function AppLayout() {
       <ScrollToTop onNav={closeMenu} />
       <header className="site-header" ref={headerRef}>
         <Link to="/" className="header-wordmark">
+          <img src="/logo-chip.png" alt="" className="header-chip" aria-hidden="true" />
           <span className="wordmark-bracket">[</span>pre<span className="wordmark-accent">struct</span><span className="wordmark-bracket">]</span>
         </Link>
         <div className="header-actions">

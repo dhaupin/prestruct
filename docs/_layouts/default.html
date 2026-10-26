@@ -31,7 +31,9 @@
     <meta name="twitter:title" content="{{ page.title | default: 'prestruct docs' }}">
     <meta name="twitter:description" content="{{ page.description | default: 'prestruct build-time SEO prerender for Vite + React apps' }}">
     {%- if page.noindex %}<meta name="robots" content="noindex">{% endif -%}
-    <link rel="icon" type="image/svg+xml" href="{{ site.baseurl }}/icon.svg">
+    <link rel="icon" href="{{ site.baseurl }}/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ site.baseurl }}/favicon-32.png">
+    <link rel="apple-touch-icon" href="{{ site.baseurl }}/apple-touch-icon.png">
     <meta name="color-scheme" content="dark light">
     <style>
         :root {
@@ -194,7 +196,7 @@
 <body>
     <header class="header">
         <a href="{{ '/' }}" class="header-brand">
-            <img src="{{ site.baseurl }}/icon.svg" alt="" class="brand-logo" aria-hidden="true">
+            <img src="{{ site.baseurl }}/brand-icon.png" alt="" class="brand-logo" aria-hidden="true">
             <span><span class="brand-accent">pre</span>struct</span>
             <span class="docs-tag">docs</span>
         </a>
