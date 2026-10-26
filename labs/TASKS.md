@@ -5,6 +5,46 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 43 - the betas verified for online: all three trees battery-green, targets measured stub-level, bring-online runbook written (2026-10-26)
+
+The maintainer confirmed the gistory fragments are real repos and wants
+them online ASAP; "the spec we see is what hits in beta." This pass turned
+the trial receipts into ship-state proof and the exact last-mile plan.
+
+- **Repos measured (git ls-remote -- API rate-limited, so no-HTTP probes):**
+  dhaupin/poststruct HEAD 22fc13c, dhaupin/monoforge f8e45fb,
+  dhaupin/eyestruct de0c79d -- all LIVE. Deep-1 clones diffed against the
+  staging trees: every target is a 2-6 file scaffold stub, staging carries
+  the real content (53/63/94 files). One push per repo brings each online.
+- **Batteries run for real, in the beta clone:**
+  - poststruct `npm test`: self-test PASS -- good corpora clean + bad
+    corpus hits 8/8 expected FAIL ids (the negative test is the product).
+  - monoforge `npm test`: 5-assert self-test PASS -- bad config refused,
+    stray dir refused, stamp ok, unfilled doctor FAIL, refilled PASS.
+  - eyestruct `node --test tests/*.test.js`: 23 tests, 15 pass, 0 fail,
+    8 SKIP (the browser-capture lane -- honest for the browserless-spine
+    0.9.0 cut). The raster row refuses without a renderer, exit 2, never
+    fake-passes: contract verified in the suite itself.
+- **Sync state:** the beta clone was ff-pulled to 2e0d049 (gistory main);
+  the two commits past 2a92d6c are gistory labs receipts only, so the
+  pass-40 staging receipts stand against current trees.
+- **RUNBOOK: labs/gistory-online-plan.md** -- the staged trees + verified
+  spec IS the beta surface; poststruct first, monoforge second, eyestruct
+  third (the family sequencing both PRDs state); then npm bootstrap ladders
+  (manual 0.9.0 then OIDC flip), Pages + docs deploys, and the CI batteries
+  already riding in the staged trees. Small pre-cut nice-to-haves captured:
+  fix the two poststruct CLI bugs BEFORE the bootstrap publish so 0.9.0
+  never ships with them.
+- Restraint held: the runbook is owner-gated (pushes + npm bootstrap need
+  auth this workspace does not have); nothing from beta/ is committed to
+  prestruct -- only the plan + receipts ride in labs/.
+
+Gates re-run green before commit. Next: poststruct bin/cli.mjs one-edit
+fixes could land upstream with the report; when the pushes happen, the
+parity table above is the receipt to diff against.
+
+---
+
 ## Pass 42 - the house tools walked back at ourselves: CI moved to the read-only lane, id-census declined with a receipt (2026-10-26)
 
 The maintainer's challenge: "did you grab packstruct and crashtest? It'll
