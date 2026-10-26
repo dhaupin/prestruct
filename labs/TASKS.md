@@ -3,6 +3,45 @@
 Working log, not documentation. One section per pass: what was done, what was
 learned, what the next pass should pick up. Newer passes on top.
 
+## Pass 38 - crashtest hard run + the pack covers the hashed-key contract (2026-10-26)
+
+"Run prestruct hard" round: the harness (pinned crashtest 1.1.0) fired full
+against the deployed proxy pair, and the packs/ fixture got the one
+coverage gap it still had.
+
+- **First full run held: 54/54 REFUSED, 0 EXPLOITED, 0 BOUNDED** (99 ops /
+  206 requests). All five prestruct-proxy contract shapes REFUSED on both
+  runtimes; every harness module without a declared route degraded to its
+  honest vocabulary skip -- no false positives.
+- **Coverage gap closed: cache-key-variant-parity never attacked the hashed
+  key shape.** The pack's seeding derived keys "from the documented format"
+  -- but only the legacy `prestruct:<encodeURIComponent(url)>` shape, so the
+  pass-36 hashed-key fallback (oversized keys -> `prestruct:sha256:<hex>`)
+  shipped un-adversaried; a regression that reverted the fallback could not
+  be caught. The pack (now v0.4.0) seeds a third oversized-query variant
+  under BOTH shapes with opposed markers: the hashed key carries the
+  variant's real bytes, the legacy key is POISONED -- serving the poison
+  proves the legacy key is still in play (real KV rejects that key outright,
+  so in production this is the 500-on-response-path class). A proxy that
+  predates the fallback yields the honest "seed not consulted" skip, never a
+  fake pass. VPS side seeds the same variant under its full-URL SHA-256
+  filename scheme (no cap there -- it must behave like its siblings).
+- **Small ledger lesson:** the verdict detail hardcoded "2 URL variants";
+  after three variants and a poisoned probe, the detail strings now compute
+  variantCount and name the poisoned probe explicitly -- run reports must
+  describe what actually ran, not what used to run.
+- Gates: determinism lint flat (node:crypto SHA-256 == WebCrypto digest, so
+  the key derivation in the pack is seeded and deterministic), packstruct
+  --deep censused the extended module, vitest 200/200, sync:check, lint:docs,
+  lint:claims all green. Harness re-run: 3 variants x 2 surfaces, 54/54
+  REFUSED, 0 new / 0 regressed (106 ops / 208 requests).
+
+Next: when crashtest 1.2.0 ships, `npm run crashtest:bump 1.2.0` (pin + run
++ ledger regen in one commit) and re-diff the baseline. The remaining pack
+shape worth considering: a REFUSED-over-time probe for the VPS TTL knob if
+it ever becomes env-configurable like the Worker's CACHE_TTL_SECONDS.
+
+---
 ---
 
 
