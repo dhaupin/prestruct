@@ -12,6 +12,42 @@ Release history for prestruct. Commit history is the detailed source
 the v1.1.0 tag via the Trusted-Publisher workflow, provenance-attested),
 and **main carries the next release's pins**.
 
+## Unreleased (1.2.0 on the ladder; npm stays at the v1.1.0 tag)
+
+- **`prestruct audit`** joins the CLI (ported/remapped from the family
+  audit engine): grades the BAKED `dist/` -- FAIL rows exit 1 (missing
+  title/description, non-absolute canonical, duplicate head tags, missing
+  og/twitter core, SVG og:image, unparseable JSON-LD, 404 without noindex,
+  sitemap/robots); WARN rows report-grade. Flags: `--json`, `--external`
+  (HEAD-checks external hrefs, warn-grade), `--internal` (unresolved
+  internal hrefs, warn-grade). Scaffolded builds now END in the audit, so
+  a regression fails the build. Cherry-pickers: drop in
+  `scripts/audit.js` + add `&& node scripts/audit.js` to the build script.
+- **Honest sitemap lastmod + XML loud-fail**: per-route lastmod from the
+  dist file's own preserved mtime (byte-identical rebuilds skip the
+  write); sitemap values survive `assertXmlSafe` -- a control character
+  fails the build instead of shipping a corrupt sitemap.
+- **404 head tags rebuilt from capture groups (#33)**: the four 404-page
+  OG/twitter/description/canonical tags no longer ship literal `$1`/`$2`
+  garbage (function replacers use the returned string literally).
+- **Trailing-slash `siteUrl` no longer doubles the canonical (#53)**:
+  stripped at every URL seam (canonical/og, prerender metas, sitemap, 404,
+  the usePageMeta base). No config change needed.
+- **CLI refuses unknown dash-word flags (#54)** (`prestruct build --Force`
+  fails loud instead of riding as an unrelated flag) and **unknown config
+  keys print warnings (#52)** (diagnostics, never a gate).
+- **Structured `ogImage` object form** `{ url, width, height, alt, type }`
+  emits the og:image companion tags; object shape graded by
+  validate-config (proposal #38).
+- **Proxy pair hardening (template scripts)**: VPS eviction touches only
+  cache-shaped files (an operator's mounted files survive; cap is
+  `PRESTRUCT_CACHE_MAX_MB`, default 500); Worker KV keys over the
+  512-byte cap fall back to `prestruct:sha256:<hex>` (a long query used
+  to reject the KV put/get AFTER a successful render, turning the
+  response path into a 500). The in-repo crashtest pack (v0.4.0)
+  seeds an oversized variant under both key shapes with an opposed
+  marker, so a fallback regression fails CI.
+
 ## 1.1.0 (released from the v1.1.0 tag)
 
 - Deep engine imports join the package contract: `prestruct/hooks`,

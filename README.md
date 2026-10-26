@@ -168,7 +168,8 @@ npm provenance -- verify with `npm audit signatures`). Tags drive releases:
 a self-testing battery). `main` may be ahead of the latest tag; its version
 pins are the next planned release.
 
-Local install test from the registry tarball (35 files) passed: `init` never
+Local install test from the registry tarball (37 files; the audit verb joined
+the whitelist after the 35-file era) passed: `init` never
 clobbers, `build` produces full `dist/` (baked meta, sitemap, 404). The
 release-body template inside `release.yml` was corrected in the v1.0.0
 aftermath to match what the archive actually contains.

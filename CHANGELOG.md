@@ -69,6 +69,23 @@ records only what cherry-pickers must act on.
   (typo? see the config reference)` during build/validate. Warnings are
   diagnostics, not gates: they never fail the build.
 
+### Proxy pair hardening (template scripts -- cherry-pick the pair)
+
+- `init/scripts/proxy.js` eviction no longer deletes files that are not
+  the proxy's: it touched only `64-hex .html` cache shapes; under the
+  documented `PRESTRUCT_CACHE_DIR` override an operator's mounted
+  non-proxy files could be evicted. The size cap is env-tunable
+  (`PRESTRUCT_CACHE_MAX_MB`, default 500) and the cleanup log reports
+  what it actually removed.
+- `init/scripts/proxy.worker.js` guards KV's 512-byte key cap: a long
+  query string used to reject the KV put/get AFTER a successful render
+  (a post-render 500). Normal URLs keep the byte-identical legacy key
+  (existing cache entries stay valid); only oversized keys fall back to
+  the collident-proof `prestruct:sha256:<hex>` shape. The in-repo
+  crashtest pack (v0.4.0) seeds an oversized variant under BOTH shapes
+  with an opposed marker: a proxy that still consults the oversized
+  legacy key is poisoned and fails loudly.
+
 ### Packs conformance + pinned surfaces
 
 - `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared

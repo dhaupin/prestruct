@@ -790,9 +790,10 @@ because a nested workspace hit it first.
 `init/dist/` got into the tarball as 4,007 files, and would keep shipping to
 every CI install. Fix: BOTH levers -- `files` accepts negation patterns
 (`"!init/node_modules"`), AND a nested `init/.npmignore` lists the same
-directories. Belt and braces: `files` is the contract, `.npmignore` is the
-backstop, and the pack should be verified with `tar -tzf <tgz> | wc -l` (35
-files / ~57KB is the expected size, not 17MB).
+directories. Belt and braces: `files` is the contract, `.npmignore` isthe backstop, and the pack should be verified with `tar -tzf <tgz> | wc -l`
+(35 files / ~57KB was the expected size, not 17MB; 37 files once the 2026-10
+audit verb joined the whitelist -- verify against the CURRENT whitelist, not
+this number).
 
 **Lesson: title-regex dotall trap.** The build's title replacement was
 `/<title>.*?<\/title>/s` -- the `s` (dotall) flag lets the match cross line

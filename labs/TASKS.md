@@ -3,6 +3,64 @@
 Working log, not documentation. One section per pass: what was done, what was
 learned, what the next pass should pick up. Newer passes on top.
 
+---
+
+## Pass 39 - release button-up sweep, freestruct-round style (2026-10-26)
+
+The maintainer asked for the freestruct release cadence checked and mirrored
+("check their commits -- they did a ton of rounds"). Pulled the freestruct
+commit history (API, last ~40) and mapped its release pattern onto prestruct:
+version sweep, issue-board sweep to receipts, docs-uniformity sweeps, a
+pre-tag gate with fresh pins, and a pre-tag announcement draft.
+
+- **The one real version-truth bug found: the tarball count claims said 35
+  files -- the pack is actually 37 now** (audit.js joined bin/engine/init
+  when pass 33 shipped the audit verb). README's "install test from the
+  registry tarball (35 files)" and AGENTS.md's "(35 files / ~57KB is the
+  expected size)" were both stale. README now says 37 with the reason
+  inline; AGENTS.md keeps history but pins the rule: verify against the
+  CURRENT whitelist, not the recorded number. Measured, not assumed:
+  `npm pack --dry-run` reports total files: 37 + integrity hash.
+- **CHANGELOG's Unreleased stanza was missing the pass-36 proxy hardening**
+  (the file's contract is "what cherry-pickers must act on", and the
+  template proxy pair IS shipped payload). Added a "Proxy pair hardening
+  (template scripts)" group: name-filtered VPS eviction +
+  PRESTRUCT_CACHE_MAX_MB, Worker hashed-key fallback, and the pack's
+  poisoned oversized-legacy probe as the CI-catchable regression tripwire.
+- **Docs mirrored to main's truth:** docs/guides/changelog.md gained the
+  Unreleased stanza (condensed, action-per-row); docs/guides/roadmap.md
+  gains a "Shipped on main, ahead of the tag (1.2.0 state)" list and its
+  pack row moves v0.3.0 -> v0.4.0 (with the seeded shapes described, not
+  just counted); labs/prd-prestruct.md's Adversarial QA row likewise.
+- **Announcement draft added: docs/discussions/announcing-v1.2.0.md**, in
+  the shipped v1.0.0/v1.1.0 format (frontmatter + layout:none) marked
+  draft-until-tag. It answers #50's question in passing: the existing
+  announcement pages already use layout:none + extensionless permalink,
+  so "release post ships as bytes, not a page" is already the pattern --
+  close-able if the owner agrees.
+- **Issue board sweep:** 20 open; the closeout ledger's 8 paste-ready
+  receipts (#34 #37 #38 #40 #31 #51 #29 #42) re-verified against shipped
+  screens (audit verb + flags in bin/cli.mjs, ogImage object form in
+  inject-brand/validate-config + battery pins) -- still accurate, GitHub
+  write auth still not available in this workspace. #55/#47 stay open as
+  cross-repo ledgers; #28/#50 are CI/docs items; feature rows #35/#36/#39/
+  #41/#43/#49 remain the twin-pack reference phase.
+- **Glyph sweep:** the only emoji in md source are the two section markers
+  inside labs/hardening.md -- those are the crashtest harness's own
+  regenerated report format, not authored prose; rewriting them would fight
+  every future run.
+
+Gates: vitest 200/200, sync:check, packstruct --deep, docs
+frontmatter/language/truthfulness (27 pages), claims scan, all green. No
+template-behavior change on this pass -- the tarball battery is not re-run
+per the AGENTS gate list (only the 5 gates run before every push).
+
+Next: owner actions are the tracker closes (paste-ready), the v1.2.0 tag
+when ready, and the twin-pack PR to freestruct -- after which #47/#55 and
+the roadmap "cross-repo" rows collapse to a single receipt post.
+
+---
+
 ## Pass 38 - crashtest hard run + the pack covers the hashed-key contract (2026-10-26)
 
 "Run prestruct hard" round: the harness (pinned crashtest 1.1.0) fired full

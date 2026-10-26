@@ -19,8 +19,21 @@ next planned release (1.2.x) until it is tagged.
   { aeo: true }` per-vendor AI-crawler policy)
 - `fetchRoutes()` build-time CMS hook
 - Islands architecture and the optional bot proxy pair (VPS + Worker)
-- In-repo crashtest pack (v0.3.0, five wire-level shapes) + 54-row ledger at
-  harness 1.1.0 (upgrades are one command: `npm run crashtest:bump <version>`)
+- In-repo crashtest pack (v0.4.0: five wire-level shapes; the cache-key
+  variant shape seeds an oversized-query variant under the hashed key with
+  the oversized legacy entry POISONED) + 54-row ledger at harness 1.1.0
+  (upgrades are one command: `npm run crashtest:bump <version>`)
+
+Shipped on main, ahead of the tag (1.2.0 state):
+
+- `prestruct audit [dist]` (--json / --external / --internal): the built-in
+  post-build verifier; scaffolded builds end in it
+- Honest per-route sitemap lastmod + XML loud-fail, 404 replacer rebuild(#33),
+  trailing-slash siteUrl fixed at every URL seam (#53), CLI unknown-flag
+  refusal (#54), unknown-config-key warnings (#52)
+- Structured ogImage object form { url, width, height, alt, type } (#38)
+- Proxy pair hardening: name-filtered VPS eviction + PRESTRUCT_CACHE_MAX_MB
+  env cap; Worker hashed KV keys over the 512-byte cap
 
 ## Planned
 

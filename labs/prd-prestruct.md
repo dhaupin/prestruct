@@ -25,7 +25,7 @@ Verified against the engine at HEAD, not memory:
 | Template (`init/`) | byte-identical to engine via `scripts/sync-engine.mjs`; scaffold imports are dual-major safe (`rrdNS.default ?? rrdNS` interop form); ships the proxy pair, wrangler.toml, pm2/systemd starters, self-testing zip battery |
 | Platform state | vite 6.4.5 + vitest 5.0.5 (battery 147/147, tinypool pinned ^2.2.0 via overrides), react-router dual-major (battery pins v6, example runs v7 live), Node engines >=20, react 18 |
 | Example | 8 routes on rrd 7.18.4/rendered 8/8; build ends in the OWN audit (0 failures/0 warnings every build since pass 33); freestruct 1.1.0 audit also green (og raster + object-form ogImage, pass 32); AEO-era docs |
-| Adversarial QA | in-repo crashtest pack `packs/public/prestruct-proxy` v0.3.0 (5 shapes incl. cache-key variant parity), ledger 54/54 REFUSED at harness 1.1.0, CI lane = exact devDep pin, bump = `npm run crashtest:bump <v>` |
+| Adversarial QA | in-repo crashtest pack `packs/public/prestruct-proxy` v0.4.0 (5 shapes; cache-key variant parity seeds an oversized variant under BOTH key shapes, legacy entry poisoned), ledger 54/54 REFUSED at harness 1.1.0, CI lane = exact devDep pin, bump = `npm run crashtest:bump <v>` |
 | Docs | Jekyll + Pagefind site, 23 guides, truthfulness/fiction gates in CI |
 
 ---
