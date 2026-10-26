@@ -1,7 +1,7 @@
 ---
 version: 1.0.0
-permalink: /discussions/announcing-v1.0.0
-layout: none
+permalink: /discussions/announcing-v1.0.0/
+layout: default
 title: "Announcing prestruct v1.0.0"
 comments: false
 nav_order: 21
