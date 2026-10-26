@@ -118,6 +118,15 @@ export default function AppLayout() {
         </Link>
         <div className="header-actions">
           <ThemeToggle />
+          <a
+            href={GITHUB}
+            className="header-github"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="prestruct on GitHub"
+          >
+            <GitHubIcon />
+          </a>
           <button
             className={`nav-toggle${menuOpen ? ' open' : ''}`}
             onClick={() => setMenuOpen(o => !o)}

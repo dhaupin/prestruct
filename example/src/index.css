@@ -1,44 +1,47 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* -- Tokens ------------------------------------------------------------------- */
-/* Tokens -- the family sheet (dhaupin/flowforge web/src/styles.css, adopted
-   2026-10-26 for docs + example parity). Dark is default; the light block is
-   the SAME token set re-valued below. No layout class hardcodes a hex. */
+/* Tokens -- the prestruct brand sheet (the pre-rig example palette, which is
+   also the og-image sheet: lime #c8f000 on near-black, re-valued into the rig
+   token sets 2026-10-26). Dark is default; the light block is the SAME token
+   set re-valued below. No layout class hardcodes a hex. */
 :root {
-  --paper:            #10131a;
-  --surface:          #161b24;
-  --raised:           #1d2430;
-  --ink:              #e7eaf1;
-  --ink-soft:         #98a2b3;
-  --accent:           #6d8cff;
-  --accent-deep:      #5166c7;
-  --moss:             #3fae72;   /* success / positive green */
-  --err:              #e06557;   /* violation / negative red */
-  --line:             #2a3140;
-  --code-bg:          #0d1017;
-  --nav-bg:           rgba(16, 19, 26, 0.88);
-  --accent-contrast:  #0b1020;   /* text that sits ON an accent background */
+  --paper:            #080808;
+  --surface:          #0e0e0e;
+  --raised:           #141414;
+  --ink:              #e2e0db;
+  --ink-soft:         #8a8680;
+  --accent:           #c8f000;
+  --accent-deep:      #8aaa00;
+  --moss:             #00d084;   /* success / positive green (old --green) */
+  --err:              #ff4444;   /* violation / negative red (old --red) */
+  --line:             #2a2a2a;
+  --code-bg:          #141414;
+  --nav-bg:           rgba(8, 8, 8, 0.88);
+  --accent-contrast:  #080808;   /* text that sits ON an accent background */
   --font:       'Geist', system-ui, sans-serif;
   --mono:       'Geist Mono', ui-monospace, monospace;
   --radius:     4px;
   --max:        860px;
 }
 
-/* Light mode: same identity, ink on pale paper (the family light block). */
+/* Light mode: the old light block re-valued. The accent is duo-tone on
+   purpose: #8aaa00 (the old light accent) carries large text/badges at app
+   scale, links use --accent-deep #5e7000 (~5.3:1 on #f8f8f6, AA clears). */
 :root[data-theme="light"] {
-  --paper:            #f5f6fa;
+  --paper:            #f8f8f6;
   --surface:          #ffffff;
-  --raised:           #e6e9f2;
-  --ink:              #171b26;
-  --ink-soft:         #5b6575;
-  --accent:           #4055c5;
-  --accent-deep:      #33449e;
+  --raised:           #eaeae8;
+  --ink:              #1a1a18;
+  --ink-soft:         #5a5a58;
+  --accent:           #8aaa00;
+  --accent-deep:      #5e7000;
   --moss:             #2e7d4f;
   --err:              #b04b3f;
-  --line:             #d9dee9;
-  --code-bg:          #e9ecf3;
-  --nav-bg:           rgba(245, 246, 250, 0.88);
-  --accent-contrast:  #ffffff;
+  --line:             #d8d8d4;
+  --code-bg:          #eaeae8;
+  --nav-bg:           rgba(248, 248, 246, 0.88);
+  --accent-contrast:  #101010;
 }
 
 /* Light mode body tweak: the scanline overlay is a dark-mode texture. */
@@ -154,6 +157,20 @@ pre code {
 .header-chip { width: 20px; height: 20px; border-radius: 5px; display: block; }
 html[data-theme="light"] .header-chip { border: 1px solid var(--line); }
 
+/* GitHub icon pill, styled as the theme-toggle twin (same 32px square) */
+.header-github {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  background: none;
+  transition: color 0.15s, border-color 0.15s;
+}
+
 .wordmark-slash {
   color: var(--accent);
   font-weight: 300;
@@ -194,6 +211,12 @@ html[data-theme="light"] .header-chip { border: 1px solid var(--line); }
 }
 
 .nav-github:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.header-github:hover {
   color: var(--ink);
   border-color: var(--ink-soft);
   text-decoration: none;

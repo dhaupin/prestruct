@@ -37,26 +37,35 @@
     <meta name="color-scheme" content="dark light">
     <style>
         :root {
-            --paper: #10131a; --surface: #161b24; --raised: #1d2430; /* surface reconciled to the web token sheet (web styles.css truth); was the crashtest docs shade #0d1017 - brand values are adopter data, one sheet wins */
-            --ink: #e7eaf1; --ink-soft: #98a2b3; --ink-light: #98a2b3; /* tune BOTH toward AA on YOUR footer bg - crashtest ran 3.78:1 and it failed */
-            --accent: #6d8cff; --accent-deep: #5166c7; --moss: #3fae72; --err: #e06557;
-            --line: #2a3140; --code-bg: #0d1017;
+            /* The prestruct brand sheet (og-image truth): lime #c8f000 on
+               near-black. Adopted 2026-10-26; brand values are adopter data,
+               one sheet wins. Dark is default, light re-values the same set. */
+            --paper: #080808; --surface: #0e0e0e; --raised: #141414;
+            --ink: #e2e0db; --ink-soft: #8a8680; --ink-light: #8a8680; /* AA duty carried from the rig adoption: 5.5:1 on the footer bg */
+            --accent: #c8f000; --accent-deep: #8aaa00; --moss: #00d084; --err: #ff4444;
+            --line: #2a2a2a; --code-bg: #141414;
             --header-height: 54px; --sidebar-width: 240px;
         }
-        /* Light mode: the same identity, ink on pale paper
-           (matches the landing site's html[data-theme="light"] tokens). */
+        /* Light mode: the same identity, ink on warm pale paper — the old
+           light block. Links use --accent-deep #5e7000 (AA on #f8f8f6); the
+           #8aaa00 accent carries badges/large text. */
         html[data-theme="light"] {
-            --paper: #f5f6fa; --surface: #ffffff; --raised: #e6e9f2;
-            --ink: #171b26; --ink-soft: #5b6575; --ink-light: #5b6575;
-            --accent: #4055c5; --accent-deep: #33449e; --moss: #2e7d4f; --err: #b04b3f;
-            --line: #d9dee9; --code-bg: #e9ecf3;
+            --paper: #f8f8f6; --surface: #ffffff; --raised: #eaeae8;
+            --ink: #1a1a18; --ink-soft: #5a5a58; --ink-light: #5a5a58;
+            --accent: #8aaa00; --accent-deep: #5e7000; --moss: #2e7d4f; --err: #b04b3f;
+            --line: #d8d8d4; --code-bg: #eaeae8;
         }
         * { margin: 0; box-sizing: border-box; }
         html { background: var(--paper); color-scheme: dark; }
         html[data-theme="light"] { color-scheme: light; }
         body { margin: 0; color: var(--ink); background: var(--paper);
             font-family: Inter, "SF Pro Text", system-ui, -apple-system, "Segoe UI", sans-serif;
-            font-size: 15px; line-height: 1.65; }
+            font-size: 15px; line-height: 1.65;
+            background-image: repeating-linear-gradient(
+                0deg, transparent, transparent 2px,
+                rgba(255, 255, 255, 0.012) 2px, rgba(255, 255, 255, 0.012) 4px);
+        }
+        html[data-theme="light"] body { background-image: none; }
         a { color: var(--accent); }
 
         /* Header (vant shape: fixed, brand left, actions right) */
