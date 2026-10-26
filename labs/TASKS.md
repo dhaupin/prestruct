@@ -1,3 +1,27 @@
+## Pass 54 - CI redraw: the init lint lane had been silently red (ogimage prefer-const) (2026-10-26)
+
+Solving prestruct#56's acceptance ("CI shows both build lanes green")
+surfaced something better than a close receipt: the Test workflow's Lint
+step (`cd init && npm run lint`) has been failing since the og-image
+pass -- engine/scripts/ogimage.js carried `let svg` that is never
+reassigned (one eslint `prefer-const` ERROR among allowed warnings),
+and every push since that landing went red at the lint step while the
+battery, docs gates, sync check, and crashtest proxy lane all stayed
+green. Nobody caught it because the lint step was never part of the
+local gate loop.
+
+Fix: `const svg` in ogimage.js, engine synced to init/ + example/
+(sync:check contract green), init's own lint exit 0 (0 errors), full
+battery 244/244, qc byte-identity green. init/package-lock.json's
+version field re-stamped 1.1.0 -> 1.2.0 (header had lagged the ladder).
+
+Lesson for the gate set: a tracked lint lane that is not part of the
+pre-push loop is a silent-red generator. The lint gates we run by hand
+(lint:docs/lint:claims/lint:packs) cover the repo; the init tree's own
+eslint rides only CI. Candidate follow-up: a `npm run gate` aggregate
+that includes `cd init && npm run lint` so the pre-push loop cannot
+forget a lane again.
+
 ## Pass 53 - the remaining labs staging docs land on their trackers (2026-10-26)
 
 The "are ALL the staging docs filed?" sweep. Inventory of every

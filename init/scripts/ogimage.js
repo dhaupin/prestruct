@@ -131,7 +131,7 @@ export function renderRouteOgImage(generation, route, siteUrl, outputDir) {
   const routePath = route && typeof route.path === 'string' ? route.path : '/'
   const routeUrl = ((siteUrl || '').replace(/\/$/, '')) + (routePath === '/' ? '/' : routePath)
   const displayTitle = (route.meta && route.meta.title) || routePath || 'Preview'
-  let svg = generation.template
+  const svg = generation.template
     .split('{{ogTitle}}').join(escXml(displayTitle))
     .split('{{ogDescription}}').join(escXml((route.meta && route.meta.description) || ''))
     .split('{{ogUrl}}').join(escXml(routeUrl))
