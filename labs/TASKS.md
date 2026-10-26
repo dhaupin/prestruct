@@ -5,6 +5,43 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 30 - docs-frame defect pair + convention amendments (2026-10-26)
+
+Second ledger pass; all four are docs-side, all verifiable with the docs
+gates.
+
+- **#46:** the dead prism line-numbers pair in `docs/_layouts/default.html`
+  (CDN link + orphan `.line-numbers-rows` support block) deleted. Only
+  `prism.min.js` + `prism-autoloader.min.js` load; autoloader never loads
+  plugins and no rule ever adds the `line-numbers` class, so both removals
+  are no-ops by construction -- same proof the freestruct#17 reference fix
+  carried on its own docs.
+- **#32:** the classic `<script src="pagefind/pagefind.js">` deleted from
+  the layout. The Pagefind 1.5.x bundle is ESM, so the classic tag threw
+  `import.meta outside a module` on every built docs page before any app
+  code ran, and murdered whatever executed after it in the file. The dynamic
+  `await import()` inside `doSearch()` is the whole loader (it already
+  worked); a comment at the site of the old tag names the bug class.
+- **#45:** both announcement posts reshape to the crashtest "file IS the
+  post" convention: wrapper prose and the nested `~~~md` block are gone,
+  frontmatter + body only -- GitHub view-source and copy-raw now yield the
+  post verbatim. Root README gains the direct Creadev.org workshop link,
+  matching packstruct's line.
+- **#48:** both posts re-flowed -- no more hand-wrapped ~72-char prose in
+  paste-to-Discussions documents (one flowing line per paragraph); fences,
+  bullet items, tables and headings keep their shapes. The transform was a
+  scratch script applied once, reviewed by diff, not a keeper.
+- **Flowforge crosslink noted, not worked here:** flowforge's
+  `scripts/repair-404.cjs` receipt is a public workaround for exactly the
+  #33 defect closed in Pass 28, with its retirement pinned to the upstream
+  release that carries it. Nothing to change in this repo for that -- but
+  it makes tagging prestruct 1.2.0 the unlock for flowforge's own pin bump.
+
+Gates: docs style/links/frontmatter/language/truthfulness PASS, fiction
+scan PASS. Engine untouched; no template-visible change, no e2e needed.
+
+---
+
 ## Pass 29 - crashtest 1.1.0 adopted; harness upgrades become one command (2026-10-26)
 
 The maintainer's request: crashtest moves fast (1.1.0 shipped, 1.2 next) -- make
