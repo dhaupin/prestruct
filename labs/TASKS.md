@@ -1,3 +1,35 @@
+## Pass 49 - the QC sweep: gaps, edges, vulns, perf (2026-10-26)
+
+Fresh-eyes QC over everything Pass 48 shipped. Four findings, four fixes,
+all with regression tests (tests/issue-walk.test.js + tests/engine.test.js):
+
+- **Re-entrancy gap (caught live by the perf sweep):** prerender's root-div
+  swap matched only `<div id="root"></div>` - an EMPTY div. But prerender
+  writes its rendered home page over dist/index.html, so a bare rerun of
+  `node scripts/prerender.js` (no fresh vite step) read a shell whose root
+  div carried last pass's markup and FATALed every route with what looked
+  like a missing shell. Fix: findRootDivSpan() depth-counts nested divs to
+  locate the whole root element (open tag through its matching close),
+  replaceRootDiv/generate404 slice-assemble the swap (no replace() string
+  at all, so $-shaped content stays literal with zero escape surface),
+  and a previous pass's data-server-rendered stamp is normalized out.
+  Verified live: rerun over a shipped dist exits 0, and two consecutive
+  passes on the example are byte-identical (idempotent). Timing receipts:
+  cold vs warm full build on the example 6.4s -> 5.6s; a full 8-route
+  rerender over a shipped dist ~2.0s.
+- **Hung-hook edge:** postBuild hooks carried a 30-MINUTE execSync timeout
+  (typed wrong once, never tested). Now 30s - the family reference
+  posture: a hung hook may cost the build its runtime, never the deploy;
+  a hook needing longer backgrounds its own work. The timeout test pins
+  real elapsed time (<40s) and the SIGTERM kill signal is recorded in the
+  failure entry so a timeout is distinguishable from a clean nonzero exit.
+- The other sweep edges (junk feed/type values, empty injection extras)
+  were already pinned by Pass 48's battery - rerun green.
+
+Gates: 235/235 battery, sync:check byte-identity, packstruct --deep,
+docs frontmatter+language+truthfulness, fiction signatures, tarball e2e
+(fresh-project real build) all pass.
+
 ## Pass 48 - the open-issues walk: every open issue fixed or earned closed (2026-10-26)
 
 The program: go through ALL open issues, fix in the engine, close with

@@ -17,6 +17,8 @@ import {
   mergeRoutes,
   generateLlms,
   rewriteRrdNamedImports,
+  cacheSignature,
+  cacheEntryValid,
 } from '../engine/scripts/prerender.js'
 
 import { buildDefaultJsonLd } from '../engine/scripts/inject-brand.js'
@@ -134,6 +136,19 @@ describe('hooks.postBuild', () => {
     expect(failures.length).toBe(1)
     expect(failures[0].command).toContain('process.exit(3)')
   })
+
+  it('kills a hung hook via the 30s timeout instead of stalling the build', async () => {
+    const start = Date.now()
+    const failures = runPostBuildHooks({
+      runHooks: true,
+      hooks: { postBuild: ['node -e "setTimeout(() => {}, 60000)"'] },
+    }, { siteUrl: SITE, outputDir: os.tmpdir() })
+    // execSync blocks, but the timeout guarantees it CANNOT block longer than
+    // ~31s. This assertion guards the guardrail from drifting open again.
+    expect(Date.now() - start).toBeLessThan(40000)
+    expect(failures.length).toBe(1)
+    expect(failures[0].signal).toBe('SIGTERM') // killed by timeout, not a clean exit
+  }, 45000)
 })
 
 // -- grouped head additions (#35 + #49) -----------------------------------------
@@ -290,6 +305,30 @@ describe('generateLlms', () => {
     expect(fs.existsSync(path.join(dir, 'llms.txt'))).toBe(false)
   })
 })
+
+// -- QC sweep: cache correctness over the config-gated extras ---------------------
+
+describe('cacheSignature covers the head extras (QC sweep)', () => {
+  const route = { path: '/a', meta: { title: 'T' } }
+
+  it('flipping verification/feed/searchUrl/hreflang on between builds invalidates the cache', () => {
+    const baseSig = cacheSignature(route, SITE, '<html></html>', { feed: null, alternates: null, verification: null, searchUrl: null })
+    const onSig = cacheSignature(route, SITE, '<html></html>', { feed: null, alternates: null, verification: { 'google-site-verification': 'x' }, searchUrl: null })
+    expect(onSig).not.toBe(baseSig)
+    // A stale cache entry (pre-extras sig) must miss and re-render.
+    expect(cacheEntryValid({ sig: baseSig, html: '<html></html>' }, route, SITE, '<html></html>', onExtrasOn)).toBe(false)
+  })
+
+  it('stays stable when the extras input is unchanged (no spurious re-renders)', () => {
+    const e1 = cacheSignature(route, SITE, '<html></html>', { feed: null, alternates: null, verification: null, searchUrl: null })
+    const e2 = cacheSignature(route, SITE, '<html></html>', { feed: null, alternates: null, verification: null, searchUrl: null })
+    expect(e1).toBe(e2)
+    // And an entry signed with the same shape validates.
+    expect(cacheEntryValid({ sig: e1, html: 'x' }, route, SITE, '<html></html>', { feed: null, alternates: null, verification: null, searchUrl: null })).toBe(true)
+  })
+})
+
+const onExtrasOn = { feed: null, alternates: null, verification: { 'google-site-verification': 'x' }, searchUrl: null }
 
 // -- OG image generation (#43) -----------------------------------------------------
 

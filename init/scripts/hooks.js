@@ -42,9 +42,11 @@ function substitutePlaceholders(command, { siteUrl, outputDir }) {
 
 /**
  * Run config.hooks.postBuild (string | string[]): each entry spawned with
- * stdio inherited and a 30-minute timeout, PRESTRUCT_SITE_URL and
- * PRESTRUCT_OUTPUT_DIR in the env, SIMPLE placeholders substituted.
- * Returns the list of failed entries (empty = clean).
+ * stdio inherited and a 30-second timeout (the family reference posture:
+ * a hung hook may cost the build its runtime, never the deploy); a hook
+ * that genuinely needs longer can background its own work. PRESTRUCT_SITE_URL
+ * and PRESTRUCT_OUTPUT_DIR are in the env, placeholders substituted via
+ * function replacers. Returns the list of failed entries (empty = clean).
  */
 export function runPostBuildHooks(config, { siteUrl, outputDir } = {}) {
   const raw = config?.hooks?.postBuild
@@ -73,11 +75,13 @@ export function runPostBuildHooks(config, { siteUrl, outputDir } = {}) {
 
     console.log('[prestruct] PostBuild hook: running ' + command.slice(0, 76) + '...')
     try {
-      execSync(command, { stdio: 'inherit', timeout: 30 * 60 * 1000, env: hookEnv({ siteUrl: url, outputDir: out }) })
+      execSync(command, { stdio: 'inherit', timeout: 30 * 1000, env: hookEnv({ siteUrl: url, outputDir: out }) })
       console.log('[prestruct] PostBuild hook: done')
     } catch (e) {
       console.log('[prestruct] PostBuild hook: FAILED (exit ' + (e.status ?? e.message) + ')')
-      failures.push({ command: entry, status: e.status })
+      // Timeout kills surface as a signal, not an exit code - record it so a
+      // hung hook is distinguishable from a clean nonzero exit.
+      failures.push({ command: entry, status: e.status, signal: e.signal })
     }
   }
 

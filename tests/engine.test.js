@@ -40,6 +40,44 @@ describe('replaceRootDiv (W8: attribute-tolerant)', () => {
   })
 })
 
+describe('replaceRootDiv re-entrancy (prerender output IS the next shell)', () => {
+  const PRISTINE = '<html><div id="root"></div><script src="/assets/x.js"></script></html>'
+  const APP = '<div class="app"><div>nav</div><main>body</main></div>'
+
+  it('re-renders over an already-rendered shell (bare build rerun) instead of FATAL', () => {
+    // After one prerender pass, dist/index.html IS the rendered home page:
+    // root div carries data-server-rendered AND last pass's markup.
+    const pass1 = replaceRootDiv(PRISTINE, APP)
+    // The old empty-only matcher threw "not found in shell" here.
+    const pass2 = replaceRootDiv(pass1, APP)
+    expect(pass2).toBe(
+      '<html><div id="root" data-server-rendered="true">'
+      + APP
+      + '</div><script src="/assets/x.js"></script></html>'
+    )
+  })
+
+  it('is idempotent: rendering identical content twice is byte-identical', () => {
+    const once = replaceRootDiv(PRISTINE, APP)
+    const twice = replaceRootDiv(once, APP)
+    expect(twice).toBe(once) // no stacked stamps, no nested renders
+  })
+
+  it('depth-counts nested divs instead of stopping at the first close', () => {
+    // A lazy [\s\S]*?<\/div> scan would swap at the "nav" close tag and
+    // corrupt the document.
+    const once = replaceRootDiv(PRISTINE, APP)
+    const again = replaceRootDiv(once, APP)
+    expect(again).toBe(once) // full-span swap, not a mid-tree splice
+  })
+
+  it('preserves $-shaped content on re-entry too (slice assembly)', () => {
+    const dollar = '<p>Price: $120 &amp; ref $&</p>'
+    const once = replaceRootDiv(PRISTINE, dollar)
+    expect(replaceRootDiv(once, dollar)).toContain(dollar)
+  })
+})
+
 describe('validateConfig', () => {
   it('passes a minimal valid config', () => {
     const { ok, errors } = validateConfig({ siteUrl: 'https://example.com', routes: [{ path: '/' }] })

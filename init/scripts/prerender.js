@@ -126,13 +126,19 @@ export function escapeHtml(s) {
  * @param {string} shell - dist/index.html contents
  * @returns {string} stable hash signature
  */
-export function cacheSignature(route, siteUrl, shell) {
+export function cacheSignature(route, siteUrl, shell, extras = null) {
   return crypto.createHash('sha256').update(JSON.stringify({
     path: route.path,
     siteUrl,
     meta: route.meta ?? null,
     ogImage: route.ogImage ?? null,
     shell,
+    // Config-gated head additions (the 2026-10 ride-along set): a host that
+    // flips feed / hreflang / verification / searchUrl on between builds
+    // must re-render the routes that carry them. The QC sweep caught the
+    // signature covering only the shell-side inputs, so newly enabled
+    // extras rode a valid-cache hit and never reached the shipped head.
+    extras: extras ?? null,
   })).digest('hex')
 }
 
@@ -146,24 +152,52 @@ export function cacheSignature(route, siteUrl, shell) {
  * @param {string} shell - current dist/index.html contents
  * @returns {boolean} true when the cache may be reused
  */
-export function cacheEntryValid(entry, route, siteUrl, shell) {
+export function cacheEntryValid(entry, route, siteUrl, shell, extras = null) {
   if (!entry || typeof entry !== 'object' || typeof entry.html !== 'string') return false
   // Legacy entries predate signatures: treat as stale once, rerender, and
   // the write below upgrades them in place.
   if (!entry.sig) return false
-  return entry.sig === cacheSignature(route, siteUrl, shell)
+  return entry.sig === cacheSignature(route, siteUrl, shell, extras)
 }
 
-// -- Root-div injection (W8 fix) -----------------------------------------------
+// -- Root-div injection (W8 fix + re-entrancy fix, 2026-10) ---------------------
 // Attribute-tolerant: inject-brand.js may add its own attrs to the root div
 // (e.g. data-deploy-id-footer when config.deployIdFooter is true). This
 // matcher therefore matches <div id="root">, <div id="root" ...attrs>, and
 // carries existing attrs into the SSR output so they survive prerendering.
+// Content-tolerant too, and NOT optional: prerender's own output lands in
+// dist/index.html -- the root div ships RENDERED. A bare re-run (CI debug
+// rerun, cache-money builds without a fresh vite step) reads that rendered
+// shell, and the old empty-only matcher threw "<div id="root"></div> not
+// found" FATAL on every route. Re-rendering an already-rendered shell is now
+// the same operation as rendering a pristine one, and idempotent.
+
+/**
+ * Locate the shell's root <div id="root"> element and return [start, end)
+ * offsets spanning the WHOLE element -- open tag through its matching close.
+ * Nested divs inside a previously rendered shell are depth-counted; a lazy
+ * matching scan would stop at the first nested </div> and swap the wrong
+ * span. A <div ... /> self-closing token neither opens nor closes a level.
+ */
+function findRootDivSpan(shell) {
+  const open = /<div id="root"[^>]*>/.exec(shell)
+  if (!open) return null
+  let depth = 1
+  const TOKEN = /<div\b[^>]*>|<\/div>/g
+  TOKEN.lastIndex = open.index + open[0].length
+  let t
+  while ((t = TOKEN.exec(shell)) !== null) {
+    if (t[0] === '</div>') depth -= 1
+    else if (t[0].endsWith('/>')) continue
+    else depth += 1
+    if (depth === 0) return [open.index, TOKEN.lastIndex]
+  }
+  return null
+}
 
 /**
  * Swap the shell's root div for one stamped with data-server-rendered and
- * carrying the prerendered markup. Uses a function replacer so $-shaped
- * content in appHtml stays literal.
+ * carrying the prerendered markup.
  *
  * @param {string} shell - dist/index.html contents
  * @param {string} appHtml - renderToString output for the route
@@ -171,20 +205,25 @@ export function cacheEntryValid(entry, route, siteUrl, shell) {
  * @throws when the shell has no root div
  */
 export function replaceRootDiv(shell, appHtml) {
-  const match = shell.match(/<div id="root"([^>]*)><\/div>/)
-  if (!match) {
+  const span = findRootDivSpan(shell)
+  if (!span) {
     throw new Error('<div id="root"></div> not found in shell -- check index.html')
   }
-  const existing = match[1].replace(/\s+$/, '')
-  const attrs = existing ? `${existing} data-server-rendered="true"` : ' data-server-rendered="true"'
+  const openTag = shell.slice(span[0], shell.indexOf('>', span[0]) + 1)
+  // Carry the open tag's other attrs through (inject-brand); drop any
+  // data-server-rendered stamp a previous pass wrote so re-entry cannot
+  // stack duplicate stamps (or leave it without the empty form's attrs).
+  const attrs = openTag
+    .slice('<div id="root"'.length, -1)
+    .replace(/ data-server-rendered="true"/g, '')
+    .trim()
+  const open = `<div id="root"${attrs ? ' ' + attrs : ''} data-server-rendered="true">`
   // appHtml MUST be $-escaped: it is okay for route content to contain
   // "$1"/"$&"-shaped text (prices, code samples, quotes) and the second
   // argument to replace() would expand those into capture references,
   // mangling the SSR output. Same lesson as the $120 meta-description bug.
-  return shell.replace(
-    /<div id="root"[^>]*><\/div>/,
-    () => `<div id="root"${attrs}>${appHtml}</div>`
-  )
+  // (Slice-assembly instead: no replace() in the swap at all.)
+  return shell.slice(0, span[0]) + open + appHtml + '</div>' + shell.slice(span[1])
 }
 
 // -- Meta injection ------------------------------------------------------------
@@ -619,9 +658,13 @@ export function generate404(shell, config, siteUrl) {
     '</div>',
   ]
 
-  // Function replacer: bodyLines carry user text; string-form replacement
-  // would expand $-sequences (same trap as replaceRootDiv).
-  let html = shell.replace(/<div id="root"[^>]*><\/div>/, () => bodyLines.join('\n'))
+  // Root-div swap rides findRootDivSpan (re-entrancy fix): slice assembly
+  // keeps $-shaped config text literal with no replacement string in sight.
+  const span = findRootDivSpan(shell)
+  if (!span) {
+    throw new Error('<div id="root"></div> not found in shell -- check index.html')
+  }
+  let html = shell.slice(0, span[0]) + bodyLines.join('\n') + shell.slice(span[1])
   // #42 (the root fix behind the replacer tragedy #33/#34): the four text
   // tags ride the SAME injection pipeline as every page -- injectMeta owns
   // title/description/og:title/twitter:title with its single-line,
@@ -877,6 +920,17 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     // carry head tags pointing at a missing file. Routes with their own
     // og:image override keep theirs (missing-only).
     const ogImageGeneration = resolveOgImageGeneration(cfg, p.root)
+    // The config-gated head additions that rendered HTML depends on: carried
+    // into the incremental cache signature (QC sweep: flipping these on
+    // between builds used to ride a valid-cache hit and never reach the
+    // shipped head). Route-level alternates/jsonLd are already covered
+    // via route.meta in the base signature.
+    const headExtras = {
+      feed: cfg.feed ?? null,
+      alternates: cfg.alternates ?? null,
+      verification: cfg.verification ?? null,
+      searchUrl: cfg.searchUrl ?? null,
+    }
     const routeOgOverrides = new Map()
     if (ogImageGeneration) {
       for (const route of ROUTES) {
@@ -906,7 +960,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
       // path-keyed check rewrote stale HTML over fresh builds whenever the
       // shell or route meta changed. cacheEntryValid sees signatures over
       // every rendered input; legacy entries (no sig) render once.
-      if (!force && cacheEntryValid(cache[route.path], route, siteUrl, shell)) {
+      if (!force && cacheEntryValid(cache[route.path], route, siteUrl, shell, headExtras)) {
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         writeRouteFile(distPath, cache[route.path].html, routeMtimes, route.path)
         console.log(`[prerender] cached ${route.path}`)
@@ -928,15 +982,10 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         let html = replaceRootDiv(shell, appHtml)
         // Per-route branded og:image when generated (#43); global otherwise.
         const routeOg = routeOgOverrides.get(route.path) || cfg.ogImage
-        html = injectMeta(html, route.meta || {}, route.path, siteUrl, routeOg, {
-          feed: cfg.feed,
-          alternates: cfg.alternates,
-          verification: cfg.verification,
-          searchUrl: cfg.searchUrl,
-        })
+        html = injectMeta(html, route.meta || {}, route.path, siteUrl, routeOg, headExtras)
 
         // Save to cache with a signature over exactly these rendered inputs
-        cache[route.path] = { html, time: Date.now(), sig: cacheSignature(route, siteUrl, shell) }
+        cache[route.path] = { html, time: Date.now(), sig: cacheSignature(route, siteUrl, shell, headExtras) }
 
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         writeRouteFile(distPath, html, routeMtimes, route.path)
