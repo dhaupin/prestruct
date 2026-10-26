@@ -41,6 +41,15 @@ independently verifiable engine diffs, targeted at your 1.2.0 ladder:
   your other keys: bad aiBots value, non-object robots, aeo: false)
 - `0003-og-image-secure-url-companion.patch` -- engine/seo.js (one line in
   the companion builder + the reasoning comment)
+- `0004-configless-audit-null-crash.patch` -- engine/audit.js: your cmdAudit
+  passes `config: null` when the config is undiscoverable ("running without
+  the on-disk asset mapping"), but the audit's TW_SET gate read
+  `config.twitter` on that null and crashed the WHOLE configless audit with
+  a raw TypeError -- its own help text contradicts the behavior. One
+  optional-chain fixes it (`config?.twitter?.username`); verified the
+  configless run grades normally afterwards. Found in a round-2
+  cross-validation probe; prestruct side never carried the class because
+  our remap dropped twitter handle grading entirely.
 
 Applying onto 1.2.0 work? The hunks anchor on stable lines (the robots
 writer and the companion array); re-diff from the pristine copies if the

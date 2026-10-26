@@ -66,6 +66,35 @@ Contract notes every apply-er must keep:
   overrides keep their wholesale-set contract (companions of any kind do not
   ride an override).
 
+## Round 2 (cross-validation + a found-and-fixed their-side bug)
+
+A full probe round ran against the patched vendored tree after the initial
+parity pack froze:
+
+- checkLinks: root-relative nav from a nested page resolves against the
+  output root (their Pass 26.10 contract); a pretty-URL miss reports with
+  the calling file. Green.
+- computeBuildHash: byte-identical across reruns on an identical tree;
+  moves when content moves; 404 pages excluded. Green.
+- indexnow: sitemap <loc> harvest order preserved; the 32-hex key gate
+  takes lowercase only. Green (network untouched).
+- audit cross-validation on a deliberately broken fixture: their audit
+  FAILs svg og:image, duplicate canonical and missing description with the
+  same grading ladders ours does. Green.
+- notfound pipeline: generated 404 carries noindex and survives the full
+  SEO treatment. Green.
+- **FOUND + FIXED: the configless audit crashed.** Their auditOutput
+  TW_SET gate read `config.twitter` on a config of `null` -- and their own
+  cmdAudit deliberately passes null when the config is undiscoverable, so
+  every configless audit crashed with a raw TypeError instead of
+  "running without the on-disk asset mapping" as its help text promises.
+  Fixed by optional-chaining both hops (`config?.twitter?.username`),
+  shipped as `0004-configless-audit-null-crash.patch` (15 lines, verified:
+  configless run now grades normally instead of throwing). Prestruct's
+  audit never carried the class -- our remap dropped twitter:site/creator
+  grading entirely (no handle config exists in prestruct), which is one
+  more case of the twins covering each other's blind spots.
+
 ## Local verification (performed against the vendored 1.1.0 tree)
 
 Both patches were applied to a vendored copy and verified via direct engine

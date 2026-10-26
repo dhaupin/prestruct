@@ -327,6 +327,24 @@ describe('mergeRoutes (fetchRoutes hook merge contract)', () => {
     const out = mergeRoutes([{ path: '/' }], null)
     expect(out.map(r => r.path)).toEqual(['/'])
   })
+
+  it('skips junk entries loudly instead of a mid-build TypeError (walk 2026-10)', () => {
+    // A null route / bare string from a buggy CMS mapping used to crash
+    // `new Map(routes.map(r => [r.path, r]))` with an obscure
+    // "Cannot read properties of undefined" mid-build. validate-config
+    // flags these, but a non-STRICT build still reaches mergeRoutes --
+    // the downstream posture is skip-loud, valid routes keep rendering.
+    const out = mergeRoutes(
+      [{ path: '/good' }, null, 'oops', { path: '/also-good' }],
+      [undefined, { path: '/fetched' }],
+    )
+    expect(out.map(r => r.path)).toEqual(['/good', '/also-good', '/fetched'])
+  })
+
+  it('drops path-less objects (a route without a path renders nowhere)', () => {
+    const out = mergeRoutes([{ path: '/good' }, { meta: { title: 'x' } }], [])
+    expect(out.map(r => r.path)).toEqual(['/good'])
+  })
 })
 
 describe('cleanCache', () => {

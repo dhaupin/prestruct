@@ -1,0 +1,15 @@
+--- a/engine/audit.js
++++ b/engine/audit.js
+@@ -184,7 +184,11 @@
+       // configured handle the injector ships neither twitter:site nor
+       // twitter:creator, so the audit grades those absences only when the
+       // handle exists. The 'config-gated' wording in the warning now holds.
+-      if ((name === 'twitter:site' || name === 'twitter:creator') && !config.twitter?.username) continue;
++      // Configless-audit crash fix (round-2 parity probe): the docs promise
++      // an undiscoverable config just skips the on-disk asset mapping, but
++      // this gate read `config.twitter` on a null config and crashed the
++      // whole audit with a raw TypeError. Optional-chain both hops.
++      if ((name === 'twitter:site' || name === 'twitter:creator') && !config?.twitter?.username) continue;
+       if (!grabMeta(head, 'name', name)) {
+         warn(label, name + ' absent (config-gated or SSG-owned partial set; add a twitter username / og.image as needed)');
+       }

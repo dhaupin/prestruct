@@ -463,7 +463,17 @@ export function generate404(shell, config, siteUrl) {
   const heading        = escapeXml(notFoundConfig.heading        || 'Page not found.')
   const body           = escapeXml(notFoundConfig.body           || "That page doesn't exist -- or it moved.")
   const primaryLabel   = escapeXml(notFoundConfig.primaryCta?.label  || 'Go home')
-  const primaryHref    = escapeXml(notFoundConfig.primaryCta?.href   || '/')
+  // CTA href scheme guard (#walk 2026-10): escapeXml fixes the markup
+  // breaking class (" in the attribute) but nothing can make a
+  // javascript:/data: URL into a safe destination -- it would ship as a
+  // WORKING script href on the one page whose whole contract is zero JS.
+  // Allow only real anchors (relative, absolute http(s), mailto:, tel:
+  // and a plain hash); anything else falls back to '/'. Config is
+  // author-owned, so this is hardening, not a trust boundary.
+  const rawHref        = notFoundConfig.primaryCta?.href   || '/'
+  const primaryHref    = /^(\/|https?:\/\/|mailto:|tel:|#)/i.test(String(rawHref))
+    ? escapeXml(rawHref)
+    : escapeXml('/')
   const siteName       = escapeXml(config.siteName || 'Site')
   const v              = escapeReplacement
 
@@ -565,10 +575,27 @@ export function mergeRoutes(staticRoutes = [], fetchedRoutes) {
   // Static routes keep both precedence (path collisions) and position
   // (static first, CMS routes appended). A hook that resolves to nothing
   // (null/undefined) degrades to the static list unchanged.
-  const out = new Map((staticRoutes ?? []).map(r => [r.path, r]))
-  for (const r of fetchedRoutes ?? []) {
+  //
+  // Junk tolerance (#walk 2026-10): a non-object entry (null route, a bare
+  // string from a CMS mapping bug) used to crash the Map build with
+  // `Cannot read properties of undefined (reading 'path')` -- an obscure
+  // mid-build TypeError far from its cause. validate-config already flags
+  // these as diagnostics, but a non-STRICT build still reaches here, so
+  // the downstream posture is skip-LOUD per entry (never die silently,
+  // never take down the other valid routes with one bad row).
+  const out = new Map()
+  let junk = 0
+  const addRoute = (r, origin) => {
+    if (!r || typeof r !== 'object' || typeof r.path !== 'string') {
+      console.error(`[prerender] ${origin}: skipped non-route entry (expected { path, ... }, got ${r === null ? 'null' : typeof r}${typeof r === 'string' ? ": ''" + r.slice(0, 40) + "''" : ''})`)
+      junk++
+      return
+    }
     if (!out.has(r.path)) out.set(r.path, r)
   }
+  for (const r of (staticRoutes ?? [])) addRoute(r, 'routes')
+  for (const r of (fetchedRoutes ?? [])) addRoute(r, 'fetchRoutes()')
+  if (junk > 0) console.error(`[prerender] ${junk} junk route entr(y|ies) skipped -- fix ssr.config.js (or the fetchRoutes() hook)`)
   return [...out.values()]
 }
 

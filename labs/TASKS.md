@@ -5,6 +5,40 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 35 - engine walk + issue close-out + freestruct round 2 (2026-10-26)
+
+The maintainer's ask: close the issues, more freestruct rounds, walk the
+engine for bugs/gaps/edges/vulns.
+
+- **Engine walk findings (both fixed + pinned).** (1) `mergeRoutes` died
+  mid-build on a non-object route (null / bare string from a CMS mapping)
+  with an obscure `Cannot read properties of undefined (reading 'path')`
+  far from its cause. validate-config flags these, but a non-STRICT build
+  still reaches the merge -- the downstream posture is skip-LOUD per
+  entry, valid routes keep rendering. (2) The 404 CTA href accepted
+  scheme-shaped values post-escapeXml: escapeXml fixes the
+  attribute-breaking class, but a `javascript:/data:` destination ships
+  as a WORKING script href on the one page whose whole contract is zero
+  JS. Scheme allowlist (relative, http(s), mailto:, tel:, hash) with '/'
+  fallback + quote-escape casing pinned.
+- **Freestruct round 2 (probes through the patched vendored tree).**
+  checkLinks root-relative/pretty contracts green; computeBuildHash
+  rerun-stable + content-moving + 404-free; indexnow harvest + key gate
+  green; cross-validation on a broken fixture graded the same FAIL
+  classes as ours; the 404 pipeline stamps noindex + full treatment. All
+  green -- and the probes found a real their-side bug: the CONFIGLESS
+  audit crashed (`config.twitter` on null, while their own cmdAudit
+  passes null deliberately, contradicting their help text). Patched
+  upstream as 0004 (`config?.twitter?.username`), verified grading. We
+  never carried the class (our remap dropped handle grading) -- twins
+  covering blind spots, again. Pack README/PR draft updated.
+- **Issue ledger.** labs/issues-closeout.md: 8 issues ready to close with
+  paste-ready evidence comments (#34 #37 #38 #40 #31 #51 #29 and #42 as
+  designed-out); feature/roadmap rows stay open with better pointers. No
+  gh auth in this workspace, so closing is a paste (or wire gh auth).
+
+---
+
 ## Pass 34 - the twin pack: prestruct's remaining fixes upstreamed to freestruct (2026-10-26)
 
 The maintainer's ask: the twins need each other -- everything prestruct did

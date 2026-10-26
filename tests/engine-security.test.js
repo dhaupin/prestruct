@@ -4,7 +4,7 @@ import { join } from 'path'
 import { describe, it, expect, afterEach } from 'vitest'
 
 import { validateConfig } from '../engine/scripts/validate-config.js'
-import { injectMeta, generateSitemap } from '../engine/scripts/prerender.js'
+import { injectMeta, generateSitemap, generate404 } from '../engine/scripts/prerender.js'
 import { injectBrand } from '../engine/scripts/inject-brand.js'
 
 /**
@@ -98,6 +98,44 @@ describe('injectMeta HTML escaping (route meta)', () => {
   it('keeps well-formed meta strings byte-identical in meaning (& entities)', () => {
     const html = injectMeta(SHELL, { title: 'Home & About' }, '/home', 'https://example.com', '')
     expect(html).toContain('<title>Home &amp; About</title>')
+  })
+})
+
+describe('404 CTA href scheme guard (walk 2026-10)', () => {
+  // escapeXml handles the markup-breaking class (a `"` in the attribute)
+  // but nothing can turn a javascript:/data: URL into a safe destination --
+  // it would ship as a WORKING script href on the one page whose contract
+  // is zero JS. Only real anchors pass: relative, absolute http(s),
+  // mailto:, tel:, and a plain hash. Everything else falls back to '/'.
+  const SHELL = '<!DOCTYPE html>\n<html>\n<head>\n  <title>Site</title>\n  <meta name="description" content="" />\n</head>\n<body><div id="root"></div></body>\n</html>'
+
+  const hrefIn = (cfg) => {
+    const html = generate404(SHELL, { siteName: 'S', notFound: { primaryCta: { label: 'X', href: cfg } } }, 'https://e2e.test')
+    const m = html.match(/<a href="([^"]*)"/)
+    return m ? m[1] : null
+  }
+
+  it('ships a working javascript: href NEVER (falls back to \'/\')', () => {
+    expect(hrefIn('javascript:alert(1)')).toBe('/')
+    expect(hrefIn('JaVaScRiPt:alert(1)')).toBe('/') // case-insensitive scheme
+  })
+
+  it('ships a data: href never', () => {
+    expect(hrefIn('data:text/html,<script>alert(1)</script>')).toBe('/')
+  })
+
+  it('keeps the anchors that are real destinations', () => {
+    expect(hrefIn('/support')).toBe('/support')
+    expect(hrefIn('https://support.e2e.test/')).toBe('https://support.e2e.test/')
+    expect(hrefIn('mailto:CareOfNeed@example.com')).toBe('mailto:CareOfNeed@example.com')
+    expect(hrefIn('tel:+15551234567')).toBe('tel:+15551234567')
+    expect(hrefIn('#top')).toBe('#top')
+  })
+
+  it('escapes quote injection into the attribute (escape-grade, not scheme-grade)', () => {
+    // A " inside a relative URL cannot break out of the href attribute --
+    // escapeXml turns it into &quot;. The anchor stays a real destination.
+    expect(hrefIn('/x?a=1"onmouseover=alert(1)')).toBe('/x?a=1&quot;onmouseover=alert(1)')
   })
 })
 
