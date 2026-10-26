@@ -22,7 +22,6 @@
     
     <!-- Prism.js for syntax highlighting -->
     <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
     
     <!-- Pagefind search -->
     <style>
@@ -469,11 +468,6 @@
             background: transparent !important;
         }
         
-        /* Line numbers */
-        .line-numbers .line-numbers-rows {
-            border-right: 1px solid #333 !important;
-        }
-        
         .main table {
             width: 100%;
             border-collapse: collapse;
@@ -788,7 +782,9 @@
         <button class="search-close" id="searchClose" aria-label="Close search">×</button>
     </div>
     
-    <script src="{{ site.baseurl }}/pagefind/pagefind.js"></script>
+    <!-- Pagefind loads dynamically inside doSearch() -- the bundle is ESM, and
+         a classic <script src> tag throws "import.meta outside a module" on
+         every page before any app code runs (freestruct#15 / prestruct#32). -->
     <script>
         // Search functionality using Pagefind (matching prestruct approach)
         var searchTrigger = document.getElementById('searchTrigger');

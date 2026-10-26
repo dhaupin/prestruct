@@ -185,5 +185,7 @@ aftermath to match what the archive actually contains.
 - [labs/prd-prestruct.md](./labs/prd-prestruct.md) -- roadmap.
 - [docs/](./docs/index.md) -- full site (SEO, routing, islands, proxy,
   Cloudflare).
+- **The workshop** -> [Creadev.org](https://creadev.org) (the same home as
+  the docs, the demo, and the npm package).
 
 _No runtime deps added. Config is the API._
