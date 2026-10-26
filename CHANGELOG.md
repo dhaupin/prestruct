@@ -10,6 +10,32 @@ records only what cherry-pickers must act on.
 
 ## Unreleased (the version ladder pins 1.2.0; the v1.1.0 tag remains latest on npm)
 
+### New: `prestruct audit` (the built-in post-build verifier)
+
+- New CLI verb + engine module (`scripts/audit.js`, ported/remapped from the
+  freestruct audit): reads the baked `dist/` without touching it and grades
+  it. FAIL rows (exit 1): missing title/description, non-absolute canonical,
+  duplicate head tags, missing og/twitter core tags, SVG og:image,
+  unparseable JSON-LD, 404 without noindex, missing/empty sitemap, and
+  pointer-less robots.txt (graded only when `config.robots` is set -- the
+  author-owned copy is never engine-graded). WARN rows never fail: length
+  bands, extended og/twitter set, og:image companions/disk ranges, h1 and
+  JSON-LD hygiene. Flags: `--json`, `--external` (HEAD-checks external
+  hrefs, warn-grade), `--internal` (unresolved internal hrefs, warn-grade).
+  The scaffolded `init/` and example builds now END in the audit, so a
+  regression fails the build. Action for cherry-pickers: drop in
+  `scripts/audit.js`, add `&& node scripts/audit.js` to your build script.
+
+### Honest sitemap lastmod + XML loud-fail
+
+- `generateSitemap()` wrote a universal build-time `<lastmod>` on every
+  route, so freshness signals churned even when one page changed. Now per
+  route: the dist file's own mtime, preserved across identical rebuilds
+  (byte-identical writes are skipped entirely). Same adoption: sitemap
+  values pass through `assertXmlSafe` -- a control character now fails the
+  build loudly instead of shipping a corrupt sitemap that reads green.
+  Action: update `init/scripts/prerender.js` (drop-in) -- no config change.
+
 ### generate404() head tags no longer ship literal `$1`/`$2` (#33)
 
 - The 404 page's og:title, twitter:title, description and canonical tags

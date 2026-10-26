@@ -13,6 +13,7 @@
     "./bin": "./bin/cli.mjs",
     "./prerender": "./engine/scripts/prerender.js",
     "./inject-brand": "./engine/scripts/inject-brand.js",
+    "./audit": "./engine/scripts/audit.js",
     "./validate-config": "./engine/scripts/validate-config.js",
     "./hooks": "./engine/src/hooks/usePageMeta.js",
     "./islands": "./engine/src/islands.js",

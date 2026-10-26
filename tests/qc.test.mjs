@@ -5,6 +5,7 @@ import { join } from 'node:path'
 const SYNCED_FILES = [
   'scripts/inject-brand.js',
   'scripts/prerender.js',
+  'scripts/audit.js',
   'scripts/validate-config.js',
   'src/hooks/usePageMeta.js',
   'src/islands.js',
@@ -24,6 +25,7 @@ test('engine files stay synced between init and example', () => {
 const ENGINE_MAP = [
   ['engine/scripts/inject-brand.js', 'init/scripts/inject-brand.js'],
   ['engine/scripts/prerender.js', 'init/scripts/prerender.js'],
+  ['engine/scripts/audit.js', 'init/scripts/audit.js'],
   ['engine/scripts/validate-config.js', 'init/scripts/validate-config.js'],
   ['engine/src/hooks/usePageMeta.js', 'init/src/hooks/usePageMeta.js'],
   ['engine/src/islands.js', 'init/src/islands.js'],

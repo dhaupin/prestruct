@@ -9,6 +9,9 @@
  *   prestruct build         Validate config, run vite build, inject meta,
  *                           prerender routes -- full pipeline from ssr.config.js.
  *   prestruct validate      Load + validate ssr.config.js; exit 1 on bad config.
+ *   prestruct audit         Verify the BAKED dist/ (head hygiene, sitemap,
+ *                           robots, 404 noindex) without touching it; exit 1
+ *                           on FAIL-class findings, warnings never fail.
  *   prestruct help          This text.
  *
  * The CLI runs inside the USER PROJECT: config comes from <workdir>/ssr.config.js,
@@ -32,8 +35,11 @@ const { validateConfig, formatDiagnostics, configKeyWarnings, formatConfigWarnin
 const { injectBrand } = await import(
   pathToFileURL(path.join(packageRoot, 'engine/scripts/inject-brand.js'))
 )
-const { prerender, cleanCache, enginePaths } = await import(
+const { prerender, cleanCache, enginePaths, generateSitemap, assertXmlSafe } = await import(
   pathToFileURL(path.join(packageRoot, 'engine/scripts/prerender.js'))
+)
+const { auditOutput, auditExternalLinks, auditInternalLinks } = await import(
+  pathToFileURL(path.join(packageRoot, 'engine/scripts/audit.js'))
 )
 
 const HELP = `
@@ -46,6 +52,17 @@ prestruct -- build-time SEO prerender for Vite + React
                            meta -> prerender routes. --force rerenders all
                            routes; --clean clears the incremental cache first.
   prestruct validate       Validate ssr.config.js (exit 1 on bad config).
+  prestruct audit [--json] [--external] [--internal] [dist]
+                           Verify the BAKED output (per-page head hygiene,
+                           duplicate-tag probes, og:image raster check,
+                           JSON-LD parse, sitemap/robots/404-noindex) without
+                           touching it. Exit 0 clean / 1 FAIL-class findings
+                           (length bands and absent companions are report-
+                           grade warnings and never fail). --external also
+                           HEAD-checks up to 50 unique external hrefs
+                           (warn-grade, needs live network); --internal lists
+                           unresolved internal hrefs (warn-grade). A target
+                           dir defaults to the config-owning project's dist/.
   prestruct clean          Clear the prerender route cache.
   prestruct help           This text.
 
@@ -116,6 +133,7 @@ function checkFlags(command, args, knownFlags) {
 
 const INIT_FLAGS   = []
 const BUILD_FLAGS  = ['--force', '-f', '--clean']
+const AUDIT_FLAGS  = ['--json', '--external', '--internal']
 const NO_FLAGS     = []
 
 // -- init ----------------------------------------------------------------------
@@ -203,6 +221,66 @@ async function cmdBuild(args) {
   }
 }
 
+// -- audit ---------------------------------------------------------------------
+
+// Configless by design: the audit verifies any baked tree. When ssr.config.js
+// IS discoverable it feeds the site-local og:image/JSON-LD disk mapping and
+// switches robots.txt grading on (the engine owns that file only under
+// config.robots; the author's public/robots.txt is never engine-touched).
+async function cmdAudit(args) {
+  checkFlags('audit', args, AUDIT_FLAGS)
+  const useJson = args.includes('--json')
+  const explicitDir = args.find(a => !a.startsWith('-'))
+
+  let config = null
+  let workdir = process.cwd()
+  let dir = process.cwd()
+  while (dir !== path.dirname(dir)) {
+    const candidate = path.join(dir, 'ssr.config.js')
+    if (fs.existsSync(candidate)) {
+      workdir = dir
+      config = await loadConfig(dir, { required: false })
+      break
+    }
+    dir = path.dirname(dir)
+  }
+
+  const outputDir = explicitDir
+    ? path.resolve(process.cwd(), explicitDir)
+    : path.join(workdir, 'dist')
+
+  const result = auditOutput({ outputDir, config, json: useJson && !args.includes('--external'), capture: useJson && args.includes('--external') })
+
+  const internal = args.includes('--internal') ? auditInternalLinks({ outputDir }) : []
+  if (internal.length && !useJson) {
+    console.log('[prestruct] internal link check: ' + internal.length + ' broken link(s)')
+    for (const b of internal) console.log('  WARN ' + b.file + ' -> ' + b.link)
+  }
+
+  const external = args.includes('--external') ? await auditExternalLinks({ outputDir, json: useJson }) : { warns: [] }
+
+  if (useJson) {
+    console.log(JSON.stringify({
+      ok: result.fails.length === 0,
+      pages: result.pages,
+      fails: result.fails,
+      warns: [
+        ...result.warns,
+        ...internal.map(b => ({ page: b.file, msg: 'broken internal link: ' + b.link })),
+        ...external.warns,
+      ],
+    }))
+  } else if (internal.length || external.warns.length) {
+    // Aux probes appended rows the base report never saw; pure-local audits
+    // keep auditOutput's single verdict (one verdict, not two).
+    const totalWarns = result.warns.length + internal.length + external.warns.length
+    console.log(result.fails.length === 0
+      ? '[prestruct] audit: 0 failures, ' + totalWarns + ' warning(s) - clean'
+      : '[prestruct] audit: ' + result.fails.length + ' failure(s), ' + totalWarns + ' warning(s)')
+  }
+  process.exit(result.fails.length > 0 ? 1 : 0)
+}
+
 // -- validate / clean ----------------------------------------------------------
 
 async function cmdValidate(args) {
@@ -231,6 +309,7 @@ try {
     case 'init':     cmdInit(args); break
     case 'build':    await cmdBuild(args); break
     case 'validate': await cmdValidate(args); break
+    case 'audit':    await cmdAudit(args); break
     case 'clean':    cmdClean(args); break
     case 'help':
     case '--help':

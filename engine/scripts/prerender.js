@@ -18,7 +18,8 @@
  * Module surface (importable for tests; CLI logic only runs when executed):
  *   replaceRootDiv(shell, appHtml)  -- root-div injector, attribute-tolerant
  *   injectMeta(html, meta, routePath, siteUrl, ogImage)
- *   generateSitemap(routes, siteUrl)
+ *   assertXmlSafe(value, field)     -- XML escape + control-char loud-fail
+ *   generateSitemap(routes, siteUrl, routeMtimes?)
  *   generate404(shell, config, siteUrl)
  *   readCache() / writeCache(cache) / cleanCache()
  *   prerender()                     -- full pipeline
@@ -368,24 +369,75 @@ export function escapeXml(unsafe) {
 }
 
 /**
+ * XML-safety loud-fail (freestruct xmllike.js adoption): sitemap fields are
+ * user-config data (paths, supplied meta), so escape what escaping can fix
+ * and REFUSE what it cannot. Control characters cannot appear in XML at all
+ * -- no replacement exists, and writing them anyway ships a corrupt sitemap
+ * that reads green. A value that still produces invalid XML is a build
+ * error, not a silently poisoned artifact.
+ *
+ * @param {unknown} value - raw sitemap field value
+ * @param {string} field - field name for the diagnostic
+ * @returns {string} XML-safe value (escapeXml over a verified-clean text)
+ * @throws {Error} when the value carries a control character
+ */
+export function assertXmlSafe(value, field) {
+  const text = String(value ?? '')
+  const bad = text.match(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/)
+  if (bad) {
+    throw new Error(
+      `XML safety: value for ${field} contains control character U+${bad[0].charCodeAt(0).toString(16).padStart(4, '0')}`
+      + ' which cannot be escaped - refusing to write invalid XML'
+    )
+  }
+  return escapeXml(text)
+}
+
+/**
  * Build sitemap.xml from the merged route list, XML-escaped, no trailing
  * slash on the home URL.
  *
  * @param {Array<{path: string}>} routes - merged route definitions
  * @param {string} siteUrl - configured site origin
+ * @param {Map<string, Date>} [routeMtimes] - per-route dist file mtimes, the
+ *   honest <lastmod> source (content-change dates); entries missing from
+ *   the map fall back to now
  * @returns {string} sitemap.xml contents
  */
-export function generateSitemap(routes, siteUrl) {
-  const now  = new Date().toISOString().split('T')[0]
+export function generateSitemap(routes, siteUrl, routeMtimes = new Map()) {
   const base = (siteUrl || '').replace(/\/$/, '') // #53: never join onto a doubled slash
-  const urls = routes.map(r => `
-  <url>
-    <loc>${escapeXml(base)}${r.path === '/' ? '' : escapeXml(r.path)}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>${escapeXml(r.changefreq || 'monthly')}</changefreq>
-    <priority>${escapeXml(r.priority || '0.5')}</priority>
-  </url>`).join('')
+  const urls = routes.map(r => {
+    // Honest lastmod (freestruct xmllike adoption): a universal build stamp
+    // moves every <lastmod> on every build, so freshness signals churn even
+    // when one page of a 300-page site changed. Each route carries its dist
+    // file's mtime -- written once per content change (writeRouteFile skips
+    // byte-identical rewrites) -- and unknown routes fall back to now.
+    const mtime = routeMtimes.get(r.path) || new Date()
+    const loc = assertXmlSafe(`${base}${r.path === '/' ? '' : r.path}`, 'sitemap loc')
+    return `\n  <url>\n    <loc>${loc}</loc>\n    <lastmod>${assertXmlSafe(mtime.toISOString().split('T')[0], 'sitemap lastmod')}</lastmod>\n    <changefreq>${assertXmlSafe(r.changefreq || 'monthly', 'sitemap changefreq')}</changefreq>\n    <priority>${assertXmlSafe(r.priority || '0.5', 'sitemap priority')}</priority>\n  </url>`
+  }).join('')
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}\n</urlset>`
+}
+
+/**
+ * Write one route file, honestly. Byte-identical content skips the write so
+ * the file KEEPS its mtime -- the date the content last changed, which is
+ * the sitemap's per-route <lastmod> source. Fresh content gets a fresh
+ * stat. Cache hits previously rewrote identical HTML every build, which
+ * silently turned every lastmod into a build stamp.
+ *
+ * @param {string} distPath - final file path
+ * @param {string} html - route HTML to write
+ * @param {Map<string, Date>} routeMtimes - lastmod map, mutated with the
+ *   route's content-change date
+ * @param {string} routePath - route registry key in the map
+ */
+function writeRouteFile(distPath, html, routeMtimes, routePath) {
+  fs.mkdirSync(path.dirname(distPath), { recursive: true })
+  let prev = null
+  try { prev = fs.readFileSync(distPath, 'utf8') } catch (e) { prev = null }
+  if (prev !== html) fs.writeFileSync(distPath, html, 'utf-8')
+  routeMtimes.set(routePath, fs.existsSync(distPath) ? fs.statSync(distPath).mtime : new Date())
 }
 
 // -- 404 page ------------------------------------------------------------------
@@ -620,6 +672,8 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     let succeeded   = 0
     const failures  = []
     const cache     = readCache({ cacheFile: p.cacheFile })
+    // Honest per-route sitemap dates: consumed by generateSitemap's <lastmod>.
+    const routeMtimes = new Map()
 
     console.log(`[prerender] Cache: ${Object.keys(cache).length} routes cached${force ? ' (forcing rebuild)' : ''}`)
 
@@ -643,7 +697,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
       // every rendered input; legacy entries (no sig) render once.
       if (!force && cacheEntryValid(cache[route.path], route, siteUrl, shell)) {
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
-        fs.writeFileSync(distPath, cache[route.path].html, 'utf-8')
+        writeRouteFile(distPath, cache[route.path].html, routeMtimes, route.path)
         console.log(`[prerender] cached ${route.path}`)
         succeeded++
         continue
@@ -667,7 +721,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         cache[route.path] = { html, time: Date.now(), sig: cacheSignature(route, siteUrl, shell) }
 
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
-        fs.writeFileSync(distPath, html, 'utf-8')
+        writeRouteFile(distPath, html, routeMtimes, route.path)
 
         console.log(`[prerender] ok ${route.path}`)
         succeeded++
@@ -684,8 +738,8 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     fs.writeFileSync(path.join(p.dist, '404.html'), generate404(shell, cfg || config, siteUrl), 'utf-8')
     console.log('[prerender] ok /404.html')
 
-    // sitemap.xml -- overwrites the static one in public/ with today's date
-    fs.writeFileSync(path.join(p.dist, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl), 'utf-8')
+    // sitemap.xml -- overwrites the static one in public/, honest lastmods
+    fs.writeFileSync(path.join(p.dist, 'sitemap.xml'), generateSitemap(ROUTES, siteUrl, routeMtimes), 'utf-8')
     console.log('[prerender] ok /sitemap.xml')
 
     // robots.txt -- opt-in only (config.robots): without it the author-owned

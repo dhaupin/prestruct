@@ -29,15 +29,19 @@ npx prestruct build
 # Clear the prerender cache for the current project (optional maintenance)
 npx prestruct clean
 
+# Verify the baked output without touching it (head hygiene, SVG og:image
+# trap, JSON-LD parse, sitemap/robots/404 contract); exit 1 on FAIL rows only
+npx prestruct audit
+
 # Show the command reference
 npx prestruct help
 ```
 
 Install is NOT a CLI verb: `npm install` / `git clone` unwraps the package; the
-verbs the package ships are exactly `init`, `build`, `validate`, `clean`, and
-`help`. All commands except `help` accept a positional `[dir]` (explicit
-workdir); without one they walk up from the current directory until they find
-`ssr.config.js`.
+verbs the package ships are exactly `init`, `build`, `validate`, `audit`,
+`clean`, and `help`. All commands except `help` accept a positional `[dir]`
+(explicit workdir); without one they walk up from the current directory until
+they find `ssr.config.js`.
 
 To use these as npm scripts instead, add prestruct to `devDependencies` and wire it up:
 
@@ -54,11 +58,11 @@ Note: the scaffolded `init/` app still uses the raw `node` npm-script forms (bel
 ## Template npm scripts
 
 The `init/` template ships exactly these. `prestruct build` is a packaged
-re-run of the same `npm run build` pipeline:
+re-run of the same `npm run build` pipeline (which now ends with the audit):
 
 ```jsonc
 {
-  "build":    "vite build && node scripts/inject-brand.js && node scripts/prerender.js",
+  "build":    "vite build && node scripts/inject-brand.js && node scripts/prerender.js && node scripts/audit.js",
   "test":     "vitest",
   "test:run": "vitest run",
   "test:ui":  "vitest --ui",
@@ -109,6 +113,29 @@ Flag notes backed by the CLI dispatch (`bin/cli.mjs`):
 - `validate` prints diagnostics only when something is wrong; a passing config
   prints one line (`ssr.config.js is valid (N routes)`).
 - `clean` clears `.prestruct/cache/routes.json` for the target workdir.
+
+### The audit subcommand
+
+`prestruct audit [dist]` reads the baked output (never writes) and grades it:
+
+- **FAIL rows (exit 1):** missing title/description, non-absolute canonical,
+  duplicate head tags (title/canonical/description/og:title -- the rebuild-
+  idempotency guard), missing og:title/og:description/twitter:card/
+  twitter:title, the SVG og:image trap, unparseable JSON-LD, a 404 page
+  without noindex, missing/empty sitemap.xml, and a missing or pointer-less
+  robots.txt when `config.robots` is set (the author-owned copy is the
+  author's call, so it is never graded without the engine contract).
+- **WARN rows (report-grade, never fail):** title/description length bands,
+  the extended og/twitter set, missing og:image companions (the object form
+  supplies them), a site-local og:image that does not exist on disk,
+  structure data without `@type`, h1 hygiene, pages with no JSON-LD.
+- **`--json`:** one digest line for CI harvesting. **`--external`:** HEAD
+  probes (GET retry) up to 50 unique external hrefs, warn-grade, live
+  network. **`--internal`:** unresolved internal hrefs, warn-grade -- a link
+  to a route that was never prerendered is a gap, not a failure.
+
+The scaffolded `init/`/example apps run the audit straight after prerender in
+their `build` script, so a regression fails the build rather than shipping.
 
 ## Deploy commands (prestruct output is what deploys)
 

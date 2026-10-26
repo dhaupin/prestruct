@@ -5,6 +5,55 @@ learned, what the next pass should pick up. Newer passes on top.
 
 ---
 
+## Pass 33 - the family audit adopted: `prestruct audit` is ours now (2026-10-26)
+
+The maintainer's ask: we do not actually have our own audit (validate-config
+is pre-build only; everything post-build was graded by borrowed freestruct
+installs) -- so read freestruct fully and make the audit ours. Adopted, not
+copied: the FAIL/WARN ladder ports, but every grade remaps onto OUR
+contract's honest shapes.
+
+- **`engine/scripts/audit.js` + `prestruct audit` CLI verb.** Same shape the
+  family shares (fails/warns/pages/sitemapLocs, --json digest, capture mode)
+  so shared tooling keeps working against either engine. Our remaps:
+  twitter:site/creator never graded (prestruct ships no handle config and
+  never emits them); robots.txt graded ONLY when `config.robots` is set (the
+  author-owned public/robots.txt is never engine-touched, so grading its
+  absence would punish contract-abiding output); og:image companion hint
+  points at OUR object form; SVG trap stays FAIL. Building blocks kept from
+  the freestruct port: attribute-order-tolerant grabMeta, the duplicate-tag
+  probe (guards the rebuild/strip contract), disk-existence WARNs (site-local
+  CDNs stay valid), the code-payload-stripped link walker (their Pass 26.14
+  lesson -- our example is code-heavy and the naive scan lit up). Flags:
+  --json / --external (HEAD->GET, 50-cap, warn-grade) / --internal (warn
+  grade always: a link to a never-prerendered dynamic route is a gap, not a
+  failure). CLI verb added to bin/cli.mjs + help; works configless.
+- **Manufacturing adoptions from their xmllike.js/scan.js:** (1)
+  `assertXmlSafe` loud-fail for sitemap fields -- control characters cannot
+  appear in XML and escaping cannot save them; refuse instead of shipping a
+  corrupt sitemap that reads green. (2) Honest per-route `<lastmod>`: the
+  universal build stamp moved every lastmod every build; now each route
+  carries its dist file's mtime, and byte-identical cache-hit rewrites SKIP
+  the write so the mtime stays the content-change date. Verified in the
+  unit battery (mtime rides, fallback stamps, control-char refusal).
+- **Wired as the last mile of every template build:** init/ + example
+  `build` scripts end in `node scripts/audit.js` (main-module runner with
+  the freestruct realpath lesson -- raw argv[1] matching silently skipped
+  symlinked installs). A regression now fails the build, which is what the
+  audit is FOR. Example build: 9 pages, 0 failures, 0 warnings, first run.
+- **Sync contract extended:** audit.js joined sync-engine.mjs's CONTRACT,
+  tests/qc.test.mjs's two lists, and engine-sync-check.yml (13 generated
+  files now, was 11).
+- **Docs:** cli.md documents the verb (FAIL vs WARN rows, the three flags)
+  and the new build-script last mile; CHANGELOG Unreleased carries both
+  entry classes (audit + sitemap changes) with cherry-picker actions.
+- Acceptance at close: battery 190/190 (24 new audit tests + sitemap
+  assertions), sync:check green over the extended contract, e2e tarball
+  walk green WITH the audit in the packaged build script, packstruct/docs/
+  claims gates pending final run. Pack v0.3.0 unchanged (proxy surface).
+
+---
+
 ## Pass 32 - freestruct-audit-driven: ogImage object form + committed og raster (2026-10-26)
 
 The maintainer's ask: run every audit we have against ourselves, fix what

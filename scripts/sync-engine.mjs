@@ -29,6 +29,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const CONTRACT = [
   ['engine/scripts/inject-brand.js', 'scripts/inject-brand.js'],
   ['engine/scripts/prerender.js', 'scripts/prerender.js'],
+  ['engine/scripts/audit.js', 'scripts/audit.js'],
   ['engine/scripts/validate-config.js', 'scripts/validate-config.js'],
   ['engine/src/hooks/usePageMeta.js', 'src/hooks/usePageMeta.js'],
   ['engine/src/islands.js', 'src/islands.js'],
