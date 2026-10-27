@@ -1,3 +1,29 @@
+## Pass 55 - the aggregate gate: `npm run gate` (2026-10-26)
+
+The pass-54 promise shipped. One command carries every lane CI runs,
+loud fail on the first red, in cheap-first order:
+
+```
+sync:check -> lint:packs -> lint:docs -> lint:claims
+           -> npm --prefix init run lint -> test:run (battery)
+```
+
+The first end-to-end run caught a second lesson on the way to green:
+`cd init && npm run lint` inside one npm script moves the WHOLE chain --
+`&&` runs in a single `sh -c`, so the battery after it searched for test
+files inside init/ (`No test files found, exiting with code 1`). CI never
+saw it because test.yml runs the cd form as a standalone step. The gate
+uses `npm --prefix init run lint`, which runs the lint lane scoped to
+init without relocating the chain.
+
+Proof: gate exit 0, end to end, ~69s locally (battery 244/244 included).
+Docs updated to match: AGENTS.md gates block now leads with the
+aggregate and carries the lint-only-rode-CI history (why the aggregate
+exists), contributing.md's "before submitting" section points at
+`npm run gate` with the --prefix trap note. CI still runs its own steps;
+the gate script is the contributor-facing superset-plus-loop so a lane
+cannot be forgotten again (the pass-54 silent-red generator).
+
 ## Pass 54 - CI redraw: the init lint lane had been silently red (ogimage prefer-const) (2026-10-26)
 
 Solving prestruct#56's acceptance ("CI shows both build lanes green")

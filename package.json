@@ -27,10 +27,10 @@
     "!init/node_modules",
     "!init/dist",
     "!init/.prestruct"
-  ],
-  "scripts": {
+  ],    "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
+    "gate": "npm run sync:check && npm run lint:packs && npm run lint:docs && npm run lint:claims && npm --prefix init run lint && npm run test:run",
     "sync": "node scripts/sync-engine.mjs",
     "sync:check": "node scripts/sync-engine.mjs check",
     "lint:packs": "packstruct lint packs/ --deep",

@@ -59,11 +59,19 @@ There is no Prettier/formatter step in the repo.
 
 ### Before submitting
 
-Test locally and make sure the gates pass:
+One command carries every lane CI runs, in loud-fail order (sync, packs,
+docs, claims, the template tree's own eslint, then the vitest battery):
 
 ```bash
-npm run test:run && npm run lint:docs && npm run lint:claims && npm run sync:check
+npm run gate
 ```
+
+The individual lanes (equivalent set): `npm run test:run`,
+`npm run lint:docs`, `npm run lint:claims`, `npm run sync:check`,
+`npm run lint:packs`, and `npm --prefix init run lint` -- the last one
+only rides CI otherwise, so always go through the aggregate. (Mind the
+trap the aggregate avoids: a bare `cd init && ...` inside one npm script
+moves the whole chain; `--prefix` runs the lint lane scoped to init.)
 
 ### PR guidelines
 

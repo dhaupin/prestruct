@@ -51,12 +51,21 @@ npx vitest run            # the test battery
 **Gates before every push (CI runs the same set):**
 
 ```bash
+npm run gate              # THE pre-push loop: every lane below, one command
+                          # (sync -> packs -> docs -> claims -> init lint -> battery)
 npx vitest run            # engine + template + proxy battery (+ CLI refusal contract)
 npm run sync:check        # engine -> init -> example byte-identity
 npm run lint:packs        # packstruct --deep over packs/ (packspec conformance)
 npm run lint:docs         # docs style/links/frontmatter/truthfulness
 npm run lint:claims       # fiction-signature scan
+(npm run gate covers this)  npm --prefix init run lint
 ```
+
+**Why the aggregate exists (pass 54):** the init tree's eslint lane rode
+only CI, so one `prefer-const` error in a synced engine file stayed
+silently red for six commits while every gate we ran by hand passed.
+`npm run gate` makes forgetting a lane impossible -- loud fail on the
+first red, same set CI runs.
 
 **Working rules the gates pin down:**
 
