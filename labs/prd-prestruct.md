@@ -80,8 +80,8 @@ forward rows.
 | R3: decide the crashtest CI lane -- SHIPPED (pass 25 wired it, pass 26 pinned it, pass 29 made bumps one-command) | #24/#25 parked twice on "how does an external harness enter CI" | Lane = published package on PR + push + dispatch, run from the repo's own exact devDep pin (`npx crashtest run` -- no network float). Bump = `npm run crashtest:bump <version>`: pin + harness run + ledger regen + stamp verification in one step; qc pins devDep == ledger stamp. |
 | R4: RENDER_LANE=puppeteer (opt-in) | proves the bot render SUCCESS path (snapshot discipline) -- today every lane is browser-free by design | The only unproven proxy path; needs Chromium-in-CI cost sign-off + a deterministic cache namespace. |
 | R5: prestruct-build pack | #25 analysis: the build-time surfaces (404 theme, JSON-LD emit, status opt-out) are unit-pinned but have no wire-level ledger; that is a separate pack, never more shapes in the proxy pack | Would need a scenario vocabulary decision on the crashtest side first. |
-| R6: react 19 evaluation | zero advisories to react 18 -- priority LOW, churn HIGH | Battery + example render are the acceptance gate. |
-| R7: platform-matrix majors on the board | vite 8 / vitest future majors stay battery-first; v6-pin retirement only when dual-major usage data says so | |
+| R6: react 19 evaluation -- SHARPENED by #58 (2026-10-27): zero advisories to react 18, priority LOW, churn HIGH; react 19 rides the same 1.3.0 matrix lane as vite 7/8, not a separate effort | Battery + example render are the acceptance gate. |
+| R7: platform-matrix majors -- the 1.2.0 ladder bounds the ceilings (#58 ask 1 shipped: react/react-dom `>=18 <19`, router `>=6 <8`, vite `>=5 <7`); 1.3.0 = matrix lane proof (vite 7 then 8: ssrLoadModule -> ModuleRunner port with the --ssr fallback documented; react 19 interop/islands), graded by the example bake + real audit; ceilings move only on proof | |
 
 Carried P2/P3 ideas (unchanged from docs roadmap): image optimization
 pipeline, file-level incremental invalidation, plugin system,

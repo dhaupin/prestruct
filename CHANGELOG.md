@@ -10,6 +10,17 @@ records only what cherry-pickers must act on.
 
 ## Unreleased (the version ladder pins 1.2.0; the v1.1.0 tag remains latest on npm)
 
+### Peers: bounded to the proven matrix (#58)
+
+- peerDependencies now carry ceilings: `react >=18 <19`, `react-dom >=18 <19`,
+  `react-router-dom >=6 <8`, `vite >=5 <7`. A range with no floor read fallow
+  `>=5` will install vite 8.3.x or react 19.3.x beside the prerender engine,
+  but no such tree has ever been graded here; an ERESOLVE at install is the
+  honest failure. `ssrLoadModule` (the verb the whole engine runs on) is on
+  Vite's deprecation path, so an unbounded `vite` range was exactly the wolf
+  trap-ahead case. When vite 7/8 and react 19 are proven (1.3.0 ladder), the
+  ceilings move the same way the router 7 proof moved this one, not before.
+
 ### New: `prestruct audit` (the built-in post-build verifier)
 
 - New CLI verb + engine module (`scripts/audit.js`, ported/remapped from the

@@ -14,6 +14,12 @@ and **main carries the next release's pins**.
 
 ## Unreleased (1.2.0 on the ladder; npm stays at the v1.1.0 tag)
 
+- **Peer ranges are bounded to the proven matrix** (#58): `react >=18 <19`,
+  `react-dom >=18 <19`, `react-router-dom >=6 <8`, `vite >=5 <7`. The proven
+  set is vite 6.4.5, react 18.3.1, and router majors 6 and 7 (7.18.4 baked
+  the example 8/8 pages in CI); an install of vite 8 or react 19 now
+  refuses cleanly at ERESOLVE instead of shipping ungraded. Ceilings
+  move only when 1.3.0's matrix-run proof lands.
 - **`prestruct audit`** joins the CLI (ported/remapped from the family
   audit engine): grades the BAKED `dist/` -- FAIL rows exit 1 (missing
   title/description, non-absolute canonical, duplicate head tags, missing
