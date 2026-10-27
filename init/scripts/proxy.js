@@ -265,8 +265,44 @@ export async function withRenderLimit(fn) {
   })
 }
 
-// -- Express app ---------------------------------------------------------------
+// -- Single-flight renders ---------------------------------------------------
+// (2026-10 walk): the concurrency limiter bounds how many renders run at once,
+// but a 50-bot burst on the same uncached URL still queued TEN sequential
+// renders of the identical page -- one full wave of 5 before the first HIT
+// could serve. renderOnce collapses a burst to one render: the first miss
+// opens a flight keyed by the cache key, every other identical miss awaits
+// the same promise and is served its bytes. Forced refreshes skip the flight
+// (their contract is bypass-the-cache, so they must not ride one) and own no
+// map entry, so a flight can never be deleted by a request that is not its
+// owner.
+const inflightRenders = new Map()
 
+/**
+ * Render a URL exactly once per burst: concurrent identical misses share the
+ * one render; forced refreshes bypass the flight entirely.
+ *
+ * @param {string} key  - sha256 cache key of the request URL
+ * @param {string} targetFullUrl - the origin URL page.goto renders
+ * @param {boolean} [forceRefresh] - true = render fresh, bypass the flight
+ * @returns {Promise<string>} rendered HTML (shared instance across joiners)
+ */
+export async function renderOnce(key, targetFullUrl, forceRefresh = false, renderFn = render) {
+  if (!forceRefresh && inflightRenders.has(key)) {
+    return inflightRenders.get(key)
+  }
+  const own = !forceRefresh
+  const promise = withRenderLimit(() => renderFn(targetFullUrl))
+  if (own) {
+    inflightRenders.set(key, promise)
+    promise.finally(function () {
+      if (inflightRenders.get(key) === promise) inflightRenders.delete(key)
+    }).catch(function () {})
+  }
+  return promise
+}
+
+// -- Express app ---------------------------------------------------------------
+// The app is a module-level singleton: one browser, one queue, one flight map.
 const app = express()
 
 // Live-fire fix (2026-10): the wildcard routes (`app.all('*')` /
@@ -312,7 +348,7 @@ export async function proxyHandler(req, res, next) {
   }
 
   try {
-    const html = await withRenderLimit(() => render(targetFullUrl))
+    const html = await renderOnce(key, targetFullUrl, forceRefresh)
     cacheWrite(key, html)
     res.setHeader('X-Prestruct-Cache',       'MISS')
     res.setHeader('X-Prestruct-Rendered-At', new Date().toISOString())

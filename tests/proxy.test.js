@@ -6,6 +6,7 @@ import {
   withRenderLimit,
   MAX_CONCURRENT,
   normalizePort,
+  renderOnce,
 } from '../init/scripts/proxy.js'
 import {
   default as workerProxy,
@@ -182,6 +183,62 @@ describe('withRenderLimit', () => {
 })
 
 // -- Worker: helpers are pure and runtime-agnostic ----------------------------
+
+describe('renderOnce (single-flight, pass 57 walk)', () => {
+  beforeEach(async () => {
+    // Let any flight from the previous test expire out of the shared map.
+    await new Promise(r => setTimeout(r, 10))
+  })
+
+  function fakeRender(counter) {
+    return async function (url) {
+      counter.n += 1
+      const n = counter.n
+      await new Promise(r => setTimeout(r, 15))
+      return `<html>${url}#${n}</html>`
+    }
+  }
+
+  it('collapses a same-key burst into ONE render (the pass-57 walk finding)', async () => {
+    const counter = { n: 0 }
+    const results = await Promise.all(
+      Array.from({ length: 12 }, () =>
+        settled(renderOnce('same-key', '/target', false, fakeRender(counter))))
+    )
+
+    expect(counter.n).toBe(1) // one render, not one per wave of MAX_CONCURRENT
+    expect(results.filter(r => r.ok)).toHaveLength(12)
+    const values = new Set(results.map(r => r.v))
+    expect([...values]).toHaveLength(1) // every joiner served the same bytes
+  })
+
+  it('different keys render independently', async () => {
+    const counter = { n: 0 }
+    const [a, b] = await Promise.all([
+      settled(renderOnce('key-a', '/a', false, fakeRender(counter))),
+      settled(renderOnce('key-b', '/b', false, fakeRender(counter))),
+    ])
+
+    expect(counter.n).toBe(2)
+    expect(a.v).toBe('<html>/a#1</html>' || '<html>/a#2</html>')
+    expect(a.v).not.toBe(b.v)
+  })
+
+  it('forced refresh does not join an open flight and owns no map entry', async () => {
+    const counter = { n: 0 }
+    const render = fakeRender(counter)
+    const flightCall = renderOnce('forced-key', '/f', false, render)
+
+    // Force arrives while the normal flight is still rendering.
+    const forced = await settled(renderOnce('forced-key', '/f', true, render))
+    const joined = await settled(flightCall)
+
+    expect(counter.n).toBe(2) // the forced render did NOT ride the flight
+    expect(forced.ok).toBe(true)
+    expect(joined.ok).toBe(true)
+    expect(forced.v).not.toBe(joined.v) // fresh bytes vs flight bytes
+  })
+})
 
 describe('Worker refreshSecretMatches (full-length XOR compare)', () => {
   it('accepts the exact secret', () => {

@@ -1,3 +1,31 @@
+## Pass 57 (2026-10-27): vite 7 graded + peer ceiling up a notch, proxy single-flight
+**Poll receipts:** CI green on cae8b52 across all six lanes (verify-engine-sync,
+build, proxy-pair, tests, crashtest run #42 with 0 new/0 regressed, docs deploy,
+CF Pages deploy). Registry: crashtest still 1.1.0 -> prestruct#57 stays parked
+on its trigger. Issues after close-out: #57 open by design; #58 closed (ask 1
+shipped, ask 2 roams the roadmap).
+**Spike: vite 7 clears the lane (scratch clone first, then in-repo).** Example
+bake under vite 7.3.7: 8/8 pages, audit 0 f / 0 w, no deprecation noise around
+ssrLoadModule. Output byte-equivalence vs the vite 6.4.5 bake: so that only
+content-hash asset names and the deploy-id stamp diverge (scratch clone, not
+a git tree). The peer ceiling moved (`vite >=5 <8` both package.json and the
+shipped init manifest), example devDep -> vite ^7.3.7 with its lockfile (the
+router 7 shape), init battery rails on 6. Remaining 1.3.0 lane: vite 8
+(ssrLoadModule -> ModuleRunner port) + react 19 islands.
+**Walk finding + fix: render single-flight.** The concurrency limiter (cap 5,
+recursive queue) bounds HOW MANY; nothing dedupes WHICH: a burst of N bots on
+the same uncached URL rendered the identical page floor(N/5) times. Both
+runtimes now collapse same key misses to one render: express renders through
+`renderOnce(key, url, force, renderFn)` (force skips the flight and owns no
+map entry, so a flight can never be deleted by a foreign request); the worker
+gains the per-isolate flight map (KV is eventually consistent, so this only
+dedupes the same-isolate burst; joiners carry `X-Prestruct-Cache: FLIGHT`).
+Three new battery pins in tests/proxy.test.js: one-burst-one-render,
+different keys render independently, forced refresh rides it not.
+Gates on the commit: full npm run gate green (battery 247/247, sync byte-checks,
+packstruct 1 pack / 6 shapes, docs incl truthfulness, init lint). crashtest
+lane: 54/54 rows REFUSED, 0 exploited, baseline unchanged.
+
 ## Pass 56 (2026-10-27): docs guide-cards grid restored + live-site probe round
 
 **Symptom (live receipts, user phone + headless Chromium):** docs home

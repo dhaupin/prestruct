@@ -13,13 +13,18 @@ records only what cherry-pickers must act on.
 ### Peers: bounded to the proven matrix (#58)
 
 - peerDependencies now carry ceilings: `react >=18 <19`, `react-dom >=18 <19`,
-  `react-router-dom >=6 <8`, `vite >=5 <7`. A range with no floor read fallow
-  `>=5` will install vite 8.3.x or react 19.3.x beside the prerender engine,
-  but no such tree has ever been graded here; an ERESOLVE at install is the
-  honest failure. `ssrLoadModule` (the verb the whole engine runs on) is on
-  Vite's deprecation path, so an unbounded `vite` range was exactly the wolf
-  trap-ahead case. When vite 7/8 and react 19 are proven (1.3.0 ladder), the
-  ceilings move the same way the router 7 proof moved this one, not before.
+  `react-router-dom >=6 <8`, `vite >=5 <8`. A range with no ceiling reads as a
+  promise nobody graded: unbounded `>=5` would install vite 8.x or react
+  19.x beside the prerender engine, and no such tree was ever graded here;
+  an ERESOLVE at install is the honest failure. `ssrLoadModule` (the verb
+  the whole engine runs on) is on Vite's deprecation path, so the ceiling
+  matters most for vite. Vite 7 is now part of the proof: the example bake
+  under **vite 7.3.7** rendered 8/8 pages whose HTML is identical to the vite
+  6.4.5 bake except the content-hash asset names and the `deploy-id` stamp
+  (scratch clone, not a git tree), audit 0 failures / 0 warnings, no
+  deprecation noise. The example lane moved to `vite ^7.3.7` (the router 7
+  shape: example on the new major, init battery pinned on 6); the remaining
+  1.3.0 lanes are vite 8 and react 19 -- ceilings move again only on proof.
 
 ### New: `prestruct audit` (the built-in post-build verifier)
 

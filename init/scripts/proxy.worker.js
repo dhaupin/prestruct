@@ -141,13 +141,17 @@ export function refreshSecretMatches(secret, headerValue) {
   const len = Math.max(a.length, b.length)
   for (let i = 0; i < len; i++) {
     diff |= (a[i % a.length] || 0) ^ (b[i % b.length] || 0)
-  }
-  return diff === 0
+  }  return diff === 0
 }
+
+// Single-flight render map, per isolate (module scope): a same-isolate burst
+// of identical uncached bots collapses into one render instead of one per
+// concurrent request; forced refreshes bypass it. KV is eventually
+// consistent, so this shares only within the isolate that owns the miss.
+const inflightRenders = new Map()
 
 export default {
   async fetch(request, env) {
-    // Only GET
     if (request.method !== 'GET') {
       return new Response('Method not allowed.', { status: 405 })
     }
@@ -202,6 +206,22 @@ export default {
       }
     }
 
+    // Single-flight renders (2026-10 walk, parity with scripts/proxy.js): a
+    // same-isolate burst of identical misses collapses into one render. Forced
+    // refreshes bypass the flight (their contract is bypass-the-cache). KV is
+    // eventually consistent, so no flight guarantees across isolates; this only
+    // removes the same-isolate duplication the burst case actually creates.
+    if (!forceRefresh && inflightRenders.has(key)) {
+      const sharedHtml = await inflightRenders.get(key)
+      return new Response(sharedHtml, {
+        headers: {
+          'Content-Type':            'text/html; charset=utf-8',
+          'X-Prestruct-Cache':       'FLIGHT',
+          'X-Prestruct-Rendered-At': new Date().toISOString(),
+        },
+      })
+    }
+
     // Render via Browser Rendering API. The binding is imported lazily so the
     // module (and its unit tests) never require the @cloudflare/puppeteer
     // package -- only the render path does.
@@ -231,6 +251,13 @@ export default {
           await browser.close()
         } catch {}
       }
+    }
+    if (!forceRefresh) {
+      const shared = Promise.resolve(html)
+      inflightRenders.set(key, shared)
+      shared.finally(function () {
+        if (inflightRenders.get(key) === shared) inflightRenders.delete(key)
+      }).catch(function () {})
     }
 
     // Store in KV with TTL. JSON-encode with the render timestamp so the hit
