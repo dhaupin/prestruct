@@ -246,6 +246,9 @@ mountIslands(islands)`}</CodeBlock>
             <a href={`${GITHUB}/blob/main/init/src/islands.js`} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
               islands.js
             </a>
+            <a href="https://docs.creadev.org/prestruct/guides/advanced-islands" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+              Full islands guide
+            </a>
           </div>
         </div>
       </section>

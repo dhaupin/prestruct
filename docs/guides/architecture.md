@@ -212,3 +212,11 @@ Pre-rendered HTML loads instantly. JavaScript hydrates in parallel.
 | `usePageMeta.js` | React hook for head tag management |
 | `islands.js` | Client-side island mounting |
 | `main.jsx` | hydrateRoot/createRoot decision |
+
+---
+
+## Next steps
+
+- [Vite Integration](/prestruct/guides/vite) - the dev server and ssrLoadModule surface under the hood
+- [Advanced Islands](/prestruct/guides/advanced-islands) - mountIslands and the separate island roots
+- [Config Reference](/prestruct/guides/config) - the ssr.config.js input the pipeline consumes

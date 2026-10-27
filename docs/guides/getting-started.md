@@ -12,7 +12,7 @@ Build a fully-prerendered React app for Cloudflare Pages in minutes.
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - npm or pnpm
 - Cloudflare Pages project (or GitHub account to create one)
 
@@ -184,7 +184,7 @@ Serves `dist/` at `http://localhost:4173`.
 4. Set build settings:
    - **Build command:** `npm run build`
    - **Build output directory:** `dist`
-   - **Node.js version:** `18`
+   - **Node.js version:** `20`
 5. Deploy!
 
 ## Project Structure
@@ -234,3 +234,4 @@ the valid routes. Prerender failures always exit 1 regardless. See the
 - [Configuration Reference](/prestruct/guides/config)
 - [SEO Guide](/prestruct/guides/seo)
 - [Performance](/prestruct/guides/performance)
+- [Architecture](/prestruct/guides/architecture) - how the prerender pipeline works under the hood

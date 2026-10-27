@@ -109,3 +109,5 @@ Unchanged from 1.0.0 by design: build-time prerender only (no runtime, edge, or 
 - Docs: <https://docs.creadev.org/prestruct>
 - GitHub: <https://github.com/dhaupin/prestruct>
 - Changelog: <https://github.com/dhaupin/prestruct/blob/main/CHANGELOG.md>
+
+- [Changelog](/prestruct/guides/changelog) -- the consolidated consumer-facing changes

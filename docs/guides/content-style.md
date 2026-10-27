@@ -109,3 +109,10 @@ nav_order: 10         # integer; controls sidebar position via _data/nav.yml
 - No formatted quotes. Use straight quotes.
 - No exclamation points unless genuinely earned.
 - Entity names: Capitalized when first in a sentence or heading.
+
+---
+
+## Next steps
+
+- [Contributing](/prestruct/guides/contributing) - where these rules are enforced: the documentation linters in CI
+- [Roadmap](/prestruct/guides/roadmap) - what the documentation is planning to cover next

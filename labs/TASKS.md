@@ -1,3 +1,33 @@
+## Pass 56 (2026-10-27): docs guide-cards grid restored + live-site probe round
+
+**Symptom (live receipts, user phone + headless Chromium):** docs home
+"Guides" renders as a raw stacked-link list. Root cause: `index.md` ships
+`<div class="guide-cards">`/`.guide-card` anchors; the flowforge rig
+adoption replaced the old stylesheet and dropped those rules entirely.
+Fix: `.guide-cols`... (no - `.guide-cards` grid block in
+`docs/_layouts/default.html`, token-sheet only (auto-fill minmax 230px,
+surface/line/accent/ink-soft/--err-free). Verified visually DARK + LIGHT
+via a harness embedding the REAL layout `<style>` + REAL card markup
+(artifacts/guide-cards-{dark,light}.png) - accent headings, muted body,
+code chips, hover accent border, light re-tunes every rule.
+
+**Probe round (live URLs via headless Chromium, console+network):**
+- docs home / getting-started / hardening + mobile home: zero failed
+  asset requests; sidebar/search/theme all healthy; rouge palette painted
+  end to end (nb/nf/s1/se etc).
+- Node-version drift fixed: getting-started said "Node.js 18+" and
+  "Node.js version: `18`" while both engines pin `>=20` (also drift vs
+  cloudflare.md's "20 ... safe default"). Now 20+, aligned with engines.
+- example site console: ONE recurring CSP violation class - gtag's
+  `www.google.com/ads/ga-audiences` beacon blocked by `connect-src` which
+  omitted `www.google.com`. Added to `example/public/_headers` (+ dist
+  receipt). `init/public/_headers` untouched: it carries only inspector
+  defaults and its comment tells adopters to append their own targets.
+- example pages render clean; no 404/5xx assets on either site.
+
+Docs linter battery green after edits (style/links/frontmatter/language/
+truthfulness, 27 files). Example build green, audit 0 f / 0 w.
+
 ## Pass 55 - the aggregate gate: `npm run gate` (2026-10-26)
 
 The pass-54 promise shipped. One command carries every lane CI runs,

@@ -138,3 +138,6 @@ Full release notes: https://github.com/dhaupin/prestruct/releases
 
 - [Roadmap](/prestruct/guides/roadmap) - what is planned next
 - [Contributing](/prestruct/guides/contributing) - how to get a change in
+- [Announcement: v1.0.0](/prestruct/discussions/announcing-v1.0.0/) - first stable release notes
+- [Announcement: v1.1.0](/prestruct/discussions/announcing-v1.1.0/) - release notes for the previous tagged version
+- [Announcement: v1.2.0](/prestruct/discussions/announcing-v1.2.0/) - release notes for the current version

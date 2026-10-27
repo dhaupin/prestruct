@@ -171,6 +171,9 @@ if (root && root.dataset.serverRendered) {
 
           <div className="u-mt-2">
             <Link to="/deploy" className="btn btn-primary">Ready to integrate</Link>
+            <a href="https://docs.creadev.org/prestruct/guides/architecture" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+              How it works: full architecture
+            </a>
           </div>
         </div>
       </section>

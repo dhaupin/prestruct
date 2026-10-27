@@ -1,6 +1,6 @@
 ---
 version: 1.2.0
-permalink: /discussions/announcing-v1.2.0
+permalink: /discussions/announcing-v1.2.0/
 layout: none
 title: "Announcing prestruct v1.2.0"
 comments: false
@@ -57,4 +57,5 @@ The hardening is adversarially covered by the pack that ships in the repo, not n
 - Template copy of the proxy pair: update `init/scripts/proxy.js` and `init/scripts/proxy.worker.js` from this release -- both are drop-in, no new required env beyond what was already documented (`PRESTRUCT_CACHE_MAX_MB` is optional).
 - Otherwise: no config changes required to keep v1.1.0 behavior.
 
-Unchanged by design from earlier releases: build-time prerender only (no runtime, edge, or streaming SSR), Cloudflare Pages first-class with Vercel/Netlify config validation only, react-router-dom v6 and v7 both supported.
+- [Changelog](/prestruct/guides/changelog) -- the consolidated consumer-facing changes
+- [Architecture](/prestruct/guides/architecture) -- how the engine behind the release works

@@ -31,7 +31,7 @@ export default function Deploy() {
           <div className="feature-grid">
             <div className="feature">
               <p className="feature-icon">stack</p>
-              <p className="feature-desc">Vite 5+, React 18+, React Router v6, Cloudflare Pages, Node 18+</p>
+              <p className="feature-desc">Vite 5+, React 18+, React Router v6/v7, Cloudflare Pages, Node 20+</p>
             </div>
             <div className="feature">
               <p className="feature-icon">time</p>
@@ -233,8 +233,11 @@ const [theme, setTheme] = useState(() => {
             <a href={`${GITHUB}/blob/main/AGENTS.md`} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
               Read AGENTS.md
             </a>
-            <a href={`${GITHUB}/blob/main/SCOPE.md`} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-              Read SCOPE.md
+            <a href={`${GITHUB}/blob/main/README.md`} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+              Read README.md
+            </a>
+            <a href="https://docs.creadev.org/prestruct/guides/cloudflare" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+              Full deploy guide
             </a>
           </div>
         </div>

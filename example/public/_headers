@@ -11,7 +11,7 @@
   # - connect-src: same-origin fetch for ViewSource, Cloudflare Insights beacon,
   #   Cloudflare Zaraz, Google Analytics (stats.g.doubleclick.net, google-analytics.com)
   # - Zaraz proxies GA through Cloudflare's edge so direct GA domains are also needed
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://prestruct.creadev.org https://cloudflareinsights.com https://stats.g.doubleclick.net https://www.google-analytics.com https://www.googletagmanager.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://prestruct.creadev.org https://cloudflareinsights.com https://stats.g.doubleclick.net https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless

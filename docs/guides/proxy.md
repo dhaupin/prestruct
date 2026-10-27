@@ -218,3 +218,4 @@ async function getBrowser() {
 
 - [Cloudflare Pages](/prestruct/guides/cloudflare) - the Pages side of the split
 - [Redirects](/prestruct/guides/redirects) - headers and redirects the build owns
+- [Hardening & Packs](/prestruct/guides/hardening) - the crashtest pack that attacks both runtimes

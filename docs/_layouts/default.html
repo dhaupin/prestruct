@@ -166,6 +166,19 @@
             border-bottom: 1px solid var(--line); }
         td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
 
+        /* Homepage guide-cards grid: index.html ships <div class="guide-cards">
+           anchors. The rig adoption replaced the old stylesheet and these
+           rules went with it, so the grid rendered as raw stacked links
+           (live-site receipt 2026-10-27). All values ride the token sheet. */
+        .guide-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 14px; margin: 18px 0 22px; }
+        .guide-card { display: block; text-decoration: none; background: var(--surface);
+            border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 12px; }
+        .guide-card:hover { border-color: var(--accent); text-decoration: none; }
+        .guide-card h4 { color: var(--accent); font-size: 14px; margin: 0 0 6px; }
+        .guide-card:hover h4 { text-decoration: underline; }
+        .guide-card p { color: var(--ink-soft); font-size: 12.5px; margin: 0 0 4px; }
+
         .doc-footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line);
             color: var(--ink-light); font-size: 13px; }
         .doc-footer a { color: var(--ink-soft); }

@@ -119,6 +119,9 @@ proxy: {
   },
 }`}
           </CodeBlock>
+          <p className="u-tip-label">
+            Full setup: <a href="https://docs.creadev.org/prestruct/guides/proxy" target="_blank" rel="noopener noreferrer">the proxy guide</a> and <a href={`${GITHUB}/blob/main/README-proxy.md`} target="_blank" rel="noopener noreferrer">README-proxy.md</a>.
+          </p>
         </div>
       </section>
     </>

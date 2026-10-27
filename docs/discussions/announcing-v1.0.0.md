@@ -169,3 +169,5 @@ the v6 `server.js` subpath first and falls back to the package root.
 - Full changelog: <https://github.com/dhaupin/prestruct/blob/main/CHANGELOG.md>
 
 The tool has been running production sites for a while and the release keeps the API stable from here: breaking changes get a major bump, non-breaking improvements land in minor and patch releases. Thanks to everyone who tested the pre-releases and filed issues. If you deploy something with it, tell us what broke.
+
+- [Changelog](/prestruct/guides/changelog) -- the consolidated consumer-facing changes
