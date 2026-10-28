@@ -38,12 +38,19 @@
  *
  * targetUrl vs siteUrl:
  *   Set PRESTRUCT_TARGET_URL in wrangler.toml [vars] to point the proxy at a
- *   different origin (WordPress, staging, localhost tunnel, etc.).
- *   Defaults to the `x-forwarded-host` of the incoming request if not set.
+ *   different origin (WordPress, staging, localhost tunnel, etc.). It is
+ *   required: an unset value fails the request with a 500 rather than falling
+ *   back to a guessed origin.
  *
  * Bot list:
  *   Maintained inline here. Sync with config.proxy.botList in ssr.config.js
  *   if you customise either. The Worker has no access to your build-time config.
+ *
+ * Render load:
+ *   A per-isolate flight map collapses a burst of identical uncached misses
+ *   into one render, and a concurrency limiter (MAX_CONCURRENT) bounds how
+ *   many Browser Rendering sessions one isolate opens at once -- parity with
+ *   the VPS proxy's renderOnce + withRenderLimit.
  *
  * Security:
  *   - Cache refresh requires the PRESTRUCT_SECRET value in x-prestruct-refresh,
@@ -150,6 +157,82 @@ export function refreshSecretMatches(secret, headerValue) {
 // consistent, so this shares only within the isolate that owns the miss.
 const inflightRenders = new Map()
 
+// Render concurrency limit (parity with scripts/proxy.js): bounds how many
+// Browser Rendering sessions one isolate opens at once. Without it a bot
+// burst that misses the flight map launches unbounded sessions.
+export const MAX_CONCURRENT = 5
+let activeRenders = 0
+const renderQueue = []
+
+export async function withRenderLimit(fn) {
+  if (activeRenders < MAX_CONCURRENT) {
+    activeRenders++
+    try {
+      return await fn()
+    } finally {
+      activeRenders--
+      // Recurse into withRenderLimit (not fn directly) so the queued task
+      // re-acquires a slot; calling fn() directly skips the acquire and
+      // returns to unbounded concurrency under sustained load.
+      if (renderQueue.length > 0) {
+        const next = renderQueue.shift()
+        next()
+      }
+    }
+  }
+  return new Promise((resolve, reject) => {
+    renderQueue.push(() => { withRenderLimit(fn).then(resolve, reject) })
+  })
+}
+
+// Single-flight: the entry is set BEFORE the render is awaited, so a
+// same-isolate burst of identical misses joins the open flight instead of
+// each starting its own render. Returns { html, joined } so the caller can
+// label a joiner's response (FLIGHT) apart from the owner's (MISS). The
+// previous shape read the map before rendering and wrote it after, so the
+// flight was never observable and the FLIGHT branch was dead code.
+export async function renderOnce(key, targetFullUrl, forceRefresh, renderFn) {
+  if (!forceRefresh && inflightRenders.has(key)) {
+    const html = await inflightRenders.get(key)
+    return { html, joined: true }
+  }
+  const own = !forceRefresh
+  const promise = withRenderLimit(() => renderFn(targetFullUrl))
+  if (own) {
+    inflightRenders.set(key, promise)
+    promise.finally(function () {
+      if (inflightRenders.get(key) === promise) inflightRenders.delete(key)
+    }).catch(function () {})
+  }
+  const html = await promise
+  return { html, joined: false }
+}
+
+// Render via Browser Rendering API. The binding is imported lazily so the
+// module (and its unit tests) never require the @cloudflare/puppeteer
+// package -- only the render path does.
+async function renderViaBrowser(env, targetFullUrl) {
+  const { default: workerPuppeteer } = await import('@cloudflare/puppeteer')
+  const browser = await workerPuppeteer.launch(env.BROWSER)
+  let page
+  try {
+    page = await browser.newPage()
+    await page.setViewport({ width: 1280, height: 800 })
+    await page.setExtraHTTPHeaders({ 'X-Prestruct-Proxy': 'true' })
+    await page.goto(targetFullUrl, { waitUntil: 'networkidle0', timeout: 30000 })
+    return await page.content()
+  } finally {
+    if (page) {
+      try {
+        await page.close()
+      } catch {}
+    }
+    try {
+      await browser.close()
+    } catch {}
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method !== 'GET') {
@@ -168,8 +251,11 @@ export default {
     const requestUrl = new URL(request.url)
     let targetFullUrl
     try {
+      const base   = new URL(TARGET_URL)
       const parsed = new URL(`${TARGET_URL}${requestUrl.pathname}${requestUrl.search}`)
-      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Invalid protocol')
+      if (!['http:', 'https:'].includes(parsed.protocol) || parsed.origin !== base.origin) {
+        throw new Error('Invalid target origin')
+      }
       targetFullUrl = parsed.toString()
     } catch {
       return new Response('Invalid request URL.', { status: 400 })
@@ -207,68 +293,40 @@ export default {
     }
 
     // Single-flight renders (2026-10 walk, parity with scripts/proxy.js): a
-    // same-isolate burst of identical misses collapses into one render. Forced
-    // refreshes bypass the flight (their contract is bypass-the-cache). KV is
-    // eventually consistent, so no flight guarantees across isolates; this only
-    // removes the same-isolate duplication the burst case actually creates.
-    if (!forceRefresh && inflightRenders.has(key)) {
-      const sharedHtml = await inflightRenders.get(key)
-      return new Response(sharedHtml, {
-        headers: {
-          'Content-Type':            'text/html; charset=utf-8',
-          'X-Prestruct-Cache':       'FLIGHT',
-          'X-Prestruct-Rendered-At': new Date().toISOString(),
-        },
-      })
-    }
-
-    // Render via Browser Rendering API. The binding is imported lazily so the
-    // module (and its unit tests) never require the @cloudflare/puppeteer
-    // package -- only the render path does.
+    // same-isolate burst of identical misses collapses into one render (the
+    // flight entry is set before the render is awaited). Forced refreshes
+    // bypass the flight (their contract is bypass-the-cache). KV is eventually
+    // consistent, so no flight guarantees across isolates; this only removes
+    // the same-isolate duplication the burst case actually creates.
     let html
-    let browser
-    let page
+    let joined = false
     try {
-      const { default: workerPuppeteer } = await import('@cloudflare/puppeteer')
-      browser = await workerPuppeteer.launch(env.BROWSER)
-      page    = await browser.newPage()
-      await page.setViewport({ width: 1280, height: 800 })
-      await page.setExtraHTTPHeaders({ 'X-Prestruct-Proxy': 'true' })
-      await page.goto(targetFullUrl, { waitUntil: 'networkidle0', timeout: 30000 })
-      html = await page.content()
+      const result = await renderOnce(
+        key,
+        targetFullUrl,
+        forceRefresh,
+        (url) => renderViaBrowser(env, url),
+      )
+      html = result.html
+      joined = result.joined
     } catch (err) {
       console.error('[proxy:worker] Render failed:', err.message)
       // Fall through to live site on render failure
       return Response.redirect(targetFullUrl, 302)
-    } finally {
-      if (page) {
-        try {
-          await page.close()
-        } catch {}
-      }
-      if (browser) {
-        try {
-          await browser.close()
-        } catch {}
-      }
-    }
-    if (!forceRefresh) {
-      const shared = Promise.resolve(html)
-      inflightRenders.set(key, shared)
-      shared.finally(function () {
-        if (inflightRenders.get(key) === shared) inflightRenders.delete(key)
-      }).catch(function () {})
     }
 
     // Store in KV with TTL. JSON-encode with the render timestamp so the hit
     // path can report a real X-Prestruct-Rendered-At (the old form cached the
-    // bare HTML and reported a stale/absent date on every HIT).
-    await env.CACHE.put(key, JSON.stringify({ html, cachedAt: new Date().toISOString() }), { expirationTtl: TTL })
+    // bare HTML and reported a stale/absent date on every HIT). A joiner does
+    // not re-put: the flight owner's put already covers the key.
+    if (!joined) {
+      await env.CACHE.put(key, JSON.stringify({ html, cachedAt: new Date().toISOString() }), { expirationTtl: TTL })
+    }
 
     return new Response(html, {
       headers: {
         'Content-Type':            'text/html; charset=utf-8',
-        'X-Prestruct-Cache':       'MISS',
+        'X-Prestruct-Cache':       joined ? 'FLIGHT' : 'MISS',
         'X-Prestruct-Rendered-At': new Date().toISOString(),
       },
     })

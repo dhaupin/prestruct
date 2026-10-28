@@ -108,9 +108,6 @@ export function isBot(ua) {
 // the module was imported from.
 const CACHE_DIR    = path.resolve(process.env.PRESTRUCT_CACHE_DIR || '.prestruct_cache')
 const CACHE_TTL    = 1000 * 60 * 60 * 24   // 24 hours -- adjust if needed
-// Size cap: env-overridable (PRESTRUCT_CACHE_MAX_MB) so eviction behavior is
-// reachable on small disks and in tests; the hard default stays 500MB.
-const MAX_CACHE_SIZE = 500 * 1024 * 1024    // 500MB max cache size
 
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true })
 
@@ -318,11 +315,19 @@ export async function proxyHandler(req, res, next) {
   const ua  = req.headers['user-agent'] || ''
   const bot = isBot(ua)
 
-  // Validate and build the target URL. Reject anything that produces a non-HTTP scheme.
+  // Validate and build the target URL. Build it by concatenation (preserving
+  // any path prefix on targetUrl) and then require the resolved origin to
+  // equal the configured target origin, so a request target like
+  // `//evil.com/x` or `@evil.com/` can never swap the host. The old form
+  // relied on Node's HTTP parser rejecting `@`-prefixed targets -- correct
+  // today, but the SSRF guard should not hinge on parser behavior.
   let targetFullUrl
   try {
+    const base   = new URL(TARGET_URL)
     const parsed = new URL(`${TARGET_URL}${req.url}`)
-    if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Invalid protocol')
+    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.origin !== base.origin) {
+      throw new Error('Invalid target origin')
+    }
     targetFullUrl = parsed.toString()
   } catch {
     return res.status(400).send('Invalid request URL.')

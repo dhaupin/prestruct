@@ -15,6 +15,9 @@ import {
   cacheKey as workerCacheKey,
   cacheKeyFor as workerCacheKeyFor,
   ttlFromEnv,
+  withRenderLimit as workerWithRenderLimit,
+  MAX_CONCURRENT as workerMaxConcurrent,
+  renderOnce as workerRenderOnce,
 } from '../init/scripts/proxy.worker.js'
 
 /**
@@ -237,6 +240,82 @@ describe('renderOnce (single-flight, pass 57 walk)', () => {
     expect(forced.ok).toBe(true)
     expect(joined.ok).toBe(true)
     expect(forced.v).not.toBe(joined.v) // fresh bytes vs flight bytes
+  })
+})
+
+// -- Worker parity (2026-10 audit: the worker's flight map was written AFTER
+//    the render, so the FLIGHT branch was dead code and a burst launched one
+//    render per request; it also had no concurrency limiter at all) ----------
+
+describe('worker withRenderLimit (parity with the VPS limiter)', () => {
+  beforeEach(async () => {
+    await new Promise(r => setTimeout(r, 10))
+  })
+
+  it(`caps concurrent renders at MAX_CONCURRENT=${workerMaxConcurrent}`, async () => {
+    let live = 0
+    let observedMax = 0
+    const job = async () => {
+      live++
+      observedMax = Math.max(observedMax, live)
+      await new Promise(r => setTimeout(r, 10))
+      live--
+    }
+    await Promise.all(Array.from({ length: 14 }, () => settled(workerWithRenderLimit(job))))
+    expect(observedMax).toBe(workerMaxConcurrent)
+  })
+})
+
+describe('worker renderOnce (single-flight, 2026-10 audit fix)', () => {
+  beforeEach(async () => {
+    await new Promise(r => setTimeout(r, 10))
+  })
+
+  function fakeRender(counter) {
+    return async function (url) {
+      counter.n += 1
+      const n = counter.n
+      await new Promise(r => setTimeout(r, 15))
+      return `<html>${url}#${n}</html>`
+    }
+  }
+
+  it('collapses a same-key burst into ONE render and labels joiners FLIGHT', async () => {
+    const counter = { n: 0 }
+    const results = await Promise.all(
+      Array.from({ length: 12 }, () =>
+        settled(workerRenderOnce('w-same', '/target', false, fakeRender(counter))))
+    )
+
+    expect(counter.n).toBe(1) // one render, not one per burst request
+    expect(results.filter(r => r.ok)).toHaveLength(12)
+    expect(results.filter(r => r.v.joined)).toHaveLength(11) // owner + 11 joiners
+    expect(results.filter(r => !r.v.joined)).toHaveLength(1)
+    const values = new Set(results.map(r => r.v.html))
+    expect([...values]).toHaveLength(1) // every joiner served the same bytes
+  })
+
+  it('different keys render independently', async () => {
+    const counter = { n: 0 }
+    const [a, b] = await Promise.all([
+      settled(workerRenderOnce('w-key-a', '/a', false, fakeRender(counter))),
+      settled(workerRenderOnce('w-key-b', '/b', false, fakeRender(counter))),
+    ])
+    expect(counter.n).toBe(2)
+    expect(a.v.html).not.toBe(b.v.html)
+  })
+
+  it('forced refresh does not join an open flight and owns no map entry', async () => {
+    const counter = { n: 0 }
+    const render = fakeRender(counter)
+    const flightCall = workerRenderOnce('w-forced', '/f', false, render)
+    const forced = await settled(workerRenderOnce('w-forced', '/f', true, render))
+    const joined = await settled(flightCall)
+
+    expect(counter.n).toBe(2) // the forced render did NOT ride the flight
+    expect(forced.v.joined).toBe(false)
+    expect(joined.v.joined).toBe(false)
+    expect(forced.v.html).not.toBe(joined.v.html)
   })
 })
 
