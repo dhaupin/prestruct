@@ -14,6 +14,16 @@ and **main carries the next release's pins**.
 
 ## Unreleased (1.2.0 on the ladder; npm stays at the v1.1.0 tag)
 
+- **react-router 7 prerender seam fixed (#68)**: on router 7 (real ESM) the
+  engine's `StaticRouter` and the app's router could load as two module
+  instances with separate React contexts, failing every route with
+  `useLocation() may be used only in the context of a <Router> component`
+  (and, under a host `ssr.noExternal`, a Vite `module is not defined` /
+  named-export error first). The engine now loads `StaticRouter` through the
+  same SSR registry as the app and redirects an inlined react-router CJS
+  entry to its ESM twin; both majors render with or without `ssr.noExternal`.
+  Cherry-pickers: remove the `rrdom-esm-redirect.mjs` shim and the
+  `ssr.noExternal` lines if you carried them.
 - **Peer ranges are bounded to the proven matrix** (#58): `react >=18 <19`,
   `react-dom >=18 <19`, `react-router-dom >=6 <8`, `vite >=5 <8`. The proven
   set is vite 6.4.5, react 18.3.1, and router majors 6 and 7 (7.18.4 baked

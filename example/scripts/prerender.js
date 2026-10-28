@@ -22,6 +22,9 @@
  *   generateSitemap(routes, siteUrl, routeMtimes?)
  *   generate404(shell, config, siteUrl)
  *   readCache() / writeCache(cache) / cleanCache()
+ *   rewriteRrdNamedImports(source)  -- react-router named-import interop rewrite
+ *   esmTwinSource(id, opts)         -- react-router CJS -> ESM twin redirect (#68)
+ *   loadStaticRouter(importer?)     -- StaticRouter across the v6/v7 peer range
  *   prerender()                     -- full pipeline
  *
  * Output (for a 3-route app with /, /about, /contact):
@@ -811,6 +814,48 @@ const rrdInteropPlugin = {
   },
 }
 
+// react-router ESM-twin redirect (prestruct#68): when a host sets
+// `ssr.noExternal` (the documented way to keep the router in-process for the
+// old consumer shim), Vite INLINES the package's CJS node entry
+// (`dist/index.js` on v7, `dist/server.js`/`dist/main.js` on v6) into the SSR
+// registry. The registry evaluates that CJS source as ESM -- `module`/
+// `exports` are undefined -- so the load dies with `module is not defined`
+// (v7) or `exports is not defined` (v6), 0/n pages rendered. Every router
+// entry ships a sibling `.mjs` ESM twin; serving the twin's content for the
+// CJS file URL keeps the registry a real ESM module. Externalized trees never
+// hit this hook (Node loads the file itself), so the redirect is a no-op
+// there -- it only rescues the inlined case, leaving the default shape alone.
+/**
+ * Redirect react-router(-dom) CJS dist loads to their sibling `.mjs` ESM twin
+ * during the SSR pass. Returns null (honest pass-through) when the id is not a
+ * router CJS file or no twin exists.
+ *
+ * @param {string} id - module id Vite is loading
+ * @param {?{ssr?: boolean}} opts - Vite load options
+ * @returns {?string} ESM source, or null to pass through
+ */
+export function esmTwinSource(id, opts) {
+  if (!opts || opts.ssr !== true) return null
+  const clean = id.split('?')[0]
+  if (!/[\\/]node_modules[\\/]react-router(-dom)?[\\/]/.test(clean)) return null
+  if (!clean.endsWith('.js')) return null
+  const esm = clean.replace(/\.js$/, '.mjs')
+  try {
+    if (!fs.existsSync(esm)) return null
+    return fs.readFileSync(esm, 'utf8')
+  } catch {
+    return null
+  }
+}
+
+const rrdEsmTwinPlugin = {
+  name: 'prestruct-rrd-esm-twin',
+  enforce: 'pre',
+  load(id, opts) {
+    return esmTwinSource(id, opts)
+  },
+}
+
 // StaticRouter loader: react-router-dom's exports map differs by version.
 // v6 exposes the SSR entry as a './server.js' subpath; v7 re-exports
 // StaticRouter from the package root. `importer` is injectable so the v7
@@ -824,12 +869,15 @@ const rrdInteropPlugin = {
  * @throws when neither entry provides StaticRouter
  */
 export async function loadStaticRouter(importer = (m) => import(m)) {
-  let StaticRouter
+  let mod
   try {
-    ;({ StaticRouter } = await importer('react-router-dom/server.js'))
+    mod = await importer('react-router-dom/server.js')
   } catch {
-    ;({ StaticRouter } = await importer('react-router-dom'))
+    mod = await importer('react-router-dom')
   }
+  // Named export first; the namespace-interop `default` carries it when a CJS
+  // entry resolved without named bindings.
+  const StaticRouter = mod && (mod.StaticRouter || (mod.default && mod.default.StaticRouter))
   if (!StaticRouter) {
     throw new Error('[prerender] Could not load StaticRouter from react-router-dom -- is it installed?')
   }
@@ -876,17 +924,22 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
   const { createServer }   = await import('vite')
   const { renderToString } = await import('react-dom/server')
   const React              = (await import('react')).default
-  const StaticRouter = await loadStaticRouter()
+
+  // Pre-server load: the fail-before-server path (vite missing, no config) and
+  // the externalized default both land here. On react-router 6 this IS the
+  // registry's instance (require()-shaped CJS), so it is also the correct one
+  // to render with.
+  let StaticRouter = await loadStaticRouter()
 
   // Vite dev server in SSR mode.
   // ssrLoadModule resolves all imports through Vite's unified module registry,
   // guaranteeing a single react-router-dom instance. StaticRouter's location
   // context reaches useLocation() inside Routes correctly.
-    const vite = await createServer({
+  const vite = await createServer({
     root: p.root,
     server: { middlewareMode: true },
     appType: 'custom',
-    plugins: [rrdInteropPlugin],
+    plugins: [rrdInteropPlugin, rrdEsmTwinPlugin],
     customLogger: {
       info:           () => {},
       warn:           (msg) => { if (!msg.includes('ExperimentalWarning')) process.stderr.write('[prerender:warn] ' + msg + '\n') },
@@ -900,6 +953,22 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
   try {
     const { default: AppLayout } = await vite.ssrLoadModule(appLayoutPath)
+
+    // The seam (prestruct#68): a host that sets `ssr.noExternal` (the old
+    // consumer-shim requirement) makes Vite INLINE react-router instead of
+    // externalizing it, so the registry holds its OWN instance while the
+    // pre-server `loadStaticRouter()` above holds Node's. On react-router 7
+    // (real ESM) those are two module instances with two sets of React
+    // contexts, and every route dies with "useLocation() may be used only in
+    // the context of a <Router> component". Re-load StaticRouter through the
+    // registry so the wrapper and the tree share one instance. The plain
+    // import stays as the fallback when the registry cannot serve it.
+    try {
+      const registryStaticRouter = await loadStaticRouter((m) => vite.ssrLoadModule(m))
+      if (registryStaticRouter) StaticRouter = registryStaticRouter
+    } catch (err) {
+      console.warn(`[prerender] registry StaticRouter unavailable (${err.message}) -- using the module-scope import`)
+    }
 
     // Validate dist/index.html exists (vite build may have failed)
     const indexPath = path.join(p.dist, 'index.html')
