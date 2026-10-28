@@ -1,3 +1,49 @@
+## Pass 58 (2026-10-28): react-router 7 ESM seam closed (#68)
+**Scope:** prestruct#68 -- "v7 prerender seam: the engine's StaticRouter import
+and the app's router load as two module instances." Bug label; worked example
+eyestruct@954676e.
+
+**Root cause (two signatures, one seam):** the pass-57 v6/v7 fallback fixed the
+router IMPORT path, not the module INSTANCE. On v6 the CJS entry is
+`require()`-shaped so the engine's `import('react-router-dom')` and
+`ssrLoadModule` collapse to one module. On v7 (real ESM) they split, each copy
+minting its own React contexts:
+  1. `Named export 'useLocation' not found ... CommonJS module` -- host
+     `ssr.noExternal` makes Vite INLINE `dist/index.js` and evaluate it as ESM.
+     0/n pages.
+  2. `useLocation() may be used only in the context of a <Router> component` --
+     the two-instance split, every route, externalized or not.
+
+**Fix (engine/scripts/prerender.js):**
+  - `rrdEsmTwinPlugin` -- SSR `load` hook: when a react-router(-dom) CJS `.js`
+    dist file is loaded, serve its sibling `.mjs` twin via fs. Rescues the
+    inlined (noExternal) case. No-op on externalized trees.
+  - `loadStaticRouter` is now registry-preferring: after `createServer`, load
+    StaticRouter THROUGH `vite.ssrLoadModule` so the wrapper and the host tree
+    share one instance. The pre-server plain import remains the
+    fail-before-server + externalized fallback; default/named interop kept.
+
+**Proof:**
+  - `tests/prerender-seam.test.js` (new, 9 tests): offline pins on
+    `esmTwinSource`/`loadStaticRouter` + a REAL createServer/ssrLoadModule
+    render of a v7 + `ssr.noExternal` fixture host (v7 installed under the
+    `react-router-dom-v7` alias so the root rail stays v6), asserting n/n pages
+    and per-route `useLocation` content. Reverting the engine fails 7/9.
+  - Scratch: /tmp/repro (v7+noExternal), /tmp/v6app (v6+noExternal baseline),
+    /tmp/ext (externalized) -- all 8/8 with the fix; baseline shows 0/8.
+  - `npm run gate` green: 256/256 tests, sync byte-identical (9 contracts),
+    packs/docs/claims pass, init lint 0 errors. `npm run e2e` all pass; tarball
+    44 files (no node_modules/dist).
+
+**Consumer note:** hosts that shipped the eyestruct-style
+`rrdom-esm-redirect.mjs` shim + `ssr.noExternal` lines can drop both.
+
+**Next pass:** consider a v7 leg in the CI example build (currently the example
+pins rr-dom ^7.18.4 already, so the integration leg also rides CI's example
+lane); if the alias devDep proves noisy, fold the v7 rail into the e2e fixture.
+
+---
+
 ## Pass 57 (2026-10-27): vite 7 graded + peer ceiling up a notch, proxy single-flight
 **Poll receipts:** CI green on cae8b52 across all six lanes (verify-engine-sync,
 build, proxy-pair, tests, crashtest run #42 with 0 new/0 regressed, docs deploy,

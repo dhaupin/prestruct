@@ -144,6 +144,31 @@ export default function App() {
 
 ---
 
+### react-router 7: "useLocation() may be used only in the context of a <Router>" or "module is not defined"
+
+**Cause:** react-router-dom 7 ships real ESM. If your `vite.config.js` sets
+`ssr.noExternal` for the router (the workaround older prestruct versions needed),
+Vite inlines the package into the SSR module registry. The engine's StaticRouter
+and your `AppLayout` then load through two different module instances, and each
+instance mints its own React contexts - so the router's location context never
+reaches your tree and every route fails:
+
+```text
+[prerender] FAIL /: useLocation() may be used only in the context of a <Router> component.
+```
+
+A second signature (`module is not defined`, or `exports is not defined` on
+v6) appears when the inlined CJS entry is evaluated as ESM.
+
+**Solution:** Update prestruct. The engine now redirects the inlined router to
+its ESM twin and loads `StaticRouter` through the same registry as your layout,
+so both majors work with or without `ssr.noExternal`. If you added the
+`web/scripts/rrdom-esm-redirect.mjs` shim and the two `ssr.noExternal` lines
+from an older release, remove them and re-run `prestruct build` - it should end
+`Done. n/n pages rendered`.
+
+---
+
 ### Route with trailing slash generates wrong canonical URL
 
 **Cause:** Mismatch between route path and desired URL.

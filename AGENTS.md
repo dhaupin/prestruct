@@ -155,6 +155,38 @@ a clear message if neither resolves. Rule: the peer range is `>=6`, so every
 react-router-dom import path in engine code must survive both majors. Test
 against an installed v7, not an assumed one.
 
+**The ESM seam, sharpened (prestruct#68, 2026-10):** the v6/v7 fallback above
+fixed the IMPORT, not the INSTANCE. On v6 the router's CJS entry is
+`require()`-shaped, so the engine's plain `import('react-router-dom')` and the
+registry's `ssrLoadModule` land on one module. On v7 (real ESM) they split, and
+each copy mints its OWN React contexts. Two failure signatures, both proven
+live on vite 7.3.7 / node 24 / rr-dom 7.18.5:
+
+1. `[vite] Named export 'useLocation' not found. The requested module
+   'react-router-dom' is a CommonJS module...` -- only when a host sets
+   `ssr.noExternal` (the old consumer-shim requirement), which makes Vite INLINE
+   the CJS `dist/index.js` and evaluate it as ESM. 0/n pages.
+2. `useLocation() may be used only in the context of a <Router> component` --
+   the two-instance context split, on EVERY route, whether or not the tree is
+   externalized.
+
+The engine fix has two halves: `rrdEsmTwinPlugin` (an SSR `load` hook that
+serves a react-router CJS dist file's sibling `.mjs` twin, rescuing the inlined
+case) and re-loading `StaticRouter` THROUGH the registry after `createServer`
+(`loadStaticRouter((m) => vite.ssrLoadModule(m))`) so the wrapper and the tree
+share one instance; the pre-server plain import stays as the fail-before-server
+and externalized fallback. The twin hook is a no-op on externalized trees
+(Node loads the file itself). Consumers who shipped the eyestruct-style
+`rrdom-esm-redirect.mjs` shim + `ssr.noExternal` can drop both.
+
+The regression proof lives in `tests/prerender-seam.test.js`: offline pins on
+`esmTwinSource`/`loadStaticRouter`, plus a REAL `createServer` + `ssrLoadModule`
+render of a fixture host that pins v7 (installed under the `react-router-dom-v7`
+alias so the root rail stays v6) WITH `ssr.noExternal`, asserting n/n pages and
+per-route `useLocation` content. Reverting the engine fails 7 of its 9 tests.
+The engine battery had no ESM-only router leg before this; that absence is why
+the seam shipped.
+
 ---
 
 ## hydrateRoot vs createRoot: FOUC
