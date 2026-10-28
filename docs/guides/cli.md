@@ -1,9 +1,9 @@
 ---
 layout: default
 title: CLI Reference
-description: "Command reference for the prestruct CLI: init, build, validate, clean, and their flags."
+description: "Command reference for the prestruct CLI: init, build, validate, audit, indexnow, clean, and their flags."
 nav_order: 21
-version: 1.0.0
+version: 1.2.0
 permalink: /guides/cli
 ---
 
@@ -22,7 +22,8 @@ npx prestruct init [dir]
 # Validate ssr.config.js only: prints every diagnostic line-by-line, exits 1 on a bad config
 npx prestruct validate
 
-# Full pipeline: validate -> vite build -> inject-brand -> prerender
+# Full pipeline: validate -> vite build -> inject-brand -> prerender ->
+# hooks.postBuild -> audit (a FAIL-class finding fails the build)
 # --force rerenders all routes; --clean clears the incremental cache first
 npx prestruct build
 
@@ -33,15 +34,19 @@ npx prestruct clean
 # trap, JSON-LD parse, sitemap/robots/404 contract); exit 1 on FAIL rows only
 npx prestruct audit
 
+# Submit the baked sitemap URLs to api.indexnow.org (--dry-run is CI-safe,
+# prints the request body without touching the network)
+npx prestruct indexnow
+
 # Show the command reference
 npx prestruct help
 ```
 
 Install is NOT a CLI verb: `npm install` / `git clone` unwraps the package; the
 verbs the package ships are exactly `init`, `build`, `validate`, `audit`,
-`clean`, and `help`. All commands except `help` accept a positional `[dir]`
-(explicit workdir); without one they walk up from the current directory until
-they find `ssr.config.js`.
+`indexnow`, `clean`, and `help`. All commands except `help` accept a positional
+`[dir]` (explicit workdir); without one they walk up from the current directory
+until they find `ssr.config.js`.
 
 To use these as npm scripts instead, add prestruct to `devDependencies` and wire it up:
 
@@ -62,10 +67,9 @@ re-run of the same `npm run build` pipeline (which now ends with the audit):
 
 ```jsonc
 {
-  "build":    "vite build && node scripts/inject-brand.js && node scripts/prerender.js && node scripts/audit.js",
+  "build":    "vite build && node scripts/inject-brand.js && node scripts/prerender.js && node scripts/audit-if-configured.cjs",
   "test":     "vitest",
   "test:run": "vitest run",
-  "test:ui":  "vitest --ui",
   "lint":     "eslint . --ext js,mjs",
   "lint:fix": "eslint . --ext js,mjs --fix"
 }

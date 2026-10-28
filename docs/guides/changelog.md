@@ -10,9 +10,9 @@ permalink: /guides/changelog
 Release history for prestruct. Commit history is the detailed source
 (`git log --oneline`); the npm package sits at **1.1.0** (published from
 the v1.1.0 tag via the Trusted-Publisher workflow, provenance-attested),
-and **main carries the next release's pins**.
+and **main carries 1.2.0, bumped ahead of its tag**.
 
-## Unreleased (1.2.0 on the ladder; npm stays at the v1.1.0 tag)
+## 1.2.0 (version bumped; tag not yet cut -- npm stays at the v1.1.0 tag)
 
 - **react-router 7 prerender seam fixed (#68)**: on router 7 (real ESM) the
   engine's `StaticRouter` and the app's router could load as two module
@@ -42,6 +42,32 @@ and **main carries the next release's pins**.
   internal hrefs, warn-grade). Scaffolded builds now END in the audit, so
   a regression fails the build. Cherry-pickers: drop in
   `scripts/audit.js` + add `&& node scripts/audit.js` to the build script.
+- **Family ride-along set** (config-gated; a host that sets nothing renders
+  the same HTML as before):
+  - **`prestruct indexnow` verb + `scripts/indexnow.js` (#36)**: 32-hex key
+    validation, generate-once persistence, `<key>.txt` emission into
+    `dist/`, baked-sitemap submission with `--dry-run` off-network mode.
+  - **`hooks.postBuild` (#41)**: the build pipeline owns the chain,
+    `runHooks: true` opt-in gate, function-form placeholder substitution,
+    `PRESTRUCT_*` env hand-off, nonzero hook exits fail the build.
+  - **Config-driven JSON-LD defaults (#30)**: Organization + WebSite from
+    `siteName`/`siteUrl`/`author` when a host defines no `buildJsonLd`;
+    `jsonLdDefaults: false` opts out.
+  - **Per-route `jsonLd` (#35)**: route-scoped nodes ship on their own page,
+    `@graph`-wrapped when multiple, rebuild-idempotent.
+  - **Head discovery set (#49)**: feed autodiscovery, hreflang alternates
+    with route takeover, verification metas, home-only SearchAction, and
+    generated-only `llms.txt` with an `llms: false` opt-out.
+  - **`ogImageGeneration` (#43)**: 1200x630 SVG templates render into
+    `dist/og/` per route through the optional `@resvg/resvg-js` rasterizer,
+    skipped loudly when absent.
+  - **RRD-7 named-import interop (#29)**: a pre-transform rewrites a host
+    layout's named react-router imports into the dual-major namespace form
+    before Vite links the externalized CJS graph.
+  - **The 404 head rides `injectMeta` (#42)**: only the genuinely-404
+    contracts remain (home-pointing canonical, noindex, zero-JS strip).
+  - **Config dialect table (#39)**: the prestruct<->freestruct shared config
+    mapping, in the config guide.
 - **Honest sitemap lastmod + XML loud-fail**: per-route lastmod from the
   dist file's own preserved mtime (byte-identical rebuilds skip the
   write); sitemap values survive `assertXmlSafe` -- a control character
@@ -65,7 +91,35 @@ and **main carries the next release's pins**.
   to reject the KV put/get AFTER a successful render, turning the
   response path into a 500). The in-repo crashtest pack (v0.4.0)
   seeds an oversized variant under both key shapes with an opposed
-  marker, so a fallback regression fails CI.
+  marker, so a fallback regression fails CI. The Worker's single-flight
+  map now records the render before awaiting it (a same-isolate burst
+  joins one render, matching the VPS `renderOnce`) and a `MAX_CONCURRENT`
+  limiter bounds concurrent Browser Rendering sessions; both runtimes
+  origin-check the resolved target URL.
+- **Audit-walk escaping + matcher fixes**: the grouped head additions
+  (feed/hreflang/verification) keep a literal `$` instead of shipping
+  `$$` (they ride a function replacer); `generate404` escapes `siteName`
+  once (no `&amp;amp;`) and no longer `$`-doubles the canonical; a
+  per-route `ogImage` object carries its own companions and drops the
+  stale site-wide ones; `replaceRootDiv` tolerates minifier/prettier
+  attribute reflow instead of failing the build hard; `result.cached`
+  reports real cache hits.
+- **`prestruct build` ends in the audit** (FAIL-class findings fail the
+  build; warnings never do) -- the CLI path now matches the documented
+  pipeline. The RRD named-import rewrite also handles the default+named
+  form (`import rrd, { x } from 'react-router-dom'`).
+- **Config + docs truth**: the root `eslint.config.js` is valid and
+  dependency-free; `init/package-lock.json` peer ranges match
+  `init/package.json`; the CLI guide lists `indexnow` and the real build
+  pipeline; the Worker header no longer documents a phantom default.
+- **`prestruct build` forwards `--force`/`--clean`** to the engine and
+  **fails the build on a prerender failure** (a route that errored used to
+  exit 0); build telemetry moved to project-root `.prestruct/status.json`.
+- **Version truth (#70)**: `tests/census.test.mjs` derives the version from
+  the root `package.json` and refuses a side package.json, `init/VERSION`,
+  a committed lockfile, or the README status line that drifted from it.
+- **`npm run gate`**: one pre-push command over every CI lane (sync, packs,
+  docs, claims, init lint, battery).
 
 ## 1.1.0 (released from the v1.1.0 tag)
 

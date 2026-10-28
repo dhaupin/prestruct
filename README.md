@@ -6,6 +6,10 @@
 build, inject meta, prerender every route to static HTML. No framework
 migration, no runtime SSR.
 
+Status: **1.2.0, on main ahead of the tag.** npm carries the latest tagged
+release. `package.json` is the single version source; this line and the side
+package.jsons are held to it by a test, so a release cannot leave one behind.
+
 ---
 
 ## Quick Start
@@ -63,6 +67,8 @@ Full reference (platform, islands, JSON-LD, `fetchRoutes()`, deployId footer,
 npx prestruct init      # scaffold template files, never clobber
 npx prestruct build     # validate -> vite build -> inject -> prerender
 npx prestruct validate  # check ssr.config.js; exit 1 on bad config
+npx prestruct audit     # grade the baked dist/; exit 1 on FAIL rows
+npx prestruct indexnow  # submit the baked sitemap URLs (--dry-run is CI-safe)
 npx prestruct clean     # clear the prerender route cache
 ```
 
@@ -98,10 +104,10 @@ after hydration.
 | Path | Purpose |
 |------|---------|
 | `engine/` | Single source of truth for `prerender.js`, `inject-brand.js`, `validate-config.js`, islands + usePageMeta. |
-| `bin/cli.mjs` | The `prestruct` executable (init/build/validate/clean). |
+| `bin/cli.mjs` | The `prestruct` executable (init/build/validate/audit/indexnow/clean). |
 | `init/` | Project template `prestruct init` scaffolds, including `scripts/proxy.js` (VPS) and `proxy.worker.js` (Cloudflare Worker). |
 | `example/` | Working demo site (8 routes), kept byte-identical to engine via `scripts/sync-engine.mjs`. |
-| `packs/` | In-repo crashtest pack (`public/prestruct-proxy` v0.3.0) attacking the bot-proxy pair on both runtimes. |
+| `packs/` | In-repo crashtest pack (`public/prestruct-proxy` v0.4.0) attacking the bot-proxy pair on both runtimes. |
 | `docs/` | Full docs site, AGENTS-built with Pagefind. |
 | `tests/` | vitest battery, including the engine sync contract test. |
 
@@ -123,9 +129,10 @@ CF Pages output; the two layers stack, they don't replace each other.
 
 ## Crash testing (in-repo pack)
 
-`packs/public/prestruct-proxy` (pack v0.2.0) is this repo's own adversarial
-pack for the bot-proxy pair above: four wire-level contracts (method matrix,
-hostile-path fuzz, bot-render 302 fallback, refresh-secret strict parity),
+`packs/public/prestruct-proxy` (pack v0.4.0) is this repo's own adversarial
+pack for the bot-proxy pair above: five wire-level contracts (method matrix,
+hostile-path fuzz, bot-render 302 fallback, refresh-secret strict parity,
+cache-key variant parity),
 run through the [crashtest](https://github.com/dhaupin/crashtest) harness
 against both runtimes. Attack route names come from the host `moduleCtx`, so
 the pack runs against any wiring. Latest results live in
@@ -149,7 +156,7 @@ another repo is one line in that repo's `crashtest.config.js`:
 
 ## Stack
 
-- Vite 5+ (examples and the template battery build on Vite 6)
+- Vite 5+ (the example lane runs Vite 7; the template battery builds on Vite 6)
 - React 18+
 - React Router v6 and v7 both work: v6 via the `./server.js` subpath, v7 via
   the package-root fallback -- scaffold imports use the namespace+destructure
@@ -161,15 +168,15 @@ another repo is one line in that repo's `crashtest.config.js`:
 
 ## Publishing state
 
-**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0,
-published via `publish.yml`, GitHub Actions OIDC trusted publishing with
-npm provenance -- verify with `npm audit signatures`). Tags drive releases:
-`v*` triggers npm publish plus the GitHub release archive (template zip with
-a self-testing battery). `main` may be ahead of the latest tag; its version
-pins are the next planned release.
+**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0 is
+the latest tagged release; `main` carries 1.2.0, version-bumped ahead of its
+tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted
+publishing with npm provenance -- verify with `npm audit signatures`. Tags
+drive releases: `v*` triggers npm publish plus the GitHub release archive
+(template zip with a self-testing battery). `main` may be ahead of the latest
+tag; its version pins are the next planned release.
 
-Local install test from the registry tarball (37 files; the audit verb joined
-the whitelist after the 35-file era) passed: `init` never
+Local install test from the registry tarball (44 files) passed: `init` never
 clobbers, `build` produces full `dist/` (baked meta, sitemap, 404). The
 release-body template inside `release.yml` was corrected in the v1.0.0
 aftermath to match what the archive actually contains.

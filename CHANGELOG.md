@@ -8,7 +8,48 @@ records only what cherry-pickers must act on.
 
 ---
 
-## Unreleased (the version ladder pins 1.2.0; the v1.1.0 tag remains latest on npm)
+## 1.2.0 (version bumped; tag not yet cut -- npm stays at the v1.1.0 tag)
+
+### Family ride-along: the issue-walk set ports into the engine
+
+A batch of engine surfaces ported from the sibling structs, each with its own
+battery. Every one is config-gated: a host that sets nothing renders the same
+HTML as before.
+
+- **`prestruct indexnow` verb + `scripts/indexnow.js` (#36).** A 32-hex key
+  (config `indexNow` or generate-once persistence), `<key>.txt` emitted into
+  `dist/`, and a POST of the BAKED sitemap URLs to `api.indexnow.org`.
+  `--dry-run` prints the request body without touching the network. Submission
+  only counts once the output is deployed (keyLocation must resolve).
+- **`hooks.postBuild` (#41).** The build pipeline now owns the hook chain, so
+  a direct engine/CI run can no longer skip it the way the old npm-script
+  chain could. `runHooks: true` is the opt-in gate (nothing executes without
+  it); `PRESTRUCT_SITE_URL` / `PRESTRUCT_OUTPUT_DIR` are in the child env, and
+  `${SITE_URL}` / `${OUTPUT_DIR}` placeholders substitute via function
+  replacers. A nonzero hook exit fails the build.
+- **Config-driven JSON-LD defaults (#30).** Organization + WebSite nodes from
+  `siteName`/`siteUrl`/`author` when a host defines no `buildJsonLd`;
+  `jsonLdDefaults: false` opts out.
+- **Per-route `jsonLd` (#35).** Route-scoped schema nodes ship on their own
+  page (`@graph`-wrapped when multiple), rebuild-idempotent.
+- **Head discovery set (#49).** Feed autodiscovery (`feed`), hreflang
+  alternates with per-route takeover (`alternates`), search-console
+  verification metas (`verification`), a home-only `SearchAction` from
+  `searchUrl`, and generated-only `llms.txt` with an `llms: false` opt-out.
+- **`ogImageGeneration` (#43).** 1200x630 SVG templates render into
+  `dist/og/` per route through the optional `@resvg/resvg-js` rasterizer
+  (skipped loudly when absent), pre-loop so cached routes never point at a
+  missing file.
+- **RRD-7 named-import interop (#29).** A pre-transform rewrites a host
+  layout's `import { useLocation } from 'react-router-dom'` into the
+  dual-major namespace form before Vite links the externalized CJS graph --
+  the failure class that surfaced again as #68 (below).
+- **The 404 head rides `injectMeta` (#42).** Title/description/og/twitter on
+  `404.html` now flow through the same single-line, class-excluding pipeline
+  as every page; only the genuinely-404 contracts remain (home-pointing
+  canonical, noindex, zero-JS strip).
+- **Config dialect table (#39).** The documented prestruct<->freestruct
+  shared config mapping lives in the config guide.
 
 ### Fix: react-router 7 prerender seam (#68)
 
@@ -116,6 +157,60 @@ records only what cherry-pickers must act on.
   with an opposed marker: a proxy that still consults the oversized
   legacy key is poisoned and fails loudly.
 
+### Audit walk: escaping, proxy parity, and CLI audit gate
+
+A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair
+(`main` @ 498ab5f). Every fix below is cherry-pickable on its own.
+
+- **`$$` no longer leaks into the grouped head additions (B2).** The feed,
+  hreflang, and verification metas append through a FUNCTION replacer, which
+  does not process `$`-syntax -- so the `$$` doubling used for the
+  string-replacer metas shipped literally (`feed.url = '.../feed$1.xml'`
+  became `.../feed$$1.xml`). Those values are now `escapeHtml`-only.
+  Cherry-pick: `init/scripts/prerender.js` (`injectMeta` tail).
+- **`generate404` escapes `siteName` once (B3).** It was pre-escaped and then
+  escaped again inside `injectMeta`, so `siteName: "Tom & Jerry's"` shipped
+  `Tom &amp;amp; Jerry&amp;apos;s` in the 404 title. Same class: the 404's
+  home canonical `$`-doubled the siteUrl. Both fixed. Cherry-pick:
+  `init/scripts/prerender.js` (`generate404`).
+- **Per-route `ogImage` object carries its companions (B4).** A route that
+  overrode `og:image` with a `{ url, width, height, alt, type }` object kept
+  the site-wide `og:image:width/height/alt` (now describing a different
+  raster), and a route-only object image was dropped when no global image
+  existed. The route's companions now replace the globals (and a route that
+  defines none strips the stale ones). Cherry-pick: `init/scripts/prerender.js`.
+- **Worker single-flight actually dedupes + gains a concurrency limiter
+  (B1, B7).** The Worker's flight entry was written AFTER the render, so a
+  same-isolate burst never joined it -- the `FLIGHT` branch was dead code and
+  every miss launched its own Browser Rendering session. The flight map is now
+  written before the render is awaited (parity with the VPS `renderOnce`) and
+  the Worker gains the VPS `MAX_CONCURRENT`/`withRenderLimit` limiter.
+  Cherry-pick: `init/scripts/proxy.worker.js`.
+- **`prestruct build` runs the audit (G1).** The docs promised the pipeline
+  ended in the audit, but only the npm-script chain did; the CLI path had no
+  audit call, so CLI users got no gate. `prestruct build` now ends in the
+  audit (FAIL-class findings fail the build; warnings never do). Cherry-pick:
+  `bin/cli.mjs`.
+- **Prerender telemetry reports real cache hits (B5).** `result.cached` was
+  `total - succeeded`, counting failed routes as cached; it now counts actual
+  cache hits (matching `status.json`).
+- **`replaceRootDiv` tolerates attribute reflow (B6).** The root-div matcher
+  required the exact bytes `<div id="root">`; single quotes, spaces around
+  `=`, or a leading attribute (prettier/minifier reflow) failed the build
+  hard. The matcher is now attribute-tolerant.
+- **RRD named-import rewrite handles default+named (E1).** `import rrd, { x }
+  from 'react-router-dom'` was left untouched by the rewrite (the regex
+  required `{` immediately) and would still die at link time on v7 CJS.
+- **Proxy target URL is origin-checked (E2).** Both runtimes now require the
+  resolved target origin to equal the configured one, so the SSRF guard no
+  longer hinges on Node's HTTP parser rejecting `@`-prefixed request targets.
+- **Docs + config truth (G2, G4, G5, F1).** The CLI guide lists `indexnow`
+  among the verbs and the real build pipeline; the root `eslint.config.js` was
+  syntactically invalid (`export [` + a phantom `eslint-plugin-js` import) and
+  is now valid and dependency-free; `init/package-lock.json` peer ranges match
+  `init/package.json`; the Worker header no longer claims a non-existent
+  `x-forwarded-host` default for `targetUrl`.
+
 ### Packs conformance + pinned surfaces
 
 - `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared
@@ -124,6 +219,45 @@ records only what cherry-pickers must act on.
   `crashtest` devDependency pin and never a floating `@1` fetch; harness
   upgrades are one command: `npm run crashtest:bump <version>`
   (pin install + harness run + ledger regen + pin/stamp verification).
+
+### Version truth: package.json is the single version source (#70)
+
+- A census leg (`tests/census.test.mjs`) derives the current version from the
+  root `package.json` and refuses every living surface that drifted from it:
+  the side package.jsons (`init/`, `example/`), `init/VERSION`, the committed
+  lockfiles, and the README status line. Dated era rows (changelog sections,
+  the `announcing-v1.1.0` discussion) and range pins (`^1.0.0`) stay lawful by
+  design. A release is now: move `package.json` + the changelog, and CI names
+  any surface you forgot.
+
+### Engine and proxy hardening (walk pass)
+
+- **Proxy pair, both runtimes.** VPS cache eviction now touches only the
+  proxy's own cache-shaped files (an operator's mounted files survive under a
+  shared `PRESTRUCT_CACHE_DIR`; the cap is env-tunable,
+  `PRESTRUCT_CACHE_MAX_MB`, default 500, and the cleanup log reports what it
+  actually removed). The Worker guards KV's 512-byte key cap: a long query
+  string used to reject the put/get AFTER a successful render (a post-render
+  500); normal URLs keep the byte-identical legacy key, and only oversized
+  keys fall back to `prestruct:sha256:<hex>`.
+- **`mergeRoutes` junk tolerance + 404 CTA scheme guard.** A malformed
+  `fetchRoutes()` row no longer crashes the merge, and a `javascript:`/`data:`
+  CTA href on the 404 page falls back to `/` (the one page whose contract is
+  zero JS).
+- **`prestruct build` passes `--force`/`--clean` through to the engine.** The
+  engine accepted both but the CLI dropped them, so `--force` silently served
+  cached HTML and `--clean` was a no-op.
+- **Prerender failures fail the build.** A route that errored during render
+  used to exit 0 with a green summary; the CLI now exits 1 when any route
+  failed. `status.json` build telemetry moved out of `dist/` (a deployed URL)
+  into project-root `.prestruct/status.json`.
+
+### `npm run gate` -- one pre-push loop over every CI lane
+
+- A single command runs sync check, pack lint, docs lint, claims scan, the
+  init eslint lane, and the test battery. Added after an init-tree
+  `prefer-const` error rode CI-only for six commits while every hand-run lane
+  stayed green.
 
 ---
 

@@ -1,3 +1,53 @@
+## Pass 59 (2026-10-28): issue #70 + v1.2.0 release prep + audit-fix walk
+**Scope:** (1) prestruct#70 version-truth ruling; (2) v1.2.0 version bump
+across every living surface; (3) announcement + changelog rolling v1.1.0 ->
+1.2.0; (4) push to GitHub (NO tag); (5) fix the audit-walk findings list from
+the prior session's report (`/tmp/audit-report.txt`, `main` @ 498ab5f).
+
+**#70 (version truth):** `tests/census.test.mjs` derives the root version and
+refuses every living surface that drifted: side package.jsons (`init/`,
+`example/`), `init/VERSION`, both committed lockfiles, and the README
+`Status: **X.Y.Z` line. Dated era rows, `^`-range pins, and other packages'
+versions stay lawful. A full-tree scan confirmed every remaining `1.2.0` is a
+lawful surface (era rows / announcement / changelog / the pinned living set).
+`package.json` is THE single source.
+
+**Version bump:** root `package.json` == `init/package.json` ==
+`example/package.json` == `init/VERSION` == lockfiles == README status line,
+all at 1.2.0.
+
+**Audit walk (fixes):**
+- **B1/B7** Worker single-flight + `MAX_CONCURRENT` limiter in
+  `init/scripts/proxy.worker.js`, mirroring the VPS `renderOnce`/`withRenderLimit`
+  (flight map now written BEFORE the awaited render -- the old order made the
+  `FLIGHT` branch dead code). Parity tests added in `tests/proxy.test.js`.
+- **E2** Both proxy runtimes now origin-check the resolved target URL (SSRF
+  guard no longer hinges on Node's parser rejecting `@`-targets).
+- **B2** Grouped head additions (feed/hreflang/verification) drop
+  `escapeReplacement` -- they ride a FUNCTION replacer, so the `$$` doubling
+  shipped literally.
+- **B3** `generate404` no longer double-escapes `siteName` (was `&amp;amp;`)
+  nor `$`-doubles the home canonical.
+- **B4** Per-route `ogImage` object carries its own og:image companions and
+  strips the stale site-wide ones.
+- **B5** `result.cached` counts real cache hits (was `total - succeeded`).
+- **B6** `replaceRootDiv`/`findRootDivSpan` tolerate minifier/prettier
+  attribute reflow (quote style, spaces around `=`, leading attrs).
+- **E1** `rewriteRrdNamedImports` also rewrites the default+named form.
+- **G1** `prestruct build` ends in the audit (FAIL rows fail the build).
+- **G2/G4/G5/F1** Docs/config truth: CLI guide verbs + pipeline, root
+  `eslint.config.js` made valid + dependency-free, `init/package-lock.json`
+  peer ranges synced, Worker header phantom-default removed.
+- Dead `MAX_CACHE_SIZE` const removed from `init/scripts/proxy.js`.
+
+**Proof:** `npm run gate` green -- sync check, packs, docs, claims, init
+eslint (0 errors), and the battery: 271 tests / 15 files. Regression tests
+added for B2/B3/B4/B6/E1 in `tests/issue-walk.test.js` + `tests/engine.test.js`.
+
+**Next:** tag v1.2.0 (owner action); the crashtest 1.2.0 bump rides #57.
+
+---
+
 ## Pass 58 (2026-10-28): react-router 7 ESM seam closed (#68)
 **Scope:** prestruct#68 -- "v7 prerender seam: the engine's StaticRouter import
 and the app's router load as two module instances." Bug label; worked example

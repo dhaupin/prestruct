@@ -24,16 +24,32 @@ next planned release (1.2.x) until it is tagged.
   the oversized legacy entry POISONED) + 54-row ledger at harness 1.1.0
   (upgrades are one command: `npm run crashtest:bump <version>`)
 
-Shipped on main, ahead of the tag (1.2.0 state):
+Shipped in 1.2.0 (version bumped on main, tag not yet cut):
 
 - `prestruct audit [dist]` (--json / --external / --internal): the built-in
   post-build verifier; scaffolded builds end in it
 - Honest per-route sitemap lastmod + XML loud-fail, 404 replacer rebuild(#33),
   trailing-slash siteUrl fixed at every URL seam (#53), CLI unknown-flag
   refusal (#54), unknown-config-key warnings (#52)
+- react-router 7 prerender seam closed (#68); peer ranges bounded to the
+  proven matrix (#58: react/react-dom `>=18 <19`, router `>=6 <8`,
+  vite `>=5 <8`)
+- Family ride-along set: `prestruct indexnow` (#36), `hooks.postBuild` (#41),
+  `jsonLdDefaults` (#30), per-route `jsonLd` (#35), head discovery
+  (feed/alternates/verification/SearchAction/llms.txt, #49),
+  `ogImageGeneration` (#43), RRD-7 named-import interop (#29), 404 head on
+  `injectMeta` (#42)
 - Structured ogImage object form { url, width, height, alt, type } (#38)
 - Proxy pair hardening: name-filtered VPS eviction + PRESTRUCT_CACHE_MAX_MB
   env cap; Worker hashed KV keys over the 512-byte cap
+- Version truth (#70): `tests/census.test.mjs` refuses a living surface that
+  drifted from the root `package.json` version; `npm run gate` runs every CI
+  lane in one command
+- Audit walk: Worker single-flight + concurrency limiter (parity with VPS),
+  origin-checked proxy target URLs (SSRF guard), `prestruct build` ends in
+  the audit, grouped-head `$$` leak fixed, 404 single-escape, per-route
+  `ogImage` companions, attribute-tolerant root-div matcher, real cache-hit
+  telemetry, default+named RRD rewrite, root eslint config made valid
 
 ## Planned
 
