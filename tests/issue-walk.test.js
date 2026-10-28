@@ -212,6 +212,67 @@ describe('injectMeta grouped head additions', () => {
     expect(out).not.toContain('bad key')
     expect(out).not.toContain('content="x"')
   })
+
+  // -- Tail escaping (audit B2): the tail rides a FUNCTION replacer, which
+  //    does not process `$`-syntax. Values must be escapeHtml'd only; a
+  //    doubled `$$` from escapeReplacement shipped literally before the fix.
+  it('tail values keep a literal $ (no $$ doubling from the replacement pipeline)', () => {
+    const out = injectMeta(SHELL, {}, '/about', SITE, '', {
+      feed: { url: SITE + '/feed$1.xml', title: 'Feed $& cost $120' },
+      verification: { 'google-site-verification': 'tok$1$&' },
+    })
+    expect(out).toContain('href="' + SITE + '/feed$1.xml"')
+    expect(out).toContain('title="Feed $&amp; cost $120"')
+    expect(out).toContain('content="tok$1$&amp;"')
+    expect(out).not.toContain('$$')
+  })
+
+  it('tail values still escape markup (the escapeHtml class survives)', () => {
+    const out = injectMeta(SHELL, {}, '/about', SITE, '', {
+      feed: { url: SITE + '/f.xml?a=1&b=2', title: '<b>&</b>' },
+      alternates: [{ hreflang: 'de', href: SITE + '/de?a=1&b=2' }],
+    })
+    expect(out).toContain('href="' + SITE + '/f.xml?a=1&amp;b=2"')
+    expect(out).toContain('title="&lt;b&gt;&amp;&lt;/b&gt;"')
+    expect(out).toContain('href="' + SITE + '/de?a=1&amp;b=2"')
+  })
+
+  // -- Per-route og:image object companions (audit B4) -------------------------
+  const OG_SHELL = '<html><head><title>s</title>'
+    + '<meta property="og:image" content="https://cdn.test/global.png" />'
+    + '<meta name="twitter:image" content="https://cdn.test/global.png" />'
+    + '<meta property="og:image:width" content="1200" />'
+    + '<meta property="og:image:height" content="630" />'
+    + '<meta property="og:image:alt" content="global alt" />'
+    + '</head><div id="root"></div></html>'
+
+  it('a route object og:image replaces the global companions with its own', () => {
+    const out = injectMeta(OG_SHELL, { ogImage: { url: 'https://cdn.test/route.png', width: 800, height: 400, alt: 'route alt' } },
+      '/about', SITE, '', null)
+    expect(out).toContain('content="https://cdn.test/route.png"')
+    expect(out).toContain('property="og:image:width" content="800"')
+    expect(out).toContain('property="og:image:height" content="400"')
+    expect(out).toContain('property="og:image:alt" content="route alt"')
+    expect(out).not.toContain('content="1200"') // global width gone
+    expect(out).not.toContain('content="630"')
+    expect(out).not.toContain('global alt')
+  })
+
+  it('a route object og:image with no companions strips the stale globals', () => {
+    const out = injectMeta(OG_SHELL, { ogImage: { url: 'https://cdn.test/route.png' } },
+      '/about', SITE, '', null)
+    expect(out).toContain('content="https://cdn.test/route.png"')
+    expect(out).not.toContain('og:image:width')
+    expect(out).not.toContain('og:image:height')
+    expect(out).not.toContain('og:image:alt')
+  })
+
+  it('a string og:image override leaves the global companions in place', () => {
+    const out = injectMeta(OG_SHELL, { ogImage: 'https://cdn.test/route.png' }, '/about', SITE, '', null)
+    expect(out).toContain('content="https://cdn.test/route.png"')
+    expect(out).toContain('property="og:image:width" content="1200"')
+    expect(out).toContain('property="og:image:alt" content="global alt"')
+  })
 })
 
 // -- JSON-LD defaults (#30) ------------------------------------------------------
@@ -271,6 +332,14 @@ describe('rewriteRrdNamedImports', () => {
   it('leaves namespace imports and subpath imports untouched', () => {
     const src = "import * as rrd from 'react-router-dom'\nimport { StaticRouter } from 'react-router-dom/server.js'\nimport { useState } from 'react'\n"
     expect(rewriteRrdNamedImports(src)).toBe(src)
+  })
+
+  it('rewrites the default+named form too (audit E1: the old regex skipped it)', () => {
+    const out = rewriteRrdNamedImports("import rrd, { useLocation } from 'react-router-dom'\n")
+    expect(out).toContain("import * as rrdInteropNs_1 from 'react-router-dom'")
+    expect(out).toContain('const rrd = rrdInteropNs_1.default ?? rrdInteropNs_1;')
+    expect(out).toContain('const { useLocation } = rrdInteropNs_1.default ?? rrdInteropNs_1')
+    expect(out).not.toMatch(/import\s+rrd\s*,/)
   })
 })
 

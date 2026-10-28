@@ -183,7 +183,11 @@ export function cacheEntryValid(entry, route, siteUrl, shell, extras = null) {
  * span. A <div ... /> self-closing token neither opens nor closes a level.
  */
 function findRootDivSpan(shell) {
-  const open = /<div id="root"[^>]*>/.exec(shell)
+  // Attribute-tolerant: quote style, whitespace around `=`, and a stray
+  // attribute before id (inject-brand adds data-deploy-id-footer) all match.
+  // The old byte-exact `/<div id="root"[^>]*>/` failed hard on any reflow a
+  // minifier or prettier pass introduced.
+  const open = /<div\b[^>]*\sid\s*=\s*("root"|'root'|root)[^>]*>/.exec(shell)
   if (!open) return null
   let depth = 1
   const TOKEN = /<div\b[^>]*>|<\/div>/g
@@ -301,6 +305,13 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras
   const globalImgUrl = (typeof globalOgImage === 'object' && globalOgImage !== null) ? globalOgImage.url : globalOgImage
   const routeImgUrl  = (typeof meta.ogImage   === 'object' && meta.ogImage   !== null) ? meta.ogImage.url   : meta.ogImage
   const ogImage = escapeReplacement(escapeHtml(String(routeImgUrl || globalImgUrl || '')))
+  // Per-route og:image OBJECT companions (#audit B4): a route that overrides
+  // og:image with a structured object owns its width/height/alt/type too. The
+  // companions are reconciled below (the route's replace the site-wide ones
+  // inject-brand baked; absent ones are stripped so a stale global never
+  // describes a different raster). String-form overrides keep the global
+  // companions, which still describe the same site-wide image.
+  const routeOgObject = (meta.ogImage && typeof meta.ogImage === 'object' && !Array.isArray(meta.ogImage)) ? meta.ogImage : null
   // Trailing-slash normalization (#53): a `siteUrl` written with its trailing
   // slash would otherwise join into `https://site//about` on every page's
   // canonical + og:url.robots.txt already strips; this is the same contract
@@ -324,11 +335,34 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras
     html = html.replace(/(<meta\s+name="twitter:image"\s+content=")[^"\r\n]*(")/,     `$1${ogImage}$2`)
   }
 
+  // Reconcile og:image companion tags against the route's object override.
+  // Only runs for the object form; a string override leaves the global
+  // companions in place (they describe the same site-wide image). All stale
+  // companions are stripped first (so the global width/height/alt/type/
+  // secure_url can never describe a different raster), then the route's own
+  // companions are re-emitted.
+  if (routeOgObject) {
+    html = html.replace(/\n?\s*<meta\s+property="og:image:(?:secure_url|type|width|height|alt)"\s+content="[^"\r\n]*"\s*\/?>/g, '')
+    const companions = []
+    if (typeof routeImgUrl === 'string' && routeImgUrl.startsWith('http://')) {
+      companions.push(['og:image:secure_url', 'https://' + routeImgUrl.slice('http://'.length)])
+    }
+    if (typeof routeOgObject.type === 'string' && routeOgObject.type) companions.push(['og:image:type', routeOgObject.type])
+    if (/^[0-9]+$/.test(String(routeOgObject.width  ?? ''))) companions.push(['og:image:width',  String(routeOgObject.width)])
+    if (/^[0-9]+$/.test(String(routeOgObject.height ?? ''))) companions.push(['og:image:height', String(routeOgObject.height)])
+    if (typeof routeOgObject.alt === 'string' && routeOgObject.alt) companions.push(['og:image:alt', routeOgObject.alt])
+    for (const [prop, value] of companions) {
+      const tag = `    <meta property="${prop}" content="${escapeReplacement(escapeHtml(value))}" />`
+      html = html.replace(/(<meta\s+property="og:image"\s+content="[^"\r\n]*"\s*\/>)/, `$1\n${tag}`)
+    }
+  }
+
   // -- Grouped head additions (missing-only, config-gated: a host that opts
-  // out renders identical HTML to before). Values ride the same pipeline as
-  // the primary metas: escapeHtml for the markup class, escapeReplacement
-  // for the $-syntax class. The tail is applied with a FUNCTION replacer so
-  // replacement syntax can never resurrect inside it.
+  // out renders identical HTML to before). These ride a FUNCTION replacer
+  // (`</head>` swapped for tail + `</head>`), and a function replacer does
+  // NOT process `$`-syntax in its return value. So the values here need only
+  // escapeHtml (markup class); applying escapeReplacement too would ship the
+  // doubled `$$` literally (a feed URL `.../feed$1.xml` -> `.../feed$$1.xml`).
   let tail = ''
   const headAdd = (line) => { tail += '\n  ' + line }
 
@@ -336,8 +370,8 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras
   const feed = extras && extras.feed
   if (feed && typeof feed.url === 'string' && feed.url) {
     const fType  = feed.type  || 'application/rss+xml'
-    const fTitle = feed.title ? ` title="${escapeReplacement(escapeHtml(feed.title))}"` : ''
-    headAdd(`<link rel="alternate" type="${escapeReplacement(escapeHtml(fType))}"${fTitle} href="${escapeReplacement(escapeHtml(feed.url))}" />`)
+    const fTitle = feed.title ? ` title="${escapeHtml(feed.title)}"` : ''
+    headAdd(`<link rel="alternate" type="${escapeHtml(fType)}"${fTitle} href="${escapeHtml(feed.url)}" />`)
   }
 
   // hreflang alternates: site-wide set, per-route override (swap semantics).
@@ -345,7 +379,7 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras
   if (Array.isArray(alternates)) {
     for (const a of alternates) {
       if (!a || typeof a.href !== 'string' || !a.href || typeof a.hreflang !== 'string' || !a.hreflang) continue
-      headAdd(`<link rel="alternate" hreflang="${escapeReplacement(escapeHtml(a.hreflang))}" href="${escapeReplacement(escapeHtml(a.href))}" />`)
+      headAdd(`<link rel="alternate" hreflang="${escapeHtml(a.hreflang)}" href="${escapeHtml(a.href)}" />`)
     }
   }
 
@@ -357,7 +391,7 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras
     for (const [vName, vValue] of Object.entries(verification)) {
       if (typeof vValue !== 'string' || vValue === '') continue
       if (!/^[A-Za-z0-9._-]+$/.test(vName)) continue
-      headAdd(`<meta name="${escapeReplacement(escapeHtml(vName))}" content="${escapeReplacement(escapeHtml(vValue))}" />`)
+      headAdd(`<meta name="${escapeHtml(vName)}" content="${escapeHtml(vValue)}" />`)
     }
   }
 
@@ -645,8 +679,11 @@ export function generate404(shell, config, siteUrl) {
   const primaryHref    = /^(\/|https?:\/\/|mailto:|tel:|#)/i.test(String(rawHref))
     ? escapeXml(rawHref)
     : escapeXml('/')
-  const siteName       = escapeXml(config.siteName || 'Site')
-  const v              = escapeReplacement
+  // siteName is NOT escaped here: it flows into injectMeta's title, which
+  // escapes it (escapeHtml + escapeReplacement) exactly once. Pre-escaping
+  // it here double-escaped the 404 title ("Tom & Jerry's" shipped as
+  // "Tom &amp;amp; Jerry&amp;apos;s").
+  const siteName       = config.siteName || 'Site'
 
   const bodyLines = [
     '<div id="root-404">',
@@ -679,9 +716,10 @@ export function generate404(shell, config, siteUrl) {
   }, '/', siteUrl, config && config.ogImage)
   // The 404's canonical contract is deliberate and 404-only: point at the
   // home origin (with the trailing slash every non-route URL normalizes
-  // to), unlike a content page's self-canonical. Function replacers, same
-  // as before -- the literal-result guarantee that fixed #33.
-  const homeCanonical = `${v((siteUrl || '').replace(/\/$/, ''))}/`
+  // to), unlike a content page's self-canonical. The replace below uses a
+  // FUNCTION replacer (literal-result guarantee, #33), which does not
+  // process `$`-syntax, so no escapeReplacement belongs on this value.
+  const homeCanonical = `${(siteUrl || '').replace(/\/$/, '')}/`
   html = html.replace(
     /(<link\s+rel="canonical"\s+href=")[^"\r\n]*(")/,
     (m, a, b) => `${a}${homeCanonical}${b}`
@@ -793,11 +831,16 @@ export function mergeRoutes(staticRoutes = [], fetchedRoutes) {
 export function rewriteRrdNamedImports(source) {
   let n = 0
   return source.replace(
-    /import\s+\{([^}]+)\}\s+from\s+(['"])react-router-dom\2/g,
-    (_m, names, q) => {
+    /import\s+(?:([A-Za-z_$][\w$]*)\s*,\s*)?\{([^}]+)\}\s+from\s+(['"])react-router-dom\3/g,
+    (_m, defaultName, names, q) => {
       const bindings = names.split(',').map(function (s) { return s.trim() }).filter(Boolean).join(', ')
       const ns = `rrdInteropNs_${++n}`
-      return `import * as ${ns} from ${q}react-router-dom${q}; const { ${bindings} } = ${ns}.default ?? ${ns}`
+      const resolved = `${ns}.default ?? ${ns}`
+      // Default+named form (`import rrd, { useLocation }`) is rewritten too:
+      // the old regex required `{` immediately after `import `, so that shape
+      // passed through untouched and still died at link time on v7 CJS.
+      const defaultBinding = defaultName ? ` const ${defaultName} = ${resolved};` : ''
+      return `import * as ${ns} from ${q}react-router-dom${q};${defaultBinding} const { ${bindings} } = ${resolved}`
     },
   )
 }
@@ -979,6 +1022,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
 
     const shell     = fs.readFileSync(indexPath, 'utf-8')
     let succeeded   = 0
+    let cacheHits   = 0
     const failures  = []
     const cache     = readCache({ cacheFile: p.cacheFile })
     // Honest per-route sitemap dates: consumed by generateSitemap's <lastmod>.
@@ -1033,6 +1077,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
         fs.mkdirSync(path.dirname(distPath), { recursive: true })
         writeRouteFile(distPath, cache[route.path].html, routeMtimes, route.path)
         console.log(`[prerender] cached ${route.path}`)
+        cacheHits++
         succeeded++
         continue
       }
@@ -1099,7 +1144,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     const stats = {
       routeCount: ROUTES.length,
       succeeded,
-      cached: Object.keys(cache).length,
+      cached: cacheHits,
       force,
       routes: ROUTES.map(r => ({ path: r.path, cached: Boolean(cache[r.path]) })),
     }
@@ -1112,7 +1157,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     // decide the exit code. Live-fire (2026-10): every prerendering route
     // is a silent-empty-page site; prerender used to end on a green-ok line while
     // the routes errorred out. Return, never process.exit: library-safety.
-    return { total: ROUTES.length, succeeded, cached: ROUTES.length - succeeded, failed: failures.length, failures }
+    return { total: ROUTES.length, succeeded, cached: cacheHits, failed: failures.length, failures }
 
   } finally {
     await vite.close()

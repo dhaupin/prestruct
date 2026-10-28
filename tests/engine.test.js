@@ -38,6 +38,20 @@ describe('replaceRootDiv (W8: attribute-tolerant)', () => {
     expect(out).toContain('<p>Price: $120 &amp; ref $&</p>')
     expect(out).toContain('data-server-rendered="true"')
   })
+
+  it('tolerates attribute reflow a minifier/prettier pass introduces (audit B6)', () => {
+    // The old byte-exact `/<div id="root"[^>]*>/` failed hard on single
+    // quotes, spaces around `=`, or a leading attribute.
+    for (const shell of [
+      "<html><div id='root'></div></html>",
+      '<html><div  id = "root" ></div></html>',
+      '<html><div data-x="1" id="root"></div></html>',
+    ]) {
+      const out = replaceRootDiv(shell, '<h1>hi</h1>')
+      expect(out).toContain('data-server-rendered="true"')
+      expect(out).toContain('<h1>hi</h1>')
+    }
+  })
 })
 
 describe('replaceRootDiv re-entrancy (prerender output IS the next shell)', () => {
@@ -310,6 +324,26 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('&amp;')
     expect(html).toContain('$&')
     expect(html).not.toContain('$& (lost page)$&')
+  })
+
+  it('escapes siteName exactly once in the 404 title (audit B3: double-escape)', () => {
+    // generate404 used to escapeXml(siteName) then hand it to injectMeta,
+    // which escapes again -- "Tom & Jerry's" shipped as
+    // "Tom &amp;amp; Jerry&amp;apos;s".
+    const shell = `<html><head><title>x</title><meta property="og:title" content="d"><meta name="twitter:title" content="d"></head><div id="root"></div></html>`
+    const html = generate404(shell, { siteName: "Tom & Jerry's" }, siteUrl)
+    expect(html).toContain('Page Not Found | Tom &amp; Jerry&#39;s')
+    expect(html).not.toContain('&amp;amp;')
+    expect(html).not.toContain('&amp;apos;')
+  })
+
+  it('keeps a $ in siteUrl literal in the 404 canonical (function replacer)', () => {
+    // The homeCanonical value rode a function replacer (literal), so
+    // escapeReplacement's $$ doubling shipped literally as "$$".
+    const shell = `<html><head><title>x</title><link rel="canonical" href="d"><meta property="og:url" content="d"></head><div id="root"></div></html>`
+    const html = generate404(shell, { siteName: 'S' }, 'https://x.test/$1')
+    expect(html).toContain('href="https://x.test/$1/"')
+    expect(html).not.toContain('$$')
   })
 
   it('robots noindex does not eat a cross-line commented robots fragment (dotall trap class)', () => {
