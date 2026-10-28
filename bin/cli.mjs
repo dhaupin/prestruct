@@ -60,7 +60,8 @@ prestruct -- build-time SEO prerender for Vite + React
                            Existing files are never clobbered.
   prestruct build [--force] [--clean]
                            Full pipeline: validate -> vite build -> inject
-                           meta -> prerender routes -> hooks.postBuild.
+                           meta -> prerender routes -> hooks.postBuild ->
+                           audit (FAIL-class findings fail the build).
                            --force rerenders all routes; --clean clears the
                            incremental cache first.
   prestruct validate       Validate ssr.config.js (exit 1 on bad config).
@@ -254,6 +255,18 @@ async function cmdBuild(args) {
     console.error(`[prestruct] ${hookFailures.length} postBuild hook(s) failed -- failing build`)
     process.exit(1)
   }
+
+  // Audit gate: the docs promise `prestruct build` ends in the audit, so a
+  // head regression fails the build (docs/guides/cli.md). The npm-script
+  // chain in init/ ends with audit-if-configured.cjs; the CLI path must too,
+  // or CLI users get no gate. Warnings never fail, FAIL-class findings do.
+  const audit = auditOutput({ outputDir: path.join(workdir, 'dist'), config })
+  if (audit.fails.length > 0) {
+    console.error(`[prestruct] audit: ${audit.fails.length} FAIL-class finding(s) -- failing build`)
+    for (const f of audit.fails) console.error(`  FAIL ${f.page}: ${f.msg}`)
+    process.exit(1)
+  }
+  console.log(`[prestruct] audit: 0 failures, ${audit.warns.length} warning(s) - clean`)
 }
 
 // -- indexnow ------------------------------------------------------------------

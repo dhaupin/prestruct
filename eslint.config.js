@@ -1,8 +1,6 @@
 // eslint.config.js
 // Prestruct ESLint config
-import js from 'eslint-plugin-js'
-
-export [
+export default [
   {
     files: ['**/*.js', '**/*.mjs'],
     languageOptions: {
