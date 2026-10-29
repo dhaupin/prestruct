@@ -8,7 +8,7 @@
 
 **Investigated, sound:** the RRD named-import rewrite + ESM-twin redirect (`rewriteRrdNamedImports`, `esmTwinSource`) across the v6/v7 peer range, `loadStaticRouter` fallback, `findRootDivSpan` depth counting + `$`-safe slice assembly, `usePageMeta` trailing-slash + no-base skip, `audit-if-configured.cjs` guard, the `_headers`/`_redirects`/`wrangler.toml` shapes, `syncProxyBotList` escaping + regex, the `getBrowser` reconnect contract.
 
-**Receipts.** `npm run gate` green: 19 files, **343 tests**; seven docs gates clean; claims scan clean. Both new assertions verified failing against pre-fix code (old: 2 JSON lines, old: `indexNow` errors `[]`). Commit `<pending>`.
+**Receipts.** `npm run gate` green: 19 files, **343 tests**; seven docs gates clean; claims scan clean. Both new assertions verified failing against pre-fix code (old: 2 JSON lines, old: `indexNow` errors `[]`). Commit `8e2e3f6`.
 
 ## Pass 67 (2026-10-29): 1.2.0 stability walk 2 (CLI, proxy, audit, inject)
 **Scope:** a third bug/gap/fiction walk over the CLI, proxy pair, audit, and inject seam (`staging` @ `24e5503`). Branch `staging`, no tags. Each fix cherry-pickable; battery 338 -> 341.
