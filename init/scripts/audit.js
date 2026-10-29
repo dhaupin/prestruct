@@ -482,7 +482,10 @@ async function runAuditMain() {
     ? path.resolve(process.cwd(), explicitDir)
     : path.join(path.dirname(process.argv[1] || '.'), '..', 'dist')
 
-  const result = auditOutput({ outputDir, config, json: !dashArgs.includes('--external') && argv.includes('--json') })
+  // capture: the runner owns the single JSON line below (combined with the
+  // aux probes), so auditOutput must not print its own -- the old json:true
+  // emitted two concatenated digests for a plain `audit --json`.
+  const result = auditOutput({ outputDir, config, capture: argv.includes('--json') })
 
   // --internal: broken internal href rows (report-grade always: routes that
   // were never prerendered are a legitimate dynamic-route gap).

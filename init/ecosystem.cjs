@@ -11,7 +11,7 @@
  * Usage (from the proxy's own package root -- see proxy.package.json):
  *
  *   npm install                    # express + puppeteer (downloads Chromium)
- *   export PRESTRUCT_SECRET=...    # must match config.proxy.secret
+ *   export PRESTRUCT_SECRET=...    # env-var secret the proxy reads (never a config key)
  *   pm2 start ecosystem.cjs
  *   pm2 save && pm2 startup        # survive reboots
  *

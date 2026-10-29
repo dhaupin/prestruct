@@ -332,7 +332,11 @@ async function cmdAudit(args) {
     ? path.resolve(process.cwd(), explicitDir)
     : path.join(workdir, 'dist')
 
-  const result = auditOutput({ outputDir, config, json: useJson && !args.includes('--external'), capture: useJson && args.includes('--external') })
+  // capture (never let auditOutput print its own digest) whenever the caller
+  // owns the JSON line below: the old `json: useJson && !--external` printed
+  // auditOutput's digest AND then the combined digest, so a plain `audit
+  // --json` emitted two concatenated JSON objects -- unparseable for jq/CI.
+  const result = auditOutput({ outputDir, config, capture: useJson })
 
   const internal = args.includes('--internal') ? auditInternalLinks({ outputDir }) : []
   if (internal.length && !useJson) {

@@ -200,6 +200,24 @@ describe('validateConfig', () => {
     }
     expect(configKeyWarnings(known)).toEqual([])
   })
+
+  it('rejects a present-but-invalid indexNow key (silent feature drop)', () => {
+    // resolveIndexNowKey returns null on a bad key with the comment "config
+    // diagnostics already warned" -- but validateConfig never checked it, so a
+    // mistyped key (or a placeholder that isn't 32 hex) disabled IndexNow with
+    // no diagnostic anywhere. The key must be 32 lowercase hex.
+    const base = { siteUrl: 'https://example.com', routes: [{ path: '/' }] }
+    for (const bad of ['not-hex', 'ABC'.repeat(11), 'a'.repeat(31)]) {
+      const { ok, errors } = validateConfig({ ...base, indexNow: bad })
+      expect(ok).toBe(false)
+      expect(errors.some(e => e.startsWith('indexNow:'))).toBe(true)
+    }
+    // valid forms stay green
+    expect(validateConfig({ ...base, indexNow: 'a'.repeat(32) }).ok).toBe(true)
+    expect(validateConfig({ ...base, indexNow: { key: 'b'.repeat(32) } }).ok).toBe(true)
+    expect(validateConfig({ ...base, indexNow: true }).ok).toBe(true)
+    expect(validateConfig({ ...base, indexNow: false }).ok).toBe(true)
+  })
 })
 
 describe('inject-brand helpers (import surface)', () => {

@@ -191,6 +191,19 @@ export function validateConfig(config) {
     errors.push('appLayoutPath: must be a Vite-rooted path starting with "/"')
   }
 
+  // indexNow (#36): the key must be 32 lowercase hex, or the boolean forms
+  // (true = persisted auto-key, false = off). resolveIndexNowKey RETURNS NULL
+  // on an invalid key ("diagnostics already warned") -- so without this check
+  // a mistyped/placeholder key silently disables IndexNow with no diagnostic
+  // anywhere: the example's own placeholder is 36 chars, and uncommenting it
+  // would drop the feature green. Surface it here, where the claim is made.
+  if (config.indexNow !== undefined && config.indexNow !== null && config.indexNow !== false && config.indexNow !== true) {
+    const key = typeof config.indexNow === 'string' ? config.indexNow : config.indexNow.key
+    if (typeof key !== 'string' || !/^[a-f0-9]{32}$/.test(key)) {
+      errors.push('indexNow: must be true, a 32-char lowercase hex key string, or { key: "<32-hex>" }')
+    }
+  }
+
   return { ok: errors.length === 0, errors }
 }
 

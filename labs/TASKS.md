@@ -1,3 +1,15 @@
+## Pass 68 (2026-10-29): 1.2.0 stability walk 3 (CLI, audit runner, config validation)
+**Scope:** a fourth bug/gap/fiction walk over the CLI, direct audit runner, config validation, and the shipped proxy starters (`staging` @ `6257e99`). Branch `staging`, no tags. Each fix cherry-pickable; battery 341 -> 343.
+
+**Fixes (each with a regression test):**
+- **`audit --json` printed the digest TWICE (`bin/cli.mjs`, `init/scripts/audit.js`).** `auditOutput` printed its own JSON digest (`json: true`) AND the caller printed its combined copy -- so a plain `audit --json` wrote two concatenated JSON objects, which `jq`/JSON parsers reject. The docs say "one digest line for CI harvesting." Both callers now `capture: true` and own the single line. The old CLI passed `json: useJson && !--external` + `capture: useJson && --external`, so `--json` alone hit the double-print branch.
+- **A present-but-invalid `indexNow` key silently disabled IndexNow (`engine/scripts/validate-config.js`).** `resolveIndexNowKey` returns null on a bad key, commented "config diagnostics already warned" -- but `validateConfig` never validated `indexNow`, so a mistyped key (or the example's 35-char non-hex placeholder) dropped the feature with no diagnostic anywhere. Added the shape check (`true`/`false`/32-hex string/`{ key }`). Also fixed the misleading example placeholder.
+- **`init/ecosystem.cjs` header fiction.** Said `# must match config.proxy.secret`; the secret has always been the env-only `PRESTRUCT_SECRET` (config `proxy.secret` was never read -- the same sweep fixed README-proxy.md but missed this file).
+
+**Investigated, sound:** the RRD named-import rewrite + ESM-twin redirect (`rewriteRrdNamedImports`, `esmTwinSource`) across the v6/v7 peer range, `loadStaticRouter` fallback, `findRootDivSpan` depth counting + `$`-safe slice assembly, `usePageMeta` trailing-slash + no-base skip, `audit-if-configured.cjs` guard, the `_headers`/`_redirects`/`wrangler.toml` shapes, `syncProxyBotList` escaping + regex, the `getBrowser` reconnect contract.
+
+**Receipts.** `npm run gate` green: 19 files, **343 tests**; seven docs gates clean; claims scan clean. Both new assertions verified failing against pre-fix code (old: 2 JSON lines, old: `indexNow` errors `[]`). Commit `<pending>`.
+
 ## Pass 67 (2026-10-29): 1.2.0 stability walk 2 (CLI, proxy, audit, inject)
 **Scope:** a third bug/gap/fiction walk over the CLI, proxy pair, audit, and inject seam (`staging` @ `24e5503`). Branch `staging`, no tags. Each fix cherry-pickable; battery 338 -> 341.
 

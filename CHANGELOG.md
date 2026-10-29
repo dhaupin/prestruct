@@ -88,6 +88,14 @@ A second bug/gap walk over the engine and audit (`staging` @ 6f1a231). Every fix
 - **`injectBrand` is library-safe again.** It called `process.exit(0)` when `dist/index.html` was missing despite its "never exits" contract; because the CLI calls it in-process, a missing shell killed the build green. It now returns `null`, and the direct-run wrapper owns the exit. Cherry-pick: `init/scripts/inject-brand.js`.
 - **og-image slug collisions warn.** Two routes whose paths flatten to one slug (`/blog/post-1` and `/blog-post-1` -> `blog-post-1.png`) silently shared one generated PNG; the build now warns.
 
+### Stability walk 3: double JSON digest, silent IndexNow drop, config-key fiction
+
+A fourth bug/gap/fiction walk over the CLI, audit runner, config validation, and the shipped proxy starters. Every fix is cherry-pickable on its own.
+
+- **`audit --json` emits ONE digest, not two.** `auditOutput` printed its own JSON digest AND the caller (both `bin/cli.mjs` and the direct `scripts/audit.js` runner) printed its combined copy, so a plain `audit --json` wrote two concatenated JSON objects to stdout. The docs promise "one digest line for CI harvesting"; `jq` and any JSON parser choke on the concatenation. Both callers now capture and own the single line. Cherry-pick: `bin/cli.mjs`, `init/scripts/audit.js`.
+- **A bad `indexNow` key is a loud config error, not a silent feature drop.** `resolveIndexNowKey` returns null on a non-32-hex key with the comment "config diagnostics already warned" -- but `validateConfig` never checked `indexNow`, so a mistyped key (or a placeholder) disabled IndexNow with no diagnostic anywhere. `validateConfig` now rejects anything that is not `true`/`false`/a 32-char lowercase-hex string/`{ key }`. The example's placeholder was also neither 32 chars nor hex; it now shows the real shape. Cherry-pick: `init/scripts/validate-config.js`, `init/ssr.config.example.js`.
+- **`ecosystem.cjs` no longer points at a config key that does not exist.** Its header said `export PRESTRUCT_SECRET=... # must match config.proxy.secret`; the secret has always been env-only (a config `proxy.secret` is never read). Corrected to name the env var the proxy actually reads. Cherry-pick: `init/ecosystem.cjs`.
+
 ### Stability walk 2: port parsing, audit path confinement, footer-attribute reflow
 
 A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix is cherry-pickable on its own.

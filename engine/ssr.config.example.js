@@ -148,10 +148,10 @@ export default {
   // generated-only (a hand-rolled file is never touched). Opt-out:
   // llms: false,
 
-  // IndexNow (#36): 32-hex key (or true = persisted auto-key in
-  // .prestruct/). build writes <key>.txt into dist/; `prestruct indexnow
-  // --dry-run` prints the submission payload.
-  // indexNow: 'your32hexkeyhere0000000000000000000',
+  // IndexNow (#36): a 32-char lowercase-hex key string (or true = persisted
+  // auto-key in .prestruct/). build writes <key>.txt into dist/; `prestruct
+  // indexnow --dry-run` prints the submission payload.
+  // indexNow: 'replacewithyour32lowercasehexkey',
 
   // postBuild hooks (#41): shell commands run BY the build after prerender
   // (npm-chain scripts can be retired). Opt-in execution gate:

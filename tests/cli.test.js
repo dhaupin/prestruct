@@ -10,7 +10,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { execFileSync, spawnSync } from 'child_process'
-import { mkdtempSync, existsSync, readFileSync, writeFileSync } from 'fs'
+import { mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -94,4 +94,20 @@ describe('cli refusal contract (#54)', () => {
       expect(r.status).not.toBe(0) // vite build failure, which is expected here
     }
   }, 80000)
+
+  it('audit --json emits exactly one parseable JSON object (no double digest)', () => {
+    // auditOutput printed its own digest AND the runner printed the combined
+    // one, so a plain `audit --json` wrote two concatenated JSON objects to
+    // stdout -- jq and CI JSON parsers choke on it. The runner now captures
+    // and owns the single line.
+    const proj = mkdtempSync(join(tmpdir(), 'prestruct-json-'))
+    mkdirSync(join(proj, 'dist'), { recursive: true })
+    writeFileSync(join(proj, 'dist', 'index.html'),
+      '<!DOCTYPE html><html><head><title>Hi</title></head><body><h1>Hi</h1></body></html>')
+    writeFileSync(join(proj, 'dist', 'sitemap.xml'),
+      '<?xml version="1.0"?><urlset><url><loc>https://x.test/</loc></url></urlset>')
+    const r = run(['audit', '--json', join(proj, 'dist')])
+    const parsed = JSON.parse(r.stdout.trim()) // throws if two objects were printed
+    expect(typeof parsed.ok).toBe('boolean')
+  })
 })
