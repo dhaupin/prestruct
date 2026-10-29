@@ -68,6 +68,19 @@ The Worker also gained the VPS proxy's render discipline: its single-flight map 
 - Version truth (#70): `package.json` is the single version source, and a census test refuses a side package.json, `init/VERSION`, a committed lockfile, or the README status line that drifted from it. `npm run gate` runs every CI lane in one command.
 - Head-escaped correctly in the 404 and the grouped head additions: `siteName` is escaped once (no `&amp;amp;`), and feed/hreflang/verification values keep a literal `$` instead of shipping `$$`; the root-div matcher tolerates minifier/prettier attribute reflow instead of failing the build hard.
 
+## The docs audit converges on one runner
+
+prestruct and freestruct had drifted into two docs-audit shapes: freestruct ran one consolidated runner, prestruct chained six `check-docs-*.cjs` scripts with `&&`. The two repos now share ONE runner shape and differ only in gate set, globs and allow-lists.
+
+- The runner (`scripts/lib/docs-audit.cjs`) is a vendored copy of freestruct's -- a file, not an import and not a dependency in either direction, so a project can carry freestruct without prestruct or prestruct without freestruct. It owns discovery, one findings list, a per-gate count line, and gate selection.
+- prestruct's caller (`scripts/run-docs-audit.cjs`) owns its gates -- frontmatter, links, nav, style, language, truthfulness, and jekyll -- and its voice and exit code.
+- `lint:docs` is one command now (was a five-script `&&` chain), and a single gate runs alone: `node scripts/run-docs-audit.cjs truthfulness`.
+- The four superseded `check-docs-*.cjs` scripts are retired; `check-language.cjs` stays because the language gate shells to it.
+
+## Quality layer
+
+Every fix above is red-checked first (a failing pin or an offline probe), then corrected, then re-pinned. The battery stands at 335 tests across 19 files, and the docs audit's convergence adds a set of pins of its own: each gate trips on the fixture it owns, the vendored runner exposes the shared contract, gate selection runs one gate or all and refuses an unknown name, and the independence guard refuses a runner that requires a package or a `package.json` that names freestruct in any field. `npm run gate` runs every CI lane in one command -- sync check, pack lint, the docs audit, the claims scan, the init eslint lane, and the battery.
+
 ## Upgrader actions (v1.1.0 -> v1.2.0)
 
 - Scaffolded projects: drop in `scripts/audit.js` and append `&& node scripts/audit.js` to your build script (the template example carries the wiring).

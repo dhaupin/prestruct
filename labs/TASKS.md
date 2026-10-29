@@ -1,3 +1,21 @@
+## Pass 65 (2026-10-29): promote 1.2.0 to main (staging -> main)
+**Scope:** owner directive -- promote `staging` to `main`. Branch `promote-1.2.0` -> merge commit on `main`, then fast-forward `staging` to `main` (the documented promotion flow). No tags.
+
+**What the promotion surfaced (the reason it was not a fast-forward).** `main` had received #75 via a **squash-merged PR #78** from a separate branch (`prestruct-75-shared-docs-audit-runner`, based directly on `main`), while `staging` carried its **own** #75 (`9796765`) plus the whole pass-61 batch (#59-#74) and #76/#77. So the two branches held two DIFFERENT #75 implementations:
+
+| | main (squash #78) | staging (own #75) |
+|---|---|---|
+| gates | 5 (frontmatter/links/style/language/truthfulness) | 6 (+ `nav`), later 7 (+ `jekyll`) |
+| runner test | `tests/docs-audit-runner.test.mjs` | `tests/docs-audit.test.mjs` (superset) |
+| pass-61 batch | absent | present |
+| retired workflows | still present (`release.yml`, `sync-example.yml`, `.github/release.yml`) | retired (#59/#66) |
+
+Staging is the strict superset: main's own runner test FAILS against staging's tree (its independence pin forbids the `freestruct` devDep that #59 legitimately added for the docs deploy lane). So the merge resolved every conflict in staging's favor and kept only main's UNIQUE prose.
+
+**Resolution.** Merge `origin/main` into a `promote-1.2.0` branch off `staging`; resolved 8 conflicts (AGENTS.md, docs/_config.yml, docs/_data/nav.yml, content-style.md, contributing.md, labs/TASKS.md, check-language.cjs, run-docs-audit.cjs) by taking staging's side -- all were staging-superset or pure comment drift. Kept main's unique additions: the CHANGELOG `#75` row and the announcement's "docs audit converges" + "Quality layer" sections -- both CORRECTED from "five gates / 285 tests / docs-audit-runner.test.mjs" to staging's reality ("seven gates / 335 tests / docs-audit.test.mjs"). Deleted main's superseded `tests/docs-audit-runner.test.mjs` (staging's `docs-audit.test.mjs` covers the same ground plus the `nav`/`jekyll` fixtures). The retired workflows stayed retired (git resolved the delete/modify in staging's favor). `test.yml` kept staging's `staging` branch trigger; only its gate-count comment was corrected.
+
+**Receipts.** `npm run gate` green on the merged tree: 19 test files, **335 tests**; seven docs gates clean; sync:check, packs, claims, init eslint all green. Net diff of the merge vs `staging`: 3 files (the two main-only prose additions + the test.yml comment), nothing else.
+
 ## Pass 64 (2026-10-29): #77 jekyll gate (build-time Liquid constructs)
 **Scope:** prestruct#77 -- port poststruct's `check-jekyll-filters.cjs` guard into prestruct's docs lane. Branch `staging`, no tags. Repo tooling only (`scripts/` is not in the npm whitelist), so no CHANGELOG entry -- the same call #75 made.
 
