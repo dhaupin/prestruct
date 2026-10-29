@@ -28,7 +28,7 @@ leg that proves the engine, the template, and the configured example.
 | `npm install` | root install | the dev tree resolves |
 | `cd init && npm install` | template install | the shipped scaffold resolves |
 | `npm run test:run` | vitest spine | engine, template, proxy, and CLI-refusal tests pass |
-| `npm run lint:docs && npm run lint:claims` | docs audit | the six docs gates (one runner) plus the fiction-signature scan |
+| `npm run lint:docs && npm run lint:claims` | docs audit | the seven docs gates (one runner) plus the fiction-signature scan |
 | `cd init && npm run lint` | template eslint | the shipped scaffold lints clean |
 | `cd init && npm run build` | template build | the scaffold builds without a config (named skip) |
 | `cd example && npm install && npm run build` | example build + audit | the tracked configured project builds and ends in a real audit |

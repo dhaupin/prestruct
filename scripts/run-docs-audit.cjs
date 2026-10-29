@@ -29,6 +29,13 @@
  *                 docs/README resolve to real CLI verbs and files
  *   language      English-only prose (scripts/check-language.cjs owns the
  *                 logic; the gate shells out so one command covers it)
+ *   jekyll        build-time Liquid constructs that Jekyll refuses at build
+ *                 time: a two-argument call to a single-argument string filter
+ *                 (`| remove: 'a', ''`, crashtest#23) and any `{% tag %}` the
+ *                 Jekyll 4.x set does not define (`{% seo %}` in prose,
+ *                 prestruct#77). Scans docs/ source (.html/.md/.yml/.txt,
+ *                 including `_`-prefixed dirs) so the class fails in lint:docs
+ *                 with a file:line, not in Jekyll's stack trace.
  *
  * Claims (scripts/check-fiction-signatures.cjs) stays a SEPARATE script run as
  * `lint:claims` - the same split freestruct keeps, so neither repo folds the
@@ -333,6 +340,83 @@ function gateTruthfulness(ctx) {
 }
 
 // ---------------------------------------------------------------------------
+// Gate: jekyll
+//
+// Two source-level Liquid constructs that only fail at BUILD time, ported from
+// poststruct's check-jekyll-filters.cjs (e53b1e0):
+//
+//   1. A two-argument call to a single-argument string filter. Liquid's
+//      `remove`, `remove_first`, `append`, `prepend`, `newline_to_br` take
+//      exactly ONE argument; `| remove: '/x', ''` throws "wrong number of
+//      arguments" and kills the whole build (crashtest#23).
+//   2. An unknown `{% tag %}`. The docs ship no theme gem and no plugin, so
+//      any tag outside the Jekyll 4.x set refuses at build time -- writing the
+//      literal `{% seo %}` in prose (backticks are markdown, not Liquid
+//      escaping) killed the poststruct docs deploy (prestruct#77). Wrap
+//      literal text in {% raw %}.
+//
+// The runner's discovery is .md-only prose; this gate needs the full Liquid
+// source set (.html/.md/.yml/.txt, INCLUDING `_`-prefixed dirs like _layouts),
+// so it walks docs/ itself. The run loop passes ctx.findings, so findings land
+// in the shared list and the caller still owns voice + exit.
+// ---------------------------------------------------------------------------
+
+const LIQUID_SINGLE_ARG = ['remove_first', 'remove', 'append', 'prepend', 'newline_to_br'];
+
+// Jekyll 4.x tag set (Liquid core + Jekyll core + the end/else companions).
+const LIQUID_KNOWN_TAGS = new Set([
+  'assign', 'break', 'capture', 'case', 'comment', 'continue', 'cycle',
+  'decrement', 'echo', 'else', 'elsif', 'endcapture', 'endcase', 'endcomment',
+  'endfor', 'endif', 'endraw', 'endtablerow', 'endunless', 'for', 'if',
+  'ifchanged', 'include', 'include_relative', 'increment', 'layout', 'link',
+  'liquid', 'post_url', 'raw', 'render', 'tablerow', 'unless', 'when',
+]);
+
+const LIQUID_EXTS = new Set(['.html', '.md', '.yml', '.txt']);
+const LIQUID_SKIP_DIRS = new Set(['_site', 'node_modules', 'vendor', '.bundle', '.jekyll-cache']);
+
+function gateJekyll(ctx) {
+  const { findings, fs, path, docsDir } = ctx;
+  if (!fs.existsSync(docsDir)) return;
+  const RAW_PAIR = /(\{%-?\s*raw\s*-?%\})([\s\S]*?)(\{%-?\s*endraw\s*-?%\})/g;
+  const blank = (s) => s.replace(/[^\n]/g, ' ');
+
+  (function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        if (!LIQUID_SKIP_DIRS.has(entry.name)) walk(path.join(dir, entry.name));
+        continue;
+      }
+      if (!LIQUID_EXTS.has(path.extname(entry.name))) continue;
+      const file = path.join(dir, entry.name);
+      const rel = path.relative(ctx.root, file);
+      const source = fs.readFileSync(file, 'utf8');
+      // Blank out {% raw %}...{% endraw %} regions (literal content, not
+      // Liquid) while keeping line count so file:line stays honest.
+      const stripped = source.replace(RAW_PAIR, (m, open, body, close) => open + blank(body) + close);
+      stripped.split('\n').forEach((line, i) => {
+        const n = i + 1;
+        for (const filter of LIQUID_SINGLE_ARG) {
+          // {{ x | remove: 'a', '' }} - one quoted arg, a comma, a second one.
+          const re = new RegExp("\\|[ ]*-?[ ]*" + filter + "\\s*:\\s*(?:'([^']*)'|\"([^\"]*)\")\\s*,");
+          if (re.test(line)) {
+            findings.push(`${rel}:${n}: Liquid "${filter}" takes exactly one argument (the two-arg form kills the Jekyll build - crashtest#23): \`${line.trim()}\``);
+          }
+        }
+        // An unknown tag ({% seo %} in prose) is the same build-time class.
+        const tagRe = /\{%-?\s*([a-zA-Z_][a-zA-Z0-9_]*)/g;
+        let t;
+        while ((t = tagRe.exec(line)) !== null) {
+          if (!LIQUID_KNOWN_TAGS.has(t[1])) {
+            findings.push(`${rel}:${n}: unknown Liquid tag "${t[1]}" (no theme gem / plugin defines it, so the Jekyll build dies - wrap literal text in {% raw %}): \`${line.trim()}\``);
+          }
+        }
+      });
+    }
+  })(docsDir);
+}
+
+// ---------------------------------------------------------------------------
 
 const gates = {
   frontmatter: gateFrontmatter,
@@ -341,6 +425,7 @@ const gates = {
   style: gateStyle,
   truthfulness: gateTruthfulness,
   language: gateLanguage,
+  jekyll: gateJekyll,
 };
 
 module.exports = { gates, urlFor };

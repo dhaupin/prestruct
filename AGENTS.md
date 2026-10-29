@@ -38,7 +38,7 @@ npm run gate              # THE pre-push loop: every lane below, one command
 npx vitest run            # engine + template + proxy battery (+ CLI refusal contract)
 npm run sync:check        # engine -> init -> example byte-identity
 npm run lint:packs        # packstruct --deep over packs/ (packspec conformance)
-npm run lint:docs         # docs audit: frontmatter/links/nav/style/truthfulness/language (one runner)
+npm run lint:docs         # docs audit: frontmatter/links/nav/style/truthfulness/language/jekyll (one runner)
 npm run lint:claims       # fiction-signature scan
 (npm run gate covers this)  npm --prefix init run lint
 ```
@@ -689,8 +689,11 @@ devDependency the docs deploy lane needs (`docs.yml`
 never shipped.
 
 **What converged and what did not.** prestruct's gates are `frontmatter`,
-`links`, `nav`, `style`, `truthfulness`, `language` (the last shells out to
-`scripts/check-language.cjs` so one command covers it). Claims
+`links`, `nav`, `style`, `truthfulness`, `language` (shells out to
+`scripts/check-language.cjs` so one command covers it), and `jekyll` (the
+build-time Liquid class: a two-argument single-arg string filter, crashtest#23,
+and any `{% tag %}` outside the Jekyll 4.x set, prestruct#77 -- ported from
+poststruct's `check-jekyll-filters.cjs`). Claims
 (`scripts/check-fiction-signatures.cjs`) stays a SEPARATE `lint:claims` script
 -- the same split freestruct keeps. Two deliberate divergences:
 

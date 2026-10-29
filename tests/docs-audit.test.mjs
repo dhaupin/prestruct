@@ -182,4 +182,36 @@ describe('docs audit: gate fixtures (each migrated gate trips its case)', () => 
     const findings = auditFixture({ docs: { 'a.md': FM() + '\n```bash\nnpx prestruct build\n```\n' } })
     expect(findings).toEqual([])
   })
+
+  it('jekyll: an unknown Liquid tag is a finding (prestruct#77)', () => {
+    const findings = auditFixture({ names: ['jekyll'], docs: { 'a.md': 'see `{% seo %}` here\n' } })
+    expect(findings.some((f) => f.includes('unknown Liquid tag "seo"'))).toBe(true)
+  })
+
+  it('jekyll: a two-argument single-arg filter is a finding (crashtest#23)', () => {
+    const findings = auditFixture({ names: ['jekyll'], docs: { 'a.md': "{{ x | remove: '/a', '' }}\n" } })
+    expect(findings.some((f) => f.includes('"remove" takes exactly one argument'))).toBe(true)
+  })
+
+  it('jekyll: a {% raw %} block exempts its contents', () => {
+    const findings = auditFixture({ names: ['jekyll'], docs: { 'a.md': '{% raw %}{% seo %}{% endraw %}\n' } })
+    expect(findings).toEqual([])
+  })
+
+  it('jekyll: known tags and a legal one-arg filter are not findings', () => {
+    const findings = auditFixture({
+      names: ['jekyll'],
+      docs: { 'a.md': '{% if x %}{% assign y = 1 %}{% endif %}\n{{ s | remove: "/a" }}\n' },
+    })
+    expect(findings).toEqual([])
+  })
+
+  it('jekyll: scans html under `_`-prefixed dirs (the runner walk skips them)', () => {
+    const findings = auditFixture({
+      names: ['jekyll'],
+      docs: { '_layouts/default.html': '<body>{% seo %}</body>\n' },
+    })
+    expect(findings.some((f) => f.includes('unknown Liquid tag "seo"'))).toBe(true)
+    expect(findings.some((f) => f.includes('_layouts/default.html'))).toBe(true)
+  })
 })

@@ -33,7 +33,7 @@ The repo-level truth gates (run these after any docs or engine change):
 
 ```bash
 npm run lint:docs            # docs audit: frontmatter + links + nav + style
-                             # + truthfulness + language, one runner
+                             # + truthfulness + language + jekyll, one runner
 npm run lint:claims          # fiction-signature scan
 npm run sync:check           # engine -> init -> example byte-identity
                             # (CI fails on drift; run `npm run sync` after engine edits)

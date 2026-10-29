@@ -81,6 +81,13 @@ nav_order: 10         # integer; controls sidebar position via _data/nav.yml
 - Links are descriptive ("see docs/guides/config.md"), never "click here".
 - Markdown is the source of truth: root docs link INTO `docs/`, not the other way around.
 
+## Liquid constructs
+
+The docs are built by Jekyll, so Liquid tags and filters in source only fail at build time -- after CI has already gone green. The `jekyll` gate in `scripts/run-docs-audit.cjs` catches the two classes that kill a build:
+
+- A two-argument call to a single-argument string filter, for example `{% raw %}{{ x | remove: '/a', '' }}{% endraw %}`. Liquid's `remove`, `remove_first`, `append`, `prepend`, and `newline_to_br` take exactly one argument; a second throws "wrong number of arguments" and stops the whole build (crashtest#23).
+- An unknown `{% raw %}{% tag %}{% endraw %}`. The docs ship no theme gem and no plugin, so any tag outside the Jekyll 4.x set refuses. Backticks are markdown, not Liquid escaping, so a tag written in prose still parses and still kills the build (prestruct#77). Wrap literal text in `{% raw %}`.
+
 ## Structure and flow
 
 - Never open a section with "This section covers...". Write the content instead.

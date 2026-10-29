@@ -1,3 +1,14 @@
+## Pass 64 (2026-10-29): #77 jekyll gate (build-time Liquid constructs)
+**Scope:** prestruct#77 -- port poststruct's `check-jekyll-filters.cjs` guard into prestruct's docs lane. Branch `staging`, no tags. Repo tooling only (`scripts/` is not in the npm whitelist), so no CHANGELOG entry -- the same call #75 made.
+
+**The class.** The docs are built by Jekyll, so two source-level Liquid constructs only fail at BUILD time, after CI is green: (1) a two-argument call to a single-argument string filter (`| remove: 'a', ''` -- "wrong number of arguments", crashtest#23); (2) any `{% tag %}` outside the Jekyll 4.x set -- the docs ship no theme gem and no plugin, so `{% seo %}` written in prose (backticks are markdown, not Liquid escaping) killed the poststruct docs deploy ("Unknown tag 'seo'"). Neither is caught by the existing gates.
+
+**The shape (post-#75).** #75 had just converged `lint:docs` onto ONE runner, so the family-consistent move was a new GATE in `scripts/run-docs-audit.cjs`, NOT a re-chained standalone script (the `&&` chain is exactly what #75 removed). The gate is `jekyll`, ported from poststruct@e53b1e0's rules; it keeps the `{% raw %}...{% endraw %}` exemption (blanked while preserving line count so `file:line` stays honest) and the Jekyll 4.x tag set. It does its own walk because the runner's discovery is `.md`-only prose while the Liquid source set is `.html/.md/.yml/.txt` INCLUDING `_`-prefixed dirs (`_layouts`, `_includes`).
+
+**Self-proof.** The gate immediately flagged the new prose I wrote to DOCUMENT it: the literal `{% seo %}` and `| remove: 'a', ''` in `content-style.md` tripped it (3 findings), exactly the trap the gate exists for. Fixed by wrapping the examples in `{% raw %}`.
+
+**Receipts.** `npm run gate` green: 19 test files, **332 tests** (was 327); all SEVEN gates clean (frontmatter/links/nav/style/truthfulness/language/jekyll). Five new tests in `tests/docs-audit.test.mjs` (22 total, was 17): unknown tag, two-arg filter, `{% raw %}` exemption, known tags + legal one-arg filter, and the `_`-prefixed html-dir scan. Docs updated: `AGENTS.md` (gate list + the convergence section names the seventh gate), `docs/ci.md` ("six" -> "seven docs gates"), `docs/guides/contributing.md` (gate list), `docs/guides/content-style.md` (new "Liquid constructs" section).
+
 ## Pass 63 (2026-10-29): #76 home canonical agrees across every surface
 **Scope:** prestruct#76 -- the 404 was the lone surface emitting a trailing-slash home canonical. Branch `staging`, no tags.
 
