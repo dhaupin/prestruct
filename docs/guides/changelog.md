@@ -120,6 +120,11 @@ and **main carries 1.2.0, bumped ahead of its tag**.
   a committed lockfile, or the README status line that drifted from it.
 - **`npm run gate`**: one pre-push command over every CI lane (sync, packs,
   docs, claims, init lint, battery).
+- **One release lane**: a version tag now drives `publish.yml` alone (npm
+  publish, then the GitHub release cut from this changelog). The old
+  `release.yml` starter-zip lane is retired -- it raced `publish.yml` for the
+  same release object. No release archive to download; `npx prestruct init`
+  scaffolds the template.
 
 ## 1.1.0 (released from the v1.1.0 tag)
 

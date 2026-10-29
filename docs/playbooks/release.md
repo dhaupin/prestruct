@@ -9,9 +9,9 @@ permalink: /playbooks/release/
 
 # Releasing a version
 
-A release is a tag. Two workflows fire on it: `release.yml` builds the
-copy-shipped starter zip, and `publish.yml` runs the npm trust ladder. The
-tag, not a finger, starts both.
+A release is a tag. One workflow fires on it: `publish.yml` runs the npm trust
+ladder and cuts the GitHub release from the same tag. The tag, not a finger,
+starts the lane.
 
 Green the gate first. It is the same aggregate CI runs, and `prepublishOnly`
 is set to it, so a red gate cannot mint a tarball.
@@ -34,15 +34,13 @@ GitHub release body. The matcher accepts `## 1.2.0`, `## v1.1.0`, and
 `## [1.0.0]` forms. An empty extraction refuses the cut, so a version with no
 changelog section mints no release.
 
-What the tag sets off:
+What the tag sets off, all inside `publish.yml`:
 
-- `release.yml` (`v*.*.*`) builds the starter zip, runs the zip's own test
-  battery from the extracted artifact, then attaches the zip to the GitHub
-  release.
-- `publish.yml` (`v*`) runs the ladder: `publish` (OIDC trusted publishing,
-  the gate riding along, 0.x refused, tag must equal the packaged version),
-  `release` (the GitHub release object and its changelog notes), and `verify`
-  (the post-publish truth).
+- `publish`: OIDC trusted publishing. The `prepublishOnly` gate rides along,
+  0.x is refused, and the tag must equal the packaged version.
+- `release`: the GitHub release object for the tag, its body the matching
+  `CHANGELOG.md` section. Idempotent, so a re-fired tag carries on to verify.
+- `verify`: the post-publish truth.
 
 The `verify` job is the one that makes green mean something. It checks the
 registry's latest, the served tarball's sha512 against the registry integrity,

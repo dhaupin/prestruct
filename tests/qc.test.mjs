@@ -114,10 +114,16 @@ test('shipped build scripts run inject-brand BEFORE prerender (SEO contract)', (
   }
 })
 
-test('release workflow packages only init starter files', () => {
-  const workflow = readFileSync('.github/workflows/release.yml', 'utf8')
+test('release lane is publish.yml only (the tag drives npm + the GH release)', () => {
+  // The old release.yml (starter-zip builder + a second GH release mint) was
+  // retired: publish.yml is the single tag lane, matching the family shape
+  // (eyestruct). Its release job cuts the GH release from the changelog.
+  expect(() => readFileSync('.github/workflows/release.yml', 'utf8')).toThrow()
 
-  expect(workflow).toMatch(/cp -R init\/. "\$\{PACKAGE_DIR\}\//)
-  expect(workflow).toMatch(/if unzip -l "\$\{ARCHIVE\}" \| grep -q "example\//)
-  expect(workflow).not.toMatch(/zip -r "\$\{ARCHIVE\}" init\//)
+  const workflow = readFileSync('.github/workflows/publish.yml', 'utf8')
+  expect(workflow).toMatch(/gh release create/)
+  expect(workflow).toMatch(/release-notes\.cjs/)
+  // No zip asset: the GH release carries the changelog notes, nothing else.
+  expect(workflow).not.toMatch(/\.zip/)
+  expect(workflow).not.toMatch(/softprops\/action-gh-release/)
 })

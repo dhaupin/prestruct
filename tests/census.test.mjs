@@ -33,7 +33,8 @@ test('version truth: package.json is the single version source', () => {
   expect(readVersion('init/package.json'), 'init/package.json version drifted from root package.json - the release commit moves them together, and this leg holds the moving').toBe(root)
   expect(readVersion('example/package.json'), 'example/package.json version drifted from root package.json - the release commit moves them together, and this leg holds the moving').toBe(root)
 
-  // The template's version stamp (stamped by release.yml from the tag).
+  // The template's version stamp (moved in the same commit as the version
+  // bump; the retired release.yml used to stamp it from the tag).
   const stamp = readFileSync(join(REPO, 'init/VERSION'), 'utf8').trim()
   expect(stamp, 'init/VERSION drifted from root package.json - move it in the same commit').toBe(root)
 

@@ -133,9 +133,9 @@ The pack travels with the checkout, not the npm tarball. Adopting it from anothe
 
 ## Publishing state
 
-**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0 is the latest tagged release; `main` carries 1.2.0, version-bumped ahead of its tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted publishing with npm provenance -- verify with `npm audit signatures`. Tags drive releases: `v*` triggers npm publish plus the GitHub release archive (template zip with a self-testing battery). `main` may be ahead of the latest tag; its version pins are the next planned release.
+**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0 is the latest tagged release; `main` carries 1.2.0, version-bumped ahead of its tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted publishing with npm provenance -- verify with `npm audit signatures`. The tag drives the whole lane: npm publish, then a GitHub release cut from the same tag with its notes extracted from `CHANGELOG.md`. `main` may be ahead of the latest tag; its version pins are the next planned release.
 
-Local install test from the registry tarball (44 files) passed: `init` never clobbers, `build` produces full `dist/` (baked meta, sitemap, 404). The release-body template inside `release.yml` was corrected in the v1.0.0 aftermath to match what the archive actually contains.
+Local install test from the registry tarball passed: `init` never clobbers, `build` produces full `dist/` (baked meta, sitemap, 404).
 
 **Legal:** using prestruct means agreeing to [LICENSE](./LICENSE) and [LEGAL.md](./LEGAL.md). Fair-Code: commercial SaaS use is restricted.
 

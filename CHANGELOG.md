@@ -93,6 +93,10 @@ A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair (`mai
 
 - A single command runs sync check, pack lint, docs lint, claims scan, the init eslint lane, and the test battery. Added after an init-tree `prefer-const` error rode CI-only for six commits while every hand-run lane stayed green.
 
+### One release lane: `publish.yml` (the starter zip is retired)
+
+- A version tag now drives one workflow. `release.yml` is gone: it minted a second GitHub release on the same tag (a race against `publish.yml`'s own `release` job) and built a starter zip from `init/`. The tag publishes npm and cuts the GitHub release from the same tag, its notes extracted from this changelog -- the family shape. There is no release archive to download; `npx prestruct init` scaffolds the template, and the npm tarball is the payload. Action for cherry-pickers: none -- the package contents are unchanged.
+
 ---
 
 ## v1.1.0 (released from the v1.1.0 tag)

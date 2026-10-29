@@ -1,7 +1,7 @@
 ---
 layout: default
 title: CI guide
-description: "What runs on prestruct's own CI - the test battery, the engine-sync leg, the crashtest pack campaign, the docs deploy, and the tag-driven release ladder. Where to look when a run goes red."
+description: "What runs on prestruct's own CI - the test battery, the engine-sync leg, the crashtest pack campaign, the docs deploy, and the tag-driven release lane. Where to look when a run goes red."
 nav_order: 24
 version: 1.2.0
 permalink: /ci
@@ -113,17 +113,22 @@ rootless `libyaml`, shimmed binstubs, `BUNDLE_PATH` outside the tree) is in
 `labs/TASKS.md` under pass 61. `npm run lint:docs` is the node-only slice and
 runs anywhere.
 
-## The release ladder (publish.yml and release.yml)
+## The release lane (publish.yml)
 
-Both fire on a version tag, and they are deliberately separate lanes:
+A version tag drives one lane. `publish.yml` fires on `v*` and is the npm
+trust ladder in three jobs:
 
-- `release.yml` fires on `v*.*.*`. It builds the copy-shipped starter zip,
-  runs the zip's own test battery from the extracted artifact, then creates
-  the GitHub release with the zip attached.
-- `publish.yml` fires on `v*`. It is the npm trust ladder in three jobs:
-  `publish` (OIDC trusted publishing, the `prepublishOnly` gate riding the
-  publish), `release` (mints the GitHub release from the tag with notes
-  extracted from the changelog), and `verify` (the post-publish truth).
+- `publish` (OIDC trusted publishing; the `prepublishOnly` gate rides the
+  publish, so a red gate cannot mint a tarball).
+- `release` (mints the GitHub release from the same tag, its notes extracted
+  from the matching `CHANGELOG.md` section).
+- `verify` (the post-publish truth).
+
+The `release` job cuts the GitHub release with `gh release create`, its body
+the changelog section for the version. It is idempotent: an existing release
+object carries on to verify. There is no separate release workflow and no
+release archive -- the tag, the npm tarball, and the GitHub release are the
+same version, matching the family shape (eyestruct).
 
 The `verify` job is the part that makes a green publish mean something. It
 runs `scripts/verify-release.cjs` twice:
@@ -153,7 +158,7 @@ workflows run, in one command:
 npm run gate
 ```
 
-`prepublishOnly` is set to `npm run gate`, so the release ladder cannot mint a
+`prepublishOnly` is set to `npm run gate`, so the release lane cannot mint a
 tarball from a tree with a red gate. Use it locally before every push; the
 split workflows exist so CI can attribute a failure to one leg, not because
 the aggregate is weaker.

@@ -1,6 +1,7 @@
 # sync-example.yml
 # ----------------
-# Fires after a GitHub release is published (triggered by release.yml).
+# Fires after a GitHub release is published (the release is minted by the
+# publish.yml release job on a version tag).
 # Copies the engine and template files from /init into /example so the live site
 # (prestruct.creadev.org) always runs a known stable release.
 #
