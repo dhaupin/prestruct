@@ -8,7 +8,6 @@ nav_order: 21
 ---
 # prestruct v1.0.0
 
-
 prestruct is a build-time SEO prerender tool for Vite + React apps. v1.0.0 is the first stable release. It is on npm now:
 
 ```bash
@@ -25,14 +24,10 @@ A Vite + React SPA deployed to Cloudflare Pages serves the same empty shell HTML
 
 `prestruct build` runs four stages in order:
 
-1. **validate** -- `ssr.config.js` is shape-checked (site form, route paths,
-traversal guard, duplicate paths, priority and changefreq values, meta objects). Failure exits nonzero with structured diagnostics, before any build happens.
-2. **vite build** -- a standard `vite build`. No SSR bundle, no extra config.
-Everything the pipeline needs from React is loaded through `vite.ssrLoadModule` against your own module registry, so the peer dependencies (react, react-dom, react-router-dom, vite) resolve from your project, not from the package.
-3. **inject-brand** -- head tags for the shell: canonical, OG tags, robots
-directives, JSON-LD structured data. All user-supplied strings `$`-escaped before they enter an HTML attribute position.
-4. **prerender** -- every route from `ssr.config.js` renders to
-`dist/<path>/index.html` with per-route meta baked in, plus `sitemap.xml`, a noindexed `404.html` served with a real HTTP 404, and CF Pages `_headers` / `_redirects` files preconfigured.
+1. **validate** -- `ssr.config.js` is shape-checked (site form, route paths, traversal guard, duplicate paths, priority and changefreq values, meta objects). Failure exits nonzero with structured diagnostics, before any build happens.
+2. **vite build** -- a standard `vite build`. No SSR bundle, no extra config. Everything the pipeline needs from React is loaded through `vite.ssrLoadModule` against your own module registry, so the peer dependencies (react, react-dom, react-router-dom, vite) resolve from your project, not from the package.
+3. **inject-brand** -- head tags for the shell: canonical, OG tags, robots directives, JSON-LD structured data. All user-supplied strings `$`-escaped before they enter an HTML attribute position.
+4. **prerender** -- every route from `ssr.config.js` renders to `dist/<path>/index.html` with per-route meta baked in, plus `sitemap.xml`, a noindexed `404.html` served with a real HTTP 404, and CF Pages `_headers` / `_redirects` files preconfigured.
 
 Output is a plain static folder. Any host that serves files works; Cloudflare Pages is the first-class target because the caching and redirect semantics are already handled.
 
@@ -75,15 +70,11 @@ export default {
 
 Optional keys this release supports:
 
-- `platform` -- `cloudflare` (default) | `vercel` | `netlify`, outputs the
-matching host config files in `dist/`.
+- `platform` -- `cloudflare` (default) | `vercel` | `netlify`, outputs the matching host config files in `dist/`.
 - `robots` -- opt-in robots.txt generation with sitemap reference.
-- `deployId` / `deployIdFooter` -- build identity meta tag and an opt-in
-footer attribute. deployId is per-git-commit, not per-build, so the incremental cache survives identity-only rebuilds.
-- `fetchRoutes()` -- an async hook on the config object that returns extra
-route objects at build time. Use it for CMS-driven routes; results merge with static routes, static wins on path collision. No runtime overhead.
-- `proxy` -- bot proxying for URLs the build cannot prerender. Ships two
-variants: `init/scripts/proxy.js` (Node/Express/Puppeteer, VPS) and `init/scripts/proxy.worker.js` (Cloudflare Worker via Browser Rendering API, Workers Paid required). Bot detection and cache-bust contract are identical in both; only the cache storage differs (disk vs KV).
+- `deployId` / `deployIdFooter` -- build identity meta tag and an opt-in footer attribute. deployId is per-git-commit, not per-build, so the incremental cache survives identity-only rebuilds.
+- `fetchRoutes()` -- an async hook on the config object that returns extra route objects at build time. Use it for CMS-driven routes; results merge with static routes, static wins on path collision. No runtime overhead.
+- `proxy` -- bot proxying for URLs the build cannot prerender. Ships two variants: `init/scripts/proxy.js` (Node/Express/Puppeteer, VPS) and `init/scripts/proxy.worker.js` (Cloudflare Worker via Browser Rendering API, Workers Paid required). Bot detection and cache-bust contract are identical in both; only the cache storage differs (disk vs KV).
 
 The full reference with every key is in the [config guide](https://docs.creadev.org/prestruct/guides/config).
 
@@ -111,8 +102,7 @@ Details and patterns: [advanced islands guide](https://docs.creadev.org/prestruc
 
 Per route, the pipeline writes:
 
-- `<title>`, `meta name="description"`, `link rel="canonical"`,
-`meta property="og:url"`
+- `<title>`, `meta name="description"`, `link rel="canonical"`, `meta property="og:url"`
 - `og:title`, `og:description`, `twitter:title`, `twitter:description`
 - Site-level tags once: `og:image`, `og:type`, `og:site_name`, `twitter:card`
 - Schema.org JSON-LD, site-wide
@@ -151,18 +141,14 @@ The complete walkthrough, empty starter to deployed: [Getting Started guide](htt
 
 ## Known limits
 
-- Build-time only. Runtime SSR, edge SSR, and streaming SSR are out of scope
-by design. If a page's content must change per request and cannot be a CMS route, the bot proxy is the answer.
-- Cloudflare Pages `_headers`/`_redirects` are the shipped defaults. Vercel
-and Netlify outputs validate their semantics but do not generate host-specific config files.
-- react-router-dom v6 and v7 are both supported; the prerender loader tries
-the v6 `server.js` subpath first and falls back to the package root.
+- Build-time only. Runtime SSR, edge SSR, and streaming SSR are out of scope by design. If a page's content must change per request and cannot be a CMS route, the bot proxy is the answer.
+- Cloudflare Pages `_headers`/`_redirects` are the shipped defaults. Vercel and Netlify outputs validate their semantics but do not generate host-specific config files.
+- react-router-dom v6 and v7 are both supported; the prerender loader tries the v6 `server.js` subpath first and falls back to the package root.
 
 ## Links
 
 - npm: <https://www.npmjs.com/package/prestruct>
-- Live demo (built with prestruct, source in `example/`):
-<https://prestruct.creadev.org>
+- Live demo (built with prestruct, source in `example/`): <https://prestruct.creadev.org>
 - Docs: <https://docs.creadev.org/prestruct>
 - GitHub: <https://github.com/dhaupin/prestruct>
 - Issues: <https://github.com/dhaupin/prestruct/issues>

@@ -30,6 +30,7 @@ Voice, tone, and formatting for AI-first docs.
 - Use `export default {` for config examples.
 - Use `///` comments for script extension points.
 - Use tables for quick references.
+- Prose flows. Paragraphs keep their natural length; do not hard-wrap at a fixed column at commit time. Hard-wrapping dies at the first reflow of an upstream renderer. `node scripts/unwrap-prose.cjs <file.md>` joins wrapped paragraphs without touching frontmatter, fenced code, tables, or headings.
 
 ---
 

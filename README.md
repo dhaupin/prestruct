@@ -2,13 +2,9 @@
 
 [![crashtest proxy hardening](https://img.shields.io/github/actions/workflow/status/dhaupin/prestruct/crashtest.yml?branch=main&label=crashtest%20hardening)](https://github.com/dhaupin/prestruct/actions/workflows/crashtest.yml)
 
-**Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`,
-build, inject meta, prerender every route to static HTML. No framework
-migration, no runtime SSR.
+**Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`, build, inject meta, prerender every route to static HTML. No framework migration, no runtime SSR.
 
-Status: **1.2.0, on main ahead of the tag.** npm carries the latest tagged
-release. `package.json` is the single version source; this line and the side
-package.jsons are held to it by a test, so a release cannot leave one behind.
+Status: **1.2.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
 
 ---
 
@@ -22,16 +18,11 @@ cp ssr.config.example.js ssr.config.js   # then edit siteUrl + routes
 npx prestruct build
 ```
 
-Build runs the whole pipeline: validate -> `vite build` -> inject meta ->
-prerender routes. Output lands in `dist/` with one `index.html` per route,
-`sitemap.xml`, and `404.html`.
+Build runs the whole pipeline: validate -> `vite build` -> inject meta -> prerender routes. Output lands in `dist/` with one `index.html` per route, `sitemap.xml`, and `404.html`.
 
-**Live demo:** https://prestruct.creadev.org (built with prestruct; source in
-`example/`).
+**Live demo:** https://prestruct.creadev.org (built with prestruct; source in `example/`).
 
-Prefer raw npm scripts over the CLI? The `init/` template scaffolds
-`scripts/prerender.js` + `scripts/inject-brand.js` you can wire into
-`package.json` directly -- see [docs/guides/cli.md](./docs/guides/cli.md).
+Prefer raw npm scripts over the CLI? The `init/` template scaffolds `scripts/prerender.js` + `scripts/inject-brand.js` you can wire into `package.json` directly -- see [docs/guides/cli.md](./docs/guides/cli.md).
 
 ---
 
@@ -56,8 +47,7 @@ export default {
 }
 ```
 
-Full reference (platform, islands, JSON-LD, `fetchRoutes()`, deployId footer,
-`PRESTRUCT_STRICT`): [docs/guides/config.md](./docs/guides/config.md).
+Full reference (platform, islands, JSON-LD, `fetchRoutes()`, deployId footer, `PRESTRUCT_STRICT`): [docs/guides/config.md](./docs/guides/config.md).
 
 ---
 
@@ -72,10 +62,7 @@ npx prestruct indexnow  # submit the baked sitemap URLs (--dry-run is CI-safe)
 npx prestruct clean     # clear the prerender route cache
 ```
 
-Incremental builds: `.prestruct/cache/` stores rendered HTML; unchanged routes
-are skipped on rebuild unless the shell changes. Fix a config mistake silently?
-Rebuild with a validation pass first (`npx prestruct validate` prints errors
-line-by-line).
+Incremental builds: `.prestruct/cache/` stores rendered HTML; unchanged routes are skipped on rebuild unless the shell changes. Fix a config mistake silently? Rebuild with a validation pass first (`npx prestruct validate` prints errors line-by-line).
 
 ---
 
@@ -93,9 +80,7 @@ prestruct build (or npm run build in the template)
       `- prerender       vite.ssrLoadModule per route -> static HTML
 ```
 
-Static HTML is served directly at deploy time (Cloudflare Pages default). No
-runtime SSR. Client-only dynamic content mounts into `<pre-island>` elements
-after hydration.
+Static HTML is served directly at deploy time (Cloudflare Pages default). No runtime SSR. Client-only dynamic content mounts into `<pre-island>` elements after hydration.
 
 ---
 
@@ -111,45 +96,27 @@ after hydration.
 | `docs/` | Full docs site, AGENTS-built with Pagefind. |
 | `tests/` | vitest battery, including the engine sync contract test. |
 
-If you touch `engine/`, run `node scripts/sync-engine.mjs` or CI will fail the
-byte-identical check. Details in [AGENTS.md](./AGENTS.md).
+If you touch `engine/`, run `node scripts/sync-engine.mjs` or CI will fail the byte-identical check. Details in [AGENTS.md](./AGENTS.md).
 
 ---
 
 ## Bot proxy (optional, additive)
 
-Prerendered HTML covers every route in `ssr.config.js`. Everything else serves
-the SPA shell. The optional render proxy intercepts bots and serves live
-Puppeteer HTML for the rest -- deploy it on a cheap VPS
-([README-proxy.md](./README-proxy.md), Option A: Node + Puppeteer) or as a
-Cloudflare Worker with Browser Rendering (Option B). Humans always get static
-CF Pages output; the two layers stack, they don't replace each other.
+Prerendered HTML covers every route in `ssr.config.js`. Everything else serves the SPA shell. The optional render proxy intercepts bots and serves live Puppeteer HTML for the rest -- deploy it on a cheap VPS ([README-proxy.md](./README-proxy.md), Option A: Node + Puppeteer) or as a Cloudflare Worker with Browser Rendering (Option B). Humans always get static CF Pages output; the two layers stack, they don't replace each other.
 
 ---
 
 ## Crash testing (in-repo pack)
 
-`packs/public/prestruct-proxy` (pack v0.4.0) is this repo's own adversarial
-pack for the bot-proxy pair above: five wire-level contracts (method matrix,
-hostile-path fuzz, bot-render 302 fallback, refresh-secret strict parity,
-cache-key variant parity),
-run through the [crashtest](https://github.com/dhaupin/crashtest) harness
-against both runtimes. Attack route names come from the host `moduleCtx`, so
-the pack runs against any wiring. Latest results live in
-[labs/hardening.md](./labs/hardening.md), the CI-comparable ledger in
-[labs/crashledger.json](./labs/crashledger.json).
+`packs/public/prestruct-proxy` (pack v0.4.0) is this repo's own adversarial pack for the bot-proxy pair above: five wire-level contracts (method matrix, hostile-path fuzz, bot-render 302 fallback, refresh-secret strict parity, cache-key variant parity), run through the [crashtest](https://github.com/dhaupin/crashtest) harness against both runtimes. Attack route names come from the host `moduleCtx`, so the pack runs against any wiring. Latest results live in [labs/hardening.md](./labs/hardening.md), the CI-comparable ledger in [labs/crashledger.json](./labs/crashledger.json).
 
-The pack travels with the checkout, not the npm tarball. Adopting it from
-another repo is one line in that repo's `crashtest.config.js`:
-`packs: ['/abs/path/to/prestruct/packs']` -- contract table and runbook in
-[packs/README.md](./packs/README.md).
+The pack travels with the checkout, not the npm tarball. Adopting it from another repo is one line in that repo's `crashtest.config.js`: `packs: ['/abs/path/to/prestruct/packs']` -- contract table and runbook in [packs/README.md](./packs/README.md).
 
 ---
 
 ## Deploy
 
-- Cloudflare Pages: [docs/guides/cloudflare.md](./docs/guides/cloudflare.md)
-  (`npm run build`, output `dist/`, Node 20+).
+- Cloudflare Pages: [docs/guides/cloudflare.md](./docs/guides/cloudflare.md) (`npm run build`, output `dist/`, Node 20+).
 - Any static host works too: `dist/` is a plain static folder.
 
 ---
@@ -158,9 +125,7 @@ another repo is one line in that repo's `crashtest.config.js`:
 
 - Vite 5+ (the example lane runs Vite 7; the template battery builds on Vite 6)
 - React 18+
-- React Router v6 and v7 both work: v6 via the `./server.js` subpath, v7 via
-  the package-root fallback -- scaffold imports use the namespace+destructure
-  form so CJS v7 passes vite SSR (docs and generated HTML render from v7 live)
+- React Router v6 and v7 both work: v6 via the `./server.js` subpath, v7 via the package-root fallback -- scaffold imports use the namespace+destructure form so CJS v7 passes vite SSR (docs and generated HTML render from v7 live)
 - Cloudflare Pages default; any static host otherwise
 - Node 20+
 
@@ -168,32 +133,19 @@ another repo is one line in that repo's `crashtest.config.js`:
 
 ## Publishing state
 
-**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0 is
-the latest tagged release; `main` carries 1.2.0, version-bumped ahead of its
-tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted
-publishing with npm provenance -- verify with `npm audit signatures`. Tags
-drive releases: `v*` triggers npm publish plus the GitHub release archive
-(template zip with a self-testing battery). `main` may be ahead of the latest
-tag; its version pins are the next planned release.
+**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.1.0 is the latest tagged release; `main` carries 1.2.0, version-bumped ahead of its tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted publishing with npm provenance -- verify with `npm audit signatures`. Tags drive releases: `v*` triggers npm publish plus the GitHub release archive (template zip with a self-testing battery). `main` may be ahead of the latest tag; its version pins are the next planned release.
 
-Local install test from the registry tarball (44 files) passed: `init` never
-clobbers, `build` produces full `dist/` (baked meta, sitemap, 404). The
-release-body template inside `release.yml` was corrected in the v1.0.0
-aftermath to match what the archive actually contains.
+Local install test from the registry tarball (44 files) passed: `init` never clobbers, `build` produces full `dist/` (baked meta, sitemap, 404). The release-body template inside `release.yml` was corrected in the v1.0.0 aftermath to match what the archive actually contains.
 
-**Legal:** using prestruct means agreeing to [LICENSE](./LICENSE) and
-[LEGAL.md](./LEGAL.md). Fair-Code: commercial SaaS use is restricted.
+**Legal:** using prestruct means agreeing to [LICENSE](./LICENSE) and [LEGAL.md](./LEGAL.md). Fair-Code: commercial SaaS use is restricted.
 
 ---
 
 ## Read next
 
-- [AGENTS.md](./AGENTS.md) -- engineering history, gotchas, hard rules,
-  what's in/out of scope.
+- [AGENTS.md](./AGENTS.md) -- engineering history, gotchas, hard rules, what's in/out of scope.
 - [labs/prd-prestruct.md](./labs/prd-prestruct.md) -- roadmap.
-- [docs/](./docs/index.md) -- full site (SEO, routing, islands, proxy,
-  Cloudflare).
-- **The workshop** -> [Creadev.org](https://creadev.org) (the same home as
-  the docs, the demo, and the npm package).
+- [docs/](./docs/index.md) -- full site (SEO, routing, islands, proxy, Cloudflare).
+- **The workshop** -> [Creadev.org](https://creadev.org) (the same home as the docs, the demo, and the npm package).
 
 _No runtime deps added. Config is the API._

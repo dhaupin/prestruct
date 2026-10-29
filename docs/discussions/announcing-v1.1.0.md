@@ -8,7 +8,6 @@ nav_order: 22
 ---
 # prestruct v1.1.0
 
-
 prestruct is a build-time SEO prerender tool for Vite + React apps. v1.1.0 is a compatibility and hardening release on top of the 1.0.0 pipeline: the scaffold compiles on react-router-dom 7 as well as 6, engine files gained deep-import exports, the test battery moved to vitest 5, and the release archive now proves itself from the downloaded artifact. It is on npm now:
 
 ```bash
@@ -45,14 +44,10 @@ The documented default is still the scaffold-relative import (`../hooks/usePageM
 
 ## Test battery on vitest 5, tinypool pinned
 
-- Root, init, and the release battery all run vitest ^5.0.5 against vite
-6.4.5. The remaining vitest 2.x audit finding class (UI-server critical, mocker pickle, vitest's private vite 5.4 copy) is removed rather than accepted: nothing in the suite touches those surfaces. Root battery: 147/147. Template battery: 141/141.
-- The critical tinypool prototype-pollution RCEs (GHSA-5gmw-xhrv-c9v3,
-GHSA-85c8-ppgw-ccpr; affected through 2.1.2) are pinned off with an `overrides` entry (`tinypool: "^2.2.0"`) at root and init, and the release workflow injects the same override into the zip battery.
-- Every workflow that installs sets `PUPPETEER_SKIP_DOWNLOAD=1`: no test
-drives a real browser (the render path is asserted to fail closed), so the ~170 MB Chromium fetch and its extract-zip/basic-ftp chain never executes at install time.
-- The init template's `test:ui` script is gone. `@vitest/ui` was never a
-dependency and vitest 2.x's UI server carries a critical advisory while listening; the script could not run as-is.
+- Root, init, and the release battery all run vitest ^5.0.5 against vite 6.4.5. The remaining vitest 2.x audit finding class (UI-server critical, mocker pickle, vitest's private vite 5.4 copy) is removed rather than accepted: nothing in the suite touches those surfaces. Root battery: 147/147. Template battery: 141/141.
+- The critical tinypool prototype-pollution RCEs (GHSA-5gmw-xhrv-c9v3, GHSA-85c8-ppgw-ccpr; affected through 2.1.2) are pinned off with an `overrides` entry (`tinypool: "^2.2.0"`) at root and init, and the release workflow injects the same override into the zip battery.
+- Every workflow that installs sets `PUPPETEER_SKIP_DOWNLOAD=1`: no test drives a real browser (the render path is asserted to fail closed), so the ~170 MB Chromium fetch and its extract-zip/basic-ftp chain never executes at install time.
+- The init template's `test:ui` script is gone. `@vitest/ui` was never a dependency and vitest 2.x's UI server carries a critical advisory while listening; the script could not run as-is.
 
 Consumer exposure was already zero on 1.0.0: the published manifest has no runtime dependencies, and a package's devDependencies are never installed for its consumers. This pass hardened the repo's own build and CI trees.
 
@@ -88,12 +83,9 @@ npm view prestruct version   # 1.1.0
 
 For a project scaffolded by 1.0.0:
 
-1. `npx prestruct init` re-copies nothing you did not remove; diff your
-`src/App.jsx`, `src/AppLayout.jsx`, and `src/hooks/usePageMeta.js` against the new `init/` if you want the dual-major import form now.
-2. Optional: move the battery to vitest 5 and add
-`overrides: { tinypool: "^2.2.0" }` (see the changelog for the full devDep set the release battery proves).
-3. Nothing config-facing changed. `ssr.config.js` shape, route schema,
-islands, proxy contract, and CLI are all unchanged from 1.0.0.
+1. `npx prestruct init` re-copies nothing you did not remove; diff your `src/App.jsx`, `src/AppLayout.jsx`, and `src/hooks/usePageMeta.js` against the new `init/` if you want the dual-major import form now.
+2. Optional: move the battery to vitest 5 and add `overrides: { tinypool: "^2.2.0" }` (see the changelog for the full devDep set the release battery proves).
+3. Nothing config-facing changed. `ssr.config.js` shape, route schema, islands, proxy contract, and CLI are all unchanged from 1.0.0.
 
 Between 1.0.0 and 1.1.0 the example also picked up `npm audit fix` bumps (browserslist, @remix-run/router) for its own runtime tree; that configuration does not carry into your project.
 
@@ -104,8 +96,7 @@ Unchanged from 1.0.0 by design: build-time prerender only (no runtime, edge, or 
 ## Links
 
 - npm: <https://www.npmjs.com/package/prestruct>
-- Live demo (built with prestruct, source in `example/`):
-<https://prestruct.creadev.org>
+- Live demo (built with prestruct, source in `example/`): <https://prestruct.creadev.org>
 - Docs: <https://docs.creadev.org/prestruct>
 - GitHub: <https://github.com/dhaupin/prestruct>
 - Changelog: <https://github.com/dhaupin/prestruct/blob/main/CHANGELOG.md>

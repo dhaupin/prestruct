@@ -1,15 +1,12 @@
 # PRD: Prestruct Roadmap
 
-**Status:** rewrite 2026-10-21 -- supersedes the 2026-10-20 planning PRD (that
-one's phases all landed; its ledger is preserved in TASKS.md and retired here)
-**Reads first:** [AGENTS.md](../AGENTS.md), [TASKS.md](./TASKS.md)
+**Status:** rewrite 2026-10-21 -- supersedes the 2026-10-20 planning PRD (that one's phases all landed; its ledger is preserved in TASKS.md and retired here) **Reads first:** [AGENTS.md](../AGENTS.md), [TASKS.md](./TASKS.md)
 
 ---
 
 ## 1. Product one-liner (unchanged)
 
-Prestruct renders every route of a Vite + React app to static SEO-HTML at
-build time. Config is the API. No runtime SSR. No bloat.
+Prestruct renders every route of a Vite + React app to static SEO-HTML at build time. Config is the API. No runtime SSR. No bloat.
 
 ---
 
@@ -32,8 +29,7 @@ Verified against the engine at HEAD, not memory:
 
 ## 3. Completed ledger (what the old PRD left open, now closed)
 
-The 2026-10-20 PRD's Phase 0-3 and warts W1-W9 all closed (evidence in
-TASKS.md passes 1-18). The only rows that were still marked open there:
+The 2026-10-20 PRD's Phase 0-3 and warts W1-W9 all closed (evidence in TASKS.md passes 1-18). The only rows that were still marked open there:
 
 | Old open row | Closed by |
 |---|---|
@@ -41,9 +37,7 @@ TASKS.md passes 1-18). The only rows that were still marked open there:
 | Phase 3: cache stats endpoint (P2) | `status.json` at project root `.prestruct/`, NOT in dist/ (issue 23; staticsites-safe variant chosen over a served endpoint) |
 | Phase 3: migration guide refresh (P2) | already current -- documents `config.robots`, v1.0.0 frontmatter, per-release change lists |
 
-Closeout rule that replaced the old planning format: AGENTS.md + TASKS.md
-are the operating history; this file holds only current-state truth and
-forward rows.
+Closeout rule that replaced the old planning format: AGENTS.md + TASKS.md are the operating history; this file holds only current-state truth and forward rows.
 
 ---
 
@@ -53,12 +47,10 @@ forward rows.
 - AppLayout must never import BrowserRouter
 - Build-time prerender only (no streaming, no edge runtime, no per-request SSR)
 - Islands are separate React roots, outside hydration
-- Proxy optional; disabled unless `config.proxy.url` set; proxy files are
-  per-project scaffold assets, never npm-imported
+- Proxy optional; disabled unless `config.proxy.url` set; proxy files are per-project scaffold assets, never npm-imported
 - CF Pages pretty URLs are left alone (no redirect rules for prerendered paths)
 - 404 page is pure static HTML (`root-404`, no JS)
-- Engines declare Node >=20; battery pins react-router v6 for compile coverage,
-  example runs v7 (both majors stay supported)
+- Engines declare Node >=20; battery pins react-router v6 for compile coverage, example runs v7 (both majors stay supported)
 
 ---
 
@@ -83,16 +75,12 @@ forward rows.
 | R6: react 19 evaluation -- SHARPENED by #58 (2026-10-27): zero advisories to react 18, priority LOW, churn HIGH; react 19 rides the same 1.3.0 matrix lane as vite 7/8, not a separate effort | Battery + example render are the acceptance gate. |
 | R7: platform-matrix majors -- the 1.2.0 ladder bounds the ceilings (#58 ask 1 shipped: react/react-dom `>=18 <19`, router `>=6 <8`, vite `>=5 <7`); 1.3.0 = matrix lane proof (vite 7 then 8: ssrLoadModule -> ModuleRunner port with the --ssr fallback documented; react 19 interop/islands), graded by the example bake + real audit; ceilings move only on proof | |
 
-Carried P2/P3 ideas (unchanged from docs roadmap): image optimization
-pipeline, file-level incremental invalidation, plugin system,
-vercel/netlify host-file generation, theme packs.
+Carried P2/P3 ideas (unchanged from docs roadmap): image optimization pipeline, file-level incremental invalidation, plugin system, vercel/netlify host-file generation, theme packs.
 
 ---
 
 ## 7. Working rules that shipped with this rewrite
 
 - Every row in Section 6 needs a TASKS.md pass entry when it moves.
-- Engine changes stay in `engine/`, then `node scripts/sync-engine.mjs`;
-  `engine-sync-check.yml` is the proof of execution.
-- No new feature lands without the battery green and (if template-visible)
-  the tarball e2e.
+- Engine changes stay in `engine/`, then `node scripts/sync-engine.mjs`; `engine-sync-check.yml` is the proof of execution.
+- No new feature lands without the battery green and (if template-visible) the tarball e2e.

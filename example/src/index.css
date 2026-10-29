@@ -929,13 +929,18 @@ html[data-theme="light"] .header-chip { border: 1px solid var(--line); }
 .compare {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  overflow: hidden;
+  /* Mobile table guard (#62): a wide row pinned the WHOLE page to its
+     min-content width on a phone (H1/nav clipped, content bled off-viewport).
+     Scroll the comparison in its own box; the page never moves. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .compare-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   border-bottom: 1px solid var(--line);
+  min-width: 0;
 }
 
 .compare-row:last-child { border-bottom: none; }
@@ -946,6 +951,9 @@ html[data-theme="light"] .header-chip { border: 1px solid var(--line); }
   font-size: 0.82rem;
   color: var(--ink-soft);
   border-right: 1px solid var(--line);
+  /* Let grid tracks shrink below their content's min-content width so a long
+     cell wraps instead of inflating the row past the viewport. */
+  min-width: 0;
 }
 
 .compare-cell:last-child { border-right: none; }
