@@ -88,6 +88,15 @@ A second bug/gap walk over the engine and audit (`staging` @ 6f1a231). Every fix
 - **`injectBrand` is library-safe again.** It called `process.exit(0)` when `dist/index.html` was missing despite its "never exits" contract; because the CLI calls it in-process, a missing shell killed the build green. It now returns `null`, and the direct-run wrapper owns the exit. Cherry-pick: `init/scripts/inject-brand.js`.
 - **og-image slug collisions warn.** Two routes whose paths flatten to one slug (`/blog/post-1` and `/blog-post-1` -> `blog-post-1.png`) silently shared one generated PNG; the build now warns.
 
+### Stability walk 2: port parsing, audit path confinement, footer-attribute reflow
+
+A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix is cherry-pickable on its own.
+
+- **`normalizePort` rejects a valid-prefix PORT value (proxy).** `parseInt("8080abc")` silently yields `8080`, so a junk `PORT` with a numeric prefix passed the range check and the server bound an unintended port with no warning -- the exact class the guard exists to catch. `Number()` rejects it, the fallback is loud. Cherry-pick: `init/scripts/proxy.js`.
+- **Audit disk-probe is confined to the output root.** `urlToDisk` path-joined a head-referenced URL straight onto `dist/`, so an og:image/JSON-LD value with `../` segments (`/../../../etc/passwd`) made the exists-on-disk probe read arbitrary host paths outside the tree. Every resolved path is now required to stay under the output root. Cherry-pick: `init/scripts/audit.js`.
+- **The opt-in footer attribute survives a reflowed shell.** `deployIdFooter: true` inserted `data-deploy-id-footer` with a byte-exact `/<div id="root"/`, so a prettier/minifier-reflowed root div (single quotes, spaces around `=`, or an attribute before the id) silently dropped the attribute the config asked for. Now the same attribute-tolerant span the rest of the engine uses. Cherry-pick: `init/scripts/inject-brand.js`.
+- **Doc truth:** the deploy-id table claimed the meta content is `<short-hash>-<ts>`; the timestamp was removed (per-commit, not per-build, so the incremental cache survives), so it is the bare git short hash.
+
 ### Packs conformance + pinned surfaces
 
 - `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared `/packs` spec linter (crashtest#16 class: manifest declares an entry that does not ship). The crashtest CI lane runs the repo's own exact `crashtest` devDependency pin and never a floating `@1` fetch; harness upgrades are one command: `npm run crashtest:bump <version>` (pin install + harness run + ledger regen + pin/stamp verification).

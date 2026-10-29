@@ -100,7 +100,15 @@ function urlToDisk(urlValue, { outputDir, config }) {
     return null
   }
   if (pathName.startsWith('/')) {
-    return path.join(outputDir, pathName.replace(/^\//, ''))
+    const root = path.resolve(outputDir)
+    const target = path.resolve(root, pathName.replace(/^\//, ''))
+    // Containment guard: a crafted og:image/JSON-LD URL with `../../`
+    // segments (`/../../../etc/passwd`) resolved OUTSIDE the output tree, so
+    // the exists-on-disk probe read arbitrary host-path existence. Confine
+    // every resolved path to the output root; anything that escapes is not a
+    // site-local file.
+    if (target !== root && !target.startsWith(root + path.sep)) return null
+    return target
   }
   return null
 }

@@ -354,7 +354,7 @@ Every build stamps a deploy identifier into the HTML:
 
 | Config key | Default | Effect |
 |------------|---------|--------|
-| `deployId` | `true` | Injects `<meta name="deploy-id" content="<short-hash>-<ts>">` into `dist/index.html`. Set `false` to disable. |
+| `deployId` | `true` | Injects `<meta name="deploy-id" content="<short-hash>">` (the git short hash, or `dev-local` outside a repo) into `dist/index.html`. Set `false` to disable. Per-commit, not per-build, so the incremental cache survives identity-only rebuilds. |
 | `deployIdFooter` | `false` (opt-in) | Adds `data-deploy-id-footer` to the root div so client-side JS can render the deploy ID in your footer. Requires client-side code that reads the attribute (see the example `AppLayout.jsx`). The attribute survives prerendering -- footer display and prerendering do not conflict. |
 
 Minimal footer implementation:

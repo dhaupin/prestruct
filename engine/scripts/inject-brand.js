@@ -261,7 +261,12 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   // stripped when not (safe to run on rebuild either way). It travels on the
   // root div and is carried through prerendering by replaceRootDiv.
   if (showFooter) {
-    html = html.replace(/<div id="root"/, '<div id="root" data-deploy-id-footer')
+    // Insert after the root div's `id="root"` wherever it sits -- the old
+    // byte-exact `/<div id="root"/` missed a reflowed shell (single quotes,
+    // spaces around `=`, or an attribute before the id), silently dropping the
+    // opt-in footer attribute the config asked for with no warning. Match the
+    // same attribute-tolerant span the rest of the engine uses.
+    html = html.replace(/(<div\b[^>]*\sid\s*=\s*["']root["'])/, '$1 data-deploy-id-footer')
   } else {
     html = html.replace(/ data-deploy-id-footer/g, '')
   }

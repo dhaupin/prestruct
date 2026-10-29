@@ -1,3 +1,17 @@
+## Pass 67 (2026-10-29): 1.2.0 stability walk 2 (CLI, proxy, audit, inject)
+**Scope:** a third bug/gap/fiction walk over the CLI, proxy pair, audit, and inject seam (`staging` @ `24e5503`). Branch `staging`, no tags. Each fix cherry-pickable; battery 338 -> 341.
+
+**Fixes (each with a regression test):**
+- **`normalizePort` valid-prefix bug (`init/scripts/proxy.js`).** `parseInt("8080abc")` returns 8080, so a junk `PORT` with a numeric prefix passed the range check and the server bound an unintended port with no warning. `Number()` rejects it -> loud fallback to 3000. The existing junk-list test used `'3000x'` but the guard's `parseInt` swallowed the `x` -- only a mid-range prefix value exposes it.
+- **`urlToDisk` path traversal (`init/scripts/audit.js`).** The head-referenced-URL -> disk-path resolver path-joined straight onto `dist/`; `/../../../etc/passwd` resolved to the real host path, so the exists-on-disk probe could read arbitrary host-path existence (info-leak; WARN-grade but still a real escape). Now confined to the output root.
+- **`injectBrand` footer attribute silently dropped on a reflowed shell (`init/scripts/inject-brand.js`).** `deployIdFooter: true` used a byte-exact `/<div id="root"/` insert; a prettier/minifier-reflowed root div (single quotes, `id = "root"`, an attribute ahead of the id) missed it and the opt-in attribute vanished with no warning. Now rides the same attribute-tolerant span.
+
+**Fiction:** `docs/guides/config.md` deploy-id row claimed `content="<short-hash>-<ts>"`; the timestamp was removed when the deploy ID became per-commit -- corrected.
+
+**Investigated, sound:** the 404 noindex/CTA scheme guard, `hooks.js` function-replacer substitution + `runHooks` gate, `indexnow` key resolution/512-cap shapes, worker `cacheKeyFor`/`ttlFromEnv` clamps, `findRootDivSpan` nesting, the OG slug-collision guard, `mergeRoutes` junk tolerance, cache signature coverage.
+
+**Receipts.** `npm run gate` green: 19 files, **341 tests**; seven docs gates clean; claims scan clean. Commits: `<pending>`.
+
 ## Pass 66 (2026-10-29): 1.2.0 stability walk (engine + audit)
 **Scope:** a second bug/gap/fiction walk over the engine, audit, and CLI after the 1.2.0 promotion (`staging` @ `6f1a231`). Branch `staging`, no tags. Every fix cherry-pickable on its own; battery 335 -> 338.
 

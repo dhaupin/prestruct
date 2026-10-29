@@ -212,6 +212,25 @@ describe('injectBrand title replacement (tarball e2e regression)', () => {
     const result = injectBrand(config, join(root, 'dist'), { getDeployId: () => 'test-id' })
     expect(result).toBeNull()
   })
+
+  it('adds the footer attribute to a reflowed root div, not only the byte-exact form', () => {
+    // The insertion was `/<div id="root"/` -- byte-exact. A shell prettier/
+    // minifier reflowed (single quotes, spaces around `=`, or an attribute
+    // ahead of the id) silently dropped the opt-in footer attribute the config
+    // asked for, with no warning. Match the attribute-tolerant span.
+    for (const rootDiv of ["<div id='root'></div>", '<div class="app" id="root"></div>']) {
+      const root = makeTempProject()
+      mkdirSync(join(root, 'dist'), { recursive: true })
+      writeFileSync(join(root, 'dist', 'index.html'),
+        `<!DOCTYPE html><html><head><title>Site</title>\n`
+        + `<meta name="description" content="" /><meta name="keywords" content="" />\n`
+        + `<meta name="author" content="" /><link rel="canonical" href="https://x.test/" />\n`
+        + `</head><body>${rootDiv}</body></html>`, 'utf8')
+      injectBrand({ ...config, deployIdFooter: true }, join(root, 'dist'), { getDeployId: () => 'id' })
+      const html = readFileSync(join(root, 'dist', 'index.html'), 'utf8')
+      expect(html).toContain('data-deploy-id-footer')
+    }
+  })
 })
 
 // Helper: toReplaceSafe (from inject-brand.js)

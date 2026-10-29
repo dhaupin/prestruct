@@ -70,7 +70,10 @@ export const PORT = normalizePort(process.env.PORT)
 // parseInt() produce NaN and server.listen(NaN) died at startup with a
 // runtime error far from its cause. Validate and fall back loudly.
 export function normalizePort(raw) {
-  const n = parseInt(raw ?? '3000', 10)
+  // Number(), not parseInt(): parseInt("3000x") silently returns 3000, so a
+  // junk PORT env with a valid prefix ("3000abc") passed validation and the
+  // server bound an unintended port instead of falling back loudly.
+  const n = Number(raw ?? 3000)
   if (!Number.isInteger(n) || n <= 0 || n > 65535) {
     console.warn(`[proxy] PORT "${raw}" is not a valid port -- falling back to 3000`)
     return 3000

@@ -409,6 +409,16 @@ describe('VPS normalizePort', () => {
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
   })
+
+  it('rejects a valid-prefix value rather than binding an unintended port', () => {
+    // parseInt("8080abc") silently yields 8080, so a junk PORT env with a
+    // valid numeric prefix passed the range check and the server bound 8080
+    // (no warning). Number() rejects it -> loud fallback to 3000.
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(normalizePort('8080abc')).toBe(3000)
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
+  })
 })
 
 describe('VPS createProxyApp -- empty bot list diagnostic (#52 form)', () => {

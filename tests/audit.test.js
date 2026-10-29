@@ -228,6 +228,21 @@ describe('auditOutput: WARN classes (report-grade, never fail)', () => {
     expect(r.warns.some(w => w.msg.includes('og:image points at'))).toBe(false)
   })
 
+  it('an og:image URL with ../ segments is not treated as a site-local file', () => {
+    // A crafted og:image value (`/../outside-nonexistent`) used to resolve
+    // OUTSIDE the output tree, so urlToDisk pointed the exists-on-disk probe
+    // at an arbitrary host path. Confined to the output root, it is simply
+    // not site-local: no disk probe, no (false) "does not exist on disk" row.
+    const root = makeRoot()
+    writeArtifacts(root)
+    const escaped = CLEAN_HEAD.replace(
+      'content="https://e2e.test/og.png"',
+      'content="/../outside-nonexistent-zzz.png"')
+    writeFixture(root, { 'index.html': escaped })
+    const r = audit(root)
+    expect(r.warns.some(w => w.msg.includes('does not exist on disk'))).toBe(false)
+  })
+
   it('missing h1 warns', () => {
     const root = makeRoot()
     writeArtifacts(root)
