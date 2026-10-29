@@ -127,3 +127,20 @@ test('release lane is publish.yml only (the tag drives npm + the GH release)', (
   expect(workflow).not.toMatch(/\.zip/)
   expect(workflow).not.toMatch(/softprops\/action-gh-release/)
 })
+
+test('staging flow: CI covers the integration branch, deploys are gated to main', () => {
+  // The fleet staging flow (poststruct#32): staging is the permanent
+  // integration branch, CI covers it, and every deploy job is gated to main.
+  // Point 3 is the trap -- once staging is in a deploy workflow's trigger, the
+  // trigger no longer keeps staging content out of production; the job must
+  // carry the guard itself.
+  for (const wf of ['test.yml', 'engine-sync-check.yml', 'crashtest.yml']) {
+    const text = readFileSync(`.github/workflows/${wf}`, 'utf8')
+    expect(text, `${wf} must verify the staging integration branch`).toMatch(/staging/)
+  }
+
+  const docs = readFileSync('.github/workflows/docs.yml', 'utf8')
+  expect(docs, 'docs.yml must build staging docs').toMatch(/branches: \[main, staging\]/)
+  // The load-bearing guard: a staging push or a PR has github.ref != main.
+  expect(docs, 'docs.yml deploy must be gated to main').toMatch(/if: github\.ref == 'refs\/heads\/main'/)
+})

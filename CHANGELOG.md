@@ -97,6 +97,10 @@ A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair (`mai
 
 - A version tag now drives one workflow. `release.yml` is gone: it minted a second GitHub release on the same tag (a race against `publish.yml`'s own `release` job) and built a starter zip from `init/`. The tag publishes npm and cuts the GitHub release from the same tag, its notes extracted from this changelog -- the family shape. There is no release archive to download; `npx prestruct init` scaffolds the template, and the npm tarball is the payload. Action for cherry-pickers: none -- the package contents are unchanged.
 
+### CI: the staging integration branch
+
+- `staging` is the permanent integration branch; `main` is the promotion target. CI now runs on both: `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` verify a `staging` push, and `docs.yml` builds the docs on both branches. The `docs.yml` deploy job is gated to `main`, so a `staging` push can never publish unreleased docs to production. Repo-infrastructure only -- no package change.
+
 ---
 
 ## v1.1.0 (released from the v1.1.0 tag)

@@ -591,4 +591,37 @@ Confirmed re-broken in v1.1.0 (Oct 21, same day): release.yml copied RAW repo te
 
 `engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check mode in CI). Touch an engine file, never edit the deployed copies, always follow with a sync run. `qc.test.mjs` fails on drift -- that check IS the generator's proof of execution.
 
+---
+
+## CI and the staging flow (adopted 2026-10-29)
+
+`staging` is the permanent integration branch: work branches off it, PRs
+target it, promotion to `main` is the only path to production. Never delete
+it. The fleet reference is `dhaupin/poststruct#32`.
+
+- **CI covers `staging` and `main`.** `test.yml`, `engine-sync-check.yml`, and
+  `crashtest.yml` list both branches; `docs.yml` builds docs on both.
+- **Every deploy job is gated to `main`.** `docs.yml`'s `deploy` job carries
+  `if: github.ref == 'refs/heads/main'`. This is the load-bearing part: once
+  `staging` is in a deploy workflow's trigger list, the trigger no longer
+  keeps staging content out of production -- the job must say so itself. A
+  `staging` push is `refs/heads/staging` and a PR is `refs/pull/N/merge`, so
+  both skip; only a `main` push publishes.
+- **Promotion drifts the branches by one.** A merge-commit promotion puts a
+  commit on `main` that `staging` lacks. Fast-forward after every promotion:
+  `git push origin origin/main:staging`.
+- **`tests/qc.test.mjs` pins the contract** -- drop `staging` from a trigger
+  or remove the deploy guard and the battery goes red.
+
+**Lesson: a workflow that fails to PARSE fails with ZERO jobs.** `docs.yml`
+carried `- name: Run freestruct strict (SEO layer: canonical, ...)` -- an
+unquoted YAML scalar with a `: ` inside it. YAML reads that colon as a mapping
+separator and the whole file is invalid. GitHub's symptom is a run that
+appears and completes `failure` with **0 jobs** and no step log, which reads
+like a runner problem, not a syntax problem. It had ridden every `staging`
+push since `c07565f` because the trigger still said `[main]` on `main`, where
+the older parseable copy ran green. Two rules: quote any `name:`/`run:`
+scalar that contains a colon, and treat a 0-job failure as a parse error
+first -- `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/<wf>.yml'))"` names the line in one shot.
+
 **Crosslinks:** [README](./README.md) for quick start, docs site under `docs/` (deploy: `docs/guides/cloudflare.md`, proxy: `README-proxy.md`, CLI: `docs/guides/cli.md`, config: `docs/guides/config.md`), pass log in `labs/TASKS.md`.

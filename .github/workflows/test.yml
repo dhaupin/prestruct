@@ -1,6 +1,9 @@
 # test.yml
 # ========
-# Runs tests on every PR and push to main.
+# Runs tests on every PR and on push to the integration branch (staging) and
+# main. staging is the permanent integration branch; main is the promotion
+# target. Work branches off staging, PRs target it, promotion to main is the
+# only path out (the fleet staging flow, poststruct#32).
 # CI for: tests, build, and prerender.
 
 name: Test
@@ -10,6 +13,7 @@ on:
   push:
     branches:
       - main
+      - staging
 
 # No test in this suite drives a real browser (the render path is asserted
 # to fail closed), so Chromium (~170MB via puppeteer's install-time fetch,

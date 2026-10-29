@@ -20,8 +20,8 @@ a workflow disagree, the workflow wins - fix the prose.
 
 ## The battery (test.yml)
 
-Runs on every pull request and every push to `main`. It is the leg that proves
-the engine, the template, and the configured example.
+Runs on every pull request and every push to `staging` or `main`. It is the
+leg that proves the engine, the template, and the configured example.
 
 | step | leg | what it proves |
 |------|-----|----------------|
@@ -86,8 +86,10 @@ version the committed ledger was cut with - bump it with
 
 ## The docs lane (docs.yml)
 
-Runs on a push to `main` that touches `docs/**`, `.github/workflows/docs.yml`,
-or `package-lock.json`, and on manual dispatch. The pipeline:
+Runs on a push to `staging` or `main` that touches `docs/**`,
+`.github/workflows/docs.yml`, or `package-lock.json`, and on manual dispatch.
+The build legs run on both branches; the deploy job is gated to `main` (see
+the staging flow below). The pipeline:
 
 ```text
 Jekyll build (Ruby 3.4, kramdown + rouge)
@@ -148,6 +150,36 @@ and that the source tarball's file list diffs byte-identical against
 
 A manual dispatch of `publish.yml` with mode `verify-only` runs the verify
 job alone against what is already published and released.
+
+## The staging flow
+
+`staging` is the permanent integration branch. Work branches off it, pull
+requests target it, and promotion to `main` is the only path to production.
+Never delete it. The fleet reference is `dhaupin/poststruct#32`.
+
+CI covers `staging` as well as `main`:
+
+- `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` run on a push to
+  either branch (and on every pull request).
+- `docs.yml` builds the docs on both branches, but its **deploy job is gated
+  to `main`** with `if: github.ref == 'refs/heads/main'`.
+
+That guard is the load-bearing part. Once `staging` is in a deploy
+workflow's trigger list, the trigger no longer keeps staging content out of
+production; the job has to say so itself. A `staging` push has
+`github.ref == 'refs/heads/staging'` and a pull request has
+`refs/pull/N/merge`, so both skip the deploy. Only a `main` push publishes.
+
+Promotions drift the branches by one commit: a merge-commit promotion puts a
+commit on `main` that `staging` lacks, so fast-forward `staging` to `main`
+after every promotion:
+
+```bash
+git push origin origin/main:staging     # fast-forward, non-destructive
+```
+
+`tests/qc.test.mjs` pins this contract, so a future edit that drops `staging`
+from a trigger or removes the deploy guard fails the battery.
 
 ## The gate aggregate (npm run gate)
 

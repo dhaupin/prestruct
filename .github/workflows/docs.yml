@@ -15,7 +15,7 @@ name: Deploy docs
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
@@ -78,7 +78,7 @@ jobs:
       # --strict: broken links and dangerous tags fail the build. Discovery
       # walks up from cwd (repo root) to docs/freestruct.config.yml; the
       # output tree defaults to docs/_site.
-      - name: Run freestruct strict (SEO layer: canonical, OG, JSON-LD identity)
+      - name: "Run freestruct strict (SEO layer: canonical, OG, JSON-LD identity)"
         run: node node_modules/freestruct/bin/freestruct.mjs --strict
 
       - name: Download Pagefind
@@ -102,6 +102,12 @@ jobs:
   # Deployment job
   deploy:
     needs: build
+    # Gate to main: staging is in the push trigger above so staging docs get
+    # BUILT (the freestruct strict + pagefind legs are worth running), but the
+    # trigger alone no longer keeps staging content out of production. Only a
+    # main push deploys; a staging push or a PR has github.ref !=
+    # refs/heads/main and skips here (the fleet staging flow, poststruct#32).
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
