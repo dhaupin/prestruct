@@ -78,6 +78,10 @@ A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair (`mai
 
 - `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared `/packs` spec linter (crashtest#16 class: manifest declares an entry that does not ship). The crashtest CI lane runs the repo's own exact `crashtest` devDependency pin and never a floating `@1` fetch; harness upgrades are one command: `npm run crashtest:bump <version>` (pin install + harness run + ledger regen + pin/stamp verification).
 
+### Docs audit: one runner, two gate sets (#75)
+
+- The docs audit converges on freestruct's consolidated runner shape. `scripts/lib/docs-audit.cjs` is a vendored byte copy of freestruct's (node builtins only -- no cross-repo import, no package dependency in either direction); prestruct's caller `scripts/run-docs-audit.cjs` owns its five gates (frontmatter, links, style, language, truthfulness) plus its voice and exit code. `lint:docs` is one command now (was a five-script `&&` chain), a single gate runs alone (`node scripts/run-docs-audit.cjs truthfulness`), and the four superseded `check-docs-*.cjs` scripts are retired (`check-language.cjs` stays -- the language gate shells to it). Four new pins in `tests/docs-audit-runner.test.mjs` cover the shape and the independence constraint. Action for cherry-pickers: nothing -- `scripts/` is not part of the shipped tarball.
+
 ### Version truth: package.json is the single version source (#70)
 
 - A census leg (`tests/census.test.mjs`) derives the current version from the root `package.json` and refuses every living surface that drifted from it: the side package.jsons (`init/`, `example/`), `init/VERSION`, the committed lockfiles, and the README status line. Dated era rows (changelog sections, the `announcing-v1.1.0` discussion) and range pins (`^1.0.0`) stay lawful by design. A release is now: move `package.json` + the changelog, and CI names any surface you forgot.

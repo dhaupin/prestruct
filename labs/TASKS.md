@@ -1,3 +1,25 @@
+## Pass 61 (2026-10-28): prestruct#75 -- converge the docs audit on freestruct's single gate-runner
+**Scope:** Adopt freestruct's consolidated docs-audit runner shape so the two repos carry ONE docs-audit engine and differ only in gate set, globs and allow-lists. The six vant-era `check-docs-*.cjs` scripts (five chained in `lint:docs` plus the standalone language checker) become one runner + one caller.
+
+**What shipped.**
+- **Vendored runner.** `scripts/lib/docs-audit.cjs` is a byte copy of freestruct's `scripts/lib/docs-audit.cjs`: discovery (docs + README), one findings list, the per-gate count line, gate selection, and the generic markdown/url helpers. It requires node builtins only (`fs`, `path`) -- no freestruct import, no package dependency -- so prestruct needs no freestruct install and freestruct needs no prestruct install. This is the independence constraint the issue records.
+- **prestruct's caller.** `scripts/run-docs-audit.cjs` owns prestruct's five gates over that runner: `frontmatter` (the five `content-style.md` fields, permalink absolute, `nav_order` integer), `links` (the baseurl-prefixed `/prestruct/...` routing model -- page permalinks are baseurl-free, in-docs links carry the `/prestruct/` prefix), `style` (fence tags, heading skips, trailing whitespace/tabs, hyphens-not-dashes, no emoji, pipe-table shape), `language` (shells to `scripts/check-language.cjs`, unchanged), `truthfulness` (module references + `prestruct <verb>` verbs resolve in the tree). The caller owns prestruct's voice and exit; the runner never prints the final report and never exits, so each repo keeps its own contract.
+- **One call.** `lint:docs` is now `node scripts/run-docs-audit.cjs` (was a five-script `&&` chain). A single gate runs alone: `node scripts/run-docs-audit.cjs truthfulness`; an unknown gate exits 2.
+- **Retired.** `check-docs-frontmatter.cjs`, `check-docs-links.cjs`, `check-docs-style.cjs`, `check-docs-truthfulness.cjs` deleted (their logic moved into the caller's gates). `check-language.cjs` stays -- the language gate shells to it, exactly as freestruct's does.
+- **Docs/refs.** `docs/_data/nav.yml`, `docs/_config.yml`, `docs/guides/content-style.md`, `docs/guides/contributing.md`, and `AGENTS.md` now name the runner (`run-docs-audit.cjs <gate>`) instead of the retired scripts.
+- **Pins.** `tests/docs-audit-runner.test.mjs` (4 tests): each gate trips on the fixture it owns (one fixture tree: missing `layout:`, a broken `/prestruct/` link, trailing whitespace, a Chinese run, an unknown `prestruct <verb>`), the vendored module exposes the shared contract (`runDocsAudit` + `fmBlock`/`urlKey`/`pageUrl`/`discoverFiles`), gate selection runs one / all-by-default / throws on unknown, and independence (the runner's requires are builtins-only and `package.json` names no freestruct dep in any field).
+- **Release post + changelog.** The 1.2.0 announcement gained a "docs audit converges on one runner" section and a quality layer; a `layout: none` defect in its frontmatter (renders with no site chrome, unlike both siblings) was fixed to `layout: default`. The changelog gained a `#75` row.
+
+**Why the shared shape is strictly better.** One findings list and one report (was six exit paths), a per-gate count line, gate selection (was impossible in an `&&` chain), and one place to add a gate. freestruct's runner carries two gates prestruct's chain lacked (`nav`, `codefmt`) precisely because a single runner made them cheap; those are not prestruct's routing model, so they stay freestruct-side -- the point is the shape is shared, not the gate set.
+
+**Boundary kept (issue text).** The runtime audit (`engine/scripts/audit.js`) is already one remapped contract -- untouched. Build wiring stays per-repo: prestruct chains `audit-if-configured.cjs` into the template build; freestruct keeps `audit` a separate subcommand with a `--strict` ladder. Documented divergence, not drift.
+
+**Proof.** `npm run gate` green -- sync check, packs, docs (one runner, five gates, 0 findings), claims, init eslint (0 errors), battery 285 tests / 17 files (was 281/16; +4 runner pins). Every gate proven to trip by its own fixture (`tests/docs-audit-runner.test.mjs`) and by a live mutation walk (removed `layout:` -> frontmatter; `/prestruct/guides/nope` -> links; trailing whitespace -> style; `npx prestruct frobnicate` -> truthfulness; a Chinese run -> language), tree restored clean. `npm run e2e` all pass.
+
+**Next:** tag v1.2.0 (owner action).
+
+---
+
 ## Pass 60 (2026-10-28): #67 prose-flow, #64 publish gate, #62 mobile table guard, #65 close
 **Scope:** (1) prestruct#67 -- retire the 72-column hard-wrap habit across the living prose surfaces; (2) prestruct#64 -- wire `prepublishOnly` to the gate; (3) prestruct#62 -- the mobile table guard in the docs shell + the landing template; (4) close prestruct#65 with evidence (already shipped).
 
