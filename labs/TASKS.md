@@ -9,6 +9,8 @@
 
 **Receipts.** `npm run gate` green: 19 files, **346 tests**; docs gates + claims scan clean. Both fixes verified failing against pre-fix code (old: body stripped on 2nd inject; old: ogImageGeneration absent from signature). Commit `9e1e81f`.
 
+**Family rider (poststruct#69).** Ran poststruct's shipped `packs/public/prestruct-shapes` pack against prestruct's own baked `example/dist` (the pack's first audit-customer, per labs/poststruct-shapes-contract.md). Two defects filed upstream: (1) `prestruct/placeholder-leaked` scans for `your-site.example.com` / `<title>Your Site</title>`, neither of which exists in prestruct (real shell: `yoursite.com` / `<title>Site</title>`) -- the check PASSES vacuously on every site, a green light wired to nothing; (2) `prestruct/deploy-id-drift` counts the hand-authored `404.html` as a page the engine must stamp, conflating "one build" with "every .html stamped" (the sibling ssr-marker check exempts the shell correctly). Plus a minor `env.fs.targets` path (`web/index.html`) prestruct does not ship. `ssr-marker-missing` (`"true"`) and `canonical-ogurl-drift` (9/9) are correct. Also noted poststruct#40 is now unblocked (both gated upstream fixes -- prestruct#76, freestruct#45 -- landed 2026-10-29).
+
 ## Pass 68 (2026-10-29): 1.2.0 stability walk 3 (CLI, audit runner, config validation)
 **Scope:** a fourth bug/gap/fiction walk over the CLI, direct audit runner, config validation, and the shipped proxy starters (`staging` @ `6257e99`). Branch `staging`, no tags. Each fix cherry-pickable; battery 341 -> 343.
 
