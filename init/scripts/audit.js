@@ -41,12 +41,19 @@ const LB_RECOMMENDED = ['name', 'url', 'image', 'logo', 'telephone', 'priceRange
 
 // ---------- scans ----------
 
-/** Attribute-order tolerant meta extraction: hits aligned multi-space output. */
+/** Attribute-order/whitespace tolerant meta extraction: the key attr may sit
+ * after other attributes and any amount of whitespace. The old `[^>]`
+ * (exactly one char) matched only the engine's own single-space output, so a
+ * hand-formatted shell (`<meta  property=`, or an attribute before the key)
+ * graded as a MISSING tag -- a false FAIL that fails the build. */
 function grabMeta(head, attrHasKey, name) {
-  const keyRe = new RegExp(`<meta[^>]${attrHasKey}=["']${name}["'][^>]*>`, 'i')
+  // `\s` (not `\b`) before the key: an attribute is whitespace-delimited, so
+  // this matches `<meta property=` and `<meta  property=` but never a
+  // hyphenated sibling like `data-name=` (where `\b` would falsely match).
+  const keyRe = new RegExp(`<meta\\b[^>]*\\s${attrHasKey}\\s*=\\s*["']${name}["'][^>]*>`, 'i')
   const tag = head.match(keyRe)
   if (!tag) return null
-  const content = tag[0].match(/content=["']([^"']*)["']/i)
+  const content = tag[0].match(/content\s*=\s*["']([^"']*)["']/i)
   return content ? content[1] : null
 }
 

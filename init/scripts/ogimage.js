@@ -45,8 +45,9 @@ function escXml(value) {
     .replace(/'/g, '&apos;')
 }
 
-/** Directory slug for the image filename: '/' and nested paths flatten. */
-function imageSlug(routePath) {
+/** Directory slug for the image filename: '/' and nested paths flatten.
+ *  Exported so the caller can detect slug collisions between routes. */
+export function imageSlug(routePath) {
   return String(routePath).replace(/^\/+|\/+$/g, '').replace(/\//g, '-') || 'index'
 }
 

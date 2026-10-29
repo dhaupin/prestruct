@@ -70,7 +70,7 @@ The Worker also gained the VPS proxy's render discipline: its single-flight map 
 
 ## The docs audit converges on one runner
 
-prestruct and freestruct had drifted into two docs-audit shapes: freestruct ran one consolidated runner, prestruct chained six `check-docs-*.cjs` scripts with `&&`. The two repos now share ONE runner shape and differ only in gate set, globs and allow-lists.
+prestruct and freestruct had drifted into two docs-audit shapes: freestruct ran one consolidated runner, prestruct chained five scripts (four `check-docs-*.cjs` plus `check-language.cjs`) with `&&`. The two repos now share ONE runner shape and differ only in gate set, globs and allow-lists.
 
 - The runner (`scripts/lib/docs-audit.cjs`) is a vendored copy of freestruct's -- a file, not an import and not a dependency in either direction, so a project can carry freestruct without prestruct or prestruct without freestruct. It owns discovery, one findings list, a per-gate count line, and gate selection.
 - prestruct's caller (`scripts/run-docs-audit.cjs`) owns its gates -- frontmatter, links, nav, style, language, truthfulness, and jekyll -- and its voice and exit code.

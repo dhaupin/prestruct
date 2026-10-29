@@ -44,7 +44,7 @@ import crypto from 'crypto'
 import { fileURLToPath, pathToFileURL } from 'url'
 
 import { validateConfig, formatDiagnostics } from './validate-config.js'
-import { resolveOgImageGeneration, renderRouteOgImage } from './ogimage.js'
+import { resolveOgImageGeneration, renderRouteOgImage, imageSlug } from './ogimage.js'
 
 // Root-package re-export: `import { defineConfig } from 'prestruct'`
 // (binding stays out of this file's scope to avoid an unused-import)
@@ -116,8 +116,6 @@ export function escapeHtml(s) {
 // matches. Entries written before signatures exist (no `sig` field) count
 // as stale and get rerendered once, then upgraded in place.
 //
-// The helper is exported (not inlined in the loop) so the battery can pin
-// the stale-path without running the whole vite pipeline.
 // The helper is exported (not inlined in the loop) so the battery can pin
 // the stale path without running the whole vite pipeline.
 /**
@@ -216,19 +214,24 @@ export function replaceRootDiv(shell, appHtml) {
   if (!span) {
     throw new Error('<div id="root"></div> not found in shell -- check index.html')
   }
-  const openTag = shell.slice(span[0], shell.indexOf('>', span[0]) + 1)
-  // Carry the open tag's other attrs through (inject-brand); drop any
-  // data-server-rendered stamp a previous pass wrote so re-entry cannot
-  // stack duplicate stamps (or leave it without the empty form's attrs).
-  const attrs = openTag
-    .slice('<div id="root"'.length, -1)
-    .replace(/ data-server-rendered="true"/g, '')
-    .trim()
-  const open = `<div id="root"${attrs ? ' ' + attrs : ''} data-server-rendered="true">`
-  // appHtml MUST be $-escaped: it is okay for route content to contain
-  // "$1"/"$&"-shaped text (prices, code samples, quotes) and the second
-  // argument to replace() would expand those into capture references,
-  // mangling the SSR output. Same lesson as the $120 meta-description bug.
+  const closeIdx = shell.indexOf('>', span[0]) + 1
+  // Carry the open tag through UNCHANGED except for the render stamp: drop any
+  // stamp a previous pass wrote (so re-entry cannot stack duplicate stamps),
+  // then append one. Preserving the original open tag verbatim is what makes
+  // this attribute-tolerant -- the earlier form sliced attrs at the fixed
+  // `<div id="root"`.length offset, so a reflowed shell (`class="app"
+  // id="root"`, `id = "root"`, single quotes) shipped CORRUPT markup: a
+  // duplicated id, half an attribute name as garbage, or dropped attrs.
+  const base = shell
+    .slice(span[0], closeIdx)
+    .replace(/\s+data-server-rendered\s*=\s*("true"|'true'|true)/, '')
+    .replace(/>$/, '')
+    .replace(/\s+$/, '')
+  const open = base + ' data-server-rendered="true">'
+  // appHtml MUST NOT be $-expanded: it is okay for route content to contain
+  // "$1"/"$&"-shaped text (prices, code samples, quotes) and a replacement
+  // string would expand those into capture references, mangling the SSR
+  // output. Same lesson as the $120 meta-description bug.
   // (Slice-assembly instead: no replace() in the swap at all.)
   return shell.slice(0, span[0]) + open + appHtml + '</div>' + shell.slice(span[1])
 }
@@ -533,9 +536,9 @@ export function generateRobots(config) {
   const sitemapLine = cfgSitemap && siteUrl ? ['', `Sitemap: ${siteUrl}/sitemap.xml`] : []
 
   // { aeo: true | {} } -> search bots allowed, training crawls blocked by
-  // default. { aeo: { aiBots: 'allow' } } flips training to Allow. aeo with
-  // an explicit body: the body is appended after the preset groups (letting
-  // owners add extra paths) only via body; the preset itself ignores body.
+  // default. { aeo: { aiBots: 'allow' } } flips training to Allow. Under aeo
+  // the preset owns the whole file: an accompanying `body` is NOT emitted
+  // (the preset branch returns before the custom-body path below).
   const aeo       = !cfgBool && cfg && cfg.aeo
   const aeoCli    = aeo ? (aeo.aiBots === 'allow' ? 'allow' : 'block') : null
 
@@ -721,15 +724,17 @@ export function generate404(shell, config, siteUrl) {
   // override here appended a trailing slash (#76), so the 404 was the one
   // surface that disagreed with every other home-canonical writer; removing
   // it leaves a single derivation.
-  // noindex -- 404 pages should not appear in search results
+  // noindex -- 404 pages should not appear in search results. Strip any
+  // author's robots meta first (the shell may carry one), then anchor the
+  // noindex directive to `</head>` so it never depends on an optional
+  // neighbour tag: the old form anchored on `<meta name="author">`, which a
+  // shell lacking that tag (author not configured) silently skipped -- a
+  // 404 with NO noindex, invisible to a reader but still indexable.
   html = html.replace(
     /<meta\s+name="robots"\s+content="[^"\r\n]*"\s*\/?>/,
     ''
   )
-  html = html.replace(
-    '<meta name="author"',
-    '<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />\n  <meta name="author"'
-  )
+  html = html.replace('</head>', '<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />\n  </head>')
   // Strip the React bundle -- 404 is pure static HTML, no React needed.
   // modulepreload must go too: vite emits one `<link rel=modulepreload>` per
   // imported chunk next to the entry script, and a modulepreload link makes
@@ -1039,8 +1044,19 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     }
     const routeOgOverrides = new Map()
     if (ogImageGeneration) {
+      // Slug collision guard: imageSlug flattens '/' to '-', so '/blog/post-1'
+      // and '/blog-post-1' both map to 'blog-post-1.png'. Without this, the
+      // second render silently OVERWRITES the first's PNG while both pages
+      // point at the same file -- two routes, one image, no error. Surface it
+      // loudly (author picks distinct paths, or an og:image override).
+      const slugSeen = new Map()
       for (const route of ROUTES) {
         if (route && route.meta && route.meta.ogImage) continue
+        const slug = imageSlug(route.path)
+        if (slugSeen.has(slug) && slugSeen.get(slug) !== route.path) {
+          console.warn(`[prerender] og image slug collision: "${route.path}" and "${slugSeen.get(slug)}" both map to og/${slug}.png -- the generated image is shared; set a distinct og:image on one route`)
+        }
+        slugSeen.set(slug, route.path)
         const generated = renderRouteOgImage(ogImageGeneration, route, siteUrl, p.dist)
         if (generated) routeOgOverrides.set(route.path, `${siteUrl.replace(/\/$/, '')}${generated.src}`)
       }

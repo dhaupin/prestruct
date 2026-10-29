@@ -200,6 +200,18 @@ describe('injectBrand title replacement (tarball e2e regression)', () => {
     expect(html).not.toContain('<title>Site</title>')
     expect(html).toContain('Shell template. Do not add brand meta here directly.')
   })
+
+  it('returns null (never exits) when dist/index.html is missing', () => {
+    // Regression: the guard called process.exit(0) despite this function's
+    // "Library-safe: returns, never exits" contract. The CLI calls injectBrand
+    // in-process, so a missing shell killed the whole build with exit 0 -- a
+    // silent green fail-open exactly where the shell is required. It must
+    // return null so the caller keeps control.
+    const root = makeTempProject()
+    mkdirSync(join(root, 'dist'), { recursive: true })
+    const result = injectBrand(config, join(root, 'dist'), { getDeployId: () => 'test-id' })
+    expect(result).toBeNull()
+  })
 })
 
 // Helper: toReplaceSafe (from inject-brand.js)

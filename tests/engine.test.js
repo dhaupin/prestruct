@@ -41,15 +41,23 @@ describe('replaceRootDiv (W8: attribute-tolerant)', () => {
 
   it('tolerates attribute reflow a minifier/prettier pass introduces (audit B6)', () => {
     // The old byte-exact `/<div id="root"[^>]*>/` failed hard on single
-    // quotes, spaces around `=`, or a leading attribute.
-    for (const shell of [
-      "<html><div id='root'></div></html>",
-      '<html><div  id = "root" ></div></html>',
-      '<html><div data-x="1" id="root"></div></html>',
+    // quotes, spaces around `=`, or a leading attribute. Assert the FULL open
+    // tag (not just a substring): the earlier fix located the span tolerantly
+    // but then sliced attrs at the fixed `<div id="root"`.length offset, so
+    // these same shells shipped CORRUPT markup (`<div id="root" p" id="root"`,
+    // `<div id="root" t"`, dropped attrs) while a `toContain` assertion stayed
+    // green. The open tag must survive byte-for-byte with the stamp appended.
+    for (const [shell, expectedOpen] of [
+      ["<html><div id='root'></div></html>", '<div id=\'root\' data-server-rendered="true">'],
+      ['<html><div  id = "root" ></div></html>', '<div  id = "root" data-server-rendered="true">'],
+      ['<html><div data-x="1" id="root"></div></html>', '<div data-x="1" id="root" data-server-rendered="true">'],
+      ['<html><div class="app" id="root"></div></html>', '<div class="app" id="root" data-server-rendered="true">'],
     ]) {
       const out = replaceRootDiv(shell, '<h1>hi</h1>')
-      expect(out).toContain('data-server-rendered="true"')
+      expect(out).toContain(expectedOpen)
       expect(out).toContain('<h1>hi</h1>')
+      // No duplicated id, no half-attribute garbage.
+      expect(out.match(/id\s*=\s*["']root["']/g).length).toBe(1)
     }
   })
 })
@@ -283,6 +291,17 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('Page Not Found | Test')
     expect(html).toContain('noindex')
     expect(html).not.toContain('<script type="module"')
+  })
+
+  it('404 noindex does not depend on an optional <meta name="author"> in the shell', () => {
+    // Regression: the noindex directive used to be inserted by replacing
+    // `<meta name="author"`. A shell without that tag (author not configured,
+    // or a host that stripped it) silently got a 404 with NO noindex --
+    // invisible to a reader but still indexable. Anchor on </head> instead.
+    const shell = `<html><head><title>x</title></head><div id="root"></div></html>`
+    const html = generate404(shell, { siteName: 'Test' }, siteUrl)
+    expect(html).toContain('noindex, nofollow')
+    expect(html).not.toContain('<meta name="author"')
   })
 
   it('404 strips modulepreload chunk links (no JS prefetch on a no-JS page)', () => {

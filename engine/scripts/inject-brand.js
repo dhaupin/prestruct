@@ -177,8 +177,14 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   const htmlPath = join(distDir, 'index.html')
 
   if (!existsSync(htmlPath)) {
+    // Library-safe (matches this function's contract): RETURN, never
+    // process.exit -- the CLI calls injectBrand in-process, so exiting here
+    // would kill the whole build silently with code 0, a green fail-open
+    // right where a missing shell should be a hard error. The direct-run
+    // wrapper (isMainExecute) turns the null return into exit 0 for the
+    // legacy standalone path.
     console.warn('[inject-brand] dist/index.html not found -- skipping')
-    process.exit(0)
+    return null
   }
 
   // Homepage meta as the global description fallback

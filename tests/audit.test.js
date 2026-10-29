@@ -126,6 +126,25 @@ describe('auditOutput: FAIL classes', () => {
     expect(r.fails.some(f => f.msg.includes('canonical not absolute'))).toBe(true)
   })
 
+  it('tolerates reflowed head tags (extra whitespace / attr before the key)', () => {
+    // Regression: grabMeta used `<meta[^>]property=` -- exactly ONE char
+    // before the key -- so a hand-formatted shell (`<meta  property=`, or an
+    // attribute ahead of the key) graded as a MISSING tag, a false FAIL that
+    // failed a valid build. The extractor must be attribute-order tolerant.
+    const root = makeRoot()
+    writeArtifacts(root)
+    const reflowed = CLEAN_HEAD
+      .replace('<meta property="og:title" content="Home | Site Co" />',
+        '<meta  property = "og:title" content="Home | Site Co" />')
+      .replace('<meta name="twitter:title" content="Home | Site Co" />',
+        '<meta data-x="1" name="twitter:title" content="Home | Site Co" />')
+      .replace('<meta name="description" content="A description that comfortably clears the seventy-character band for search previews." />',
+        '<meta  name="description" content="A description that comfortably clears the seventy-character band for search previews." />')
+    writeFixture(root, { 'index.html': reflowed })
+    const r = audit(root)
+    expect(r.fails.filter(f => /og:title|twitter:title|meta description/.test(f.msg))).toEqual([])
+  })
+
   it('duplicate <title> (the rebuild-idempotency guard)', () => {
     const root = makeRoot()
     writeArtifacts(root)
