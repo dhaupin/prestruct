@@ -1,7 +1,7 @@
 ---
 version: 1.2.0
 permalink: /discussions/announcing-v1.2.0/
-layout: none
+layout: default
 title: "Announcing prestruct v1.2.0"
 comments: false
 nav_order: 23

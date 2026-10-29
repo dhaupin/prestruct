@@ -1,0 +1,49 @@
+# freestruct config - consumed by the SEO post-build layer in
+# .github/workflows/docs.yml. Discovery: repo-root cwd -> docs/freestruct.config.yml.
+# site.name and site.url are required; everything else has a working default.
+# Canonical math: site.url + basePath + relSlug => https://docs.creadev.org/prestruct/<page>
+# (site.url is the ORIGIN; the /prestruct prefix rides basePath, so the two
+# must not both carry it or every URL doubles the prefix).
+site:
+  name: prestruct Docs
+  url: https://docs.creadev.org
+  description: "Build-time SEO prerender for Vite + React: static routes, meta, sitemap, structured data, and a bot-render proxy."
+
+# Author identity - ships as a schema.org Person under "founder" on the
+# injected Organization JSON-LD block - the same ownership shape the
+# product site and the family carry (gistory's config is the reference).
+author:
+  name: Creadev.org
+  url: https://creadev.org
+
+# Maintainer identity - custom JSON-LD appended after the built-in
+# Organization + WebSite blocks (the missing-only gate keeps pages that
+# arrive with their own ld+json untouched).
+jsonLd:
+  - "@type": Person
+    name: dhaupin
+    url: https://github.com/dhaupin
+    jobTitle: prestruct maintainer
+
+twitter:
+  card: summary
+# og:image deliberately omitted until a PNG set lands - an og:image pointing
+# at a 404 is worse than none, and the pinned freestruct drops the tag when
+# the config has no image.
+# Template consumed by the layer: docs/_freestruct/inject-brand.html.
+
+# The output tree is served under /prestruct (Jekyll baseurl does the prefix;
+# this strips it from the URLs freestruct computes - without it the strict
+# link check resolves /prestruct/... against the _site tree directly and
+# fails every internal link).
+basePath: /prestruct
+
+outputDir: _site
+
+# linkCheck suspended until upstream lands (dhaupin/freestruct#32): the 1.1.0
+# strict link checker resolves root-absolute hrefs (`/prestruct/...`) against
+# the artifact root with no basePath awareness, so every baseurl'd site in
+# the family fails --strict on its own nav. Everything else the strict gate
+# covers (single-prefix canonical/sitemap, og, noindex hygiene) stays on.
+# Flip back to default (remove this line) when #32 ships in a pinned release.
+linkCheck: false
