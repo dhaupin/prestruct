@@ -19,6 +19,7 @@ import {
   rewriteRrdNamedImports,
   cacheSignature,
   cacheEntryValid,
+  buildHeadExtras,
 } from '../engine/scripts/prerender.js'
 
 import { buildDefaultJsonLd } from '../engine/scripts/inject-brand.js'
@@ -398,6 +399,34 @@ describe('cacheSignature covers the head extras (QC sweep)', () => {
 })
 
 const onExtrasOn = { feed: null, alternates: null, verification: { 'google-site-verification': 'x' }, searchUrl: null }
+
+describe('cacheSignature covers ogImageGeneration (walk 2026-10)', () => {
+  const route = { path: '/a', meta: { title: 'T' } }
+  const gen = { templatePath: '/p/og.svg', width: 1200, height: 630, fontBytes: null }
+  const genResized = { ...gen, width: 800 }
+
+  it('enabling per-route OG generation invalidates the cached HTML', () => {
+    // The generated PNG rewrites each route's og:image/twitter:image, which
+    // is a rendered input -- but it was absent from the signature, so a build
+    // that enabled generation rode a valid-cache hit and shipped the OLD head
+    // (generated image written, nothing referencing it). Same class the QC
+    // sweep fixed for feed/alternates/verification/searchUrl.
+    const off = buildHeadExtras({}, null)
+    const on  = buildHeadExtras({}, gen)
+    const offSig = cacheSignature(route, SITE, '<html></html>', off)
+    const onSig  = cacheSignature(route, SITE, '<html></html>', on)
+    expect(onSig).not.toBe(offSig)
+    expect(cacheEntryValid({ sig: offSig, html: '<html></html>' }, route, SITE, '<html></html>', on)).toBe(false)
+  })
+
+  it('retargeting the template or resizing invalidates; identical stays stable', () => {
+    const a = cacheSignature(route, SITE, '<html></html>', buildHeadExtras({}, gen))
+    const b = cacheSignature(route, SITE, '<html></html>', buildHeadExtras({}, genResized))
+    const c = cacheSignature(route, SITE, '<html></html>', buildHeadExtras({}, { ...gen }))
+    expect(b).not.toBe(a)
+    expect(c).toBe(a)
+  })
+})
 
 // -- OG image generation (#43) -----------------------------------------------------
 

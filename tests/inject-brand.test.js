@@ -201,6 +201,34 @@ describe('injectBrand title replacement (tarball e2e regression)', () => {
     expect(html).toContain('Shell template. Do not add brand meta here directly.')
   })
 
+  it('is idempotent when no JSON-LD block is emitted (regression: OG strip ate the body)', () => {
+    // The OG/JSON-LD strip regex lazily matched the injected block's own
+    // closing <script>. When inject-brand emitted NO JSON-LD (buildJsonLd
+    // returned nothing, or jsonLdDefaults:false) there was no engine <script>
+    // to stop at, so the match ran PAST </head> into <body> and deleted the
+    // root div and the app entry script on the second run -- a rebuild shipped
+    // a headless, scriptless shell. The strip is now bounded at </head>.
+    for (const overrides of [{ jsonLdDefaults: false }, { buildJsonLd: () => null }]) {
+      const root = makeTempProject()
+      mkdirSync(join(root, 'dist'), { recursive: true })
+      const path = join(root, 'dist', 'index.html')
+      writeFileSync(path, `<!DOCTYPE html><html><head><title>Site</title>\n`
+        + `<meta name="description" content="" /><meta name="author" content="" />\n`
+        + `<link rel="canonical" href="https://x.test/" />\n`
+        + `</head><body><div id="root"></div>`
+        + `<script type="module" src="/assets/index-abc.js"></script></body></html>`, 'utf8')
+      const cfg = { ...config, ...overrides }
+      injectBrand(cfg, join(root, 'dist'), { getDeployId: () => 'id' })
+      injectBrand(cfg, join(root, 'dist'), { getDeployId: () => 'id' })
+      const html = readFileSync(path, 'utf8')
+      expect(html).toContain('<div id="root"></div>')
+      expect(html).toContain('index-abc.js')
+      expect(html).toContain('<title>E2E Trap</title>')
+      // exactly one injected OG block -- no accumulation across runs
+      expect(html.match(/<!-- Open Graph -->/g)).toHaveLength(1)
+    }
+  })
+
   it('returns null (never exits) when dist/index.html is missing', () => {
     // Regression: the guard called process.exit(0) despite this function's
     // "Library-safe: returns, never exits" contract. The CLI calls injectBrand

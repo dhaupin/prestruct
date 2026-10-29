@@ -161,6 +161,42 @@ export function cacheEntryValid(entry, route, siteUrl, shell, extras = null) {
   return entry.sig === cacheSignature(route, siteUrl, shell, extras)
 }
 
+/**
+ * Build the config-gated render inputs that BOTH the cache signature and
+ * injectMeta consume. Extracted so the cache-signature contract is pinnable
+ * offline (the QC-sweep lesson: a config-gated head addition that changes the
+ * baked HTML must participate in the signature, or flipping it on rides a
+ * valid-cache hit and never reaches the shipped head).
+ *
+ * `ogImageGeneration` is reduced to a stable identity descriptor
+ * (templatePath + dimensions + font presence), never the resolved block --
+ * that carries the template TEXT and font BYTES, and a Buffer does not
+ * JSON-round-trip. The descriptor changes exactly when the generated image
+ * (and therefore the per-route og:image the page ships) would change.
+ *
+ * @param {object} cfg - ssr.config.js export
+ * @param {?object} ogImageGeneration - resolved block from resolveOgImageGeneration
+ * @returns {object} extras fed to cacheSignature + injectMeta
+ */
+export function buildHeadExtras(cfg, ogImageGeneration) {
+  return {
+    feed: cfg.feed ?? null,
+    alternates: cfg.alternates ?? null,
+    verification: cfg.verification ?? null,
+    searchUrl: cfg.searchUrl ?? null,
+    // Enabling/retargeting per-route OG generation rewrites every route's
+    // og:image/twitter:image to the generated PNG -- a rendered input.
+    ogImageGeneration: ogImageGeneration
+      ? {
+          templatePath: ogImageGeneration.templatePath,
+          width: ogImageGeneration.width,
+          height: ogImageGeneration.height,
+          font: Boolean(ogImageGeneration.fontBytes),
+        }
+      : null,
+  }
+}
+
 // -- Root-div injection (W8 fix + re-entrancy fix, 2026-10) ---------------------
 // Attribute-tolerant: inject-brand.js may add its own attrs to the root div
 // (e.g. data-deploy-id-footer when config.deployIdFooter is true). This
@@ -1036,12 +1072,7 @@ export async function prerender(cfg = config, { force = false, root } = {}) {
     // between builds used to ride a valid-cache hit and never reach the
     // shipped head). Route-level alternates/jsonLd are already covered
     // via route.meta in the base signature.
-    const headExtras = {
-      feed: cfg.feed ?? null,
-      alternates: cfg.alternates ?? null,
-      verification: cfg.verification ?? null,
-      searchUrl: cfg.searchUrl ?? null,
-    }
+    const headExtras = buildHeadExtras(cfg, ogImageGeneration)
     const routeOgOverrides = new Map()
     if (ogImageGeneration) {
       // Slug collision guard: imageSlug flattens '/' to '-', so '/blog/post-1'

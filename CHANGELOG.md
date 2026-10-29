@@ -88,6 +88,13 @@ A second bug/gap walk over the engine and audit (`staging` @ 6f1a231). Every fix
 - **`injectBrand` is library-safe again.** It called `process.exit(0)` when `dist/index.html` was missing despite its "never exits" contract; because the CLI calls it in-process, a missing shell killed the build green. It now returns `null`, and the direct-run wrapper owns the exit. Cherry-pick: `init/scripts/inject-brand.js`.
 - **og-image slug collisions warn.** Two routes whose paths flatten to one slug (`/blog/post-1` and `/blog-post-1` -> `blog-post-1.png`) silently shared one generated PNG; the build now warns.
 
+### Stability walk 4: inject-brand idempotence, per-route OG image cache
+
+A fifth bug/gap walk over the injection seam, the incremental cache, and the CLI. Every fix is cherry-pickable on its own.
+
+- **`injectBrand` no longer eats the body on a second inject (idempotence).** The OG/JSON-LD strip regex lazily matched the injected block's own closing `<script>`. When inject-brand emitted NO JSON-LD (`buildJsonLd` returned nothing, or `jsonLdDefaults: false`) there was no engine `<script>` to stop at, so the match ran past `</head>` into `<body>` and deleted the root div and the app entry `<script>` — a rebuild shipped a headless, scriptless shell, contradicting the documented "running the build twice is safe." The strip is now bounded at `</head>`. Cherry-pick: `init/scripts/inject-brand.js`.
+- **`ogImageGeneration` participates in the incremental cache signature.** Enabling or retargeting per-route OG generation rewrites every route's `og:image`/`twitter:image` to the generated PNG — a rendered input — but it was absent from the cache signature. A build that turned generation on rode a valid-cache hit and shipped the OLD head while the generated PNGs sat unreferenced (the same class the earlier QC sweep fixed for feed/alternates/verification/searchUrl). The signature now carries a stable `ogImageGeneration` descriptor (template path, dimensions, font presence). Cherry-pick: `init/scripts/prerender.js` (`buildHeadExtras`).
+
 ### Stability walk 3: double JSON digest, silent IndexNow drop, config-key fiction
 
 A fourth bug/gap/fiction walk over the CLI, audit runner, config validation, and the shipped proxy starters. Every fix is cherry-pickable on its own.

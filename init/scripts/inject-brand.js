@@ -299,8 +299,13 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
     `<link rel="canonical" href="${canonicalSafe}" />`)
 
   // -- Remove previously injected OG / JSON-LD blocks (safe to run on rebuild) --
-
-  html = html.replace(/\n\s*<!-- Open Graph -->[\s\S]*?<\/script>\s*/g, '\n  ')
+  // Bounded at </head>: the old `[\s\S]*?<\/script>` lazily matched the block's
+  // own closing <script>, but when inject-brand emitted NO JSON-LD (buildJsonLd
+  // returned nothing, or jsonLdDefaults:false) there was no engine <script> to
+  // stop at -- the match ran past </head> into <body> and ate the root div and
+  // the app entry script on the SECOND run (docs promise idempotence). The
+  // injected block always sits immediately before </head>, so anchor there.
+  html = html.replace(/\n\s*<!-- Open Graph -->[\s\S]*?(?=\n\s*<\/head>)/g, '')
 
   // -- Open Graph + Twitter Card -----------------------------------------------
 

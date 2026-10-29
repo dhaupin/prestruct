@@ -1,3 +1,14 @@
+## Pass 69 (2026-10-29): 1.2.0 stability walk 4 (inject seam, incremental cache)
+**Scope:** a fifth bug/gap walk over the injection seam, the incremental cache, and the CLI (`staging` @ `42cfaa8`). Branch `staging`, no tags. Each fix cherry-pickable; battery 343 -> 346.
+
+**Fixes (each with a regression test):**
+- **`injectBrand` ate the body on a second inject (`engine/scripts/inject-brand.js`).** The OG/JSON-LD strip regex `\n\s*<!-- Open Graph -->[\s\S]*?<\/script>\s*` lazily ended at the injected block's own JSON-LD `<script>`. When NO JSON-LD block was emitted (`buildJsonLd` returns nothing, or `jsonLdDefaults:false`), there was no engine `<script>` in the head, so the match ran PAST `</head>` into `<body>` and consumed the root div and the app entry `<script>` -- the second run shipped a headless, scriptless shell. Docs promise "Idempotent on rebuild... Running the build twice is safe." Strip is now bounded at `</head>` (`[\s\S]*?(?=\n\s*<\/head>)`).
+- **`ogImageGeneration` was missing from the incremental cache signature (`engine/scripts/prerender.js`).** Enabling/retargeting per-route OG generation rewrites each route's og:image/twitter:image to the generated PNG (a rendered input), but the resolved block was never added to `headExtras` -- so flipping it on rode a valid-cache hit and shipped the OLD head while the PNGs sat unreferenced. Same class the QC sweep fixed for feed/alternates/verification/searchUrl. Extracted `buildHeadExtras(cfg, ogImageGeneration)`; the signature now carries a stable descriptor (templatePath, width, height, font presence) instead of the Buffer-bearing resolved block.
+
+**Investigated, sound:** the audit FAIL/WARN classes + `urlToDisk` confinement, `grabMeta`/`grabCanonical` tolerance, `walkHtml` recursion, sitemap `assertXmlSafe` control-char refusal + honest `lastmod`, `generate404` CTA scheme guard + noindex anchor, robots `aeo` preset branch, `mergeRoutes` junk tolerance, `generateLlms` oneline sanitizing, indexnow key resolution + `--dry-run` payload, `runPostBuildHooks` function-replacer substitution + gate, `syncProxyBotList` escaping + regex, `findRootDivSpan`/`replaceRootDiv` re-entrancy.
+
+**Receipts.** `npm run gate` green: 19 files, **346 tests**; docs gates + claims scan clean. Both fixes verified failing against pre-fix code (old: body stripped on 2nd inject; old: ogImageGeneration absent from signature). Commit `<pending>`.
+
 ## Pass 68 (2026-10-29): 1.2.0 stability walk 3 (CLI, audit runner, config validation)
 **Scope:** a fourth bug/gap/fiction walk over the CLI, direct audit runner, config validation, and the shipped proxy starters (`staging` @ `6257e99`). Branch `staging`, no tags. Each fix cherry-pickable; battery 341 -> 343.
 
