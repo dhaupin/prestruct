@@ -101,6 +101,10 @@ A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair (`mai
 
 - `staging` is the permanent integration branch; `main` is the promotion target. CI now runs on both: `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` verify a `staging` push, and `docs.yml` builds the docs on both branches. The `docs.yml` deploy job is gated to `main`, so a `staging` push can never publish unreleased docs to production. Repo-infrastructure only -- no package change.
 
+### One example target: generated from `engine/`, not synced on release
+
+- The `sync-example.yml` release workflow is retired. The example site is generated from `engine/` by `node scripts/sync-engine.mjs`, exactly like `init/`, and CI enforces byte-identity -- so nothing needed post-release syncing. The old workflow was also stale: it copied `init/src/AppIslands.jsx` (the template skeleton) over the example's real island registry. `engine/ssr.config.example.js` is now a generator contract file (its `example/` copy had drifted), and `engine-sync-check.yml` runs the generator's own check so the file list lives in one place. Repo-infrastructure only -- the shipped `init/` template is unchanged.
+
 ---
 
 ## v1.1.0 (released from the v1.1.0 tag)

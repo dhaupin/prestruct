@@ -12,6 +12,7 @@ const SYNCED_FILES = [
   'scripts/validate-config.js',
   'src/hooks/usePageMeta.js',
   'src/islands.js',
+  'ssr.config.example.js',
 ]
 
 test('engine files stay synced between init and example', () => {
@@ -35,6 +36,7 @@ const ENGINE_MAP = [
   ['engine/scripts/validate-config.js', 'init/scripts/validate-config.js'],
   ['engine/src/hooks/usePageMeta.js', 'init/src/hooks/usePageMeta.js'],
   ['engine/src/islands.js', 'init/src/islands.js'],
+  ['engine/ssr.config.example.js', 'init/ssr.config.example.js'],
 ]
 
 test('init copies match their engine sources byte-for-byte', () => {
@@ -143,4 +145,25 @@ test('staging flow: CI covers the integration branch, deploys are gated to main'
   expect(docs, 'docs.yml must build staging docs').toMatch(/branches: \[main, staging\]/)
   // The load-bearing guard: a staging push or a PR has github.ref != main.
   expect(docs, 'docs.yml deploy must be gated to main').toMatch(/if: github\.ref == 'refs\/heads\/main'/)
+})
+
+test('example is generated from engine, not synced by a release workflow', () => {
+  // The old sync-example.yml fired on release:published and copied init -> example.
+  // It was dead (GitHub does not run workflows from GITHUB_TOKEN-created events,
+  // and publish.yml mints the release with github.token) AND wrong: four of its
+  // six files were already generator CONTRACT files, and it cp'd init's template
+  // AppIslands.jsx over the example's real island registry. The generator's
+  // example target is the single source of truth now.
+  expect(() => readFileSync('.github/workflows/sync-example.yml', 'utf8')).toThrow()
+
+  // The generator owns the example target: engine/ssr.config.example.js is a
+  // CONTRACT file, so engine == init == example for it (asserted above).
+  expect(readFileSync('engine/ssr.config.example.js', 'utf8'))
+    .toBe(readFileSync('example/ssr.config.example.js', 'utf8'))
+
+  // AppIslands.jsx stays example-owned: the example registers real islands the
+  // template skeleton does not carry. A sync must never overwrite it.
+  const exampleIslands = readFileSync('example/src/AppIslands.jsx', 'utf8')
+  expect(exampleIslands).toMatch(/EmailIsland/)
+  expect(readFileSync('init/src/AppIslands.jsx', 'utf8')).not.toMatch(/EmailIsland/)
 })

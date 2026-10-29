@@ -11,9 +11,9 @@
  * engine == init == example byte-identically for every contract file.
  * init/ + example/ copies must never be hand-edited: fix engine/, regenerate.
  *
- * Files intentionally NOT synced (example-owned: branding, routes):
- *   example/ssr.config.js, example/ssr.config.example.js,
- *   example/src/AppLayout.jsx, example/src/App.jsx, example/src/main.jsx
+ * Files intentionally NOT synced (example-owned: branding, routes, islands):
+ *   example/ssr.config.js, example/src/AppLayout.jsx, example/src/App.jsx,
+ *   example/src/main.jsx, example/src/AppIslands.jsx
  */
 
 import { copyFileSync, mkdirSync, readFileSync, rmSync } from 'fs'
@@ -36,6 +36,7 @@ const CONTRACT = [
   ['engine/scripts/validate-config.js', 'scripts/validate-config.js'],
   ['engine/src/hooks/usePageMeta.js', 'src/hooks/usePageMeta.js'],
   ['engine/src/islands.js', 'src/islands.js'],
+  ['engine/ssr.config.example.js', 'ssr.config.example.js'],
 ]
 
 // INIT_ONLY: generated into init/ but example-owned in the live site

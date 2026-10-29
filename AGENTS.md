@@ -564,7 +564,7 @@ A plain rebuild of `new Map([...staticRoutes, ...fetchedRoutes])` would let fetc
 
 The package is LIVE on npm: 1.0.0 published from the `v1.0.0` tag via `publish.yml` (GitHub Actions OIDC trusted publishing, provenance attested -- the 0.9.0 version was a one-shot manual bootstrap so the tag pipeline could exist at all). Tags are the single release trigger: `v*` publishes npm AND cuts the GitHub release from the same tag (its notes extracted from `CHANGELOG.md`). `main` may sit ahead of the latest tag with the next version's pins ( TAG POLICY: automatic per-tag publish, no manual publish path except the one-time bootstrap which is done and closed ).
 
-**Lesson: one tag lane, not two (2026-10-29, pass 61).** `release.yml` was retired. It was the pre-`publish.yml` era's tag lane: it built a starter zip from `init/`, attached it to a GitHub release minted by `softprops/action-gh-release@v3`, and stamped `init/VERSION` + `init/package.json` from the tag. Once `publish.yml` grew its own `release` job (the trust ladder, #71), BOTH fired on the same tag and BOTH minted a release -- a race where the loser either failed red or overwrote the winner's body. The fix matches the family shape (eyestruct has no `release.yml`; its `publish.yml` is the whole lane): delete `release.yml`, let `publish.yml`'s `release` job cut the GitHub release from the changelog notes, and drop the zip deliverable -- npm is the payload, the release object is the changelog, and they are the same version by construction. The two things `release.yml` did beyond the release object are now moot: the version stamp is held by `census.test.mjs` (root == init == `init/VERSION`, and that test rides `prepublishOnly`, so a drifted tree cannot publish), and the zip's test-battery sync existed only to make the zip self-testing. `sync-example.yml` is unaffected -- it fires on `release: published`, which `publish.yml` still emits.
+**Lesson: one tag lane, not two (2026-10-29, pass 61).** `release.yml` was retired. It was the pre-`publish.yml` era's tag lane: it built a starter zip from `init/`, attached it to a GitHub release minted by `softprops/action-gh-release@v3`, and stamped `init/VERSION` + `init/package.json` from the tag. Once `publish.yml` grew its own `release` job (the trust ladder, #71), BOTH fired on the same tag and BOTH minted a release -- a race where the loser either failed red or overwrote the winner's body. The fix matches the family shape (eyestruct has no `release.yml`; its `publish.yml` is the whole lane): delete `release.yml`, let `publish.yml`'s `release` job cut the GitHub release from the changelog notes, and drop the zip deliverable -- npm is the payload, the release object is the changelog, and they are the same version by construction. The two things `release.yml` did beyond the release object are now moot: the version stamp is held by `census.test.mjs` (root == init == `init/VERSION`, and that test rides `prepublishOnly`, so a drifted tree cannot publish), and the zip's test-battery sync existed only to make the zip self-testing. (`sync-example.yml` was later retired too -- see the Sync discipline section; the example target is generated from `engine/`, not synced on release.)
 
 Release archive note (historical, the retired zip lane -- 2026-10-21): the v1.0.0 GitHub zip shipped a test battery that could not run (engine-relative imports in a tree with no engine/). release.yml remapped the imports, injected test-only devDeps, and ran the battery inside init/ BEFORE zipping. The v1.0.0 zip was rebuilt in place (gh release upload --clobber + gh release edit), verified 136/136 inside. Lesson that outlives the lane: a release asset forgets none of your debt -- test it from the downloaded artifact, not from the repo shape. (The same class later bit the npm tarball and the e2e fixture; see the tarball lessons below.)
 
@@ -589,7 +589,33 @@ Confirmed re-broken in v1.1.0 (Oct 21, same day): release.yml copied RAW repo te
 
 ### Sync discipline (CI-enforced)
 
-`engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check mode in CI). Touch an engine file, never edit the deployed copies, always follow with a sync run. `qc.test.mjs` fails on drift -- that check IS the generator's proof of execution.
+`engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check
+mode in CI). Touch an engine file, never edit the deployed copies, always
+follow with a sync run. `qc.test.mjs` fails on drift -- that check IS the
+generator's proof of execution.
+
+The generator's `CONTRACT` array is the ONE file list. `engine-sync-check.yml`
+runs `node scripts/sync-engine.mjs check` (node builtins only, no install), so
+the workflow cannot drift from the generator the way a hand-copied list did
+(an earlier workflow list held 6 of the 10 contract files).
+
+**Lesson: the example target is generated, not release-synced (2026-10-29).**
+`sync-example.yml` was retired. It fired on `release: published` and copied
+six files from `init/` into `example/`, but it was both dead and wrong. Dead:
+GitHub does not run workflows from events created by the default `GITHUB_TOKEN`
+(the anti-recursion rule), and `publish.yml` mints the release with
+`github.token` -- it last ran 2026-05-31 on a human-authored release and never
+fired for the bot-authored v1.0.0/v1.1.0. Wrong: four of its six files were
+already generator `CONTRACT` files, so it re-copied what the generator already
+kept identical, and it `cp`'d `init/src/AppIslands.jsx` (the template skeleton)
+over `example/src/AppIslands.jsx` (the live island registry -- `EmailIsland`,
+`SessionTrail`, `ScrollMarker`). A run would have wiped the example's islands.
+The fix folds the one genuinely-shared file into the generator: `engine/
+ssr.config.example.js` is now a CONTRACT file (its `example/` copy had gone
+stale, missing the "Family ride-alongs" block), and `AppIslands.jsx` stays
+example-owned -- the generator never overwrites it. `qc.test.mjs` pins both
+halves: the workflow is gone, and the example's islands still register real
+components the template lacks.
 
 ---
 

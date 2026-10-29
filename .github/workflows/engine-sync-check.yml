@@ -14,32 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Verify synced engine files match
-        run: |
-          set -euo pipefail
-
-          files=(
-            "scripts/inject-brand.js"
-            "scripts/prerender.js"
-            "scripts/audit.js"
-            "scripts/validate-config.js"
-            "src/hooks/usePageMeta.js"
-            "src/islands.js"
-          )
-
-          mismatch=0
-          for file in "${files[@]}"; do
-            init_file="init/${file}"
-            example_file="example/${file}"
-
-            if ! cmp -s "$init_file" "$example_file"; then
-              echo "::error file=${example_file}::Drift detected. Keep ${example_file} identical to ${init_file}."
-              diff -u "$init_file" "$example_file" || true
-              mismatch=1
-            fi
-          done
-
-          if [ "$mismatch" -ne 0 ]; then
-            echo "Engine sync check failed. Fix init/ then run: node scripts/sync-engine.mjs"
-            exit 1
-          fi
+      # The file list lives in ONE place: the generator's CONTRACT array.
+      # scripts/sync-engine.mjs uses only node builtins, so no install is
+      # needed. (An earlier hand-copied list here held 6 of the 10 contract
+      # files -- a subset that silently drifted from the generator.)
+      - name: Verify engine == init == example (node scripts/sync-engine.mjs check)
+        run: node scripts/sync-engine.mjs check
