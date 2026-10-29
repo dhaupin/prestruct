@@ -78,6 +78,16 @@ A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair (`mai
 - **Proxy target URL is origin-checked (E2).** Both runtimes now require the resolved target origin to equal the configured one, so the SSRF guard no longer hinges on Node's HTTP parser rejecting `@`-prefixed request targets.
 - **Docs + config truth (G2, G4, G5, F1).** The CLI guide lists `indexnow` among the verbs and the real build pipeline; the root `eslint.config.js` was syntactically invalid (`export [` + a phantom `eslint-plugin-js` import) and is now valid and dependency-free; `init/package-lock.json` peer ranges match `init/package.json`; the Worker header no longer claims a non-existent `x-forwarded-host` default for `targetUrl`.
 
+### Stability walk: root-div corruption, 404 noindex gap, audit false-FAILs
+
+A second bug/gap walk over the engine and audit (`staging` @ 6f1a231). Every fix is cherry-pickable on its own.
+
+- **`replaceRootDiv` no longer corrupts a reflowed shell (B6 follow-up).** The matcher became attribute-tolerant, but the open-tag rebuild still sliced attributes at the fixed `<div id="root"`.length offset -- so a prettier/minifier-reflowed shell (`class` before `id`, `id = "root"`, single quotes) shipped corrupt markup: a duplicated `id`, a half-attribute fragment, or dropped attributes. The open tag is now preserved verbatim with only the `data-server-rendered` stamp swapped. Cherry-pick: `init/scripts/prerender.js` (`replaceRootDiv`).
+- **404 noindex no longer rides an optional tag.** The noindex meta was inserted by replacing `<meta name="author">`, so a shell without that tag (author not configured) produced a 404 with NO noindex -- silently indexable. It now anchors on `</head>`. Cherry-pick: `init/scripts/prerender.js` (`generate404`).
+- **`prestruct audit` tolerates reflowed head tags.** `grabMeta` matched exactly one character before the key attribute (`<meta[^>]property=`), so a hand-formatted head (`<meta  property=`, or an attribute ahead of the key) graded as a MISSING tag -- a false FAIL that fails a valid build. Extraction is now attribute-order and whitespace tolerant. Cherry-pick: `init/scripts/audit.js`.
+- **`injectBrand` is library-safe again.** It called `process.exit(0)` when `dist/index.html` was missing despite its "never exits" contract; because the CLI calls it in-process, a missing shell killed the build green. It now returns `null`, and the direct-run wrapper owns the exit. Cherry-pick: `init/scripts/inject-brand.js`.
+- **og-image slug collisions warn.** Two routes whose paths flatten to one slug (`/blog/post-1` and `/blog-post-1` -> `blog-post-1.png`) silently shared one generated PNG; the build now warns.
+
 ### Packs conformance + pinned surfaces
 
 - `npm run lint:packs` runs `packstruct lint packs/ --deep` -- the shared `/packs` spec linter (crashtest#16 class: manifest declares an entry that does not ship). The crashtest CI lane runs the repo's own exact `crashtest` devDependency pin and never a floating `@1` fetch; harness upgrades are one command: `npm run crashtest:bump <version>` (pin install + harness run + ledger regen + pin/stamp verification).
