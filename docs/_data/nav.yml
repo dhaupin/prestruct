@@ -2,11 +2,11 @@
 # URLs are deployment paths (baseurl-prefixed). Order roughly follows
 # a new user's arc: start -> core theory -> deployment -> reference -> meta.
 #
-# The linters hold this file honest:
-#   - scripts/check-docs-links.cjs   : every /prestruct/... URL must match a
-#     page frontmatter permalink
-#   - scripts/check-docs-frontmatter.cjs : every page it lists must carry all
-#     5 frontmatter fields
+# The linters hold this file honest (one shared runner, per-repo gates):
+#   - scripts/run-docs-audit.cjs links       : every /prestruct/... URL must
+#     match a page frontmatter permalink
+#   - scripts/run-docs-audit.cjs frontmatter : every page it lists must carry
+#     all 5 frontmatter fields
 
 - title: Start
   items:

@@ -39,8 +39,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:run
 
-      # Docs audit suite (ported from dhaupin/vant): frontmatter, links,
-      # style, language, truthfulness, fiction signatures.
+      # Docs audit suite (ported from dhaupin/vant): one runner, five gates
+      # (frontmatter, links, style, language, truthfulness), plus the
+      # fiction-signature claims scan.
       - name: Docs audit
         run: npm run lint:docs && npm run lint:claims
 

@@ -30,7 +30,7 @@
  *    `LANGUAGE GATE: PASS (English-only) -- N prose files scanned`.
  *
  * Inside fenced code blocks and inline-code spans are literal DATA, not
- * prose -- exempt (same posture as check-docs-style.js).
+ * prose -- exempt (same posture as the style gate in run-docs-audit.cjs).
  */
 const fs = require('fs');
 const path = require('path');

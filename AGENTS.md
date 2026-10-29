@@ -38,7 +38,7 @@ npm run gate              # THE pre-push loop: every lane below, one command
 npx vitest run            # engine + template + proxy battery (+ CLI refusal contract)
 npm run sync:check        # engine -> init -> example byte-identity
 npm run lint:packs        # packstruct --deep over packs/ (packspec conformance)
-npm run lint:docs         # docs style/links/frontmatter/truthfulness
+npm run lint:docs         # docs audit: one runner, five gates (frontmatter/links/style/language/truthfulness)
 npm run lint:claims       # fiction-signature scan
 (npm run gate covers this)  npm --prefix init run lint
 ```

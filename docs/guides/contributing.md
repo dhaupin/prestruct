@@ -117,5 +117,5 @@ opening the PR:
   verbs are `init`, `build`, `validate`, `clean`, `help`
 - every `./engine/...`-style module reference must resolve on disk
 - claims of behavior need engine backing (see
-  `scripts/check-docs-truthfulness.cjs` and `scripts/check-fiction-signatures.cjs`
+  `scripts/run-docs-audit.cjs truthfulness` and `scripts/check-fiction-signatures.cjs`
   for the mechanical definitions)
