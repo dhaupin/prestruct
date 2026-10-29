@@ -55,9 +55,10 @@ Briefs are not required for short pages. Use judgment. If a section needs setup,
 
 ## Frontmatter (every page, enforced)
 
-Every docs page carries all five fields. `scripts/check-docs-frontmatter.cjs` gates
-CI on this; a page missing `layout:` silently renders as raw HTML with no site
-chrome (Jekyll has no defaults block, so there is no fallback).
+Every docs page carries all five fields. The `frontmatter` gate in
+`scripts/run-docs-audit.cjs` gates CI on this; a page missing `layout:` silently
+renders as raw HTML with no site chrome (Jekyll has no defaults block, so there
+is no fallback).
 
 ```yaml
 ---
@@ -72,8 +73,8 @@ nav_order: 10         # integer; controls sidebar position via _data/nav.yml
 ## Code blocks
 
 - Every opening fence carries a language tag (`bash`, `js`, `yaml`, `text`).
-  ASCII diagrams and directory trees are `text`. Enforced by
-  `scripts/check-docs-style.cjs`.
+  ASCII diagrams and directory trees are `text`. Enforced by the `style` gate in
+  `scripts/run-docs-audit.cjs`.
 - Every code block needs a 1-sentence brief before it (see Briefs).
 - Never use numbered lists (`1. 2. 3.`) inside code blocks. Use dashes.
 - Bullets use `-`, never `*`.

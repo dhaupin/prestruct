@@ -38,7 +38,7 @@ npm run gate              # THE pre-push loop: every lane below, one command
 npx vitest run            # engine + template + proxy battery (+ CLI refusal contract)
 npm run sync:check        # engine -> init -> example byte-identity
 npm run lint:packs        # packstruct --deep over packs/ (packspec conformance)
-npm run lint:docs         # docs style/links/frontmatter/truthfulness
+npm run lint:docs         # docs audit: frontmatter/links/nav/style/truthfulness/language (one runner)
 npm run lint:claims       # fiction-signature scan
 (npm run gate covers this)  npm --prefix init run lint
 ```
@@ -668,5 +668,48 @@ push since `c07565f` because the trigger still said `[main]` on `main`, where
 the older parseable copy ran green. Two rules: quote any `name:`/`run:`
 scalar that contains a colon, and treat a 0-job failure as a parse error
 first -- `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/<wf>.yml'))"` names the line in one shot.
+
+## Docs audit: one shared runner, per-repo gate sets (prestruct#75)
+
+`npm run lint:docs` is ONE runner, not a `&&` chain. `scripts/run-docs-audit.cjs`
+(prestruct's gate set + voice + exit) drives `scripts/lib/docs-audit.cjs` (the
+runner: discovery, one findings list, per-gate count line, gate selection). The
+runner is **vendored** from `dhaupin/freestruct` (freestruct's
+`scripts/run-docs-audit.cjs` is the first caller), so the two repos share one
+docs-audit engine and differ only in gates, globs and allow-lists.
+
+**Why the runner is vendored, not imported (owner rule).** A consumer may have
+prestruct without freestruct, or freestruct without prestruct. So the runner
+depends on node builtins only and neither repo imports the other at runtime;
+`tests/docs-audit.test.mjs` pins this (builtins-only requires, no
+consumer-facing dep field names the sibling, no runtime import across
+`engine/`+`bin/`+`scripts/`). The ONE allowed freestruct coupling is the
+devDependency the docs deploy lane needs (`docs.yml`
+`freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs`) -- dev-only,
+never shipped.
+
+**What converged and what did not.** prestruct's gates are `frontmatter`,
+`links`, `nav`, `style`, `truthfulness`, `language` (the last shells out to
+`scripts/check-language.cjs` so one command covers it). Claims
+(`scripts/check-fiction-signatures.cjs`) stays a SEPARATE `lint:claims` script
+-- the same split freestruct keeps. Two deliberate divergences:
+
+- **`nav` is forward-only here.** freestruct's `nav` gate is bidirectional
+  (every menu URL resolves AND every page is listed). prestruct's sidebar is a
+  curated menu -- the playbooks index is the hub and the discussions + playbook
+  detail pages are linked from prose, not the menu -- so prestruct checks only
+  that every menu URL resolves and none is duplicated. Porting the reverse rule
+  would red-line correct pages.
+- **No `codefmt` gate.** freestruct's `codefmt` pins its engine header
+  convention (`// engine/<file>.js - <purpose>`). prestruct's engine sources use
+  a `/** ... */` block header instead, so the gate would be a convention change,
+  not a port. Out of scope for the convergence.
+
+**Boundary: the runtime audit does NOT converge.** `engine/scripts/audit.js`
+already carries one contract, remapped per engine -- leave it. And build wiring
+stays per-repo: prestruct chains `audit-if-configured.cjs` into the template
+build (a configured scaffold fails its own build on head regressions), while
+freestruct keeps `audit` a separate subcommand. A product-contract choice, not
+drift.
 
 **Crosslinks:** [README](./README.md) for quick start, docs site under `docs/` (deploy: `docs/guides/cloudflare.md`, proxy: `README-proxy.md`, CLI: `docs/guides/cli.md`, config: `docs/guides/config.md`), pass log in `labs/TASKS.md`.

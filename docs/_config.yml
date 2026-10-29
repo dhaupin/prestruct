@@ -2,8 +2,8 @@
 # Frame ported from dhaupin/vant docs (single nav source; layout reads site.data.nav):
 #   - presentation lives in _layouts/default.html (no theme gem)
 #   - nav lives in _data/nav.yml (single source; the layout reads site.data.nav)
-# - every page carries the 5 frontmatter fields (see scripts/check-docs-frontmatter.cjs)
-#     and links by its permalink (see scripts/check-docs-links.cjs)
+# - every page carries the 5 frontmatter fields and links by its permalink
+#     (see the frontmatter + links gates in scripts/run-docs-audit.cjs)
 title: prestruct
 description: Build-time SEO prerender for Vite + React - Documentation
 baseurl: "/prestruct"

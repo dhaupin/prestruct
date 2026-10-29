@@ -32,7 +32,8 @@ npm run test:run             # vitest battery (root)
 The repo-level truth gates (run these after any docs or engine change):
 
 ```bash
-npm run lint:docs            # docs style + links + frontmatter + truthfulness
+npm run lint:docs            # docs audit: frontmatter + links + nav + style
+                             # + truthfulness + language, one runner
 npm run lint:claims          # fiction-signature scan
 npm run sync:check           # engine -> init -> example byte-identity
                             # (CI fails on drift; run `npm run sync` after engine edits)
@@ -117,5 +118,5 @@ opening the PR:
   verbs are `init`, `build`, `validate`, `clean`, `help`
 - every `./engine/...`-style module reference must resolve on disk
 - claims of behavior need engine backing (see
-  `scripts/check-docs-truthfulness.cjs` and `scripts/check-fiction-signatures.cjs`
+  `scripts/run-docs-audit.cjs` and `scripts/check-fiction-signatures.cjs`
   for the mechanical definitions)
