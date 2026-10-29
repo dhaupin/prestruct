@@ -71,6 +71,10 @@
       url: /prestruct/guides/content-style
     - title: Contributing
       url: /prestruct/guides/contributing
+    - title: CI Guide
+      url: /prestruct/ci
+    - title: Playbooks
+      url: /prestruct/playbooks/
     - title: Roadmap
       url: /prestruct/guides/roadmap
     - title: Changelog
