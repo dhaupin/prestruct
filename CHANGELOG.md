@@ -46,6 +46,10 @@ A batch of engine surfaces ported from the sibling structs, each with its own ba
 
 - `siteUrl: 'https://x.example.com/'` produced canonical/og:url of `https://x.example.com//` on every page (inject-brand) and inside sitemap locs + prerendered metas. The trailing slash is now stripped at every URL seam: inject-brand canonical/og block, prerender injectMeta, sitemap, 404 canonical, and the usePageMeta base. No config change needed; a trailing-slash siteUrl is simply correct now.
 
+### Home canonical is the bare origin on every surface (#76)
+
+- The 404 page was the one surface that emitted a trailing-slash home canonical (`https://x.example.com/`) while `index.html`, `og:url`, the sitemap home loc, and `usePageMeta` all emitted the bare origin (`https://x.example.com`). The 404's own override is gone -- it now rides `injectMeta('/', ...)` like every other page -- and `inject-brand`'s global canonical/og:url use the bare origin too, so all home writers agree. This matches the documented contract (the canonical guide's "Root is the bare site origin (no trailing slash)") and the form the live URL normalizes to. Action for cherry-pickers: update `init/scripts/prerender.js` and `init/scripts/inject-brand.js` (drop-in) -- no config change.
+
 ### CLI refuses unknown dash-word flags (#54)
 
 - `prestruct build --Force` (or any misspelled flag) was silently ignored: typo'd flags now fail with `unknown flag(s): ... - run prestruct help`, exit 1, naming what the command actually takes. `--help` works on every subcommand.

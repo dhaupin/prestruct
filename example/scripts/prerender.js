@@ -714,20 +714,13 @@ export function generate404(shell, config, siteUrl) {
     title: `Page Not Found | ${siteName}`,
     description: 'The page you were looking for does not exist.',
   }, '/', siteUrl, config && config.ogImage)
-  // The 404's canonical contract is deliberate and 404-only: point at the
-  // home origin (with the trailing slash every non-route URL normalizes
-  // to), unlike a content page's self-canonical. The replace below uses a
-  // FUNCTION replacer (literal-result guarantee, #33), which does not
-  // process `$`-syntax, so no escapeReplacement belongs on this value.
-  const homeCanonical = `${(siteUrl || '').replace(/\/$/, '')}/`
-  html = html.replace(
-    /(<link\s+rel="canonical"\s+href=")[^"\r\n]*(")/,
-    (m, a, b) => `${a}${homeCanonical}${b}`
-  )
-  html = html.replace(
-    /(<meta\s+property="og:url"\s+content=")[^"\r\n]*(")/,
-    (m, a, b) => `${a}${homeCanonical}${b}`
-  )
+  // The 404 canonical + og:url are the HOME origin, and injectMeta above
+  // already wrote them: passing '/' as the route path makes it emit exactly
+  // the home URL (the bare origin, no trailing slash -- the same form
+  // index.html, the sitemap home loc and usePageMeta use). The old explicit
+  // override here appended a trailing slash (#76), so the 404 was the one
+  // surface that disagreed with every other home-canonical writer; removing
+  // it leaves a single derivation.
   // noindex -- 404 pages should not appear in search results
   html = html.replace(
     /<meta\s+name="robots"\s+content="[^"\r\n]*"\s*\/?>/,

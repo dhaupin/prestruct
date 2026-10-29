@@ -1,3 +1,25 @@
+## Pass 63 (2026-10-29): #76 home canonical agrees across every surface
+**Scope:** prestruct#76 -- the 404 was the lone surface emitting a trailing-slash home canonical. Branch `staging`, no tags.
+
+**The bug.** Four writers derive the home URL, and the 404 disagreed with all of them:
+
+| surface | home value | writer |
+|---|---|---|
+| `index.html` canonical + og:url | `https://host` | `prerender.injectMeta` |
+| `sitemap.xml` home loc | `https://host` | `prerender.generateSitemap` |
+| `404.html` canonical + og:url | `https://host/` | `inject-brand` then a 404-only override |
+| client SPA nav | `https://host` | `usePageMeta` |
+
+`inject-brand` wrote the global head with a trailing slash (`${siteUrl}/`); `prerender.injectMeta` overwrote it per route slash-lessly, so only home -- and the 404, which has no route of its own -- kept the slash form.
+
+**The ruling (evidence, not preference).** The slash-less form wins: the canonical guide already documents it (`docs/guides/seo.md:79` "Root is the bare site origin (no trailing slash)"; `:126` the sitemap home loc "carries no trailing slash"), `usePageMeta` computes it that way client-side, and all four live family siblings (`eyestruct`, `gistory`, `poststruct`, `prestruct`) serve the bare origin on their landing. The 404 was the outlier, not the contract.
+
+**The fix (one derivation, not two).** (1) `inject-brand.js`: `canonical` is now `(siteUrl || '').replace(/\/$/, '')` -- the bare origin -- instead of the same string plus `/`. (2) `prerender.generate404`: the 404-only override block (the two function-replacer `html.replace` calls that re-stamped canonical + og:url with `homeCanonical`) is DELETED. `generate404` already calls `injectMeta(html, {...}, '/', siteUrl, ...)`, and passing `'/'` makes injectMeta emit exactly the home URL, so the override was pure divergence surface. The `$`-literal test it carried still holds (injectMeta's url replacement rides `escapeReplacement`), now pinned as `href="https://x.test/$1"` (no trailing slash).
+
+**Receipts.** `npm run gate` green: 19 test files, **327 tests** (was 325). New pins: `tests/engine.test.js` "home canonical agrees across index, sitemap and 404 (#76)" (asserts the three engine surfaces emit `${home}`, none emits `${home}/`); `tests/inject-brand.test.js` "home canonical is the bare origin (#76)" (inject-brand's global head is slash-less, and a `siteUrl` pasted WITH a trailing slash still normalizes to the bare origin). Three existing assertions that pinned the old slash-y form updated (`engine.test.js` #53 + #33, `audit.test.js` engine-shaped fixture). Baked proof: `example/dist/{index,404}.html` canonical + og:url and the sitemap home loc now all read `https://prestruct.creadev.org`; example audit 0 failures / 0 warnings. Engine synced (`node scripts/sync-engine.mjs`), `sync:check` 10/10, docs audit clean.
+
+**Family note.** `poststruct#40` tracks the downstream `prestruct-shapes` check that could not land until this fix did (a cross-surface home-canonical assertion across index, og:url, sitemap, and 404). That check is now unblocked.
+
 ## Pass 62 (2026-10-29): #75 docs-audit convergence (one shared runner)
 **Scope:** prestruct#75 -- converge the docs audit on freestruct's single gate-runner. Branch `staging`, no tags.
 

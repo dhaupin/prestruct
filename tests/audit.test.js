@@ -30,9 +30,9 @@ const CLEAN_HEAD = `<!DOCTYPE html>
   <title>Home | Site Co</title>
   <meta name="description" content="A description that comfortably clears the seventy-character band for search previews." />
   <meta name="author" content="Site" />
-  <link rel="canonical" href="https://e2e.test/" />
+  <link rel="canonical" href="https://e2e.test" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://e2e.test/" />
+  <meta property="og:url" content="https://e2e.test" />
   <meta property="og:title" content="Home | Site Co" />
   <meta property="og:description" content="A description that comfortably clears the seventy-character band for search previews." />
   <meta property="og:image" content="https://e2e.test/og.png" />
@@ -54,7 +54,7 @@ function writeArtifacts(root, { sitemap = true, robots = true } = {}) {
   if (sitemap) {
     writeFileSync(join(root, 'dist', 'sitemap.xml'),
       '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
-      '<url><loc>https://e2e.test/</loc><lastmod>2026-10-26</lastmod></url></urlset>', 'utf8')
+      '<url><loc>https://e2e.test</loc><lastmod>2026-10-26</lastmod></url></urlset>', 'utf8')
   }
   if (robots) {
     writeFileSync(join(root, 'dist', 'robots.txt'),
@@ -121,7 +121,7 @@ describe('auditOutput: FAIL classes', () => {
   it('relative canonical link', () => {
     const root = makeRoot()
     writeArtifacts(root)
-    writeFixture(root, { 'index.html': CLEAN_HEAD.replace('href="https://e2e.test/"', 'href="/"') })
+    writeFixture(root, { 'index.html': CLEAN_HEAD.replace('href="https://e2e.test"', 'href="/"') })
     const r = audit(root)
     expect(r.fails.some(f => f.msg.includes('canonical not absolute'))).toBe(true)
   })

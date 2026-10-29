@@ -188,7 +188,11 @@ export function injectBrand(config, distDir = resolve('dist'), { getDeployId = d
   // Trailing-slash normalization (#53): the canonical + entire og block ride
   // this base; a consumer pasting `https://x.example.com/` used to get
   // `https://x.example.com//` -- validated form, doubled junction.
-  const canonical   = `${(siteUrl || '').replace(/\/$/, '')}/`
+  // Home canonical is the BARE origin, no trailing slash (#76): the same form
+  // prerender.injectMeta and generateSitemap use for `/`, so the global head
+  // inject-brand writes agrees with every per-route surface (the 404 used to
+  // be the lone outlier carrying `siteUrl/`).
+  const canonical   = (siteUrl || '').replace(/\/$/, '')
 
   const titleSafe       = toReplaceSafe(escapeHtmlAttr(title))
   const descriptionSafe = toReplaceSafe(escapeHtmlAttr(description))

@@ -283,6 +283,32 @@ describe('config pass-through contract (real validateConfig validation lives in 
   })
 })
 
+describe('home canonical is the bare origin (#76)', () => {
+  const dist = (root) => {
+    mkdirSync(join(root, 'dist'), { recursive: true })
+    writeFileSync(join(root, 'dist', 'index.html'), `<!DOCTYPE html>
+<html><head><title>Site</title><link rel="canonical" href="https://yoursite.com/" /></head>
+<body><div id="root"></div></body></html>`, 'utf8')
+  }
+  it('writes the same slash-less home canonical injectMeta and the sitemap use', () => {
+    const root = makeTempProject()
+    dist(root)
+    injectBrand({ siteUrl: 'https://e2e.test', siteName: 'S', author: 'A', routes: [] },
+      join(root, 'dist'), { getDeployId: () => 't' })
+    const html = readFileSync(join(root, 'dist', 'index.html'), 'utf8')
+    expect(html).toContain('<link rel="canonical" href="https://e2e.test" />')
+    expect(html).toContain('<meta property="og:url"          content="https://e2e.test" />')
+    expect(html).not.toContain('href="https://e2e.test/"')
+    // A configured trailing slash still normalizes to the bare origin.
+    const root2 = makeTempProject()
+    dist(root2)
+    injectBrand({ siteUrl: 'https://e2e.test/', siteName: 'S', author: 'A', routes: [] },
+      join(root2, 'dist'), { getDeployId: () => 't' })
+    expect(readFileSync(join(root2, 'dist', 'index.html'), 'utf8'))
+      .toContain('<link rel="canonical" href="https://e2e.test" />')
+  })
+})
+
 describe('default deploy-id stability (cache signature contract)', () => {
   // Perf audit 2026-10-20: the default deploy id embedded a random base36
   // timestamp, which changed the shell on every build. Prerender's cache

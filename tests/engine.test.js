@@ -256,7 +256,10 @@ describe('prerender pure functions (import surface)', () => {
     const xml = generateSitemap([{ path: '/about' }], slashed)
     expect(xml).toContain('<loc>https://x.example.com/about</loc>')
     const p404 = generate404(shell, { siteName: 'S' }, slashed)
-    expect(p404).toContain('href="https://x.example.com/"')
+    // 404 canonical is the home origin in the same bare form as every other
+    // home writer (#76): no double junction, no lone trailing slash.
+    expect(p404).toContain('href="https://x.example.com"')
+    expect(p404).not.toContain('href="https://x.example.com/"')
   })
 
   it('404 head tags carry real values, never literal $1/$2 (#33)', () => {
@@ -270,7 +273,7 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('<meta property="og:title" content="Page Not Found | Creadev">')
     expect(html).toContain('<meta name="twitter:title" content="Page Not Found | Creadev">')
     expect(html).toContain('<meta name="description" content="The page you were looking for does not exist.">')
-    expect(html).toContain('<link rel="canonical" href="https://example.com/">')
+    expect(html).toContain('<link rel="canonical" href="https://example.com">')
   })
 
   it('generates a static 404 page and strips the bundle script', () => {
@@ -338,12 +341,31 @@ describe('prerender pure functions (import surface)', () => {
   })
 
   it('keeps a $ in siteUrl literal in the 404 canonical (function replacer)', () => {
-    // The homeCanonical value rode a function replacer (literal), so
-    // escapeReplacement's $$ doubling shipped literally as "$$".
+    // injectMeta's url replacement rides escapeReplacement ($$ doubling), so a
+    // $-shaped siteUrl must stay literal, not expand as a regex reference.
     const shell = `<html><head><title>x</title><link rel="canonical" href="d"><meta property="og:url" content="d"></head><div id="root"></div></html>`
     const html = generate404(shell, { siteName: 'S' }, 'https://x.test/$1')
-    expect(html).toContain('href="https://x.test/$1/"')
+    expect(html).toContain('href="https://x.test/$1"')
     expect(html).not.toContain('$$')
+  })
+
+  it('home canonical agrees across index, sitemap and 404 (#76)', () => {
+    // The 404 used to be the lone surface carrying `siteUrl/` while
+    // injectMeta, generateSitemap and usePageMeta all emit the bare origin.
+    // Pin the cross-surface agreement so the divergence cannot return.
+    const shell = `<html><head><title>t</title><meta name="description" content="d"><meta property="og:url" content="z"><link rel="canonical" href="z"></head><div id="root"></div></html>`
+    const home = 'https://x.example.com'
+    const index = injectMeta(shell, { title: 'Home', description: 'D' }, '/', home, '')
+    const xml = generateSitemap([{ path: '/' }, { path: '/about' }], home)
+    const p404 = generate404(shell, { siteName: 'S' }, home)
+    expect(index).toContain(`<link rel="canonical" href="${home}">`)
+    expect(index).toContain(`content="${home}"`) // og:url, same value
+    expect(xml).toContain(`<loc>${home}</loc>`)
+    expect(p404).toContain(`href="${home}"`)
+    // And none of them emit the trailing-slash form for home.
+    expect(index).not.toContain(`href="${home}/"`)
+    expect(xml).not.toContain(`<loc>${home}/</loc>`)
+    expect(p404).not.toContain(`href="${home}/"`)
   })
 
   it('robots noindex does not eat a cross-line commented robots fragment (dotall trap class)', () => {
