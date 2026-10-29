@@ -31,9 +31,11 @@
  *                 logic; the gate shells out so one command covers it)
  *   jekyll        build-time Liquid constructs that Jekyll refuses at build
  *                 time: a two-argument call to a single-argument string filter
- *                 (`| remove: 'a', ''`, crashtest#23) and any `{% tag %}` the
+ *                 (`| remove: 'a', ''`, crashtest#23), any `{% tag %}` the
  *                 Jekyll 4.x set does not define (`{% seo %}` in prose,
- *                 prestruct#77). Scans docs/ source (.html/.md/.yml/.txt,
+ *                 prestruct#77), and an unbalanced `{% raw %}` (an open with
+ *                 no matching `endraw` refuses with "'raw' tag was never
+ *                 closed"). Scans docs/ source (.html/.md/.yml/.txt,
  *                 including `_`-prefixed dirs) so the class fails in lint:docs
  *                 with a file:line, not in Jekyll's stack trace.
  *
@@ -343,7 +345,8 @@ function gateTruthfulness(ctx) {
 // Gate: jekyll
 //
 // Two source-level Liquid constructs that only fail at BUILD time, ported from
-// poststruct's check-jekyll-filters.cjs (e53b1e0):
+// poststruct's check-jekyll-filters.cjs (e53b1e0), plus the unbalanced-raw
+// class CI's Jekyll build caught on this gate's own first doc write:
 //
 //   1. A two-argument call to a single-argument string filter. Liquid's
 //      `remove`, `remove_first`, `append`, `prepend`, `newline_to_br` take
@@ -354,6 +357,8 @@ function gateTruthfulness(ctx) {
 //      literal `{% seo %}` in prose (backticks are markdown, not Liquid
 //      escaping) killed the poststruct docs deploy (prestruct#77). Wrap
 //      literal text in {% raw %}.
+//   3. An unbalanced raw tag: an open with no matching endraw refuses with
+//      "'raw' tag was never closed"; a stray endraw refuses too.
 //
 // The runner's discovery is .md-only prose; this gate needs the full Liquid
 // source set (.html/.md/.yml/.txt, INCLUDING `_`-prefixed dirs like _layouts),
@@ -394,6 +399,18 @@ function gateJekyll(ctx) {
       // Blank out {% raw %}...{% endraw %} regions (literal content, not
       // Liquid) while keeping line count so file:line stays honest.
       const stripped = source.replace(RAW_PAIR, (m, open, body, close) => open + blank(body) + close);
+      // A raw open with no matching endraw refuses at build time ("'raw' tag
+      // was never closed") -- blank the BALANCED pairs entirely, then any raw
+      // or endraw still standing is unbalanced. (This gate missed the class on
+      // its own first doc write; CI's Jekyll build caught it -- prestruct#77.)
+      const balanced = source.replace(RAW_PAIR, (m) => blank(m));
+      const lineOf = (idx) => balanced.slice(0, idx).split('\n').length;
+      for (const m of balanced.matchAll(/\{%-?\s*raw\s*-?%\}/g)) {
+        findings.push(`${rel}:${lineOf(m.index)}: unclosed "raw" tag (no matching endraw - the Jekyll build dies: 'raw' tag was never closed)`);
+      }
+      for (const m of balanced.matchAll(/\{%-?\s*endraw\s*-?%\}/g)) {
+        findings.push(`${rel}:${lineOf(m.index)}: stray "endraw" tag (no matching raw - the Jekyll build dies)`);
+      }
       stripped.split('\n').forEach((line, i) => {
         const n = i + 1;
         for (const filter of LIQUID_SINGLE_ARG) {

@@ -214,4 +214,19 @@ describe('docs audit: gate fixtures (each migrated gate trips its case)', () => 
     expect(findings.some((f) => f.includes('unknown Liquid tag "seo"'))).toBe(true)
     expect(findings.some((f) => f.includes('_layouts/default.html'))).toBe(true)
   })
+
+  it('jekyll: an unclosed raw tag is a finding (the class CI caught on first write)', () => {
+    const findings = auditFixture({ names: ['jekyll'], docs: { 'a.md': 'text {% raw %} literal\n' } })
+    expect(findings.some((f) => f.includes('unclosed "raw" tag'))).toBe(true)
+  })
+
+  it('jekyll: a stray endraw tag is a finding', () => {
+    const findings = auditFixture({ names: ['jekyll'], docs: { 'a.md': 'text {% endraw %} literal\n' } })
+    expect(findings.some((f) => f.includes('stray "endraw" tag'))).toBe(true)
+  })
+
+  it('jekyll: a balanced raw pair is not a finding', () => {
+    const findings = auditFixture({ names: ['jekyll'], docs: { 'a.md': '{% raw %}{% seo %}{% endraw %}\n' } })
+    expect(findings).toEqual([])
+  })
 })

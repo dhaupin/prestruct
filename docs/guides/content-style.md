@@ -83,10 +83,11 @@ nav_order: 10         # integer; controls sidebar position via _data/nav.yml
 
 ## Liquid constructs
 
-The docs are built by Jekyll, so Liquid tags and filters in source only fail at build time -- after CI has already gone green. The `jekyll` gate in `scripts/run-docs-audit.cjs` catches the two classes that kill a build:
+The docs are built by Jekyll, so Liquid tags and filters in source only fail at build time -- after CI has already gone green. The `jekyll` gate in `scripts/run-docs-audit.cjs` catches the classes that kill a build:
 
 - A two-argument call to a single-argument string filter, for example `{% raw %}{{ x | remove: '/a', '' }}{% endraw %}`. Liquid's `remove`, `remove_first`, `append`, `prepend`, and `newline_to_br` take exactly one argument; a second throws "wrong number of arguments" and stops the whole build (crashtest#23).
-- An unknown `{% raw %}{% tag %}{% endraw %}`. The docs ship no theme gem and no plugin, so any tag outside the Jekyll 4.x set refuses. Backticks are markdown, not Liquid escaping, so a tag written in prose still parses and still kills the build (prestruct#77). Wrap literal text in `{% raw %}`.
+- An unknown `{% raw %}{% tag %}{% endraw %}`. The docs ship no theme gem and no plugin, so any tag outside the Jekyll 4.x set refuses. Backticks are markdown, not Liquid escaping, so a tag written in prose still parses and still kills the build (prestruct#77). Wrap literal Liquid text in a `raw` / `endraw` tag pair.
+- An unclosed `raw` tag. A `raw` open with no matching `endraw` refuses with "'raw' tag was never closed" -- the same build-time class, and the one this very section tripped on first write.
 
 ## Structure and flow
 
