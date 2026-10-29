@@ -83,6 +83,7 @@ prestruct -- build-time SEO prerender for Vite + React
                            (CI-safe). Runs against a DEPLOYED output only:
                            keyLocation must resolve for engines to accept.
   prestruct clean          Clear the prerender route cache.
+  prestruct --version      Print the engine version (also -v).
   prestruct help           This text.
 
   Config lives in ssr.config.js -- copy ssr.config.example.js to start.
@@ -394,6 +395,13 @@ try {
     case 'audit':    await cmdAudit(args); break
     case 'indexnow': await cmdIndexNow(args); break
     case 'clean':    cmdClean(args); break
+    case 'version':
+    case '--version':
+    case '-v': {
+      const pkg = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8'))
+      console.log(pkg.version)
+      break
+    }
     case 'help':
     case '--help':
     case '-h':       console.log(HELP); break
