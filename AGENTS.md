@@ -627,17 +627,36 @@ it. The fleet reference is `dhaupin/poststruct#32`.
 
 - **CI covers `staging` and `main`.** `test.yml`, `engine-sync-check.yml`, and
   `crashtest.yml` list both branches; `docs.yml` builds docs on both.
-- **Every deploy job is gated to `main`.** `docs.yml`'s `deploy` job carries
-  `if: github.ref == 'refs/heads/main'`. This is the load-bearing part: once
-  `staging` is in a deploy workflow's trigger list, the trigger no longer
-  keeps staging content out of production -- the job must say so itself. A
+- **Every deploy job is gated to `main`.** The guard now lives INSIDE the
+  reusable docs lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`),
+  not in the caller: `docs.yml` is a thin caller, and the lane's `deploy` job
+  carries `if: github.ref == 'refs/heads/main'`. This is the load-bearing part:
+  once `staging` is in a deploy workflow's trigger list, the trigger no longer
+  keeps staging content out of production -- the job must say so itself, and
+  gating it in the shared lane means every caller inherits the guard. A
   `staging` push is `refs/heads/staging` and a PR is `refs/pull/N/merge`, so
   both skip; only a `main` push publishes.
 - **Promotion drifts the branches by one.** A merge-commit promotion puts a
   commit on `main` that `staging` lacks. Fast-forward after every promotion:
   `git push origin origin/main:staging`.
-- **`tests/qc.test.mjs` pins the contract** -- drop `staging` from a trigger
-  or remove the deploy guard and the battery goes red.
+- **`tests/qc.test.mjs` pins the contract** -- drop `staging` from a trigger,
+  point `docs.yml` away from the lane, or drop its Pages permissions and the
+  battery goes red.
+
+**Lesson: a hand-copied runbook drifts; call the lane (2026-10-29).** The
+Jekyll -> freestruct -> pagefind -> Pages runbook lived inline in seven rig
+repos and had already drifted on ruby version, action versions, and freestruct
+sourcing (`dhaupin/flowforge#9`). freestruct promoted it to a reusable
+`on: workflow_call` lane (`dhaupin/freestruct#31`) and `docs.yml` is now a
+~53-line caller pinned to a freestruct SHA. Two consumer traps, both handled in
+the caller's `with:` block: (1) the lane defaults `freestruct-cmd` to
+freestruct's IN-REPO layout (`node bin/freestruct.mjs`), but a consumer that
+installs freestruct as an npm devDep must override it (`node
+node_modules/freestruct/bin/freestruct.mjs`); (2) the lane runs a crashtest
+dogfood leg, so a consumer pins `crashtest-ref` to the version its committed
+ledger was cut with. A reusable workflow cannot be tested locally -- land it on
+`staging`, where the lane BUILDS but the in-lane guard skips the deploy, and
+let CI prove the build legs before any promotion.
 
 **Lesson: a workflow that fails to PARSE fails with ZERO jobs.** `docs.yml`
 carried `- name: Run freestruct strict (SEO layer: canonical, ...)` -- an

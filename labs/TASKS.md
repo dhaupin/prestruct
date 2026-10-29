@@ -21,7 +21,15 @@
 
 **Proof:** `npm run gate` green -- sync check (10 contract files), packs, docs (style/links/frontmatter/language/truthfulness), claims, init eslint (0 errors), battery: 308 tests / 18 files. All six `.github/workflows/*.yml` parse under `yaml.safe_load`. `docs.yml` build green + deploy skipped on staging (proof in the #72 receipt).
 
-**Next:** #57 (crashtest 1.2.0 bump, blocked on the registry release). Follow-up for the family: eyestruct/gistory configs double their prefix (freestruct#32 + the `site.url` shape); worth a shared fix.
+**#59 (reusable docs lane) -- unblocked and adopted.** The lane landed: freestruct promoted its own `docs.yml` runbook to `.github/workflows/docs-lane.yml` (`on: workflow_call`, eight inputs, deploy guard baked in) for `dhaupin/freestruct#31`, dogfooded it, and `flowforge#9`'s drift table is the convergence receipt. prestruct's 118-line hand-copy is now a ~53-line caller pinned to a freestruct SHA. Two consumer overrides in the `with:` block: `freestruct-cmd` (the lane defaults to freestruct's in-repo `node bin/freestruct.mjs`; prestruct installs freestruct as an npm devDep) and `crashtest-ref` (the lane runs a crashtest dogfood leg; pin it to the version prestruct's committed ledger was cut with, v1.1.0 = 2d1fe793). The deploy-to-main guard moved INTO the lane, so `tests/qc.test.mjs` now pins that `docs.yml` calls the lane and grants Pages permissions, rather than pinning an inline `if:`. A reusable workflow cannot be tested locally -- landed on `staging`, where the lane builds but the in-lane guard skips the deploy, so CI proves the build legs first.
+
+**#71 (eyestruct 1.0.0 adoption asks) -- verified, no code change.** Ask 1 (the rr-dom 7 ESM seam): already covered. The engine carries `esmTwinSource` + the `loadStaticRouter` interop fallback, `tests/prerender-seam.test.js` pins both offline and runs a real v7 + `ssr.noExternal` integration render (9/9), and the example site -- on `react-router-dom ^7.18.4` -- builds 8/8 pages clean (live receipt this pass). Ask 2 (puppeteer-core 25.16.0): not applicable -- prestruct does not depend on eyestruct, and its proxy template ships puppeteer uninstalled on purpose (the render-failure-falls-through-302 contract). Ask 3 (docs engine): no action. Receipt posted.
+
+**#73 (release-trigger token finding) -- resolved inline, no code change.** prestruct carries zero release-triggered workflows: the only `release:` token in `.github/workflows/` is a JOB name in `publish.yml`, not a trigger. The one affected workflow (`sync-example.yml`) was retired earlier this window (commit 08a72a4), which is exactly the issue's recommended option 3 (do the work inline). Receipt posted.
+
+**#57 (crashtest 1.2.0 bump) -- still blocked.** `npm view crashtest version` is 1.1.0; 1.2.0 is not on the registry. Nothing to do until it ships; `npm run crashtest:bump 1.2.0` is the one command.
+
+**Next:** #57 (blocked on the registry). The rig-wide follow-up: the reusable docs lane is now the convergence point -- gistory/eyestruct/packstruct still carry inline hand-copies (the `flowforge#9` drift table) and can thin to callers of the same freestruct lane.
 
 ---
 

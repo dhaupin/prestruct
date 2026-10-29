@@ -99,7 +99,11 @@ A full bug/gap/fiction walk over the engine, CLI, template, and proxy pair (`mai
 
 ### CI: the staging integration branch
 
-- `staging` is the permanent integration branch; `main` is the promotion target. CI now runs on both: `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` verify a `staging` push, and `docs.yml` builds the docs on both branches. The `docs.yml` deploy job is gated to `main`, so a `staging` push can never publish unreleased docs to production. Repo-infrastructure only -- no package change.
+- `staging` is the permanent integration branch; `main` is the promotion target. CI now runs on both: `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` verify a `staging` push, and `docs.yml` builds the docs on both branches. The docs deploy is gated to `main`, so a `staging` push can never publish unreleased docs to production. Repo-infrastructure only -- no package change.
+
+### CI: the docs lane is a thin caller of the reusable runbook
+
+- `docs.yml` no longer hand-carries the Jekyll -> freestruct -> pagefind -> Pages runbook. It calls freestruct's canonical reusable lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`, promoted for `dhaupin/freestruct#31`), pinned to a freestruct SHA, overriding `freestruct-cmd` (prestruct consumes freestruct as an npm devDep) and `crashtest-ref`. The deploy-to-main guard lives inside the lane, so every caller inherits it. Repo-infrastructure only -- no package change.
 
 ### One example target: generated from `engine/`, not synced on release
 

@@ -46,26 +46,32 @@ run, pass or fail.
 
 ## The engine-sync leg (engine-sync-check.yml)
 
-Runs on every pull request and push to `main`. It byte-compares the synced
-engine files between `init/` and `example/`:
+Runs on every pull request and push to `staging` or `main`. It runs the
+generator's own check mode, `node scripts/sync-engine.mjs check`, which
+byte-compares every contract file between `engine/`, `init/`, and `example/`
+(the `CONTRACT` array in `scripts/sync-engine.mjs` is the one file list):
 
 ```text
 scripts/inject-brand.js
 scripts/prerender.js
 scripts/audit.js
+scripts/indexnow.js
+scripts/hooks.js
+scripts/ogimage.js
 scripts/validate-config.js
 src/hooks/usePageMeta.js
 src/islands.js
+ssr.config.example.js
 ```
 
-A mismatch fails with the drifting file named and a `diff -u` of the two
-copies. The fix is never to hand-edit `example/`: edit `engine/`, run
-`node scripts/sync-engine.mjs`, and commit the regenerated copies.
+A mismatch fails with the drifting file named. The fix is never to hand-edit
+`init/` or `example/`: edit `engine/`, run `node scripts/sync-engine.mjs`, and
+commit the regenerated copies.
 
 ## The crashtest leg (crashtest.yml)
 
-Runs on every pull request, push to `main`, and manual dispatch. It attacks
-both shipped proxy runtimes in-process through the committed
+Runs on every pull request, push to `staging` or `main`, and manual dispatch. It
+attacks both shipped proxy runtimes in-process through the committed
 `crashtest.config.js`:
 
 - `adapters.express` drives `init/scripts/proxy.js` through `createProxyApp(config)`
@@ -88,8 +94,23 @@ version the committed ledger was cut with - bump it with
 
 Runs on a push to `staging` or `main` that touches `docs/**`,
 `.github/workflows/docs.yml`, or `package-lock.json`, and on manual dispatch.
-The build legs run on both branches; the deploy job is gated to `main` (see
-the staging flow below). The pipeline:
+
+`docs.yml` is a **thin caller** of freestruct's canonical reusable lane
+(`dhaupin/freestruct/.github/workflows/docs-lane.yml`, promoted for
+`dhaupin/freestruct#31`). The Jekyll -> freestruct -> pagefind -> Pages runbook
+that used to live here inline now lives in the lane as `on: workflow_call`, so
+prestruct does not hand-maintain a copy that drifts from the rest of the rig
+(the drift table in `dhaupin/flowforge#9` is the receipt). The caller pins the
+lane to a freestruct SHA and overrides two of its inputs:
+
+- `freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs` -- the lane
+  defaults to freestruct's in-repo layout; prestruct consumes freestruct as an
+  npm devDep.
+- `crashtest-ref: <v1.1.0 sha>` -- the lane runs a crashtest dogfood leg; the
+  pin matches the version prestruct's committed ledger was cut with.
+
+The build legs run on both branches; the **deploy job is gated to `main` inside
+the lane** (see the staging flow below). The pipeline:
 
 ```text
 Jekyll build (Ruby 3.4, kramdown + rouge)
@@ -105,10 +126,11 @@ canonical reads `https://docs.creadev.org/prestruct/<page>`. Putting the
 prefix in both `site.url` and `basePath` doubles it, so keep `site.url` as
 the origin.
 
-The freestruct step runs with `linkCheck: false`. Its link checker resolves
-root-absolute `/prestruct/...` hrefs against the artifact root and fails
-every baseurl'd nav - tracked upstream as `dhaupin/freestruct#32`. Restore the
-check when that lands.
+The freestruct step runs with `linkCheck: false`. Its link checker resolved
+root-absolute `/prestruct/...` hrefs against the artifact root and failed every
+baseurl'd nav - tracked upstream as `dhaupin/freestruct#32`. The fix landed on
+freestruct `main` (not yet in an npm release), so the flag stays until a release
+carries it; restore the check when one does.
 
 The Jekyll stack runs locally with no root. The recipe (prebuilt Ruby, a
 rootless `libyaml`, shimmed binstubs, `BUNDLE_PATH` outside the tree) is in
@@ -161,12 +183,13 @@ CI covers `staging` as well as `main`:
 
 - `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` run on a push to
   either branch (and on every pull request).
-- `docs.yml` builds the docs on both branches, but its **deploy job is gated
-  to `main`** with `if: github.ref == 'refs/heads/main'`.
+- `docs.yml` builds the docs on both branches, but the reusable lane's
+  **deploy job is gated to `main`** with `if: github.ref == 'refs/heads/main'`.
 
 That guard is the load-bearing part. Once `staging` is in a deploy
 workflow's trigger list, the trigger no longer keeps staging content out of
-production; the job has to say so itself. A `staging` push has
+production; the job has to say so itself. The guard lives in the reusable lane,
+so every caller inherits it. A `staging` push has
 `github.ref == 'refs/heads/staging'` and a pull request has
 `refs/pull/N/merge`, so both skip the deploy. Only a `main` push publishes.
 
@@ -203,9 +226,9 @@ the aggregate is weaker.
 | `npm run lint:docs` | the gate line names the file and the field |
 | `npm run lint:claims` | the fiction-signature hit names the line and the stale pattern |
 | `cd init && npm run lint` | the eslint rule and line are named |
-| engine-sync-check | the drifting file is named with a `diff -u`; edit `engine/` and re-sync |
+| engine-sync-check | the drifting file is named; edit `engine/` and re-sync |
 | crashtest | `labs/hardening.md` is the report; the ledger row names the attack |
-| docs deploy | the strict run names the page; check the baseurl shape first |
+| docs deploy | the strict run names the page; check the baseurl shape first. The lane lives in `dhaupin/freestruct`; a lane-level failure names itself there |
 | publish verify | the disconnect is named: wrong dist-tag, drifted tarball, missing provenance, wrong release commit |
 
 Every leg is independent by design. A red pixel-free docs deploy does not hold

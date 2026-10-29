@@ -143,8 +143,11 @@ test('staging flow: CI covers the integration branch, deploys are gated to main'
 
   const docs = readFileSync('.github/workflows/docs.yml', 'utf8')
   expect(docs, 'docs.yml must build staging docs').toMatch(/branches: \[main, staging\]/)
-  // The load-bearing guard: a staging push or a PR has github.ref != main.
-  expect(docs, 'docs.yml deploy must be gated to main').toMatch(/if: github\.ref == 'refs\/heads\/main'/)
+  // docs.yml is a THIN caller of the reusable lane (freestruct#31). The deploy
+  // guard (if: github.ref == 'refs/heads/main') moved INTO the lane, so it no
+  // longer lives in this file -- the caller must point at the lane instead.
+  expect(docs, 'docs.yml must call the reusable docs lane').toMatch(/uses: dhaupin\/freestruct\/\.github\/workflows\/docs-lane\.yml@/)
+  expect(docs, 'docs.yml caller must grant Pages permissions').toMatch(/pages: write/)
 })
 
 test('example is generated from engine, not synced by a release workflow', () => {
