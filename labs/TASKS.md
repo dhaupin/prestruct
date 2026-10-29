@@ -1,3 +1,18 @@
+## Pass 66 (2026-10-29): 1.2.0 stability walk (engine + audit)
+**Scope:** a second bug/gap/fiction walk over the engine, audit, and CLI after the 1.2.0 promotion (`staging` @ `6f1a231`). Branch `staging`, no tags. Every fix cherry-pickable on its own; battery 335 -> 338.
+
+**Fixes (each with a regression test):**
+- **`replaceRootDiv` corrupted a reflowed shell.** The pass-61 fix made the SPAN matcher attribute-tolerant (`findRootDivSpan`) but left the open-tag rebuild slicing attrs at the fixed `<div id="root"`.length offset. Probes: `class="app" id="root"` -> duplicated `id`; `id = "root"` -> `<div id="root" t" ...>`; single quotes -> attrs dropped. The old "tolerates attribute reflow" test passed because it asserted a `toContain` substring, not the full tag. Fix: preserve the open tag verbatim, swap only the `data-server-rendered` stamp; strengthen the test to assert the full open tag + single `id`.
+- **`generate404` noindex rode an optional tag.** noindex was inserted by replacing `<meta name="author"`; a shell without that tag (author unset) got a 404 with NO noindex -- silently indexable. Anchored on `</head>` instead.
+- **`audit.js` `grabMeta` false-FAILs.** `<meta[^>]property=` matched exactly ONE char before the key, so `<meta  property=` or an attr before the key graded as a MISSING tag -- a false FAIL that fails a valid build. Now `<meta\b[^>]*\s<key>\s*=\s*["']...` (attribute-order + whitespace tolerant).
+- **`injectBrand` fail-open.** It called `process.exit(0)` on a missing `dist/index.html` despite its "never exits" contract; the CLI calls it in-process, so a missing shell killed the build green. Returns `null`; the direct-run wrapper owns the exit.
+- **og-image slug collision now warns.** Two routes flattening to one slug (`/blog/post-1` + `/blog-post-1` -> `blog-post-1.png`) silently shared one PNG. `imageSlug` is exported and the loop warns on a collision.
+- **Prose truth:** announcement said "six `check-docs-*.cjs` scripts" (the old chain was four `check-docs-*` + `check-language` = five); the aeo code comment claimed `body` is appended when the preset branch returns before it; one duplicated comment.
+
+**Not changed (investigated, sound):** `escapeReplacement` covers every `$`-bearing injectMeta value; the proxy pair (SSRF origin check, constant-time secret compare, single-flight, KV 512-byte fallback, eviction) holds; `--force`/`--clean` pass-through verified.
+
+**Receipts.** `npm run gate` green: 19 files, **338 tests**; seven docs gates clean; sync:check/packs/claims/init-eslint green; `npm run e2e` (packed tarball, fresh project) all pass. Commits `930bad7` (fixes) + `0f9663b` (CHANGELOG).
+
 ## Pass 65 (2026-10-29): promote 1.2.0 to main (staging -> main)
 **Scope:** owner directive -- promote `staging` to `main`. Branch `promote-1.2.0` -> merge commit on `main`, then fast-forward `staging` to `main` (the documented promotion flow). No tags.
 
