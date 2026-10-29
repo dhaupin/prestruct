@@ -28,3 +28,11 @@ Thumbs.db
 *.log
 *.swp
 beta/
+
+# Local docs toolchain (the Jekyll preview recipe runs from a scratch copy +
+# a Bundler path outside the repo, so these should never appear in-tree;
+# belt-and-suspenders so an accidental in-tree build taints nothing).
+docs/.bundle/
+docs/vendor/
+docs/_site/
+docs/Gemfile.lock
