@@ -7,7 +7,7 @@
 
 **Investigated, sound:** the audit FAIL/WARN classes + `urlToDisk` confinement, `grabMeta`/`grabCanonical` tolerance, `walkHtml` recursion, sitemap `assertXmlSafe` control-char refusal + honest `lastmod`, `generate404` CTA scheme guard + noindex anchor, robots `aeo` preset branch, `mergeRoutes` junk tolerance, `generateLlms` oneline sanitizing, indexnow key resolution + `--dry-run` payload, `runPostBuildHooks` function-replacer substitution + gate, `syncProxyBotList` escaping + regex, `findRootDivSpan`/`replaceRootDiv` re-entrancy.
 
-**Receipts.** `npm run gate` green: 19 files, **346 tests**; docs gates + claims scan clean. Both fixes verified failing against pre-fix code (old: body stripped on 2nd inject; old: ogImageGeneration absent from signature). Commit `<pending>`.
+**Receipts.** `npm run gate` green: 19 files, **346 tests**; docs gates + claims scan clean. Both fixes verified failing against pre-fix code (old: body stripped on 2nd inject; old: ogImageGeneration absent from signature). Commit `9e1e81f`.
 
 ## Pass 68 (2026-10-29): 1.2.0 stability walk 3 (CLI, audit runner, config validation)
 **Scope:** a fourth bug/gap/fiction walk over the CLI, direct audit runner, config validation, and the shipped proxy starters (`staging` @ `6257e99`). Branch `staging`, no tags. Each fix cherry-pickable; battery 341 -> 343.
