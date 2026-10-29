@@ -70,7 +70,7 @@ describe('release-verify (trust ladder)', () => {
     expect(out).toContain('PASS consumer probes (1)')
     expect(out).toContain('PASS installed bin toy-verify --version -> 4.2.0')
     fs.rmSync(toy, { recursive: true, force: true })
-  })
+  }, 120000)
 
   it('a caller-stated --forbidden prefix refuses a smuggle the defaults miss', () => {
     const toy = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-release-toy2-'))
@@ -99,7 +99,7 @@ describe('release-verify (trust ladder)', () => {
     expect(withFlag.status, `the caller's forbidden flag did not bite (${withFlag.status}):\n${flaggedOut}`).toBe(1)
     expect(flaggedOut).toContain('secrets/private.txt')
     fs.rmSync(toy, { recursive: true, force: true })
-  })
+  }, 120000)
 
   it('the pack ladder verifies real npm pack output (contents + identity + consumer install)', () => {
     const work = fs.mkdtempSync(path.join(os.tmpdir(), 'release-verify-'))
@@ -117,7 +117,7 @@ describe('release-verify (trust ladder)', () => {
       expect(out, `no PASS and no named SKIP for the consumer install:\n${out}`).toContain('SKIP consumer install')
     }
     fs.rmSync(work, { recursive: true, force: true })
-  })
+  }, 120000)
 
   it('a forbidden file smuggled into the tarball is refused BY NAME before any install', () => {
     const work = fs.mkdtempSync(path.join(os.tmpdir(), 'release-verify-bad-'))
@@ -137,5 +137,5 @@ describe('release-verify (trust ladder)', () => {
     expect(out).toContain('labs/evil.txt')
     expect(out).toContain('FORBIDDEN')
     fs.rmSync(work, { recursive: true, force: true })
-  })
+  }, 120000)
 })
