@@ -10,7 +10,7 @@
 
 **Investigated, sound:** the 404 noindex/CTA scheme guard, `hooks.js` function-replacer substitution + `runHooks` gate, `indexnow` key resolution/512-cap shapes, worker `cacheKeyFor`/`ttlFromEnv` clamps, `findRootDivSpan` nesting, the OG slug-collision guard, `mergeRoutes` junk tolerance, cache signature coverage.
 
-**Receipts.** `npm run gate` green: 19 files, **341 tests**; seven docs gates clean; claims scan clean. Commits: `<pending>`.
+**Receipts.** `npm run gate` green: 19 files, **341 tests**; seven docs gates clean; claims scan clean. Commit `a01486e`.
 
 ## Pass 66 (2026-10-29): 1.2.0 stability walk (engine + audit)
 **Scope:** a second bug/gap/fiction walk over the engine, audit, and CLI after the 1.2.0 promotion (`staging` @ `6f1a231`). Branch `staging`, no tags. Every fix cherry-pickable on its own; battery 335 -> 338.
