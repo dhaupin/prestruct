@@ -56,6 +56,24 @@ export default {
       },
     },
     {
+      path:       '/why',
+      priority:   '0.6',
+      changefreq: 'monthly',
+      meta: {
+        title:       'Why | Prestruct',
+        description: 'A Vite + React app ships an empty HTML shell, so crawlers and unfurlers see nothing. Why prerendering the real routes is the fix, and what it does not change.',
+      },
+    },
+    {
+      path:       '/what',
+      priority:   '0.6',
+      changefreq: 'monthly',
+      meta: {
+        title:       'What | Prestruct',
+        description: 'Two Node scripts after vite build: inject-brand stamps the shell, prerender writes each route to its own HTML with per-route head tags, plus 404 and sitemap.',
+      },
+    },
+    {
       path:       '/about',
       priority:   '0.8',
       changefreq: 'monthly',

@@ -11,6 +11,10 @@
   items:
     - title: Home
       url: /prestruct/
+    - title: Why Prestruct
+      url: /prestruct/why
+    - title: What Prestruct is
+      url: /prestruct/what
     - title: Getting Started
       url: /prestruct/guides/getting-started
     - title: Configuration
@@ -64,6 +68,8 @@
 
 - title: Project
   items:
+    - title: About Prestruct
+      url: /prestruct/about
     - title: Live Site
       url: https://prestruct.creadev.org
     - title: Content Style
