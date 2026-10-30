@@ -13,6 +13,8 @@ const { Routes, Route, useLocation, NavLink, Link } = rrd
 
 import { useEffect, useState, useRef, useMemo } from 'react'
 import Home     from './pages/Home.jsx'
+import Why      from './pages/Why.jsx'
+import What     from './pages/What.jsx'
 import About    from './pages/About.jsx'
 import Deploy      from './pages/Deploy.jsx'
 import Islands  from './pages/Islands.jsx'
@@ -138,6 +140,8 @@ export default function AppLayout() {
         </div>
         <nav className={`nav${menuOpen ? ' open' : ''}`}>
           <NavLink to="/"       end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>home</NavLink>
+          <NavLink to="/why"       className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>why</NavLink>
+          <NavLink to="/what"      className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>what</NavLink>
           <NavLink to="/about"     className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>about</NavLink>
           <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>deploy</NavLink>
           <NavLink to="/islands"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>islands</NavLink>
@@ -154,6 +158,8 @@ export default function AppLayout() {
       <main className="main">
         <Routes>
           <Route path="/"       element={<Home />} />
+          <Route path="/why"    element={<Why />} />
+          <Route path="/what"   element={<What />} />
           <Route path="/about"   element={<About />} />
           <Route path="/deploy"  element={<Deploy />} />
           <Route path="/islands" element={<Islands />} />
@@ -172,6 +178,8 @@ export default function AppLayout() {
           </div>
           <nav className="footer-nav">
             <NavLink to="/"       end className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>home</NavLink>
+            <NavLink to="/why"       className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>why</NavLink>
+            <NavLink to="/what"      className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>what</NavLink>
             <NavLink to="/about"     className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>about</NavLink>
             <NavLink to="/deploy"    className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>deploy</NavLink>
             <NavLink to="/islands"   className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>islands</NavLink>
