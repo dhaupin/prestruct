@@ -6,7 +6,7 @@ Rule from [CONTENT.md](./CONTENT.md): commit history is the source. This file re
 
 ---
 
-## 1.2.0 (version bumped; tag not yet cut -- npm stays at the v1.1.0 tag)
+## 1.2.0 (released from the v1.2.0 tag)
 
 ### Family ride-along: the issue-walk set ports into the engine
 

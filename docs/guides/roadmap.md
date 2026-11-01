@@ -24,7 +24,7 @@ next planned release (1.2.x) until it is tagged.
   the oversized legacy entry POISONED) + 54-row ledger at harness 1.1.0
   (upgrades are one command: `npm run crashtest:bump <version>`)
 
-Shipped in 1.2.0 (version bumped on main, tag not yet cut):
+Shipped in 1.2.0 (released from the v1.2.0 tag):
 
 - `prestruct audit [dist]` (--json / --external / --internal): the built-in
   post-build verifier; scaffolded builds end in it
