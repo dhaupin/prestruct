@@ -151,6 +151,10 @@ A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix 
 
 - The `sync-example.yml` release workflow is retired. The example site is generated from `engine/` by `node scripts/sync-engine.mjs`, exactly like `init/`, and CI enforces byte-identity -- so nothing needed post-release syncing. The old workflow was also stale: it copied `init/src/AppIslands.jsx` (the template skeleton) over the example's real island registry. `engine/ssr.config.example.js` is now a generator contract file (its `example/` copy had drifted), and `engine-sync-check.yml` runs the generator's own check so the file list lives in one place. Repo-infrastructure only -- the shipped `init/` template is unchanged.
 
+### Release lane: the gate's init-lint leg needed init's deps
+
+- `publish.yml`'s Install step ran a root-only `npm ci`, but the gate (`prepublishOnly` = `npm run gate`) ends in `npm --prefix init run lint` -- init's own `eslint`, which a root-only install never fetches. The first `v1.2.0` tag died at `sh: 1: eslint: not found` (exit 127) and minted nothing. The Install step now also runs `npm ci --prefix init`, matching `test.yml`'s separate init install. `tests/qc.test.mjs` pins both halves (the gate still lints init AND the release lane installs init deps) so neither can silently drop the other again. Repo-infrastructure only -- the shipped tarball is unchanged.
+
 ---
 
 ## v1.1.0 (released from the v1.1.0 tag)
