@@ -130,6 +130,23 @@ test('release lane is publish.yml only (the tag drives npm + the GH release)', (
   expect(workflow).not.toMatch(/softprops\/action-gh-release/)
 })
 
+test('publish lane installs every tree the gate lints (init eslint)', () => {
+  // The gate runs `npm --prefix init run lint` (init's own eslint), and
+  // `npm publish` runs the gate through prepublishOnly. A root-only `npm ci`
+  // leaves `eslint: not found` and the tag can never mint a tarball -- the
+  // exact failure the first v1.2.0 tag hit. test.yml installs init
+  // separately; the release lane must match. Pin both halves so neither can
+  // drop the other silently.
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
+  expect(pkg.scripts.gate, 'the gate must still lint the init tree').toMatch(/--prefix init run lint/)
+
+  const workflow = readFileSync('.github/workflows/publish.yml', 'utf8')
+  expect(
+    workflow,
+    'publish.yml must install init deps (the gate lints init), or prepublishOnly dies on eslint: not found',
+  ).toMatch(/npm ci --prefix init|cd init && npm ci/)
+})
+
 test('staging flow: CI covers the integration branch, deploys are gated to main', () => {
   // The fleet staging flow (poststruct#32): staging is the permanent
   // integration branch, CI covers it, and every deploy job is gated to main.

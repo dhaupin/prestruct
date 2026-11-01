@@ -1,3 +1,12 @@
+## Pass 71 (2026-10-29): v1.2.0 release lane fix (init deps for the gate)
+**Scope:** the first `v1.2.0` tag push (run 41341780326) died in the publish job at `sh: 1: eslint: not found` (exit 127) -- `prepublishOnly` = `npm run gate`, whose last lint leg is `npm --prefix init run lint`, and `publish.yml`'s Install step ran a root-only `npm ci`. `test.yml` installs init separately; the release lane never did. The gate landed 2026-10-27, after the v1.1.0 tag, so v1.2.0 was the first tag to exercise it. Nothing published (npm stayed at 1.1.0) and no GH release was minted -- the failure was pre-tarball, so the fix is lane-only.
+
+**Fix:**
+- **`publish.yml` Install step** now runs `npm ci --no-fund --no-audit` AND `npm ci --prefix init --no-fund --no-audit`, matching test.yml. Reproduced in a clean-room clone: root-only `npm ci` -> `eslint: not found`; root + init -> gate green.
+- **`tests/qc.test.mjs` guard**: pins both halves -- `package.json` gate still carries `--prefix init run lint`, AND `publish.yml` carries `npm ci --prefix init`. Verified the guard fails against the old workflow text and passes against the fix.
+
+**Receipts.** `npm run gate` green in the clean-room clone (19 files, **347 tests** after the guard); docs gates + claims clean. The tag must move to the fixed commit and re-fire (nothing was minted at 1.2.0 yet).
+
 ## Pass 70 (2026-10-29): v1.2.0 release prep (release-truth flips)
 **Scope:** cut the v1.2.0 tag. Every release-truth claim flips from "bumped on main ahead of its tag" to "released from the v1.2.0 tag" in the same commit the tag lands on, so the tag object's own tree carries the true statement (the v1.1.0 precedent, commit `747e18c`).
 

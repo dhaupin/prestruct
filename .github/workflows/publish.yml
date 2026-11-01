@@ -134,7 +134,14 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Install
-        run: npm ci --no-fund --no-audit
+        # The gate runs `npm --prefix init run lint` (init's own eslint), so
+        # the init tree needs its deps too -- a root-only `npm ci` leaves
+        # `eslint: not found` and fails the lane at prepublishOnly. test.yml
+        # installs init separately; the release lane must match, or a tag
+        # can never mint a tarball.
+        run: |
+          npm ci --no-fund --no-audit
+          npm ci --prefix init --no-fund --no-audit
 
       # Idempotent: if the registry already has this exact version -- e.g.
       # the release was re-fired after fixing a later workflow -- skip the
