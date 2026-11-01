@@ -91,6 +91,8 @@ function die(code, line) {
 function fail(line) { die(1, line) }
 function cap(line) { die(2, line) }
 
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)) }
+
 function sh(cmd, args, opts) {
   return spawnSync(cmd, args, { encoding: 'utf8', ...opts })
 }
@@ -220,9 +222,12 @@ function packLadder(tgz, expectedVersion, cfg) {
 
 // --- the registry ladder -------------------------------------------------
 
-function httpsJson(url) {
+// Protocol-aware so the propagation retry can be exercised against a local
+// lagging server (the test seam); https in production.
+function httpGetJson(url) {
   return new Promise((resolve, reject) => {
-    require('https').get(url, (res) => {
+    const mod = url.startsWith('http://') ? require('http') : require('https')
+    mod.get(url, (res) => {
       if (res.statusCode !== 200) { res.resume(); return reject(new Error(`HTTP ${res.statusCode}`)) }
       let d = ''
       res.on('data', (c) => { d += c })
@@ -231,9 +236,24 @@ function httpsJson(url) {
   })
 }
 
+function registryBase() {
+  return (process.env.VERIFY_RELEASE_REGISTRY || 'https://registry.npmjs.org').replace(/\/$/, '')
+}
+
+// Poll knobs, overridable so the propagation-retry seam is testable fast.
+function registryPollAttempts() {
+  const n = Number(process.env.VERIFY_RELEASE_ATTEMPTS)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 20
+}
+function registryPollDelayMs() {
+  const n = Number(process.env.VERIFY_RELEASE_DELAY_MS)
+  return Number.isFinite(n) && n >= 0 ? n : 6000
+}
+
 function httpsBuffer(url) {
   return new Promise((resolve, reject) => {
-    require('https').get(url, (res) => {
+    const mod = url.startsWith('http://') ? require('http') : require('https')
+    mod.get(url, (res) => {
       if (res.statusCode !== 200) { res.resume(); return reject(new Error(`HTTP ${res.statusCode}`)) }
       const chunks = []
       res.on('data', (c) => chunks.push(c))
@@ -243,15 +263,33 @@ function httpsBuffer(url) {
 }
 
 async function npmLadder(expectedVersion, cfg) {
-  const regUrl = `https://registry.npmjs.org/${cfg.name}`
+  const regUrl = `${registryBase()}/${cfg.name}`
   say(`[verify-release] npm ladder: ${regUrl}`)
-  let meta
-  try {
-    meta = await httpsJson(regUrl)
-  } catch (e) {
-    say(`[verify-release] SKIP npm ladder (registry unreachable: ${e.message})`)
-    return false
+  // A fresh publish is served before the registry's packument indexes it --
+  // npm's own "may take a few minutes to become available". Poll through
+  // that window instead of red-flagging a cut that DID land: the first
+  // v1.2.0 verify run read latest 1.1.0 seconds after `+ prestruct@1.2.0`
+  // and failed a release that was already correct on the wire.
+  const attempts = registryPollAttempts()
+  const delayMs = registryPollDelayMs()
+  let meta = null
+  for (let i = 0; i < attempts; i++) {
+    try {
+      meta = await httpGetJson(regUrl)
+    } catch (e) {
+      say(`[verify-release] SKIP npm ladder (registry unreachable: ${e.message})`)
+      return false
+    }
+    const indexed = meta.versions && meta.versions[expectedVersion]
+    const latest = meta['dist-tags'] && meta['dist-tags'].latest
+    if (indexed && latest === expectedVersion) break
+    meta = null
+    if (i < attempts - 1) {
+      say(`[verify-release] registry has not settled on ${expectedVersion} yet (propagation); retry ${i + 1}/${attempts - 1} in ${delayMs / 1000}s`)
+      await sleep(delayMs)
+    }
   }
+  if (!meta) fail(`registry never indexed ${expectedVersion} after ${attempts} polls over ${(attempts - 1) * delayMs / 1000}s - the cut did not land`)
   const latest = meta['dist-tags'] && meta['dist-tags'].latest
   if (latest !== expectedVersion) fail(`registry latest is ${latest}, expected ${expectedVersion} - either the cut did not land or a hand-moved dist-tag sits on a different version`)
   const ver = meta.versions[expectedVersion]
@@ -292,9 +330,18 @@ function ghLadder(tag) {
   const revParse = sh('git', ['rev-parse', `${tag}^{commit}`])
   if (revParse.status !== 0) cap(`git rev-parse ${tag} failed: ${revParse.stderr.trim()}`)
   const commit = revParse.stdout.trim()
+  if (String(obj.tag_name || '') !== tag) fail(`release object is tagged ${obj.tag_name}, expected ${tag}`)
+  // GitHub records target_commitish as the DEFAULT BRANCH NAME for a release
+  // cut from an existing tag (the publish lane's `gh release create vX` shape),
+  // not the tag's commit -- so a branch name is the normal, correct value, and
+  // comparing it to the SHA fails every tag-based release (v1.2.0's first
+  // verify run: "release v1.2.0 pinpoints main, but the tag resolves to
+  // d84d13a"). Only a full SHA here is a commit claim worth checking; a ref
+  // name is the creation hint, and the tag itself is the identity.
   const target = String(obj.target_commitish || '')
-  if (target && target !== commit) fail(`release ${tag} pinpoints ${target}, but the tag resolves to ${commit} - the release object and the tag disagree`)
-  say(`[verify-release] PASS release object exists, targets the tag's commit ${commit.slice(0, 12)}`)
+  const isSha = /^[0-9a-f]{40}$/i.test(target)
+  if (isSha && target !== commit) fail(`release ${tag} pinpoints ${target}, but the tag resolves to ${commit} - the release object and the tag disagree`)
+  say(`[verify-release] PASS release object exists for ${tag} (target ${isSha ? commit.slice(0, 12) : `${target} -> tag commit ${commit.slice(0, 12)}`})`)
 
   // Source tarball == git archive of the release commit.
   const arch = spawnSync('git', ['archive', '--format=tar.gz', commit], { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024 })

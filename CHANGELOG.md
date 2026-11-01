@@ -155,6 +155,11 @@ A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix 
 
 - `publish.yml`'s Install step ran a root-only `npm ci`, but the gate (`prepublishOnly` = `npm run gate`) ends in `npm --prefix init run lint` -- init's own `eslint`, which a root-only install never fetches. The first `v1.2.0` tag died at `sh: 1: eslint: not found` (exit 127) and minted nothing. The Install step now also runs `npm ci --prefix init`, matching `test.yml`'s separate init install. `tests/qc.test.mjs` pins both halves (the gate still lints init AND the release lane installs init deps) so neither can silently drop the other again. Repo-infrastructure only -- the shipped tarball is unchanged.
 
+### Release lane: the verify ladder survives propagation, and stops mis-reading the release object
+
+- The `verify` job's npm ladder read `latest` ONCE, seconds after `npm publish` printed `+ prestruct@1.2.0`. npm serves a fresh publish before its packument indexes it ("may take a few minutes to become available"), so the ladder red-flagged a cut that HAD landed. It now polls the packument (20 attempts, 6s apart) until the version and `latest` settle, then judges -- and still fails by name if the version never appears. Knobs (`VERIFY_RELEASE_REGISTRY`, `VERIFY_RELEASE_ATTEMPTS`, `VERIFY_RELEASE_DELAY_MS`) exist for the test seam only.
+- The gh ladder compared the release object's `target_commitish` to the tag's commit SHA. GitHub records `target_commitish` as the DEFAULT BRANCH NAME for a release cut from an existing tag (the publish lane's `gh release create vX` shape) -- `main` on every prestruct cut, `v1.1.0` and `v1.2.0` alike -- so the check could never pass and v1.2.0 was the first tag to run the verify job at all. Only a full 40-char SHA is a commit claim now; a ref name is the creation hint, and the tag itself is the identity. Repo-infrastructure only -- the shipped tarball is unchanged.
+
 ---
 
 ## v1.1.0 (released from the v1.1.0 tag)
