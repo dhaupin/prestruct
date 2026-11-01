@@ -8,11 +8,11 @@ permalink: /guides/changelog
 ---
 
 Release history for prestruct. Commit history is the detailed source
-(`git log --oneline`); the npm package sits at **1.1.0** (published from
-the v1.1.0 tag via the Trusted-Publisher workflow, provenance-attested),
-and **main carries 1.2.0, bumped ahead of its tag**.
+(`git log --oneline`); the npm package sits at **1.2.0** (published from
+the v1.2.0 tag via the Trusted-Publisher workflow, provenance-attested),
+and **main carries the next release's pins**.
 
-## 1.2.0 (version bumped; tag not yet cut -- npm stays at the v1.1.0 tag)
+## 1.2.0 (released from the v1.2.0 tag)
 
 - **react-router 7 prerender seam fixed (#68)**: on router 7 (real ESM) the
   engine's `StaticRouter` and the app's router could load as two module

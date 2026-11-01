@@ -1,3 +1,16 @@
+## Pass 70 (2026-10-29): v1.2.0 release prep (release-truth flips)
+**Scope:** cut the v1.2.0 tag. Every release-truth claim flips from "bumped on main ahead of its tag" to "released from the v1.2.0 tag" in the same commit the tag lands on, so the tag object's own tree carries the true statement (the v1.1.0 precedent, commit `747e18c`).
+
+**Flips:**
+- `README.md` status line: `1.2.0, on main ahead of the tag` -> `1.2.0, released from the v1.2.0 tag` (held to root `package.json` by `tests/census.test.mjs`, so the pin moves WITH the claim).
+- `README.md` publishing state: `1.1.0 is the latest tagged release; main carries 1.2.0, version-bumped ahead of its tag` -> `1.2.0 is the latest tagged release, published from the v1.2.0 tag`.
+- `CHANGELOG.md` + `docs/guides/changelog.md` 1.2.0 heading: `(version bumped; tag not yet cut -- npm stays at the v1.1.0 tag)` -> `(released from the v1.2.0 tag)`, and the changelog guide's intro line now reads "npm sits at 1.2.0 ... main carries the next release's pins".
+- `docs/guides/roadmap.md`: `Shipped in 1.2.0 (version bumped on main, tag not yet cut)` -> `(released from the v1.2.0 tag)`.
+
+**Not flipped (correctly historical):** the announcing posts, the retired-zip lessons, and the `v1.1.0`/`v1.0.0` changelog sections describe past releases and keep their wording.
+
+**Receipts.** `npm run gate` green: 19 files, **346 tests**; docs gates + claims scan clean. Tag `v1.2.0` then drives `publish.yml` (npm publish + GH release from the changelog notes + the trust ladder).
+
 ## Pass 69 (2026-10-29): 1.2.0 stability walk 4 (inject seam, incremental cache)
 **Scope:** a fifth bug/gap walk over the injection seam, the incremental cache, and the CLI (`staging` @ `42cfaa8`). Branch `staging`, no tags. Each fix cherry-pickable; battery 343 -> 346.
 
