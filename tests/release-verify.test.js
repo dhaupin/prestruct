@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { spawnSync } from 'node:child_process'
+import { spawnSync, spawn } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -45,6 +45,21 @@ function packTree(dest) {
 
 function run(args) {
   return spawnSync('node', [script, ...args], { cwd: root, encoding: 'utf8', timeout: 300000 })
+}
+
+// Async sibling: the propagation-retry tests run a local registry server in
+// THIS process, so the child must not block the event loop (spawnSync would
+// deadlock - the server could never answer a poll).
+function runAsync(args, opts = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('node', [script, ...args], { cwd: root, ...opts })
+    let stdout = ''
+    let stderr = ''
+    child.stdout.on('data', (d) => { stdout += d })
+    child.stderr.on('data', (d) => { stderr += d })
+    child.on('error', reject)
+    child.on('close', (status) => resolve({ status, stdout, stderr }))
+  })
 }
 
 describe('release-verify (trust ladder)', () => {
@@ -137,5 +152,90 @@ describe('release-verify (trust ladder)', () => {
     expect(out).toContain('labs/evil.txt')
     expect(out).toContain('FORBIDDEN')
     fs.rmSync(work, { recursive: true, force: true })
+  }, 120000)
+
+  it('the npm ladder polls through the post-publish propagation window', async () => {
+    // The first v1.2.0 verify run read `latest 1.1.0` seconds after
+    // `+ prestruct@1.2.0`: npm serves a fresh publish before its packument
+    // indexes it. A local registry that lags for two polls then settles must
+    // produce a PASS, not a red release. The lag is the bug; the retry is
+    // the fix; this pins it.
+    const http = await import('node:http')
+    const crypto = await import('node:crypto')
+    const toy = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-release-lag-'))
+    fs.writeFileSync(path.join(toy, 'package.json'), JSON.stringify({
+      name: 'toy-verify',
+      version: '1.2.0',
+      main: 'index.js',
+      files: ['index.js'],
+    }, null, 2))
+    fs.writeFileSync(path.join(toy, 'index.js'), "module.exports = { marker: 'toy-verify@1' }\n")
+    const pk = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+    expect(pk.status, `toy npm pack failed: ${pk.stderr}`).toBe(0)
+    const tarball = fs.readFileSync(path.join(toy, 'toy-verify-1.2.0.tgz'))
+    const integrity = 'sha512-' + crypto.createHash('sha512').update(tarball).digest('base64')
+
+    let polls = 0
+    const settledAfter = 2
+    let base
+    const server = http.createServer((req, res) => {
+      if (req.url.endsWith('.tgz')) {
+        res.writeHead(200, { 'content-type': 'application/octet-stream' })
+        return res.end(tarball)
+      }
+      polls += 1
+      const settled = polls > settledAfter
+      const body = settled
+        ? {
+            'dist-tags': { latest: '1.2.0' },
+            versions: { '1.2.0': { dist: { tarball: `${base}/toy-verify.tgz`, integrity, attestations: { url: 'x' } } } },
+          }
+        : { 'dist-tags': { latest: '1.1.0' }, versions: { '1.1.0': {} } }
+      res.writeHead(200, { 'content-type': 'application/json' })
+      res.end(JSON.stringify(body))
+    })
+    await new Promise((r) => server.listen(0, '127.0.0.1', r))
+    base = `http://127.0.0.1:${server.address().port}`
+    try {
+      const rv = await runAsync(['--npm', '--version', '1.2.0'], {
+        cwd: toy,
+        env: { ...process.env, VERIFY_RELEASE_REGISTRY: base, VERIFY_RELEASE_ATTEMPTS: '6', VERIFY_RELEASE_DELAY_MS: '25' },
+      })
+      const out = `${rv.stdout}\n${rv.stderr}`
+      expect(rv.status, `lagging-registry ladder failed (${rv.status}):\n${out}`).toBe(0)
+      expect(out, `no retry happened; the propagation window was not polled:\n${out}`).toContain('propagation')
+      expect(out).toContain('PASS registry latest == 1.2.0')
+      expect(polls).toBeGreaterThan(settledAfter)
+    } finally {
+      server.close()
+      fs.rmSync(toy, { recursive: true, force: true })
+    }
+  }, 120000)
+
+  it('the npm ladder still fails fast when the version truly never lands', async () => {
+    // The retry must not soften the real refusal: a registry that never
+    // indexes the version exhausts the poll budget and fails BY NAME.
+    const http = await import('node:http')
+    const toy = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-release-never-'))
+    fs.writeFileSync(path.join(toy, 'package.json'), JSON.stringify({ name: 'toy-verify', version: '9.9.9', main: 'index.js', files: ['index.js'] }, null, 2))
+    fs.writeFileSync(path.join(toy, 'index.js'), 'module.exports = 1\n')
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, { 'content-type': 'application/json' })
+      res.end(JSON.stringify({ 'dist-tags': { latest: '1.1.0' }, versions: { '1.1.0': {} } }))
+    })
+    await new Promise((r) => server.listen(0, '127.0.0.1', r))
+    const base = `http://127.0.0.1:${server.address().port}`
+    try {
+      const rv = await runAsync(['--npm', '--version', '9.9.9'], {
+        cwd: toy,
+        env: { ...process.env, VERIFY_RELEASE_REGISTRY: base, VERIFY_RELEASE_ATTEMPTS: '3', VERIFY_RELEASE_DELAY_MS: '10' },
+      })
+      const out = `${rv.stdout}\n${rv.stderr}`
+      expect(rv.status, `a version that never landed must fail (${rv.status}):\n${out}`).toBe(1)
+      expect(out).toContain('never indexed 9.9.9')
+    } finally {
+      server.close()
+      fs.rmSync(toy, { recursive: true, force: true })
+    }
   }, 120000)
 })
