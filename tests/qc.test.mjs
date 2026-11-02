@@ -202,3 +202,13 @@ test('example is generated from engine, not synced by a release workflow', () =>
   expect(exampleIslands).toMatch(/EmailIsland/)
   expect(readFileSync('init/src/AppIslands.jsx', 'utf8')).not.toMatch(/EmailIsland/)
 })
+
+test('CHANGELOG.md is Keep-a-Changelog with no subsection above [Unreleased]', () => {
+  // The release lane extracts the GH release body from CHANGELOG.md, so the
+  // heading shape is load-bearing. A "### " subsection above the first "## "
+  // heading lives outside every section and never ships.
+  const changelog = readFileSync('CHANGELOG.md', 'utf8')
+  expect(changelog).toMatch(/^## \[Unreleased\]$/m)
+  const before = changelog.slice(0, changelog.search(/^## \[Unreleased\]$/m))
+  expect(before).not.toMatch(/^### /m)
+})

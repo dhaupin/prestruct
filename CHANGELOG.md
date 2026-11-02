@@ -6,6 +6,8 @@ Rule from [CONTENT.md](./CONTENT.md): commit history is the source. This file re
 
 Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [version] - date` under a `## [Unreleased]` block. The heading is what `scripts/release-notes.cjs` extracts for the GitHub release body.
 
+## [Unreleased]
+
 ### Changed
 
 - **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md`
@@ -16,10 +18,6 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
   version token so `## [1.2.0]` never matches a `## [1.2.0-rc.1]`, and refuses
   a version with no section by name. One extractor across the family means one
   release-body shape everywhere.
-
----
-
-## [Unreleased]
 
 ### Fixed
 
