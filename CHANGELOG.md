@@ -160,6 +160,15 @@ A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix 
 - The `verify` job's npm ladder read `latest` ONCE, seconds after `npm publish` printed `+ prestruct@1.2.0`. npm serves a fresh publish before its packument indexes it ("may take a few minutes to become available"), so the ladder red-flagged a cut that HAD landed. It now polls the packument (20 attempts, 6s apart) until the version and `latest` settle, then judges -- and still fails by name if the version never appears. Knobs (`VERIFY_RELEASE_REGISTRY`, `VERIFY_RELEASE_ATTEMPTS`, `VERIFY_RELEASE_DELAY_MS`) exist for the test seam only.
 - The gh ladder compared the release object's `target_commitish` to the tag's commit SHA. GitHub records `target_commitish` as the DEFAULT BRANCH NAME for a release cut from an existing tag (the publish lane's `gh release create vX` shape) -- `main` on every prestruct cut, `v1.1.0` and `v1.2.0` alike -- so the check could never pass and v1.2.0 was the first tag to run the verify job at all. Only a full 40-char SHA is a commit claim now; a ref name is the creation hint, and the tag itself is the identity. Repo-infrastructure only -- the shipped tarball is unchanged.
 
+### Release lane: the release attaches the served tarball, and verify judges it
+
+- The `release` job attached nothing: the GitHub release object carried only the changelog body, so a consumer downloading the release got no artifact, and nothing tied the release to the npm payload. It now attaches the EXACT tarball the registry serves (`npm pack prestruct@<version>`) as the release asset -- the artifact npm received, not a re-pack of the checkout, so the release and the npm tarball can never drift.
+- The `verify` job's gh ladder now takes `--asset prestruct-<version>.tgz`: it downloads the release asset and asserts its sha512 equals the registry's own integrity metadata for this version. The release and the npm artifact are the SAME bytes, so a consumer gets one artifact either way. A missing asset, or one whose bytes differ, fails by name. Repo-infrastructure only -- the shipped tarball is unchanged.
+
+### CI: the publish lane's action refs are pinned to SHAs
+
+- `publish.yml` used floating major refs (`actions/checkout@v7`, `actions/setup-node@v7`). They are now pinned to the commit SHAs the tags resolve to, per the family rule (pins, never floats). Repo-infrastructure only -- no package change.
+
 ---
 
 ## v1.1.0 (released from the v1.1.0 tag)

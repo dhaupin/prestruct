@@ -125,9 +125,24 @@ test('release lane is publish.yml only (the tag drives npm + the GH release)', (
   const workflow = readFileSync('.github/workflows/publish.yml', 'utf8')
   expect(workflow).toMatch(/gh release create/)
   expect(workflow).toMatch(/release-notes\.cjs/)
-  // No zip asset: the GH release carries the changelog notes, nothing else.
+  // The release attaches the SERVED tarball (npm pack prestruct@<version>),
+  // not a re-pack of the checkout, so the release asset and the npm artifact
+  // are the same bytes. No starter zip rides along (that lane is retired).
+  expect(workflow).toMatch(/npm pack "prestruct@\$BLOCK_VERSION"/)
+  expect(workflow).toMatch(/gh release upload/)
   expect(workflow).not.toMatch(/\.zip/)
   expect(workflow).not.toMatch(/softprops\/action-gh-release/)
+})
+
+test('the verify job judges the release asset against the registry bytes', () => {
+  // The release attaches the served tarball; the verify job must assert the
+  // asset's sha512 equals the registry's integrity, or the attachment is
+  // unchecked and the release could carry different bytes than npm serves.
+  const workflow = readFileSync('.github/workflows/publish.yml', 'utf8')
+  expect(
+    workflow,
+    'verify must pass --asset so the release asset is judged against the registry integrity',
+  ).toMatch(/--gh --tag "v\$V" --asset "prestruct-\$V\.tgz"/)
 })
 
 test('publish lane installs every tree the gate lints (init eslint)', () => {
