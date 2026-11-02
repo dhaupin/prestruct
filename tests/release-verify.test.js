@@ -254,4 +254,31 @@ describe('release-verify (trust ladder)', () => {
     expect(nameless.status, `--asset with no name must be refused (${nameless.status}):\n${namelessOut}`).toBe(2)
     expect(namelessOut).toContain('--asset needs an asset file name')
   }, 60000)
+  it('--allowed de-asserts a default-forbidden prefix for this invocation', () => {
+    // The family flag (vant ships web/ as product): a repo whose runtime
+    // tarball legitimately carries a default-forbidden tree dir states it as
+    // --allowed instead of forking the script. Exemption only, prefix-scoped.
+    const toy = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-release-allowed-'))
+    fs.writeFileSync(path.join(toy, 'package.json'), JSON.stringify({
+      name: 'toy-verify', version: '4.2.0', main: 'index.js', files: ['index.js'],
+    }, null, 2))
+    fs.writeFileSync(path.join(toy, 'index.js'), 'module.exports = 1\n')
+    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+    expect(r.status, `toy npm pack failed: ${r.stderr}`).toBe(0)
+    const ex = path.join(toy, 'extracted')
+    fs.mkdirSync(ex, { recursive: true })
+    expect(spawnSync('tar', ['-xzf', path.join(toy, 'toy-verify-4.2.0.tgz'), '-C', ex], { encoding: 'utf8' }).status).toBe(0)
+    fs.mkdirSync(path.join(ex, 'package', 'web'), { recursive: true })
+    fs.writeFileSync(path.join(ex, 'package', 'web', 'app.js'), '// ships as product\n')
+    const doctored = path.join(toy, 'doctored.tgz')
+    expect(spawnSync('tar', ['-czf', doctored, '-C', path.join(ex, 'package'), '.'], { encoding: 'utf8' }).status).toBe(0)
+    const without = spawnSync('node', [script, '--pack', doctored, '--version', '4.2.0'], { cwd: toy, encoding: 'utf8', timeout: 300000 })
+    expect(without.status, 'web/ must be refused without the flag').toBe(1)
+    expect(`${without.stdout}\n${without.stderr}`).toContain('forbidden path prefix web/')
+    const withFlag = spawnSync('node', [script, '--pack', doctored, '--version', '4.2.0', '--allowed', 'web/'], { cwd: toy, encoding: 'utf8', timeout: 300000 })
+    const out = `${withFlag.stdout}\n${withFlag.stderr}`
+    expect(out, `--allowed did not clear the forbidden scan:\n${out}`).toContain('PASS forbidden scan')
+    expect(out).not.toContain('forbidden path prefix web/')
+    fs.rmSync(toy, { recursive: true, force: true })
+  }, 120000)
 })

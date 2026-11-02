@@ -6,6 +6,19 @@ Rule from [CONTENT.md](./CONTENT.md): commit history is the source. This file re
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **The release ladder no longer races registry propagation, nor false-flags a
+  branch-name `target_commitish`** - both surfaced by the crashtest 1.2.0 live
+  cut. `scripts/verify-release.cjs` polls `dist-tags.latest` **and** the version
+  entry through npm's post-publish propagation window instead of reading once,
+  and the `release` job retries `npm pack prestruct@<ver>` the same way. The
+  release check now accepts GitHub's `target_commitish` default-branch name and
+  treats only a 40-hex SHA as a commit claim. This copy also gains the family
+  `--allowed` flag (prefix-scoped forbidden-scan exemptions), pinned by a test.
+
 ## 1.2.0 (released from the v1.2.0 tag)
 
 ### Family ride-along: the issue-walk set ports into the engine
