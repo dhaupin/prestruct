@@ -30,9 +30,10 @@ git push origin main --follow-tags
 ```
 
 The changelog heading is what `scripts/release-notes.cjs` extracts for the
-GitHub release body. The matcher accepts `## 1.2.0`, `## v1.1.0`, and
-`## [1.0.0]` forms. An empty extraction refuses the cut, so a version with no
-changelog section mints no release.
+GitHub release body. The changelog is Keep-a-Changelog (`## [version] - date`);
+the matcher also reads the older bare (`## 1.2.0`) and v-prefixed (`## v1.2.0`)
+forms. An empty extraction refuses the cut, so a version with no changelog
+section mints no release.
 
 What the tag sets off, all inside `publish.yml`:
 
