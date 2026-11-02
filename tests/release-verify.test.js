@@ -35,12 +35,21 @@ function packTree(dest) {
   // npm pack of the repo root: the same files npm publish will include
   // (prepublishOnly is NOT a pack hook - the pack list is judged as one).
   const r = spawnSync('npm', ['pack', '--pack-destination', dest], {
-    cwd: root, encoding: 'utf8', timeout: 120000,
+    cwd: root, encoding: 'utf8', timeout: 120000, env: packEnv(),
   })
   expect(r.status, `npm pack failed: ${r.stderr}`).toBe(0)
   const tgz = path.join(dest, `prestruct-${pkg.version}.tgz`)
   expect(fs.existsSync(tgz), `npm pack produced nothing at ${tgz}`).toBe(true)
   return tgz
+}
+
+// `npm publish --dry-run` exports npm_config_dry_run=true into the lifecycle
+// env; a nested `npm pack` would then write no tarball. Strip it so a
+// rehearsal verdict equals a real-publish verdict.
+function packEnv() {
+  const env = { ...process.env }
+  delete env.npm_config_dry_run
+  return env
 }
 
 function run(args) {
@@ -74,7 +83,7 @@ describe('release-verify (trust ladder)', () => {
     }, null, 2))
     fs.writeFileSync(path.join(toy, 'index.js'), "module.exports = { marker: 'toy-verify@1' }\n")
     fs.writeFileSync(path.join(toy, 'bin.js'), "#!/usr/bin/env node\nconsole.log('4.2.0')\n")
-    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000, env: packEnv() })
     expect(r.status, `toy npm pack failed: ${r.stderr}`).toBe(0)
     const tgz = path.join(toy, 'toy-verify-4.2.0.tgz')
     // cwd is the TOY repo: the caller's tree is the one judged.
@@ -96,7 +105,7 @@ describe('release-verify (trust ladder)', () => {
       files: ['index.js'],
     }, null, 2))
     fs.writeFileSync(path.join(toy, 'index.js'), "module.exports = 1\n")
-    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000, env: packEnv() })
     expect(r.status, `toy npm pack failed: ${r.stderr}`).toBe(0)
     fs.mkdirSync(path.join(toy, 'secrets'), { recursive: true })
     fs.writeFileSync(path.join(toy, 'secrets', 'private.txt'), 'must never ship\n')
@@ -170,7 +179,7 @@ describe('release-verify (trust ladder)', () => {
       files: ['index.js'],
     }, null, 2))
     fs.writeFileSync(path.join(toy, 'index.js'), "module.exports = { marker: 'toy-verify@1' }\n")
-    const pk = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+    const pk = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000, env: packEnv() })
     expect(pk.status, `toy npm pack failed: ${pk.stderr}`).toBe(0)
     const tarball = fs.readFileSync(path.join(toy, 'toy-verify-1.2.0.tgz'))
     const integrity = 'sha512-' + crypto.createHash('sha512').update(tarball).digest('base64')
@@ -263,7 +272,7 @@ describe('release-verify (trust ladder)', () => {
       name: 'toy-verify', version: '4.2.0', main: 'index.js', files: ['index.js'],
     }, null, 2))
     fs.writeFileSync(path.join(toy, 'index.js'), 'module.exports = 1\n')
-    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000 })
+    const r = spawnSync('npm', ['pack', '--pack-destination', toy], { cwd: toy, encoding: 'utf8', timeout: 120000, env: packEnv() })
     expect(r.status, `toy npm pack failed: ${r.stderr}`).toBe(0)
     const ex = path.join(toy, 'extracted')
     fs.mkdirSync(ex, { recursive: true })
@@ -282,3 +291,36 @@ describe('release-verify (trust ladder)', () => {
     fs.rmSync(toy, { recursive: true, force: true })
   }, 120000)
 })
+
+  // Some npm builds (the phone's) answer `npm pack --dry-run --json` with an
+  // empty stdout - no JSON at all - and print a config warning besides. The
+  // ladder must not read that as a capability failure: it derives the expected
+  // set from a REAL `npm pack` (which the served-tarball forbidden scan already
+  // proved works on this build) instead of parsing the --json probe.
+  it('survives a phone npm whose --dry-run --json probe is empty', () => {
+    const work = fs.mkdtempSync(path.join(os.tmpdir(), 'release-verify-noisy-'))
+    const tgz = packTree(work)
+    const bin = path.join(work, 'bin')
+    fs.mkdirSync(bin)
+    const realNpm = spawnSync('which', ['npm'], { encoding: 'utf8' }).stdout.trim()
+    const shim = path.join(bin, 'npm')
+    fs.writeFileSync(shim, [
+      '#!/bin/sh',
+      'case " $* " in',
+      '  *" --dry-run "*)',
+      '    echo "npm warn Unknown project config \\"always-auth\\". This will stop working in the next major version of npm."',
+      '    exit 0 ;;',
+      'esac',
+      `exec ${realNpm} "$@"`,
+      '',
+    ].join('\n'))
+    fs.chmodSync(shim, 0o755)
+    const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys], {
+      cwd: root, encoding: 'utf8', timeout: 300000,
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+    })
+    const out = `${r.stdout}\n${r.stderr}`
+    expect(out).toContain('PASS served set == npm pack of this tree')
+    expect(out).not.toContain('npm pack --dry-run --json failed')
+    fs.rmSync(work, { recursive: true, force: true })
+  }, 120000)
