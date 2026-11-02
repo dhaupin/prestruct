@@ -154,6 +154,7 @@ describe('ship-from-download (phone publish lane)', () => {
       fs.writeFileSync = origWrite
     }
     expect(captured).toContain(`\${${TOKEN_ENV}}`)
+    expect(captured).not.toContain('always-auth')
     expect(captured).not.toContain(GOOD_ENV[TOKEN_ENV])
     fs.rmSync(base, { recursive: true, force: true })
   })
