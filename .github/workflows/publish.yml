@@ -162,8 +162,13 @@ jobs:
     needs: publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with: { fetch-depth: 0 }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
       # BLOCK_VERSION/TAG arrive through env from the publish job's outputs -
       # the same no-inline-interpolation rule the gate obeys. notes.md lives
       # in RUNNER_TEMP: never a silent overwrite of a repo file that happens
@@ -184,6 +189,18 @@ jobs:
           else
             gh release create "$TAG" --title "prestruct $BLOCK_VERSION" --notes-file "$RUNNER_TEMP/notes.md"
           fi
+      - name: attach the served tarball to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BLOCK_VERSION: ${{ needs.publish.outputs.version }}
+          BLOCK_TAG: ${{ needs.publish.outputs.tag }}
+        run: |
+          set -e
+          # The EXACT tarball the registry serves for this version - the
+          # artifact npm received, not a re-pack of the checkout, so the
+          # release asset and the npm artifact can never drift.
+          npm pack "prestruct@$BLOCK_VERSION" --pack-destination "$RUNNER_TEMP" > /dev/null
+          gh release upload "$BLOCK_TAG" "$RUNNER_TEMP/prestruct-$BLOCK_VERSION.tgz" --clobber
 
   # No `needs` on release here by design under the if: the verify leg runs
   # after release on a real cut, but ALSO stands alone in verify-only mode
@@ -199,9 +216,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: "24" }
       - name: the post-publish trust ladder (npm + GH release)
         env:
@@ -213,4 +230,4 @@ jobs:
           EXPECTED_EXPORTS="$(node -p "Object.keys(require('./package.json').exports).join(',')")"
           ENGINE_PROBE="const p=require('prestruct');if(typeof p.prerender!=='function')process.exit(1);if(typeof p.defineConfig!=='function')process.exit(1)"
           node scripts/verify-release.cjs --npm --version "$V" --exports "$EXPECTED_EXPORTS" --probe "$ENGINE_PROBE"
-          node scripts/verify-release.cjs --gh --tag "v$V"
+          node scripts/verify-release.cjs --gh --tag "v$V" --asset "prestruct-$V.tgz"

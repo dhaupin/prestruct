@@ -238,4 +238,20 @@ describe('release-verify (trust ladder)', () => {
       fs.rmSync(toy, { recursive: true, force: true })
     }
   }, 120000)
+
+  it('--asset is a --gh modifier: refused without --gh, and needs a name', () => {
+    // The release asset is the SAME bytes as the npm artifact (asserted in
+    // the verify job against the registry integrity). The flag only means
+    // something alongside the release ladder, so the script names the
+    // misuse instead of silently ignoring it.
+    const bare = run(['--pack', '/nonexistent.tgz', '--asset', 'x.tgz'])
+    const bareOut = `${bare.stdout}\n${bare.stderr}`
+    expect(bare.status, `--asset without --gh must be refused (${bare.status}):\n${bareOut}`).toBe(2)
+    expect(bareOut).toContain('--asset is a --gh modifier')
+
+    const nameless = run(['--gh', '--tag', 'v1.2.3', '--asset'])
+    const namelessOut = `${nameless.stdout}\n${nameless.stderr}`
+    expect(nameless.status, `--asset with no name must be refused (${nameless.status}):\n${namelessOut}`).toBe(2)
+    expect(namelessOut).toContain('--asset needs an asset file name')
+  }, 60000)
 })
