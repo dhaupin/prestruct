@@ -4,6 +4,19 @@ Consumer-facing changes to the engine and template. Written for projects that ch
 
 Rule from [CONTENT.md](./CONTENT.md): commit history is the source. This file records only what cherry-pickers must act on.
 
+Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [version] - date` under a `## [Unreleased]` block. The heading is what `scripts/release-notes.cjs` extracts for the GitHub release body.
+
+### Changed
+
+- **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md`
+  is now Keep-a-Changelog end to end (a `## [Unreleased]` block over
+  `## [version] - date` sections) and `scripts/release-notes.cjs` is the
+  family's single superset extractor: it reads the KAC heading, still reads the
+  older bare (`## 1.2.0`) and v-prefixed (`## v1.2.0`) forms, closes the
+  version token so `## [1.2.0]` never matches a `## [1.2.0-rc.1]`, and refuses
+  a version with no section by name. One extractor across the family means one
+  release-body shape everywhere.
+
 ---
 
 ## [Unreleased]
@@ -19,7 +32,7 @@ Rule from [CONTENT.md](./CONTENT.md): commit history is the source. This file re
   treats only a 40-hex SHA as a commit claim. This copy also gains the family
   `--allowed` flag (prefix-scoped forbidden-scan exemptions), pinned by a test.
 
-## 1.2.0 (released from the v1.2.0 tag)
+## [1.2.0] - 2026-11-01
 
 ### Family ride-along: the issue-walk set ports into the engine
 
@@ -184,7 +197,7 @@ A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix 
 
 ---
 
-## v1.1.0 (released from the v1.1.0 tag)
+## [1.1.0] - 2026-10-21
 
 ### Scaffold now compiles on react-router-dom v7 (and the example runs it)
 
@@ -226,15 +239,15 @@ A third bug/gap walk over the CLI, proxy pair, audit, and inject seam. Each fix 
 
 ---
 
-## v1.0.0
+## [1.0.0] - 2026-10-21
 
 Identical content to the 0.9.0 bootstrap release; the version returns to the 1.0.0 lock and stays there. This is the tag the dormant Trusted-Publisher workflow publishes from: pushing `v1.0.0` triggers .github/workflows/ publish.yml for the first tag-based publish with provenance (requires the npmjs.com Trusted-Publisher entry: user dhaupin, repo prestruct, workflow publish.yml).
 
-## v0.9.0 (bootstrap release)
+## [0.9.0] - 2026-10-21
 
 First npm publish (manual bootstrap; the Trusted-Publisher tag pipeline is dormant until v1.0.0, per the runbook in .github/workflows/publish.yml). Behavior is identical to the internal v1.0.0 lock, renamed down for the bootstrap ladder: after the publish lands, the version returns to 1.0.0 and the `v1.0.0` tag drives the first tag-based publish with provenance.
 
-## v0.2.6
+## [0.2.6]
 
 ### 404 CTA follows the host theme (visible fix for dark-mode owners)
 
