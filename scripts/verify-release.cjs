@@ -102,6 +102,26 @@ function cap(line) { die(2, line) }
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)) }
 
+// A version is "visible" when dist-tags.latest names it AND the version entry
+// exists - the two things the registry must agree on. A fresh publish is
+// served before the packument indexes it, so a single read right after
+// publish races the propagation and reads a false negative.
+function registryHasVersion(meta, version) {
+  return Boolean(
+    meta && meta['dist-tags'] && meta['dist-tags'].latest === version &&
+    meta.versions && meta.versions[version]
+  )
+}
+
+// GitHub records target_commitish as the DEFAULT BRANCH NAME when a release
+// is cut from an already-pushed tag, not the commit SHA. Only a 40-hex value
+// is a commit claim; a branch name carries no commit identity, and the tag
+// itself (git rev-parse below) is the source of truth.
+function releaseTargetMatches(target, commit) {
+  const t = String(target || '')
+  return !/^[0-9a-f]{40}$/i.test(t) || t === commit
+}
+
 function sh(cmd, args, opts) {
   return spawnSync(cmd, args, { encoding: 'utf8', ...opts })
 }
@@ -120,10 +140,16 @@ function tarList(file) {
   return r.stdout.trim().split('\n').filter(Boolean).map((n) => n.replace(/^\.{1,2}\//, '')).map((n) => n.replace(/^package\//, '').replace(/^package$/, ''))
 }
 
-function forbidden(scan, extraPrefixes) {
+function forbidden(scan, extraPrefixes, allowed) {
   const prefixes = [...FORBIDDEN_PREFIXES, ...extraPrefixes]
+  // --allowed (alias --allow) names exemptions: a name under an allowed
+  // prefix skips the scan. Exemption only - you can never re-assert
+  // something the scan itself forbids, and a repo that passes no flag sees
+  // zero behavior change.
+  const exempt = (name) => (allowed || []).some((p) => name === p || name.startsWith(p))
   const hits = []
   for (const name of scan) {
+    if (exempt(name)) continue
     for (const p of prefixes) {
       if (name.startsWith(p)) hits.push(`${name} (forbidden path prefix ${p})`)
     }
@@ -145,7 +171,7 @@ function packLadder(tgz, expectedVersion, cfg) {
   // refused BY NAME, fast (the doctored-tar battery case relies on this).
   const names = tarList(tgz)
   if (!names.length) fail('the tarball lists zero files')
-  const bad = forbidden(names, cfg.extraForbidden)
+  const bad = forbidden(names, cfg.extraForbidden, cfg.allowed)
   if (bad.length) fail(`FORBIDDEN contents in the tarball: ${bad.join('; ')}`)
   say(`[verify-release] PASS forbidden scan (${names.length} entries, 0 forbidden)`)
 
@@ -206,8 +232,17 @@ function packLadder(tgz, expectedVersion, cfg) {
   // step 4. Repos with a stricter surface pass it as --probe (eyestruct:
   // its adapter-contract marker).
   const installedPkg = JSON.parse(fs.readFileSync(path.join(home, 'node_modules', cfg.name, 'package.json'), 'utf8'))
+  // A package with no main/exports/bin legitimately has no root module to
+  // load (a factory that ships tool files + templates only). Requiring its
+  // own name then raises MODULE_NOT_FOUND for a shape, not a defect, so the
+  // default load probe is SKIPPED by name and the repo states its real
+  // surface as --probe. Named, never silent.
+  const hasEntry = Boolean(installedPkg.main || installedPkg.exports || installedPkg.bin)
   const defaultProbe = `require(${JSON.stringify(cfg.name)})`
-  const probes = [defaultProbe, ...cfg.probes]
+  const probes = hasEntry ? [defaultProbe, ...cfg.probes] : [...cfg.probes]
+  if (!hasEntry && !cfg.probes.length) {
+    say(`[verify-release] SKIP consumer load probe (${cfg.name} declares no main/exports/bin - nothing to load; pass --probe if it has a surface)`)
+  }
   for (let i = 0; i < probes.length; i++) {
     const probe = spawnSync('node', ['-e', probes[i]], { cwd: home, encoding: 'utf8' })
     if (probe.status !== 0) {
@@ -289,9 +324,7 @@ async function npmLadder(expectedVersion, cfg) {
       say(`[verify-release] SKIP npm ladder (registry unreachable: ${e.message})`)
       return false
     }
-    const indexed = meta.versions && meta.versions[expectedVersion]
-    const latest = meta['dist-tags'] && meta['dist-tags'].latest
-    if (indexed && latest === expectedVersion) break
+    if (registryHasVersion(meta, expectedVersion)) break
     meta = null
     if (i < attempts - 1) {
       say(`[verify-release] registry has not settled on ${expectedVersion} yet (propagation); retry ${i + 1}/${attempts - 1} in ${delayMs / 1000}s`)
@@ -348,8 +381,8 @@ function ghLadder(tag, cfg, version, assetName) {
   // d84d13a"). Only a full SHA here is a commit claim worth checking; a ref
   // name is the creation hint, and the tag itself is the identity.
   const target = String(obj.target_commitish || '')
+  if (!releaseTargetMatches(target, commit)) fail(`release ${tag} pinpoints ${target}, but the tag resolves to ${commit} - the release object and the tag disagree`)
   const isSha = /^[0-9a-f]{40}$/i.test(target)
-  if (isSha && target !== commit) fail(`release ${tag} pinpoints ${target}, but the tag resolves to ${commit} - the release object and the tag disagree`)
   say(`[verify-release] PASS release object exists for ${tag} (target ${isSha ? commit.slice(0, 12) : `${target} -> tag commit ${commit.slice(0, 12)}`})`)
 
   // Source tarball == git archive of the release commit.
@@ -414,12 +447,18 @@ function main() {
   // Config: everything repo-specific arrives as flags; the script itself is
   // one identical file across the family.
   const checkout = readCheckout()
-  const cfg = { name: checkout.name, exports: null, probes: [], extraForbidden: [] }
+  const cfg = { name: checkout.name, exports: null, probes: [], extraForbidden: [], allowed: [] }
   const exportsIdx = a.indexOf('--exports')
   if (exportsIdx !== -1) cfg.exports = a[exportsIdx + 1]
   const forbiddenIdx = a.indexOf('--forbidden')
   if (forbiddenIdx !== -1) {
     if (a[forbiddenIdx + 1]) cfg.extraForbidden = String(a[forbiddenIdx + 1]).split(',').filter(Boolean)
+  }
+  // --allowed (alias --allow): prefixes de-asserted from the forbidden scan
+  // for this invocation.
+  const allowedIdx = a.findIndex((v) => v === '--allowed' || v === '--allow')
+  if (allowedIdx !== -1) {
+    if (a[allowedIdx + 1]) cfg.allowed = String(a[allowedIdx + 1]).split(',').filter(Boolean)
   }
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--probe') {
@@ -431,7 +470,7 @@ function main() {
   const wantNpm = a.includes('--npm')
   const wantGh = a.includes('--gh')
   if (!wantPack && !wantNpm && !wantGh) {
-    say('usage: verify-release [--pack <tgz>] [--npm] [--gh --tag vX.Y.Z] [--asset <name>] [--version X.Y.Z] [--exports k1,k2,...] [--probe "<js>"] [--forbidden p1/,p2/]')
+    say('usage: verify-release [--pack <tgz>] [--npm] [--gh --tag vX.Y.Z] [--asset <name>] [--version X.Y.Z] [--exports k1,k2,...] [--probe "<js>"] [--forbidden p1/,p2/] [--allowed p1/,p2/]')
     process.exit(2)
   }
   const versionArgIdx = a.indexOf('--version')
@@ -469,4 +508,9 @@ function main() {
   })().catch((e) => cap(e.message))
 }
 
-main()
+// The pure helpers are exported for the battery (the family release-verify
+// test pins releaseTargetMatches + registryHasVersion). main() runs only when
+// the file is executed as the CLI, never on a require() from a test.
+module.exports = { releaseTargetMatches, registryHasVersion }
+
+if (require.main === module) main()
