@@ -94,13 +94,12 @@ jobs:
     steps:
       # fetch-depth: 0 - prepublishOnly's gate reads history, and the verify
       # ladder's git archive needs the release commit reachable.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with: { fetch-depth: 0 }
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
 
       - name: npm floor for trusted publishing (11.5.1+)
@@ -167,7 +166,6 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
       # BLOCK_VERSION/TAG arrive through env from the publish job's outputs -
       # the same no-inline-interpolation rule the gate obeys. notes.md lives
