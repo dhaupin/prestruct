@@ -43,7 +43,7 @@ jobs:
   docs:
     # Pinned to a freestruct SHA (the lane's own "every install is pinned"
     # doctrine; main is the only ref that carries the lane today).
-    uses: dhaupin/freestruct/.github/workflows/docs-lane.yml@124f367d26d99caa249af7a8503db7869ee32004
+    uses: dhaupin/freestruct/.github/workflows/docs-lane.yml@22bb7e9b2634d6cdd966963d9e25c7f892577276 # main
     with:
       # The lane defaults to freestruct's in-repo layout (`node bin/freestruct.mjs`).
       # prestruct consumes freestruct as an npm devDep, so point at the install.

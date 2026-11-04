@@ -69,4 +69,16 @@ describe('check-action-pins (pins, never floats)', () => {
     expect(res.status).toBe(0)
     expect(res.stdout).toMatch(/all SHA-pinned/)
   })
+
+  it('scans the composite Action manifest too (a float there fails)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pins-'))
+    const wf = path.join(dir, 'workflows')
+    fs.mkdirSync(wf, { recursive: true })
+    fs.writeFileSync(path.join(wf, 'ci.yml'), `jobs:\n  a:\n    steps:\n      - uses: actions/checkout@${SHA} # v4\n`)
+    fs.writeFileSync(path.join(dir, 'action.yml'), `runs:\n  using: 'composite'\n  steps:\n    - uses: actions/setup-node@v6\n`)
+    const res = spawnSync(process.execPath, [GUARD, wf], { encoding: 'utf8' })
+    fs.rmSync(dir, { recursive: true, force: true })
+    expect(res.status).toBe(1)
+    expect(res.stderr).toMatch(/action\.yml.*floating ref/)
+  })
 })
