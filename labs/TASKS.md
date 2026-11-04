@@ -1066,3 +1066,9 @@ The docs side quest, setup phase. Docs were stale (jekyll-theme-minimal frame, p
 - (freestruct#2 - packaging/upublished-npm was already open; not duplicated.)
 
 **Verified:** lint:docs PASS (style/links/frontmatter/language/truthfulness), lint:claims PASS, vitest 102/102, sync check 5/5. No ruby/bundle in the workspace, so the Jekyll build itself is validated by the docs.yml CI job, not locally (documented limitation).
+
+## 2026-11-03 - the pin guard goes family-wide (packstruct#69 back-port)
+
+- `scripts/check-action-pins.cjs` (the "pins, never floats" guard) was a packstruct-only artifact (it landed on packstruct's `fix/sha-pin-actions`). It is now copied byte-identical into every sibling: `crashtest`, `eyestruct`, `freestruct`, `gistory`, `govstruct`, `monoforge`, `poststruct`, `prestruct` (packstruct already had it).
+- Wired as `npm run lint:pins` inside each repo's publish gate (`check` / `gate` / `prepublishOnly`) and CI, and the guard's own battery (`check-action-pins.test.*`) rides `npm test`.
+- Each repo's workflows were already SHA-pinned, so the guard is now mechanical here too. Receipt: `ACTION PINS: PASS (15 ref(s), all SHA-pinned)`, pin battery 8/8, full battery green.
