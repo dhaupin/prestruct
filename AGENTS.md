@@ -480,9 +480,9 @@ var url = data.url && data.url.startsWith(baseurl)
 
 ---
 
-## Docs frame: the flowforge rig shape (adopted 2026-10-26)
+## Docs frame: the coreforge rig shape (adopted 2026-10-26)
 
-`docs/_layouts/default.html` is the adopted dhaupin/flowforge docs rig (docs/_layouts/default.html, brand-data-only diff): fixed header with search trigger > GitHub icon > theme switch > hamburger, slide-out mobile sidebar driven by `docs/_data/nav.yml` (groups of `{title, items}`), and a pagefind modal search on Ctrl/Cmd+K.
+`docs/_layouts/default.html` is the adopted dhaupin/coreforge docs rig (docs/_layouts/default.html, brand-data-only diff): fixed header with search trigger > GitHub icon > theme switch > hamburger, slide-out mobile sidebar driven by `docs/_data/nav.yml` (groups of `{title, items}`), and a pagefind modal search on Ctrl/Cmd+K.
 
 - **Tokens own the palette.** `--paper/--surface/--raised/--ink/--ink-soft/ --accent/--accent-deep/--moss/--err/--line/--code-bg`; the light theme is a second block of the SAME token set. No rule hardcodes a hex.
 - **Theme:** `html[data-theme]` attribute, key `prestruct-theme`, dark is the default sheet; only a persisted light theme is flipped at bootstrap (inline, before first paint). The icon is the ACTION (sun shows in dark).
@@ -493,7 +493,7 @@ var url = data.url && data.url.startsWith(baseurl)
 
 - **Canonical math is `site.url + basePath + relSlug`.** `site.url` is the ORIGIN and `basePath` is the deploy prefix, so `site.url: https://docs.creadev.org` + `basePath: /prestruct` yields one `/prestruct` in the URL. The family's eyestruct/gistory configs put the prefix in BOTH and double it (gistory's LIVE sitemap/robots carry `.../gistory/gistory/...`) -- the same shape freestruct's own `urls.js` header warns against. prestruct matches packstruct/poststruct (host-only `site.url`).
 - **`linkCheck: false` is required while freestruct#32 is unfixed.** The 1.1.0 link checker resolves root-absolute `/prestruct/...` hrefs against the artifact root, not `basePath`, so `--strict` exits 1 naming every baseurl'd nav link broken. With it off, `--strict` exits 0 and `audit` reports 0 failures. Restore the check when #32 lands.
-- **The identity template must be the ENGINE edition.** `docs/_freestruct/inject-brand.html` carries the `{{authorJson}}` seam that renders `author:` as a schema.org Person under "founder" on the injected Organization block. The older flowforge shell edition has no seam (its only Organization sits inside a SoftwareApplication author field), so it cannot render the founder -- the trap that cost eyestruct a round (c81b07a). freestruct's `init` kit ships the engine edition.
+- **The identity template must be the ENGINE edition.** `docs/_freestruct/inject-brand.html` carries the `{{authorJson}}` seam that renders `author:` as a schema.org Person under "founder" on the injected Organization block. The older coreforge shell edition has no seam (its only Organization sits inside a SoftwareApplication author field), so it cannot render the founder -- the trap that cost eyestruct a round (c81b07a). freestruct's `init` kit ships the engine edition.
 - **A page with `layout: none` builds headless.** `docs/discussions/announcing-v1.2.0.md` shipped `layout: none` while its v1.0.0/v1.1.0 siblings carried `layout: default`, so it baked with no site chrome and no `</head>` -- freestruct's head-injection surface skipped it with a warning and the page had no identity. The local docs-preview build (pass 61) surfaced it; the frontmatter gate cannot (it checks the field is present, not that the value is a real layout).
 
 **Future work (docs frame + search):**
