@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/proxy
 ---
 
-
 Dynamic rendering for bots using Puppeteer - VPS or Cloudflare Worker.
 
 ## When to Use the Proxy
@@ -65,9 +64,7 @@ cp init/scripts/proxy.js ./scripts/
 
 ### 2. Configure
 
-The proxy reads config from `../ssr.config.js` (relative to the copy in
-`scripts/`), so it must live next to the same config drive your build. The
-auth secret is an env var -- there is no `secret` config key:
+The proxy reads config from `../ssr.config.js` (relative to the copy in `scripts/`), so it must live next to the same config drive your build. The auth secret is an env var -- there is no `secret` config key:
 
 ```js
 // ssr.config.js
@@ -102,9 +99,7 @@ sudo cp scripts/prestruct-proxy.service /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now prestruct-proxy
 ```
 
-The scaffold keeps a shared, warm Puppeteer browser per AGENTS.md: pages
-open/close per request, the browser process stays pooled; on `disconnected`
-the reference clears and the next request respawns it.
+The scaffold keeps a shared, warm Puppeteer browser per AGENTS.md: pages open/close per request, the browser process stays pooled; on `disconnected` the reference clears and the next request respawns it.
 
 ## Cloudflare Worker Deployment
 
@@ -139,24 +134,17 @@ wrangler deploy
 
 Different per runtime:
 
-- **VPS**: SHA-256 of the full request path + query string (filesystem-safe,
-  collision-resistant).
-- **Worker**: `prestruct:` prefix + percent-encoded path + query (KV, 512-byte
-  key limit).
+- **VPS**: SHA-256 of the full request path + query string (filesystem-safe, collision-resistant).
+- **Worker**: `prestruct:` prefix + percent-encoded path + query (KV, 512-byte key limit).
 
 ### TTL
 
-- **VPS**: fixed 24h constant (`CACHE_TTL` in scripts/proxy.js -- edit the
-  constant to change it). Cache dir relocates via `PRESTRUCT_CACHE_DIR`; total
-  cache caps at 500MB with oldest-first eviction.
+- **VPS**: fixed 24h constant (`CACHE_TTL` in scripts/proxy.js -- edit the constant to change it). Cache dir relocates via `PRESTRUCT_CACHE_DIR`; total cache caps at 500MB with oldest-first eviction.
 - **Worker**: `CACHE_TTL_SECONDS` in wrangler.toml `[vars]`, default 86400.
 
 ### Cache busting
 
-GET the target path with the `x-prestruct-refresh` header matching
-`PRESTRUCT_SECRET`. A matched header skips the cache read (next response is
-`X-Prestruct-Cache: MISS`); Worker KV propagation to all edges may take a few
-seconds:
+GET the target path with the `x-prestruct-refresh` header matching `PRESTRUCT_SECRET`. A matched header skips the cache read (next response is `X-Prestruct-Cache: MISS`); Worker KV propagation to all edges may take a few seconds:
 
 ```bash
 curl -H "x-prestruct-refresh: your-secret" \
@@ -175,17 +163,12 @@ proxy: {
 
 ## Security
 
-- Cache refresh requires matching `PRESTRUCT_SECRET` (constant-time compare:
-  hash + `timingSafeEqual` on the VPS, full-length XOR on the Worker). Unset
-  secret = refresh disabled entirely, never allow-all.
+- Cache refresh requires matching `PRESTRUCT_SECRET` (constant-time compare: hash + `timingSafeEqual` on the VPS, full-length XOR on the Worker). Unset secret = refresh disabled entirely, never allow-all.
 - Only GET requests are processed; others get 405.
 - Target URL is validated before Puppeteer (HTTP/HTTPS schemes only).
-- Every render sends `X-Prestruct-Proxy: true` to the origin so the target can
-  identify proxy traffic.
+- Every render sends `X-Prestruct-Proxy: true` to the origin so the target can identify proxy traffic.
 
-Render responses self-describe via headers: `X-Prestruct-Cache: HIT|MISS` and
-`X-Prestruct-Rendered-At` (render timestamp). On render failure the proxy
-falls through to a 302 to the live site so bots never receive an error page.
+Render responses self-describe via headers: `X-Prestruct-Cache: HIT|MISS` and `X-Prestruct-Rendered-At` (render timestamp). On render failure the proxy falls through to a 302 to the live site so bots never receive an error page.
 
 ## Browser Pooling
 

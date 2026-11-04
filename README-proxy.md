@@ -1,21 +1,12 @@
 # Prestruct render proxy
 
-The proxy is an optional addition to the Prestruct build pipeline. It adds
-dynamic bot-time rendering on top of the existing build-time prerender.
+The proxy is an optional addition to the Prestruct build pipeline. It adds dynamic bot-time rendering on top of the existing build-time prerender.
 
-`npx prestruct init` scaffolds all the proxy files (`scripts/proxy.js`,
-`scripts/proxy.worker.js`, `proxy.package.json`, `wrangler.toml`) into your
-project, so on a scaffolded project you can skip the file-copying steps below.
-See also: [docs/guides/cloudflare.md](docs/guides/cloudflare.md) for the Pages
-side of the setup.
+`npx prestruct init` scaffolds all the proxy files (`scripts/proxy.js`, `scripts/proxy.worker.js`, `proxy.package.json`, `wrangler.toml`) into your project, so on a scaffolded project you can skip the file-copying steps below. See also: [docs/guides/cloudflare.md](docs/guides/cloudflare.md) for the Pages side of the setup.
 
-**Without the proxy:** bots get the static prerendered HTML from Cloudflare Pages.
-This covers every route listed in `ssr.config.js`. Routes not in that list serve
-the SPA shell with no prerendered content.
+**Without the proxy:** bots get the static prerendered HTML from Cloudflare Pages. This covers every route listed in `ssr.config.js`. Routes not in that list serve the SPA shell with no prerendered content.
 
-**With the proxy:** bots are intercepted and served a live Puppeteer render of
-the target page. Humans still get the static CF Pages site. The proxy adds coverage
-for dynamic routes, paginated URLs, and any content that changes between deploys.
+**With the proxy:** bots are intercepted and served a live Puppeteer render of the target page. Humans still get the static CF Pages site. The proxy adds coverage for dynamic routes, paginated URLs, and any content that changes between deploys.
 
 The two approaches stack -- you don't replace one with the other.
 
@@ -48,8 +39,7 @@ Any Linux VPS works. The proxy needs:
 
 ### 2. Copy files to the server
 
-Copy these files to your VPS (structure can be flat). On a scaffolded project
-they already exist, created by `npx prestruct init`:
+Copy these files to your VPS (structure can be flat). On a scaffolded project they already exist, created by `npx prestruct init`:
 ```
 scripts/proxy.js
 ssr.config.js
@@ -70,9 +60,7 @@ Puppeteer downloads a compatible Chromium binary automatically during install.
 export PRESTRUCT_SECRET="a-long-random-string"
 ```
 
-Set the same value as the `PRESTRUCT_SECRET` env var where the proxy runs --
-it is an env var, never a `ssr.config.js` field (an unset secret disables
-the refresh feature entirely; it never means "allow all"). Generate one with:
+Set the same value as the `PRESTRUCT_SECRET` env var where the proxy runs -- it is an env var, never a `ssr.config.js` field (an unset secret disables the refresh feature entirely; it never means "allow all"). Generate one with:
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
@@ -100,13 +88,9 @@ pm2 save && pm2 startup        # survive reboots
 pm2 logs prestruct-proxy       # watch it
 ```
 
-The ecosystem file pins one process (`exec_mode: fork`) and restarts on memory
-spikes -- the proxy keeps a warm Chromium pool, so it must never be clusterised.
+The ecosystem file pins one process (`exec_mode: fork`) and restarts on memory spikes -- the proxy keeps a warm Chromium pool, so it must never be clusterised.
 
-For systemd, the unit file is also copied by `prestruct init`. Point
-`WorkingDirectory` at your install path, put `PRESTRUCT_SECRET` in
-`/etc/prestruct/config.env`, then `sudo systemctl enable --now prestruct-proxy`.
-Full instructions in the comments of the unit file.
+For systemd, the unit file is also copied by `prestruct init`. Point `WorkingDirectory` at your install path, put `PRESTRUCT_SECRET` in `/etc/prestruct/config.env`, then `sudo systemctl enable --now prestruct-proxy`. Full instructions in the comments of the unit file.
 
 ### 6. Set up TLS
 
@@ -129,9 +113,7 @@ proxy: {
 },
 ```
 
-No `secret` key here: the cache-refresh secret is the `PRESTRUCT_SECRET`
-env var where the proxy runs (step 4) -- the build never reads a config-side
-secret, and an unset env var disables refresh entirely (feature off, not open).
+No `secret` key here: the cache-refresh secret is the `PRESTRUCT_SECRET` env var where the proxy runs (step 4) -- the build never reads a config-side secret, and an unset env var disables refresh entirely (feature off, not open).
 
 ### 8. Rebuild and deploy
 
@@ -139,8 +121,7 @@ secret, and an unset env var disables refresh entirely (feature off, not open).
 npm run build
 ```
 
-`inject-brand.js` reads `config.proxy.url` and adds the proxy origin to
-`connect-src` in `dist/_headers` automatically.
+`inject-brand.js` reads `config.proxy.url` and adds the proxy origin to `connect-src` in `dist/_headers` automatically.
 
 ---
 
@@ -156,8 +137,7 @@ npm install @cloudflare/puppeteer
 
 ### 2. Copy the Worker file
 
-Copy `scripts/proxy.worker.js` into the project. Update `wrangler.toml` (or
-copy the included `wrangler.toml` and fill in the blanks).
+Copy `scripts/proxy.worker.js` into the project. Update `wrangler.toml` (or copy the included `wrangler.toml` and fill in the blanks).
 
 ### 3. Create a KV namespace
 
@@ -199,8 +179,7 @@ wrangler secret put PRESTRUCT_SECRET
 wrangler deploy
 ```
 
-Your Worker URL will be something like `prestruct-proxy.your-account.workers.dev`.
-Point a custom domain at it via the CF dashboard if preferred.
+Your Worker URL will be something like `prestruct-proxy.your-account.workers.dev`. Point a custom domain at it via the CF dashboard if preferred.
 
 ### 7. Update ssr.config.js
 
@@ -212,8 +191,7 @@ proxy: {
 },
 ```
 
-The Worker secret stays out of config entirely: it lives in `wrangler secret
-put PRESTRUCT_SECRET` (step 5) -- no `secret` key in `ssr.config.js` is read.
+The Worker secret stays out of config entirely: it lives in `wrangler secret put PRESTRUCT_SECRET` (step 5) -- no `secret` key in `ssr.config.js` is read.
 
 ### 8. Rebuild and deploy CF Pages
 
@@ -225,9 +203,7 @@ npm run build
 
 ## Pointing the proxy at a non-Prestruct site
 
-Set `config.proxy.targetUrl` (or `PRESTRUCT_TARGET_URL` for the Worker) to any
-publicly reachable URL. The proxy will Puppeteer-render that target instead of
-`siteUrl`.
+Set `config.proxy.targetUrl` (or `PRESTRUCT_TARGET_URL` for the Worker) to any publicly reachable URL. The proxy will Puppeteer-render that target instead of `siteUrl`.
 
 Examples:
 ```js
@@ -241,12 +217,9 @@ targetUrl: 'http://localhost:5173'
 targetUrl: 'https://staging.yoursite.com'
 ```
 
-The rendered HTML is returned verbatim to the bot. Meta tags, canonical URLs,
-and structured data come from whatever the target page produces.
+The rendered HTML is returned verbatim to the bot. Meta tags, canonical URLs, and structured data come from whatever the target page produces.
 
-The localhost loopback case works when the proxy and the target server run on the
-same machine. Puppeteer resolves `localhost` in the context of the proxy process,
-not the requesting client.
+The localhost loopback case works when the proxy and the target server run on the same machine. Puppeteer resolves `localhost` in the context of the proxy process, not the requesting client.
 
 ---
 
@@ -258,11 +231,9 @@ Send `x-prestruct-refresh` with the secret value to bust the cache for a specifi
 curl -H "x-prestruct-refresh: your-secret" https://proxy.yoursite.com/blog/my-post
 ```
 
-The path is re-rendered immediately and the new HTML replaces the cache entry.
-All other paths are unaffected.
+The path is re-rendered immediately and the new HTML replaces the cache entry. All other paths are unaffected.
 
-If `PRESTRUCT_SECRET` is not set on the proxy host, the refresh feature is disabled.
-The header is ignored regardless of its value.
+If `PRESTRUCT_SECRET` is not set on the proxy host, the refresh feature is disabled. The header is ignored regardless of its value.
 
 ---
 
@@ -270,25 +241,19 @@ The header is ignored regardless of its value.
 
 The VPS proxy reads `config.proxy.botList` from `ssr.config.js` at startup.
 
-The Worker proxy has its own `BOT_LIST` array at the top of `proxy.worker.js`
-(Workers have no access to build-time config). You usually never touch it:
-when `config.proxy.url` is set, the build (`inject-brand.js`) rewrites the
-Worker's `BOT_LIST` from `ssr.config.js` automatically:
+The Worker proxy has its own `BOT_LIST` array at the top of `proxy.worker.js` (Workers have no access to build-time config). You usually never touch it: when `config.proxy.url` is set, the build (`inject-brand.js`) rewrites the Worker's `BOT_LIST` from `ssr.config.js` automatically:
 
 ```text
 [inject-brand] BOT_LIST synced from ssr.config.js (13 bots) -> scripts/proxy.worker.js
 ```
 
-Edit `botList` in `ssr.config.js`, rebuild, redeploy the Worker. The sync is
-idempotent (no rewrite when already equal) and is skipped when
-`scripts/proxy.worker.js` does not exist or the array cannot be found.
+Edit `botList` in `ssr.config.js`, rebuild, redeploy the Worker. The sync is idempotent (no rewrite when already equal) and is skipped when `scripts/proxy.worker.js` does not exist or the array cannot be found.
 
 ---
 
 ## What the proxy does not do
 
-- It does not replace `npm run build`. The build-time prerender still runs and
-  still produces static HTML for configured routes.
+- It does not replace `npm run build`. The build-time prerender still runs and still produces static HTML for configured routes.
 - It does not serve humans. Non-bot requests get a 302 to the live site.
 - It does not transform HTML. The rendered snapshot is returned as-is.
 - It does not handle POST, PUT, or other methods.

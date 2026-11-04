@@ -69,8 +69,7 @@ export async function onRequestGet({ params }) {
 
 ## 404 handling
 
-Prestruct prerenders a 404 page to dist/404.html with a `noindex` robots
-directive. Cloudflare Pages serves it for unmatched routes.
+Prestruct prerenders a 404 page to dist/404.html with a `noindex` robots directive. Cloudflare Pages serves it for unmatched routes.
 
 Customize via `ssr.config.js` -- no code edits required:
 
@@ -93,10 +92,7 @@ notFound: {
 
 ### Config order does not affect matching
 
-Each configured route renders independently, and React Router v6 ranks
-candidates by specificity score, not array order. Order only affects
-sitemap and build log ordering. Route specificity lives in your
-`src/AppLayout.jsx` `<Routes>` tree, not in `ssr.config.js`.
+Each configured route renders independently, and React Router v6 ranks candidates by specificity score, not array order. Order only affects sitemap and build log ordering. Route specificity lives in your `src/AppLayout.jsx` `<Routes>` tree, not in `ssr.config.js`.
 
 ### Missing routes = 404
 

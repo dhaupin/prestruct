@@ -9,19 +9,13 @@ permalink: /ci
 
 # CI guide
 
-prestruct's CI is a set of independent legs. Each one is honest alone and
-deterministic: no leg needs another leg's output to judge its own result, and
-a red docs deploy never holds the test battery. This page maps every leg to
-its workflow file and names where to look first when a run goes red.
+prestruct's CI is a set of independent legs. Each one is honest alone and deterministic: no leg needs another leg's output to judge its own result, and a red docs deploy never holds the test battery. This page maps every leg to its workflow file and names where to look first when a run goes red.
 
-The receipts below are the workflow files under `.github/workflows/`, the
-scripts under `scripts/`, and the source under `engine/`. When this prose and
-a workflow disagree, the workflow wins - fix the prose.
+The receipts below are the workflow files under `.github/workflows/`, the scripts under `scripts/`, and the source under `engine/`. When this prose and a workflow disagree, the workflow wins - fix the prose.
 
 ## The battery (test.yml)
 
-Runs on every pull request and every push to `staging` or `main`. It is the
-leg that proves the engine, the template, and the configured example.
+Runs on every pull request and every push to `staging` or `main`. It is the leg that proves the engine, the template, and the configured example.
 
 | step | leg | what it proves |
 |------|-----|----------------|
@@ -35,21 +29,14 @@ leg that proves the engine, the template, and the configured example.
 
 Two behaviors are worth naming because they are contract, not convenience:
 
-- The unconfigured scaffold build is expected to pass. `init/scripts/audit-if-configured.cjs`
-  refuses with a named skip when `ssr.config.js` is absent, so `prestruct init`
-  then `npm run build` is green before any configuration exists.
-- The example build ends in `prestruct audit`, so a regression in the baked
-  head fails CI, not only a local build.
+- The unconfigured scaffold build is expected to pass. `init/scripts/audit-if-configured.cjs` refuses with a named skip when `ssr.config.js` is absent, so `prestruct init` then `npm run build` is green before any configuration exists.
+- The example build ends in `prestruct audit`, so a regression in the baked head fails CI, not only a local build.
 
-The battery also uploads `init/dist/` and `coverage/` as artifacts on every
-run, pass or fail.
+The battery also uploads `init/dist/` and `coverage/` as artifacts on every run, pass or fail.
 
 ## The engine-sync leg (engine-sync-check.yml)
 
-Runs on every pull request and push to `staging` or `main`. It runs the
-generator's own check mode, `node scripts/sync-engine.mjs check`, which
-byte-compares every contract file between `engine/`, `init/`, and `example/`
-(the `CONTRACT` array in `scripts/sync-engine.mjs` is the one file list):
+Runs on every pull request and push to `staging` or `main`. It runs the generator's own check mode, `node scripts/sync-engine.mjs check`, which byte-compares every contract file between `engine/`, `init/`, and `example/` (the `CONTRACT` array in `scripts/sync-engine.mjs` is the one file list):
 
 ```text
 scripts/inject-brand.js
@@ -64,53 +51,29 @@ src/islands.js
 ssr.config.example.js
 ```
 
-A mismatch fails with the drifting file named. The fix is never to hand-edit
-`init/` or `example/`: edit `engine/`, run `node scripts/sync-engine.mjs`, and
-commit the regenerated copies.
+A mismatch fails with the drifting file named. The fix is never to hand-edit `init/` or `example/`: edit `engine/`, run `node scripts/sync-engine.mjs`, and commit the regenerated copies.
 
 ## The crashtest leg (crashtest.yml)
 
-Runs on every pull request, push to `staging` or `main`, and manual dispatch. It
-attacks both shipped proxy runtimes in-process through the committed
-`crashtest.config.js`:
+Runs on every pull request, push to `staging` or `main`, and manual dispatch. It attacks both shipped proxy runtimes in-process through the committed `crashtest.config.js`:
 
 - `adapters.express` drives `init/scripts/proxy.js` through `createProxyApp(config)`
 - `routes.worker` drives `init/scripts/proxy.worker.js` through `fetch(request, env)`
 
-The run never opens a socket, and no browser is installed on purpose:
-puppeteer imports fail closed, which is the contract the pack's
-bot-render-fallback row pins (a render failure must fall through to the
-live-site 302, not crash).
+The run never opens a socket, and no browser is installed on purpose: puppeteer imports fail closed, which is the contract the pack's bot-render-fallback row pins (a render failure must fall through to the live-site 302, not crash).
 
-The gate rule is the same one `labs/hardening.md` documents: exit 0 unless a
-new EXPLOITED finding appears or something previously REFUSED regresses.
-`labs/hardening.md` is the human-first report; the ledger row names the
-attack. The harness is pinned by an exact devDependency that tracks the
-version the committed ledger was cut with - bump it with
-`npm run crashtest:bump <version>` and commit `package.json`,
-`package-lock.json`, and `labs/` together.
+The gate rule is the same one `labs/hardening.md` documents: exit 0 unless a new EXPLOITED finding appears or something previously REFUSED regresses. `labs/hardening.md` is the human-first report; the ledger row names the attack. The harness is pinned by an exact devDependency that tracks the version the committed ledger was cut with - bump it with `npm run crashtest:bump <version>` and commit `package.json`, `package-lock.json`, and `labs/` together.
 
 ## The docs lane (docs.yml)
 
-Runs on a push to `staging` or `main` that touches `docs/**`,
-`.github/workflows/docs.yml`, or `package-lock.json`, and on manual dispatch.
+Runs on a push to `staging` or `main` that touches `docs/**`, `.github/workflows/docs.yml`, or `package-lock.json`, and on manual dispatch.
 
-`docs.yml` is a **thin caller** of freestruct's canonical reusable lane
-(`dhaupin/freestruct/.github/workflows/docs-lane.yml`, promoted for
-`dhaupin/freestruct#31`). The Jekyll -> freestruct -> pagefind -> Pages runbook
-that used to live here inline now lives in the lane as `on: workflow_call`, so
-prestruct does not hand-maintain a copy that drifts from the rest of the rig
-(the drift table in `dhaupin/flowforge#9` is the receipt). The caller pins the
-lane to a freestruct SHA and overrides two of its inputs:
+`docs.yml` is a **thin caller** of freestruct's canonical reusable lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`, promoted for `dhaupin/freestruct#31`). The Jekyll -> freestruct -> pagefind -> Pages runbook that used to live here inline now lives in the lane as `on: workflow_call`, so prestruct does not hand-maintain a copy that drifts from the rest of the rig (the drift table in `dhaupin/flowforge#9` is the receipt). The caller pins the lane to a freestruct SHA and overrides two of its inputs:
 
-- `freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs` -- the lane
-  defaults to freestruct's in-repo layout; prestruct consumes freestruct as an
-  npm devDep.
-- `crashtest-ref: <v1.1.0 sha>` -- the lane runs a crashtest dogfood leg; the
-  pin matches the version prestruct's committed ledger was cut with.
+- `freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs` -- the lane defaults to freestruct's in-repo layout; prestruct consumes freestruct as an npm devDep.
+- `crashtest-ref: <v1.1.0 sha>` -- the lane runs a crashtest dogfood leg; the pin matches the version prestruct's committed ledger was cut with.
 
-The build legs run on both branches; the **deploy job is gated to `main` inside
-the lane** (see the staging flow below). The pipeline:
+The build legs run on both branches; the **deploy job is gated to `main` inside the lane** (see the staging flow below). The pipeline:
 
 ```text
 Jekyll build (Ruby 3.4, kramdown + rouge)
@@ -119,104 +82,61 @@ Jekyll build (Ruby 3.4, kramdown + rouge)
   -> GitHub Pages deploy
 ```
 
-The site lands at `docs.creadev.org/prestruct`. `docs/_config.yml` pins
-`baseurl: "/prestruct"`, and `docs/freestruct.config.yml` sets
-`site.url: https://docs.creadev.org` with `basePath: /prestruct`, so every
-canonical reads `https://docs.creadev.org/prestruct/<page>`. Putting the
-prefix in both `site.url` and `basePath` doubles it, so keep `site.url` as
-the origin.
+The site lands at `docs.creadev.org/prestruct`. `docs/_config.yml` pins `baseurl: "/prestruct"`, and `docs/freestruct.config.yml` sets `site.url: https://docs.creadev.org` with `basePath: /prestruct`, so every canonical reads `https://docs.creadev.org/prestruct/<page>`. Putting the prefix in both `site.url` and `basePath` doubles it, so keep `site.url` as the origin.
 
-The freestruct step runs with `linkCheck: false`. Its link checker resolved
-root-absolute `/prestruct/...` hrefs against the artifact root and failed every
-baseurl'd nav - tracked upstream as `dhaupin/freestruct#32`. The fix landed on
-freestruct `main` (not yet in an npm release), so the flag stays until a release
-carries it; restore the check when one does.
+The freestruct step runs with `linkCheck: false`. Its link checker resolved root-absolute `/prestruct/...` hrefs against the artifact root and failed every baseurl'd nav - tracked upstream as `dhaupin/freestruct#32`. The fix landed on freestruct `main` (not yet in an npm release), so the flag stays until a release carries it; restore the check when one does.
 
-The Jekyll stack runs locally with no root. The recipe (prebuilt Ruby, a
-rootless `libyaml`, shimmed binstubs, `BUNDLE_PATH` outside the tree) is in
-`labs/TASKS.md` under pass 61. `npm run lint:docs` is the node-only slice and
-runs anywhere.
+The Jekyll stack runs locally with no root. The recipe (prebuilt Ruby, a rootless `libyaml`, shimmed binstubs, `BUNDLE_PATH` outside the tree) is in `labs/TASKS.md` under pass 61. `npm run lint:docs` is the node-only slice and runs anywhere.
 
 ## The release lane (publish.yml)
 
-A version tag drives one lane. `publish.yml` fires on `v*` and is the npm
-trust ladder in three jobs:
+A version tag drives one lane. `publish.yml` fires on `v*` and is the npm trust ladder in three jobs:
 
-- `publish` (OIDC trusted publishing; the `prepublishOnly` gate rides the
-  publish, so a red gate cannot mint a tarball).
-- `release` (mints the GitHub release from the same tag, its notes extracted
-  from the matching `CHANGELOG.md` section).
+- `publish` (OIDC trusted publishing; the `prepublishOnly` gate rides the publish, so a red gate cannot mint a tarball).
+- `release` (mints the GitHub release from the same tag, its notes extracted from the matching `CHANGELOG.md` section).
 - `verify` (the post-publish truth).
 
-The `release` job cuts the GitHub release with `gh release create`, its body
-the changelog section for the version. It is idempotent: an existing release
-object carries on to verify. There is no separate release workflow and no
-release archive -- the tag, the npm tarball, and the GitHub release are the
-same version, matching the family shape (eyestruct).
+The `release` job cuts the GitHub release with `gh release create`, its body the changelog section for the version. It is idempotent: an existing release object carries on to verify. There is no separate release workflow and no release archive -- the tag, the npm tarball, and the GitHub release are the same version, matching the family shape (eyestruct).
 
-The `verify` job is the part that makes a green publish mean something. It
-runs `scripts/verify-release.cjs` twice:
+The `verify` job is the part that makes a green publish mean something. It runs `scripts/verify-release.cjs` twice:
 
 ```bash
 node scripts/verify-release.cjs --npm --version "$V" --exports "$KEYS" --probe "$PROBE"
 node scripts/verify-release.cjs --gh --tag "v$V"
 ```
 
-The `--npm` half checks that the registry's latest equals this tree's
-version, that the served tarball's sha512 matches the registry integrity
-metadata, that provenance attestations exist, and then runs the full pack
-ladder on the served tarball. The `--gh` half checks that the release object
-exists for the tag, that its target commit equals `git rev-parse tag^{commit}`,
-and that the source tarball's file list diffs byte-identical against
-`git archive` of that commit.
+The `--npm` half checks that the registry's latest equals this tree's version, that the served tarball's sha512 matches the registry integrity metadata, that provenance attestations exist, and then runs the full pack ladder on the served tarball. The `--gh` half checks that the release object exists for the tag, that its target commit equals `git rev-parse tag^{commit}`, and that the source tarball's file list diffs byte-identical against `git archive` of that commit.
 
-A manual dispatch of `publish.yml` with mode `verify-only` runs the verify
-job alone against what is already published and released.
+A manual dispatch of `publish.yml` with mode `verify-only` runs the verify job alone against what is already published and released.
 
 ## The staging flow
 
-`staging` is the permanent integration branch. Work branches off it, pull
-requests target it, and promotion to `main` is the only path to production.
-Never delete it. The fleet reference is `dhaupin/poststruct#32`.
+`staging` is the permanent integration branch. Work branches off it, pull requests target it, and promotion to `main` is the only path to production. Never delete it. The fleet reference is `dhaupin/poststruct#32`.
 
 CI covers `staging` as well as `main`:
 
-- `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` run on a push to
-  either branch (and on every pull request).
-- `docs.yml` builds the docs on both branches, but the reusable lane's
-  **deploy job is gated to `main`** with `if: github.ref == 'refs/heads/main'`.
+- `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` run on a push to either branch (and on every pull request).
+- `docs.yml` builds the docs on both branches, but the reusable lane's **deploy job is gated to `main`** with `if: github.ref == 'refs/heads/main'`.
 
-That guard is the load-bearing part. Once `staging` is in a deploy
-workflow's trigger list, the trigger no longer keeps staging content out of
-production; the job has to say so itself. The guard lives in the reusable lane,
-so every caller inherits it. A `staging` push has
-`github.ref == 'refs/heads/staging'` and a pull request has
-`refs/pull/N/merge`, so both skip the deploy. Only a `main` push publishes.
+That guard is the load-bearing part. Once `staging` is in a deploy workflow's trigger list, the trigger no longer keeps staging content out of production; the job has to say so itself. The guard lives in the reusable lane, so every caller inherits it. A `staging` push has `github.ref == 'refs/heads/staging'` and a pull request has `refs/pull/N/merge`, so both skip the deploy. Only a `main` push publishes.
 
-Promotions drift the branches by one commit: a merge-commit promotion puts a
-commit on `main` that `staging` lacks, so fast-forward `staging` to `main`
-after every promotion:
+Promotions drift the branches by one commit: a merge-commit promotion puts a commit on `main` that `staging` lacks, so fast-forward `staging` to `main` after every promotion:
 
 ```bash
 git push origin origin/main:staging     # fast-forward, non-destructive
 ```
 
-`tests/qc.test.mjs` pins this contract, so a future edit that drops `staging`
-from a trigger or removes the deploy guard fails the battery.
+`tests/qc.test.mjs` pins this contract, so a future edit that drops `staging` from a trigger or removes the deploy guard fails the battery.
 
 ## The gate aggregate (npm run gate)
 
-`npm run gate` is the single pre-push loop. It runs every leg the split
-workflows run, in one command:
+`npm run gate` is the single pre-push loop. It runs every leg the split workflows run, in one command:
 
 ```bash
 npm run gate
 ```
 
-`prepublishOnly` is set to `npm run gate`, so the release lane cannot mint a
-tarball from a tree with a red gate. Use it locally before every push; the
-split workflows exist so CI can attribute a failure to one leg, not because
-the aggregate is weaker.
+`prepublishOnly` is set to `npm run gate`, so the release lane cannot mint a tarball from a tree with a red gate. Use it locally before every push; the split workflows exist so CI can attribute a failure to one leg, not because the aggregate is weaker.
 
 ## When a run is red, look here first
 
@@ -231,5 +151,4 @@ the aggregate is weaker.
 | docs deploy | the strict run names the page; check the baseurl shape first. The lane lives in `dhaupin/freestruct`; a lane-level failure names itself there |
 | publish verify | the disconnect is named: wrong dist-tag, drifted tarball, missing provenance, wrong release commit |
 
-Every leg is independent by design. A red pixel-free docs deploy does not hold
-the battery, and a red crashtest row does not hold the docs lane.
+Every leg is independent by design. A red pixel-free docs deploy does not hold the battery, and a red crashtest row does not hold the docs lane.

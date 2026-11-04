@@ -9,9 +9,7 @@ permalink: /playbooks/wire-an-island/
 
 # Wiring an island
 
-An island is client-only content in an otherwise static page. The prerender
-ships the fallback inside a `<pre-island>` element; after hydration,
-`mountIslands()` replaces it with the real component in its own React root.
+An island is client-only content in an otherwise static page. The prerender ships the fallback inside a `<pre-island>` element; after hydration, `mountIslands()` replaces it with the real component in its own React root.
 
 Register the component, place the element, and mount after navigation.
 
@@ -39,20 +37,14 @@ useEffect(() => {
 }, [pathname])
 ```
 
-The `data-pre-load` attribute controls when the island mounts: `eager`
-(default), `visible` via `IntersectionObserver`, or `idle` via
-`requestIdleCallback`. Build and confirm the fallback is in the static HTML:
+The `data-pre-load` attribute controls when the island mounts: `eager` (default), `visible` via `IntersectionObserver`, or `idle` via `requestIdleCallback`. Build and confirm the fallback is in the static HTML:
 
 ```bash
 npx prestruct build
 grep -o 'pre-island[^>]*' dist/index.html
 ```
 
-What crawlers see is the fallback content, so make it meaningful. Islands are
-separate React roots: they cannot receive props from the tree, read its
-context, or run at build time. For indexed dynamic content, prerender it into
-its own route instead. See
-[Advanced Islands](/prestruct/guides/advanced-islands) for the full pattern.
+What crawlers see is the fallback content, so make it meaningful. Islands are separate React roots: they cannot receive props from the tree, read its context, or run at build time. For indexed dynamic content, prerender it into its own route instead. See [Advanced Islands](/prestruct/guides/advanced-islands) for the full pattern.
 
 <div class="crosslinks">
 <p><strong>More in these docs:</strong>

@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/structured-data
 ---
 
-
 JSON-LD structured data for rich search results.
 
 ## How It Works
@@ -200,18 +199,10 @@ buildJsonLd() {
 
 ### Article/BlogPosting
 
-Blog postings usually need per-route fields (headline, datePublished,
-`@id`) -- and prestruct calls `buildJsonLd()` with **no arguments**, so it
-cannot vary by route. Two honest options:
+Blog postings usually need per-route fields (headline, datePublished, `@id`) -- and prestruct calls `buildJsonLd()` with **no arguments**, so it cannot vary by route. Two honest options:
 
-1. **Site-wide blog metadata only:** omit `BlogPosting` from `ssr.config.js`
-   and extend the prerender script (see
-   [Advanced](#advanced-conditional-schema) below) to inject per-post JSON-LD
-   with real post fields.
-2. **Static placeholder:** a `BlogPosting` list inside `buildJsonLd()` would
-   render the same object on every page -- wrong for Google's article markup,
-   which must describe only the page it appears on. Do not ship per-route
-   schema as site-wide JSON-LD.
+1. **Site-wide blog metadata only:** omit `BlogPosting` from `ssr.config.js` and extend the prerender script (see [Advanced](#advanced-conditional-schema) below) to inject per-post JSON-LD with real post fields.
+2. **Static placeholder:** a `BlogPosting` list inside `buildJsonLd()` would render the same object on every page -- wrong for Google's article markup, which must describe only the page it appears on. Do not ship per-route schema as site-wide JSON-LD.
 
 ### Person
 
@@ -272,11 +263,7 @@ buildJsonLd() {
 
 ## BreadcrumbList
 
-Breadcrumb entries are per-route, so `buildJsonLd()`'s no-argument contract
-means prestruct cannot generate them for you either. Same options as
-BlogPosting above: keep the site-wide JSON-LD clean of breadcrumbs and inject
-them per-route in a prerender extension, where the route path is actually
-known. The mapping logic for reference:
+Breadcrumb entries are per-route, so `buildJsonLd()`'s no-argument contract means prestruct cannot generate them for you either. Same options as BlogPosting above: keep the site-wide JSON-LD clean of breadcrumbs and inject them per-route in a prerender extension, where the route path is actually known. The mapping logic for reference:
 
 ```js
 // Inside a prerender extension -- routePath is available there,
@@ -319,26 +306,19 @@ grep -A 20 'application/ld+json' dist/index.html
 
 ### Common Issues
 
-**Missing @context:**
-Every schema MUST have `@context` and `@type`.
+**Missing @context:** Every schema MUST have `@context` and `@type`.
 
-**Invalid @type:**
-Use valid Schema.org types: https://schema.org/docs/full.html
+**Invalid @type:** Use valid Schema.org types: https://schema.org/docs/full.html
 
-**Duplicate schemas:**
-Only return one of each type per page.
+**Duplicate schemas:** Only return one of each type per page.
 
-**URL mismatch:**
-Canonical URLs in schema should match page URLs.
+**URL mismatch:** Canonical URLs in schema should match page URLs.
 
 ## Advanced: Conditional Schema
 
-Ground truth first: `config.buildJsonLd()` receives **no arguments** --
-inject-brand calls it once per build and injects the result into every
-prerendered page. It cannot vary per route by itself.
+Ground truth first: `config.buildJsonLd()` receives **no arguments** -- inject-brand calls it once per build and injects the result into every prerendered page. It cannot vary per route by itself.
 
-For per-route schemas, extend the prerender script (site-wide types still come
-from `buildJsonLd`; the per-route map is your own addition):
+For per-route schemas, extend the prerender script (site-wide types still come from `buildJsonLd`; the per-route map is your own addition):
 
 ```js
 // In prerender.js - inside the per-route render loop, after injectMeta
@@ -360,8 +340,7 @@ if (types.length > 0) {
 }
 ```
 
-Same caveat as the BlogPosting section above: per-route JSON-LD must describe
-only the page it appears on, or Google may reject it.
+Same caveat as the BlogPosting section above: per-route JSON-LD must describe only the page it appears on, or Google may reject it.
 
 ## Next steps
 

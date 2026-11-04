@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/troubleshooting
 ---
 
-
 Solutions to common issues when using prestruct.
 
 ## Build Errors
@@ -146,26 +145,15 @@ export default function App() {
 
 ### react-router 7: "useLocation() may be used only in the context of a <Router>" or "module is not defined"
 
-**Cause:** react-router-dom 7 ships real ESM. If your `vite.config.js` sets
-`ssr.noExternal` for the router (the workaround older prestruct versions needed),
-Vite inlines the package into the SSR module registry. The engine's StaticRouter
-and your `AppLayout` then load through two different module instances, and each
-instance mints its own React contexts - so the router's location context never
-reaches your tree and every route fails:
+**Cause:** react-router-dom 7 ships real ESM. If your `vite.config.js` sets `ssr.noExternal` for the router (the workaround older prestruct versions needed), Vite inlines the package into the SSR module registry. The engine's StaticRouter and your `AppLayout` then load through two different module instances, and each instance mints its own React contexts - so the router's location context never reaches your tree and every route fails:
 
 ```text
 [prerender] FAIL /: useLocation() may be used only in the context of a <Router> component.
 ```
 
-A second signature (`module is not defined`, or `exports is not defined` on
-v6) appears when the inlined CJS entry is evaluated as ESM.
+A second signature (`module is not defined`, or `exports is not defined` on v6) appears when the inlined CJS entry is evaluated as ESM.
 
-**Solution:** Update prestruct. The engine now redirects the inlined router to
-its ESM twin and loads `StaticRouter` through the same registry as your layout,
-so both majors work with or without `ssr.noExternal`. If you added the
-`web/scripts/rrdom-esm-redirect.mjs` shim and the two `ssr.noExternal` lines
-from an older release, remove them and re-run `prestruct build` - it should end
-`Done. n/n pages rendered`.
+**Solution:** Update prestruct. The engine now redirects the inlined router to its ESM twin and loads `StaticRouter` through the same registry as your layout, so both majors work with or without `ssr.noExternal`. If you added the `web/scripts/rrdom-esm-redirect.mjs` shim and the two `ssr.noExternal` lines from an older release, remove them and re-run `prestruct build` - it should end `Done. n/n pages rendered`.
 
 ---
 
@@ -229,9 +217,7 @@ The 404 page ALWAYS carries:
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
 ```
 
-There is no config switch for this (404s should not rank). If you genuinely
-need different behavior, edit `scripts/prerender.js` in your own project
-(template copies are user-owned, engine files are not).
+There is no config switch for this (404s should not rank). If you genuinely need different behavior, edit `scripts/prerender.js` in your own project (template copies are user-owned, engine files are not).
 
 ---
 
@@ -258,15 +244,11 @@ const desc = description.replace(/\$/g, '$$$$')
 
 ### Site shows "404" for all routes
 
-**Cause:** `dist/` lacks per-route HTML -- the build stopped after `vite build`,
-or prerendering failed: the CLI now exits 1 and lists every failed route, so
-this usually shows up as a failed build, not as a silently-deployed 404.
+**Cause:** `dist/` lacks per-route HTML -- the build stopped after `vite build`, or prerendering failed: the CLI now exits 1 and lists every failed route, so this usually shows up as a failed build, not as a silently-deployed 404.
 
 **Solution:**
 1. Check `dist/about/index.html` (etc.) exists after a local build
-2. Run `npx prestruct validate` -- it exits 1 on a bad config and prints every
-   diagnostic line-by-line. (Non-strict *build* runs only print diagnostics;
-   set `PRESTRUCT_STRICT=1` to make them fatal there.)
+2. Run `npx prestruct validate` -- it exits 1 on a bad config and prints every diagnostic line-by-line. (Non-strict *build* runs only print diagnostics; set `PRESTRUCT_STRICT=1` to make them fatal there.)
 3. `public/_redirects` is NOT required for routing on Cloudflare Pages
 
 ---
@@ -286,25 +268,19 @@ this usually shows up as a failed build, not as a silently-deployed 404.
 **Cause:** Target URL unreachable or timing out.
 
 **Check:**
-1. Worker: `PRESTRUCT_TARGET_URL` var; VPS: `config.proxy.targetUrl` (falls
-   back to `config.siteUrl`)
+1. Worker: `PRESTRUCT_TARGET_URL` var; VPS: `config.proxy.targetUrl` (falls back to `config.siteUrl`)
 2. Target server is running and accessible
 3. No firewall blocking the request
 
-On unrenderable targets both runtimes fall through to a 302 to the live site
-rather than 5xx.
+On unrenderable targets both runtimes fall through to a 302 to the live site rather than 5xx.
 
 ---
 
 ### Proxy cache-bust quietly ignored
 
-**Cause:** `PRESTRUCT_SECRET` not set where the proxy runs (wrangler secret on
-the Worker, env var on the VPS) or the `x-prestruct-refresh` header value does
-not match.
+**Cause:** `PRESTRUCT_SECRET` not set where the proxy runs (wrangler secret on the Worker, env var on the VPS) or the `x-prestruct-refresh` header value does not match.
 
-**Note:** an UNSET secret never means "allow all" -- refresh is disabled
-entirely, and each runtime warns about it on boot. Compare is constant-time in
-both runtimes.
+**Note:** an UNSET secret never means "allow all" -- refresh is disabled entirely, and each runtime warns about it on boot. Compare is constant-time in both runtimes.
 
 ---
 
@@ -312,9 +288,7 @@ both runtimes.
 
 ### Watch the build's own diagnostics
 
-Prerender logs per-route status (`ok /route`, `cached /route`) and any
-`[prestruct] config:` validation lines -- no debug flag needed. To fail on
-diagnostics in CI: `PRESTRUCT_STRICT=1`.
+Prerender logs per-route status (`ok /route`, `cached /route`) and any `[prestruct] config:` validation lines -- no debug flag needed. To fail on diagnostics in CI: `PRESTRUCT_STRICT=1`.
 
 ### Check prerendered output
 

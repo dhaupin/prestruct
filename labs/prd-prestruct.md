@@ -1,24 +1,12 @@
 # PRD: prestruct (build-time SEO prerender)
 
-**Status:** v0.2 - current (2026-10-29) · Owner: dhaupin
-**Role:** product - the pre-build SEO engine. It renders every route of a Vite plus React app to static SEO-HTML at build time.
-**Package:** `prestruct` @ 1.2.0 (node >=20). npm latest is 1.1.0; 1.2.0 is committed and pending the tag.
-**Core law:** config is the API. Build-time prerender only, no runtime SSR, no bloat.
-**Family:** the five arms are **govstruct** (govern), **packstruct** (spec),
-**crashtest** (attack), **eyestruct** (watch), **poststruct** (audit). The forges
-are **monoforge** (the repo stamp) and **coreforge** (the site rig); **railyard**
-is the composer. prestruct is a **product** governed by the suite: it is the
-before-build leg of the SEO trio (prestruct before, freestruct after, poststruct
-checks what shipped). The interop law: no host imports a sibling to check a
-sibling; it invokes the sibling's public CLI.
+**Status:** v0.2 - current (2026-10-29) · Owner: dhaupin **Role:** product - the pre-build SEO engine. It renders every route of a Vite plus React app to static SEO-HTML at build time. **Package:** `prestruct` @ 1.2.0 (node >=20). npm latest is 1.1.0; 1.2.0 is committed and pending the tag. **Core law:** config is the API. Build-time prerender only, no runtime SSR, no bloat. **Family:** the five arms are **govstruct** (govern), **packstruct** (spec), **crashtest** (attack), **eyestruct** (watch), **poststruct** (audit). The forges are **monoforge** (the repo stamp) and **coreforge** (the site rig); **railyard** is the composer. prestruct is a **product** governed by the suite: it is the before-build leg of the SEO trio (prestruct before, freestruct after, poststruct checks what shipped). The interop law: no host imports a sibling to check a sibling; it invokes the sibling's public CLI.
 
 ---
 
 ## 1. One-line pitch
 
-Prestruct renders every route of a Vite plus React app to static SEO-HTML at
-build time. Validate your `ssr.config.js`, build, inject meta, prerender every
-route to static HTML. No framework migration, no runtime SSR, no bloat.
+Prestruct renders every route of a Vite plus React app to static SEO-HTML at build time. Validate your `ssr.config.js`, build, inject meta, prerender every route to static HTML. No framework migration, no runtime SSR, no bloat.
 
 ## 2. The family trio
 
@@ -30,9 +18,7 @@ prestruct is one leg of the family's SEO contract:
 | **freestruct** | after any SSG | injects complete SEO metadata over the built tree |
 | **poststruct** | after everything | audits what actually shipped; FAIL findings exit non-zero |
 
-prestruct and freestruct are the writers; poststruct is the auditor. prestruct's
-own example build ends in poststruct's audit (0 failures, 0 warnings), and
-freestruct's audit runs green on the same output - the trio dogfoods itself.
+prestruct and freestruct are the writers; poststruct is the auditor. prestruct's own example build ends in poststruct's audit (0 failures, 0 warnings), and freestruct's audit runs green on the same output - the trio dogfoods itself.
 
 ## 3. The shipped surface (v1.2.0, verified against the engine at HEAD)
 
@@ -63,12 +49,10 @@ prestruct audit      # the post-build verifier: FAIL/WARN rows, --json/--externa
 - AppLayout must never import BrowserRouter.
 - Build-time prerender only (no streaming, no edge runtime, no per-request SSR).
 - Islands are separate React roots, outside hydration.
-- Proxy optional; disabled unless `config.proxy.url` is set; proxy files are
-  per-project scaffold assets, never npm-imported.
+- Proxy optional; disabled unless `config.proxy.url` is set; proxy files are per-project scaffold assets, never npm-imported.
 - CF Pages pretty URLs are left alone (no redirect rules for prerendered paths).
 - The 404 page is pure static HTML (`root-404`, no JS).
-- Engines declare Node >=20; the battery pins react-router v6 for compile
-  coverage, the example runs v7 (both majors stay supported).
+- Engines declare Node >=20; the battery pins react-router v6 for compile coverage, the example runs v7 (both majors stay supported).
 
 ## 6. Out of scope
 
@@ -89,8 +73,7 @@ prestruct audit      # the post-build verifier: FAIL/WARN rows, --json/--externa
 | R6: react 19 evaluation - LOW priority | zero advisories to react 18, churn HIGH | rides the same 1.3.0 matrix lane as vite 7/8, not a separate effort |
 | R7: platform-matrix majors | the 1.2.0 ladder bounds the ceilings (react `>=18 <19`, router `>=6 <8`, vite `>=5 <7`); 1.3.0 = matrix lane proof (vite 7 then 8, react 19 interop) | ceilings move only on proof |
 
-Carried P2/P3 ideas: image optimization pipeline, file-level incremental
-invalidation, plugin system, vercel/netlify host-file generation, theme packs.
+Carried P2/P3 ideas: image optimization pipeline, file-level incremental invalidation, plugin system, vercel/netlify host-file generation, theme packs.
 
 ## 8. Non-goals
 
@@ -102,9 +85,6 @@ invalidation, plugin system, vercel/netlify host-file generation, theme packs.
 ## 9. Working rules
 
 - Every forward row needs a `TASKS.md` pass entry when it moves.
-- Engine changes stay in `engine/`, then `node scripts/sync-engine.mjs`;
-  `engine-sync-check.yml` is the proof of execution.
-- No new feature lands without the battery green and, if template-visible, the
-  tarball e2e.
-- `package.json` is the single version source; the README line and the side
-  package.jsons are held to it by a test, so a release cannot leave one behind.
+- Engine changes stay in `engine/`, then `node scripts/sync-engine.mjs`; `engine-sync-check.yml` is the proof of execution.
+- No new feature lands without the battery green and, if template-visible, the tarball e2e.
+- `package.json` is the single version source; the README line and the side package.jsons are held to it by a test, so a release cannot leave one behind.

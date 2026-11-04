@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/advanced-islands
 ---
 
-
 Deep dive into dynamic islands patterns with prestruct.
 
 ## How Islands Work
@@ -286,10 +285,7 @@ This means:
 
 ## Styling Islands
 
-Since islands mount into empty elements, style the fallback too. Use an
-external CSS file (or `style={{}}` props) -- inline `<style>` strings inside
-JSX are hoisted to `<head>` during SSR but stay in-tree on the client, which
-is a hydration mismatch (the same flash/unstyled issue as any re-render):
+Since islands mount into empty elements, style the fallback too. Use an external CSS file (or `style={{}}` props) -- inline `<style>` strings inside JSX are hoisted to `<head>` during SSR but stay in-tree on the client, which is a hydration mismatch (the same flash/unstyled issue as any re-render):
 
 ```jsx
 /* src/islands/cart.css */
@@ -303,8 +299,7 @@ is a hydration mismatch (the same flash/unstyled issue as any re-render):
 .skeleton-line.short { width: 60%; }
 ```
 
-Then use those styles as the island's fallback content, so the crawler sees a
-loading skeleton and the human sees it replaced when the island mounts:
+Then use those styles as the island's fallback content, so the crawler sees a loading skeleton and the human sees it replaced when the island mounts:
 
 ```jsx
 import './islands/cart.css'

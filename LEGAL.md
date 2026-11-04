@@ -76,8 +76,7 @@ If any party brings a patent infringement claim against Prestruct, Contributors 
 
 **™ Status:** This document establishes **common-law trademark** protection through consistent use in the open-source community. We have NOT filed a formal USPTO registration.
 
-**Nomenclature Rationale:**
-The term "Prestruct" was chosen as a descriptive technical designation:
+**Nomenclature Rationale:** The term "Prestruct" was chosen as a descriptive technical designation:
 - **Pre**render - server-side rendering at build time
 - **Structure** - framework for SEO prerendering
 
@@ -119,8 +118,7 @@ Prestruct is a distinct project. To avoid confusion with similarly-named project
 - Product names
 - Company/project names
 
-Acceptable: "Built with Prestruct" (with attribution)
-Forbidden: "PrestructFlow", "PrestructCloud", "MyPrestruct", "Prestructify"
+Acceptable: "Built with Prestruct" (with attribution) Forbidden: "PrestructFlow", "PrestructCloud", "MyPrestruct", "Prestructify"
 
 ---
 
@@ -148,8 +146,7 @@ Derivatives of Prestruct must adhere to the following to remain compliant:
 - Product names
 - Company/project names
 
-Acceptable: "Built with Prestruct framework" (with attribution)
-Forbidden: "PrestructFlow", "PrestructCloud", "MyPrestruct"
+Acceptable: "Built with Prestruct framework" (with attribution) Forbidden: "PrestructFlow", "PrestructCloud", "MyPrestruct"
 
 ---
 

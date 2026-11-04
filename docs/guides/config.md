@@ -7,7 +7,6 @@ version: 1.2.0
 permalink: /guides/config
 ---
 
-
 Complete reference for `ssr.config.js` and environment variables.
 
 ## ssr.config.js
@@ -65,13 +64,11 @@ export default {
 }
 ```
 
-The proxy pipeline reads two more values from the environment...
-see [Bot-Render Proxy](/prestruct/guides/proxy) for the full deployment story.
+The proxy pipeline reads two more values from the environment... see [Bot-Render Proxy](/prestruct/guides/proxy) for the full deployment story.
 
 ## fetchRoutes() hook (build-time CMS routes)
 
-Add an async `fetchRoutes()` to `ssr.config.js` and the prerender merges its
-result with your static routes at build time -- never in the browser:
+Add an async `fetchRoutes()` to `ssr.config.js` and the prerender merges its result with your static routes at build time -- never in the browser:
 
 ```js
 async fetchRoutes() {
@@ -84,11 +81,7 @@ async fetchRoutes() {
 }
 ```
 
-Merge contract: static and fetched routes are deduped by `path`, with the
-**static entry winning collisions**; fetched routes are appended after the
-static ones. Returning nothing (or an empty list) leaves the static routes
-unchanged. Runs once per build; a hook that throws fails the prerender like
-any other render input.
+Merge contract: static and fetched routes are deduped by `path`, with the **static entry winning collisions**; fetched routes are appended after the static ones. Returning nothing (or an empty list) leaves the static routes unchanged. Runs once per build; a hook that throws fails the prerender like any other render input.
 
 ## Route Configuration
 
@@ -107,11 +100,7 @@ Each route in the `routes` array supports:
 }
 ```
 
-`meta.title` and `meta.description` land in every route's baked HTML (title,
-description, OG, and Twitter tags) and are re-applied on SPA navigation by
-`usePageMeta`. There are no per-route `noindex` or `canonical` overrides:
-404 pages carry noindex automatically, and canonical URLs are derived from
-`siteUrl` + the route path.
+`meta.title` and `meta.description` land in every route's baked HTML (title, description, OG, and Twitter tags) and are re-applied on SPA navigation by `usePageMeta`. There are no per-route `noindex` or `canonical` overrides: 404 pages carry noindex automatically, and canonical URLs are derived from `siteUrl` + the route path.
 
 ### ogImage: string or object
 
@@ -121,10 +110,7 @@ description, OG, and Twitter tags) and are re-applied on SPA navigation by
 ogImage: 'https://example.com/og.png',
 ```
 
-The object form adds the companion properties social crawlers use to size
-previews. Width/height should match the actual raster (1200x630 is the
-card standard); `alt` describes the image for screen readers and fallback
-renderers:
+The object form adds the companion properties social crawlers use to size previews. Width/height should match the actual raster (1200x630 is the card standard); `alt` describes the image for screen readers and fallback renderers:
 
 ```js
 ogImage: {
@@ -136,12 +122,7 @@ ogImage: {
 },
 ```
 
-Companion fields are optional and independent -- only the ones present are
-emitted (`og:image:width`, `og:image:height`, `og:image:alt`,
-`og:image:type`). The full-URL string form stays valid; it just ships
-without companions. Validation rejects wrong shapes at build time: the
-object must carry a string `url`, width/height must be numeric, and alt/
-type must be strings.
+Companion fields are optional and independent -- only the ones present are emitted (`og:image:width`, `og:image:height`, `og:image:alt`, `og:image:type`). The full-URL string form stays valid; it just ships without companions. Validation rejects wrong shapes at build time: the object must carry a string `url`, width/height must be numeric, and alt/ type must be strings.
 
 ## Environment Variables
 
@@ -280,9 +261,7 @@ export default {
 
 ## robots.txt (opt-in)
 
-Prestruct never touches `dist/robots.txt` unless you opt in: an existing
-`public/robots.txt` (CF Pages copies it through) stays authorable. Enable
-generation in `ssr.config.js`:
+Prestruct never touches `dist/robots.txt` unless you opt in: an existing `public/robots.txt` (CF Pages copies it through) stays authorable. Enable generation in `ssr.config.js`:
 
 ```js
 // ssr.config.js
@@ -295,34 +274,20 @@ robots: true,                       // minimal block + Sitemap pointer
 // robots: { aeo: true },            // AI-crawler preset (see below)
 ```
 
-When enabled, prerender writes `dist/robots.txt` after `sitemap.xml` so the
-`Sitemap:` pointer always references a fresh file.
+When enabled, prerender writes `dist/robots.txt` after `sitemap.xml` so the `Sitemap:` pointer always references a fresh file.
 
 ### AEO preset (`robots: { aeo: true }`)
 
-`robots: true` emits one catch-all group. The `aeo` preset instead writes a
-per-bot policy using the token each vendor documents for its own product:
-search-visibility crawlers get `Allow: /`, and training/data-use crawlers get
-`Disallow: /` by default:
+`robots: true` emits one catch-all group. The `aeo` preset instead writes a per-bot policy using the token each vendor documents for its own product: search-visibility crawlers get `Allow: /`, and training/data-use crawlers get `Disallow: /` by default:
 
-- Allowed by default: `OAI-SearchBot` (ChatGPT search), `PerplexityBot`,
-  `Claude-SearchBot`, `Applebot` (Siri/Spotlight), `Googlebot`, `Bingbot`
-- Blocked by default: `GPTBot` (OpenAI training), `ClaudeBot` (Anthropic
-  training), `Google-Extended` (Gemini/Vertex grounding),
-  `Applebot-Extended` (Apple training), `CCBot` (Common Crawl)
+- Allowed by default: `OAI-SearchBot` (ChatGPT search), `PerplexityBot`, `Claude-SearchBot`, `Applebot` (Siri/Spotlight), `Googlebot`, `Bingbot`
+- Blocked by default: `GPTBot` (OpenAI training), `ClaudeBot` (Anthropic training), `Google-Extended` (Gemini/Vertex grounding), `Applebot-Extended` (Apple training), `CCBot` (Common Crawl)
 
-Search eligibility and training/data-use preference are separate decisions;
-`aeo: { aiBots: 'allow' }` flips the training group to `Allow`. The Sitemap
-pointer is appended as usual. This preset only writes crawler instructions:
-it cannot guarantee any answer engine will cite your pages, and it is not
-access control. See the [SEO guide](/prestruct/guides/seo) for what these
-tokens do and do not affect.
+Search eligibility and training/data-use preference are separate decisions; `aeo: { aiBots: 'allow' }` flips the training group to `Allow`. The Sitemap pointer is appended as usual. This preset only writes crawler instructions: it cannot guarantee any answer engine will cite your pages, and it is not access control. See the [SEO guide](/prestruct/guides/seo) for what these tokens do and do not affect.
 
 ## Cache stats (build telemetry)
 
-Every successful `prestruct build` writes a JSON snapshot to
-`.prestruct/status.json` in the PROJECT ROOT (not dist -- build telemetry
-must not deploy; see the issue-23 note below):
+Every successful `prestruct build` writes a JSON snapshot to `.prestruct/status.json` in the PROJECT ROOT (not dist -- build telemetry must not deploy; see the issue-23 note below):
 
 ```json
 {
@@ -334,19 +299,11 @@ must not deploy; see the issue-23 note below):
 }
 ```
 
-Useful in CI or a local health-check step: `cat .prestruct/status.json | jq .succeeded`. The file is intentionally static (no runtime endpoint) and
-intentionally OUTSIDE `dist/` -- anything in `dist/` ships to the public
-artifact surface on every static host, and a wall-clock timestamp inside it
-made byte-identical builds differ for parity-gating consumers (issue 23,
-fixed in v1.1.0). `dist/` is byte-stable across identical input builds.
+Useful in CI or a local health-check step: `cat .prestruct/status.json | jq .succeeded`. The file is intentionally static (no runtime endpoint) and intentionally OUTSIDE `dist/` -- anything in `dist/` ships to the public artifact surface on every static host, and a wall-clock timestamp inside it made byte-identical builds differ for parity-gating consumers (issue 23, fixed in v1.1.0). `dist/` is byte-stable across identical input builds.
 
-Field note: `cached` is the TOTAL number of entries in the incremental cache
-file, and each route's `cached: true` means "a cache entry exists for this
-route" -- not that the current run served it from cache. Under `--force`
-everything is rerendered regardless.
+Field note: `cached` is the TOTAL number of entries in the incremental cache file, and each route's `cached: true` means "a cache entry exists for this route" -- not that the current run served it from cache. Under `--force` everything is rerendered regardless.
 
-`--force` rerenders all routes; `--clean` clears the incremental cache first.
-The snapshot always reflects the latest run, not an accumulation.
+`--force` rerenders all routes; `--clean` clears the incremental cache first. The snapshot always reflects the latest run, not an accumulation.
 
 ## Deploy ID
 
@@ -404,44 +361,28 @@ export default defineConfig({
 ```
 ## Family ride-alongs (2026-10 issue walk)
 
-Every option below is optional, missing-only, and config-gated: a host that
-sets none of them ships byte-identical HTML to a host on an older version.
-`init/ssr.config.example.js` carries the commented forms.
+Every option below is optional, missing-only, and config-gated: a host that sets none of them ships byte-identical HTML to a host on an older version. `init/ssr.config.example.js` carries the commented forms.
 
 ### Structured-data defaults and per-route nodes
 
-- `jsonLdDefaults` (default on) - without `buildJsonLd`, the engine emits
-  Organization + WebSite built from `siteName`/`siteUrl`/`author`. Set
-  `jsonLdDefaults: false` to skip.
-- `route.jsonLd` (object or array) - per-route schema nodes shipped only on
-  that page (a FAQPage belongs on the FAQ page, not site-wide). Rebuild-safe:
-  the block is replaced, never stacked.
-- `searchUrl` - a search endpoint carrying a `{query}` slot; the home route
-  gains a WebSite node wrapping its SearchAction.
+- `jsonLdDefaults` (default on) - without `buildJsonLd`, the engine emits Organization + WebSite built from `siteName`/`siteUrl`/`author`. Set `jsonLdDefaults: false` to skip.
+- `route.jsonLd` (object or array) - per-route schema nodes shipped only on that page (a FAQPage belongs on the FAQ page, not site-wide). Rebuild-safe: the block is replaced, never stacked.
+- `searchUrl` - a search endpoint carrying a `{query}` slot; the home route gains a WebSite node wrapping its SearchAction.
 
 ### Head discovery and verification
 
 - `feed: { url, title?, type? }` - RSS/Atom autodiscovery link in every head.
-- `alternates` (site-wide) / `route.alternates` (per-route override, full
-  takeover) - `hreflang` alternates; values ride the same escape pipeline as
-  the primary metas, malformed entries drop silently.
-- `verification: { 'google-site-verification': '...', ... }` - verification
-  metas; keys must be plain `A-Za-z0-9._-` shapes.
+- `alternates` (site-wide) / `route.alternates` (per-route override, full takeover) - `hreflang` alternates; values ride the same escape pipeline as the primary metas, malformed entries drop silently.
+- `verification: { 'google-site-verification': '...', ... }` - verification metas; keys must be plain `A-Za-z0-9._-` shapes.
 
 ### llms.txt
 
-`llms: false` opts out; the engine otherwise writes `llms.txt` after the
-sitemap (one H1, a blockquote tagline, one Docs entry per route with
-description). Generated-only: a hand-rolled file is never overwritten.
+`llms: false` opts out; the engine otherwise writes `llms.txt` after the sitemap (one H1, a blockquote tagline, one Docs entry per route with description). Generated-only: a hand-rolled file is never overwritten.
 
 ### IndexNow
 
-- `indexNow: { key: '<32-hex>' } | true | false` - the key file is written
-  into `dist/` on every build (`true` persists an auto-generated key in
-  `.prestruct/indexnow-key.txt`, generate-once so keyLocation stays stable).
-- `prestruct indexnow [--dry-run] [dist]` - POSTs the baked sitemap's URLs
-  to api.indexnow.org; `--dry-run` prints the payload off-network. Run it
-  against a DEPLOYED output only (`keyLocation` must resolve).
+- `indexNow: { key: '<32-hex>' } | true | false` - the key file is written into `dist/` on every build (`true` persists an auto-generated key in `.prestruct/indexnow-key.txt`, generate-once so keyLocation stays stable).
+- `prestruct indexnow [--dry-run] [dist]` - POSTs the baked sitemap's URLs to api.indexnow.org; `--dry-run` prints the payload off-network. Run it against a DEPLOYED output only (`keyLocation` must resolve).
 
 ### postBuild hooks
 
@@ -451,12 +392,7 @@ runHooks: true,                                  // execution opt-in gate
 hooks: { postBuild: ['node scripts/inject-faq-schema.mjs'] },
 ```
 
-The build pipeline owns the chain (the npm-script chain retired), so direct
-engine/CI invocations no longer silently skip custom post-build steps.
-Commands receive `PRESTRUCT_SITE_URL` / `PRESTRUCT_OUTPUT_DIR` in env plus
-`${SITE_URL}` / `${OUTPUT_DIR}` placeholder substitution (function replacers,
-never string form). Nothing executes without `runHooks: true` - logged
-loudly either way - and any nonzero hook exit fails the build.
+The build pipeline owns the chain (the npm-script chain retired), so direct engine/CI invocations no longer silently skip custom post-build steps. Commands receive `PRESTRUCT_SITE_URL` / `PRESTRUCT_OUTPUT_DIR` in env plus `${SITE_URL}` / `${OUTPUT_DIR}` placeholder substitution (function replacers, never string form). Nothing executes without `runHooks: true` - logged loudly either way - and any nonzero hook exit fails the build.
 
 ### Branded per-route OG images
 
@@ -465,18 +401,11 @@ loudly either way - and any nonzero hook exit fails the build.
 ogImageGeneration: { template: 'og-template.svg', font: './brand/bold.ttf' },
 ```
 
-A 1200x630 SVG template with `{{ogTitle}}` / `{{ogDescription}}` / `{{ogUrl}}`
-slots renders into `dist/og/<route-slug>.png` per route; routes with their own
-`og:image` keep theirs (missing-only). Rasterization is the optional dev
-dependency `@resvg/resvg-js` - absent, generation skips loudly (the build
-stays green; the audit still grades the head) and templates should load the
-font via `ogImageGeneration.font` because system fonts are unreliable in
-build sandboxes.
+A 1200x630 SVG template with `{{ogTitle}}` / `{{ogDescription}}` / `{{ogUrl}}` slots renders into `dist/og/<route-slug>.png` per route; routes with their own `og:image` keep theirs (missing-only). Rasterization is the optional dev dependency `@resvg/resvg-js` - absent, generation skips loudly (the build stays green; the audit still grades the head) and templates should load the font via `ogImageGeneration.font` because system fonts are unreliable in build sandboxes.
 
 ## Shared config dialect (prestruct <-> freestruct)
 
-A team running both engines writes site identity once; the documented
-subset maps across:
+A team running both engines writes site identity once; the documented subset maps across:
 
 | Field            | prestruct (`ssr.config.js`) | freestruct (`freestruct.config`) |
 |------------------|------------------------------|----------------------------------|
@@ -488,5 +417,4 @@ subset maps across:
 | sub-path installs| `platform`                   | `basePath`                       |
 | output dir       | `dist/` convention           | `outputDir`                      |
 
-Same posture both sides: values escape through one pipeline, malformed
-entries warn loudly, and `validate`/'audit' grade the same head vocabulary.
+Same posture both sides: values escape through one pipeline, malformed entries warn loudly, and `validate`/'audit' grade the same head vocabulary.

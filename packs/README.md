@@ -1,31 +1,15 @@
 # Packs
 
-Adversarial attack packs for prestruct. A pack is a self-contained probe
-module the [crashtest](https://github.com/dhaupin/crashtest) harness loads
-against a live target: route names, method matrices, and env wiring come
-from the host config (`moduleCtx`), never hardcoded in the pack.
+Adversarial attack packs for prestruct. A pack is a self-contained probe module the [crashtest](https://github.com/dhaupin/crashtest) harness loads against a live target: route names, method matrices, and env wiring come from the host config (`moduleCtx`), never hardcoded in the pack.
 
-**This repo's own pack:** [`packs/public/prestruct-proxy`](public/prestruct-proxy)
-(v0.4.0) - the five-shape contract suite for the render-proxy pair
-(`scripts/proxy.js` express + `scripts/proxy.worker.js` Cloudflare Worker),
-crosslinked to [`crashtest.config.js`](../crashtest.config.js), which arms it
-against this repo's own deployed copies.
+**This repo's own pack:** [`packs/public/prestruct-proxy`](public/prestruct-proxy) (v0.4.0) - the five-shape contract suite for the render-proxy pair (`scripts/proxy.js` express + `scripts/proxy.worker.js` Cloudflare Worker), crosslinked to [`crashtest.config.js`](../crashtest.config.js), which arms it against this repo's own deployed copies.
 
-**Shared spec:** the pack manifest follows the [packstruct](https://github.com/dhaupin/packstruct)
-`/packs` convention (`pack.json` schemaVersion 1). `npm run lint:packs` runs
-`packstruct lint packs/ --deep` -- a manifest declaring an entry that does not
-actually ship dies at lint time, before the harness ever loads the pack. The
-crashtest CI lane runs the repo's own exact devDependency pin, never a floating
-`@1` fetch -- and harness upgrades are one command:
-`npm run crashtest:bump <version>` (pin install + harness run + ledger regen
+**Shared spec:** the pack manifest follows the [packstruct](https://github.com/dhaupin/packstruct) `/packs` convention (`pack.json` schemaVersion 1). `npm run lint:packs` runs `packstruct lint packs/ --deep` -- a manifest declaring an entry that does not actually ship dies at lint time, before the harness ever loads the pack. The crashtest CI lane runs the repo's own exact devDependency pin, never a floating `@1` fetch -- and harness upgrades are one command: `npm run crashtest:bump <version>` (pin install + harness run + ledger regen
 + pin/stamp verification in one commit's worth of state).
 
 ## Adopting this pack in another repo (crashtest v0.3+)
 
-Packs are the one extension surface: a pack directory is self-contained
-(manifest + entry scenario module; optional bundled `plugins` imports live
-in the pack manifest). An adopting repo needs exactly one line - no shims,
-no per-scenario config; loaded rows still label their source:
+Packs are the one extension surface: a pack directory is self-contained (manifest + entry scenario module; optional bundled `plugins` imports live in the pack manifest). An adopting repo needs exactly one line - no shims, no per-scenario config; loaded rows still label their source:
 
 ```js
 // crashtest.config.js in the adopting run root
@@ -42,12 +26,7 @@ export default {
 }
 ```
 
-`packs/public/` + `packs/local/` under the run root are also discovered
-automatically (`packs: true`); the `packs:` knob accepts absolute paths and
-npm-installed pack dirs. Inventory from a run root with `npx crashtest packs`
-(or `--json` for the machine blob); un-armed vocabulary degrades to
-`REFUSED`-skip rows that name the missing `moduleCtx` key - never a false
-positive.
+`packs/public/` + `packs/local/` under the run root are also discovered automatically (`packs: true`); the `packs:` knob accepts absolute paths and npm-installed pack dirs. Inventory from a run root with `npx crashtest packs` (or `--json` for the machine blob); un-armed vocabulary degrades to `REFUSED`-skip rows that name the missing `moduleCtx` key - never a false positive.
 
 | Shape | Contract |
 |---|---|
@@ -67,13 +46,10 @@ positive.
 | `hostilePath` | optional path the target is expected to refuse | `'/as;df'` |
 | `cacheDir` | the express proxy's disk-cache dir (set `PRESTRUCT_CACHE_DIR` BEFORE importing `scripts/proxy.js`; also export it into `moduleCtx`) -- arms cache seeding on the VPS arm | `'.prestruct_cache'` |
 
-Operations missing a required arm degrade to a `REFUSED` skip row - the pack
-never guesses or fakes coverage. Missing arms are always visible.
+Operations missing a required arm degrade to a `REFUSED` skip row - the pack never guesses or fakes coverage. Missing arms are always visible.
 
 ## Runbook
 
-`labs/hardening.md` holds the latest results (seed, REFUSED ledger). CI rule:
-fail on a NEW EXPLOITED finding, or a regression of anything previously
-`REFUSED`.
+`labs/hardening.md` holds the latest results (seed, REFUSED ledger). CI rule: fail on a NEW EXPLOITED finding, or a regression of anything previously `REFUSED`.
 
 See also: `README-proxy.md` for the runtime behavior these contracts pin.

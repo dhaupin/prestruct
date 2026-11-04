@@ -9,8 +9,7 @@ permalink: /playbooks/add-a-route/
 
 # Adding a route
 
-A route is one entry in `ssr.config.js` plus the component the router already
-knows how to render. Add both, then rebuild.
+A route is one entry in `ssr.config.js` plus the component the router already knows how to render. Add both, then rebuild.
 
 ```js
 // ssr.config.js - routes array
@@ -25,8 +24,7 @@ knows how to render. Add both, then rebuild.
 }
 ```
 
-The route path must match the `<Route path>` in `AppLayout.jsx`. Add the
-component there if it is new:
+The route path must match the `<Route path>` in `AppLayout.jsx`. Add the component there if it is new:
 
 ```jsx
 // AppLayout.jsx
@@ -40,11 +38,7 @@ npx prestruct build
 ls dist/pricing/index.html
 ```
 
-An empty `routes` array fails the build, and a route that fails to render
-exits non-zero rather than shipping a blank page. Both are contract, not
-warnings. When a route's content comes from a CMS, the routes come from
-`fetchRoutes()` instead of the static array - see
-[Configuration](/prestruct/guides/config).
+An empty `routes` array fails the build, and a route that fails to render exits non-zero rather than shipping a blank page. Both are contract, not warnings. When a route's content comes from a CMS, the routes come from `fetchRoutes()` instead of the static array - see [Configuration](/prestruct/guides/config).
 
 <div class="crosslinks">
 <p><strong>More in these docs:</strong>

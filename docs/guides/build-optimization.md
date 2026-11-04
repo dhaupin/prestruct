@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/build-optimization
 ---
 
-
 Optimizing the prestruct build for speed and efficiency.
 
 ## Build Process Overview
@@ -103,10 +102,7 @@ export default function AppLayout() {
 
 ### 4. Use the Built-In Incremental Cache
 
-Prerender already skips unchanged routes: rendered HTML and its inputs are
-cached in `.prestruct/cache/`, and unchanged routes report `cached path`
-instead of rendering again. Rebuilds only RERENDER routes whose inputs (or
-the HTML shell) changed.
+Prerender already skips unchanged routes: rendered HTML and its inputs are cached in `.prestruct/cache/`, and unchanged routes report `cached path` instead of rendering again. Rebuilds only RERENDER routes whose inputs (or the HTML shell) changed.
 
 ```bash
 npx prestruct build          # incremental
@@ -114,11 +110,7 @@ npx prestruct build --force  # rerender everything, keep the cache file
 npx prestruct build --clean  # clear the cache first, then build
 ```
 
-The build also writes `.prestruct/status.json` in the project root (route
-count, succeeded, cached-entry total, per-route cache-entry flags) -- readable
-as a cheap build health check. It reports cache-file presence, not which
-routes were served from cache on this run. It is deliberately outside `dist/`:
-telemetry does not deploy (issue 23).
+The build also writes `.prestruct/status.json` in the project root (route count, succeeded, cached-entry total, per-route cache-entry flags) -- readable as a cheap build health check. It reports cache-file presence, not which routes were served from cache on this run. It is deliberately outside `dist/`: telemetry does not deploy (issue 23).
 
 ### 5. Cache Expensive Data
 
@@ -211,18 +203,11 @@ Vite caches node_modules in `.vite/`. Don't exclude it from git:
 
 ### 2. Incremental Prerendering Is Built In
 
-No hand-rolled cache is needed -- see section
-[4. Use the Built-In Incremental Cache](#4-use-the-built-in-incremental-cache)
-above. The cache invalidates on rendered-input changes automatically; `--clean`
-resets it when in doubt.
+No hand-rolled cache is needed -- see section [4. Use the Built-In Incremental Cache](#4-use-the-built-in-incremental-cache) above. The cache invalidates on rendered-input changes automatically; `--clean` resets it when in doubt.
 
 ### 3. Keep the Vite Server in One Build, Not Across Builds
 
-Within one `prestruct build`, the SSR Vite dev server is created once and
-reused for every route (that is the ssrLoadModule contract). DO NOT persist a
-module-registry across builds -- stale `ssr.config.js` and app-module state
-between builds is exactly the class of silent wrongness the incremental cache
-exists to avoid.
+Within one `prestruct build`, the SSR Vite dev server is created once and reused for every route (that is the ssrLoadModule contract). DO NOT persist a module-registry across builds -- stale `ssr.config.js` and app-module state between builds is exactly the class of silent wrongness the incremental cache exists to avoid.
 
 ## Build Output Optimization
 

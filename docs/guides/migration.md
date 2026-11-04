@@ -7,21 +7,18 @@ version: 1.0.0
 permalink: /guides/migration
 ---
 
-
 Moving to prestruct from other solutions.
 
 ## From prestruct v0.1 / v0.2 (older layouts)
 
-If your project predates the npm package, the fastest path is a clean
-scaffold + copy forward:
+If your project predates the npm package, the fastest path is a clean scaffold + copy forward:
 
 1. **Install the CLI** (brings the engine, no more hand-synced copies):
    ```bash
    npm install -D prestruct
    npx prestruct init
    ```
-   Files that were yours (ssr.config.js adjustments, AppLayout.jsx, routes)
-   are never clobbered -- init prints `skip` for files that exist.
+   Files that were yours (ssr.config.js adjustments, AppLayout.jsx, routes) are never clobbered -- init prints `skip` for files that exist.
 
 2. **What changed underfoot (v0.2.x -> current):**
 
@@ -36,8 +33,7 @@ scaffold + copy forward:
 
 ### What changed in v1.0.0 (behavioral deltas and what to do)
 
-If your build has been green-but-broken, expect changes -- every delta below
-makes a failure visible that used to ride through:
+If your build has been green-but-broken, expect changes -- every delta below makes a failure visible that used to ride through:
 
 | v1.0.0 change | Action |
 |---|---|
@@ -54,13 +50,9 @@ makes a failure visible that used to ride through:
    npx prestruct build --clean
    ```
 
-   Old caches only know the routes they rendered; a `--clean` build gives the
-   new engine a blank slate. Use `--force` thereafter when configs change
-   without touching route paths.
+   Old caches only know the routes they rendered; a `--clean` build gives the new engine a blank slate. Use `--force` thereafter when configs change without touching route paths.
 
-4. **Validate before you commit:** `npx prestruct validate` prints every
-   diagnostic line-by-line, so config mistakes are either visible (default)
-   or fatal (`PRESTRUCT_STRICT=1`).
+4. **Validate before you commit:** `npx prestruct validate` prints every diagnostic line-by-line, so config mistakes are either visible (default) or fatal (`PRESTRUCT_STRICT=1`).
 
 ---
 
@@ -99,9 +91,7 @@ makes a failure visible that used to ride through:
    npx prestruct init          # scaffolds scripts/, src/, ssr.config.example.js
    cp ssr.config.example.js ssr.config.js
    ```
-   Or copy the same files by hand if you prefer no npm dep:
-   copy `scripts/inject-brand.js` and `scripts/prerender.js`, create
-   `ssr.config.js` and `AppLayout.jsx` (no BrowserRouter!).
+   Or copy the same files by hand if you prefer no npm dep: copy `scripts/inject-brand.js` and `scripts/prerender.js`, create `ssr.config.js` and `AppLayout.jsx` (no BrowserRouter!).
 
 4. **Build**
    ```json
@@ -114,9 +104,7 @@ makes a failure visible that used to ride through:
    }
    ```
 
-   `prestruct build` = validate -> `vite build` -> inject meta -> prerender.
-   The equivalent 3-step script (`vite build && node scripts/inject-brand.js
-   && node scripts/prerender.js`) still works if you'd rather stay dep-free.
+   `prestruct build` = validate -> `vite build` -> inject meta -> prerender. The equivalent 3-step script (`vite build && node scripts/inject-brand.js && node scripts/prerender.js`) still works if you'd rather stay dep-free.
 
 5. **Deploy to Cloudflare Pages** instead of static hosting
 
@@ -346,9 +334,7 @@ makes a failure visible that used to ride through:
 
 ### Dynamic Data at Build Time
 
-Prefer the `fetchRoutes()` hook over hand-rolled list building inside
-`ssr.config.js`; it keeps static routes separate from CMS-sourced ones and
-dedupes by path (static wins):
+Prefer the `fetchRoutes()` hook over hand-rolled list building inside `ssr.config.js`; it keeps static routes separate from CMS-sourced ones and dedupes by path (static wins):
 
 ```js
 // ssr.config.js

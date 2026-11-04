@@ -3,6 +3,9 @@
 Engineering history and hard-won decisions. Written for an AI agent (or human) picking this up cold. Read before touching anything. Every pattern here was debugged against real CF Pages deployments across two production apps; nothing is theoretical.
 
 **Also read:** `CONTENT.md` before writing any copy, documentation, or code comments. It covers tone, voice, formatting, naming, and what to avoid. `labs/prd-prestruct.md` is the roadmap -- future patterns and planning live there.
+
+- **Prose flow (#49).** Living prose never hard-wraps at commit time: paragraphs flow, and `scripts/unwrap-prose.cjs` joins hard-wrapped prose without touching frontmatter, fences, indented code, tables, headings, thematic breaks, or HTML blocks. Dated history keeps its era wording.
+
 ---
 
 ## Scope boundaries (inherited from the retired SCOPE.md)
@@ -589,130 +592,38 @@ Confirmed re-broken in v1.1.0 (Oct 21, same day): release.yml copied RAW repo te
 
 ### Sync discipline (CI-enforced)
 
-`engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check
-mode in CI). Touch an engine file, never edit the deployed copies, always
-follow with a sync run. `qc.test.mjs` fails on drift -- that check IS the
-generator's proof of execution.
+`engine/` -> `init/` -> `example/` via `node scripts/sync-engine.mjs` (check mode in CI). Touch an engine file, never edit the deployed copies, always follow with a sync run. `qc.test.mjs` fails on drift -- that check IS the generator's proof of execution.
 
-The generator's `CONTRACT` array is the ONE file list. `engine-sync-check.yml`
-runs `node scripts/sync-engine.mjs check` (node builtins only, no install), so
-the workflow cannot drift from the generator the way a hand-copied list did
-(an earlier workflow list held 6 of the 10 contract files).
+The generator's `CONTRACT` array is the ONE file list. `engine-sync-check.yml` runs `node scripts/sync-engine.mjs check` (node builtins only, no install), so the workflow cannot drift from the generator the way a hand-copied list did (an earlier workflow list held 6 of the 10 contract files).
 
-**Lesson: the example target is generated, not release-synced (2026-10-29).**
-`sync-example.yml` was retired. It fired on `release: published` and copied
-six files from `init/` into `example/`, but it was both dead and wrong. Dead:
-GitHub does not run workflows from events created by the default `GITHUB_TOKEN`
-(the anti-recursion rule), and `publish.yml` mints the release with
-`github.token` -- it last ran 2026-05-31 on a human-authored release and never
-fired for the bot-authored v1.0.0/v1.1.0. Wrong: four of its six files were
-already generator `CONTRACT` files, so it re-copied what the generator already
-kept identical, and it `cp`'d `init/src/AppIslands.jsx` (the template skeleton)
-over `example/src/AppIslands.jsx` (the live island registry -- `EmailIsland`,
-`SessionTrail`, `ScrollMarker`). A run would have wiped the example's islands.
-The fix folds the one genuinely-shared file into the generator: `engine/
-ssr.config.example.js` is now a CONTRACT file (its `example/` copy had gone
-stale, missing the "Family ride-alongs" block), and `AppIslands.jsx` stays
-example-owned -- the generator never overwrites it. `qc.test.mjs` pins both
-halves: the workflow is gone, and the example's islands still register real
-components the template lacks.
+**Lesson: the example target is generated, not release-synced (2026-10-29).** `sync-example.yml` was retired. It fired on `release: published` and copied six files from `init/` into `example/`, but it was both dead and wrong. Dead: GitHub does not run workflows from events created by the default `GITHUB_TOKEN` (the anti-recursion rule), and `publish.yml` mints the release with `github.token` -- it last ran 2026-05-31 on a human-authored release and never fired for the bot-authored v1.0.0/v1.1.0. Wrong: four of its six files were already generator `CONTRACT` files, so it re-copied what the generator already kept identical, and it `cp`'d `init/src/AppIslands.jsx` (the template skeleton) over `example/src/AppIslands.jsx` (the live island registry -- `EmailIsland`, `SessionTrail`, `ScrollMarker`). A run would have wiped the example's islands. The fix folds the one genuinely-shared file into the generator: `engine/ ssr.config.example.js` is now a CONTRACT file (its `example/` copy had gone stale, missing the "Family ride-alongs" block), and `AppIslands.jsx` stays example-owned -- the generator never overwrites it. `qc.test.mjs` pins both halves: the workflow is gone, and the example's islands still register real components the template lacks.
 
 ---
 
 ## CI and the staging flow (adopted 2026-10-29)
 
-`staging` is the permanent integration branch: work branches off it, PRs
-target it, promotion to `main` is the only path to production. Never delete
-it. The fleet reference is `dhaupin/poststruct#32`.
+`staging` is the permanent integration branch: work branches off it, PRs target it, promotion to `main` is the only path to production. Never delete it. The fleet reference is `dhaupin/poststruct#32`.
 
-- **CI covers `staging` and `main`.** `test.yml`, `engine-sync-check.yml`, and
-  `crashtest.yml` list both branches; `docs.yml` builds docs on both.
-- **Every deploy job is gated to `main`.** The guard now lives INSIDE the
-  reusable docs lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`),
-  not in the caller: `docs.yml` is a thin caller, and the lane's `deploy` job
-  carries `if: github.ref == 'refs/heads/main'`. This is the load-bearing part:
-  once `staging` is in a deploy workflow's trigger list, the trigger no longer
-  keeps staging content out of production -- the job must say so itself, and
-  gating it in the shared lane means every caller inherits the guard. A
-  `staging` push is `refs/heads/staging` and a PR is `refs/pull/N/merge`, so
-  both skip; only a `main` push publishes.
-- **Promotion drifts the branches by one.** A merge-commit promotion puts a
-  commit on `main` that `staging` lacks. Fast-forward after every promotion:
-  `git push origin origin/main:staging`.
-- **`tests/qc.test.mjs` pins the contract** -- drop `staging` from a trigger,
-  point `docs.yml` away from the lane, or drop its Pages permissions and the
-  battery goes red.
+- **CI covers `staging` and `main`.** `test.yml`, `engine-sync-check.yml`, and `crashtest.yml` list both branches; `docs.yml` builds docs on both.
+- **Every deploy job is gated to `main`.** The guard now lives INSIDE the reusable docs lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`), not in the caller: `docs.yml` is a thin caller, and the lane's `deploy` job carries `if: github.ref == 'refs/heads/main'`. This is the load-bearing part: once `staging` is in a deploy workflow's trigger list, the trigger no longer keeps staging content out of production -- the job must say so itself, and gating it in the shared lane means every caller inherits the guard. A `staging` push is `refs/heads/staging` and a PR is `refs/pull/N/merge`, so both skip; only a `main` push publishes.
+- **Promotion drifts the branches by one.** A merge-commit promotion puts a commit on `main` that `staging` lacks. Fast-forward after every promotion: `git push origin origin/main:staging`.
+- **`tests/qc.test.mjs` pins the contract** -- drop `staging` from a trigger, point `docs.yml` away from the lane, or drop its Pages permissions and the battery goes red.
 
-**Lesson: a hand-copied runbook drifts; call the lane (2026-10-29).** The
-Jekyll -> freestruct -> pagefind -> Pages runbook lived inline in seven rig
-repos and had already drifted on ruby version, action versions, and freestruct
-sourcing (`dhaupin/flowforge#9`). freestruct promoted it to a reusable
-`on: workflow_call` lane (`dhaupin/freestruct#31`) and `docs.yml` is now a
-~53-line caller pinned to a freestruct SHA. Two consumer traps, both handled in
-the caller's `with:` block: (1) the lane defaults `freestruct-cmd` to
-freestruct's IN-REPO layout (`node bin/freestruct.mjs`), but a consumer that
-installs freestruct as an npm devDep must override it (`node
-node_modules/freestruct/bin/freestruct.mjs`); (2) the lane runs a crashtest
-dogfood leg, so a consumer pins `crashtest-ref` to the version its committed
-ledger was cut with. A reusable workflow cannot be tested locally -- land it on
-`staging`, where the lane BUILDS but the in-lane guard skips the deploy, and
-let CI prove the build legs before any promotion.
+**Lesson: a hand-copied runbook drifts; call the lane (2026-10-29).** The Jekyll -> freestruct -> pagefind -> Pages runbook lived inline in seven rig repos and had already drifted on ruby version, action versions, and freestruct sourcing (`dhaupin/flowforge#9`). freestruct promoted it to a reusable `on: workflow_call` lane (`dhaupin/freestruct#31`) and `docs.yml` is now a ~53-line caller pinned to a freestruct SHA. Two consumer traps, both handled in the caller's `with:` block: (1) the lane defaults `freestruct-cmd` to freestruct's IN-REPO layout (`node bin/freestruct.mjs`), but a consumer that installs freestruct as an npm devDep must override it (`node node_modules/freestruct/bin/freestruct.mjs`); (2) the lane runs a crashtest dogfood leg, so a consumer pins `crashtest-ref` to the version its committed ledger was cut with. A reusable workflow cannot be tested locally -- land it on `staging`, where the lane BUILDS but the in-lane guard skips the deploy, and let CI prove the build legs before any promotion.
 
-**Lesson: a workflow that fails to PARSE fails with ZERO jobs.** `docs.yml`
-carried `- name: Run freestruct strict (SEO layer: canonical, ...)` -- an
-unquoted YAML scalar with a `: ` inside it. YAML reads that colon as a mapping
-separator and the whole file is invalid. GitHub's symptom is a run that
-appears and completes `failure` with **0 jobs** and no step log, which reads
-like a runner problem, not a syntax problem. It had ridden every `staging`
-push since `c07565f` because the trigger still said `[main]` on `main`, where
-the older parseable copy ran green. Two rules: quote any `name:`/`run:`
-scalar that contains a colon, and treat a 0-job failure as a parse error
-first -- `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/<wf>.yml'))"` names the line in one shot.
+**Lesson: a workflow that fails to PARSE fails with ZERO jobs.** `docs.yml` carried `- name: Run freestruct strict (SEO layer: canonical, ...)` -- an unquoted YAML scalar with a `: ` inside it. YAML reads that colon as a mapping separator and the whole file is invalid. GitHub's symptom is a run that appears and completes `failure` with **0 jobs** and no step log, which reads like a runner problem, not a syntax problem. It had ridden every `staging` push since `c07565f` because the trigger still said `[main]` on `main`, where the older parseable copy ran green. Two rules: quote any `name:`/`run:` scalar that contains a colon, and treat a 0-job failure as a parse error first -- `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/<wf>.yml'))"` names the line in one shot.
 
 ## Docs audit: one shared runner, per-repo gate sets (prestruct#75)
 
-`npm run lint:docs` is ONE runner, not a `&&` chain. `scripts/run-docs-audit.cjs`
-(prestruct's gate set + voice + exit) drives `scripts/lib/docs-audit.cjs` (the
-runner: discovery, one findings list, per-gate count line, gate selection). The
-runner is **vendored** from `dhaupin/freestruct` (freestruct's
-`scripts/run-docs-audit.cjs` is the first caller), so the two repos share one
-docs-audit engine and differ only in gates, globs and allow-lists.
+`npm run lint:docs` is ONE runner, not a `&&` chain. `scripts/run-docs-audit.cjs` (prestruct's gate set + voice + exit) drives `scripts/lib/docs-audit.cjs` (the runner: discovery, one findings list, per-gate count line, gate selection). The runner is **vendored** from `dhaupin/freestruct` (freestruct's `scripts/run-docs-audit.cjs` is the first caller), so the two repos share one docs-audit engine and differ only in gates, globs and allow-lists.
 
-**Why the runner is vendored, not imported (owner rule).** A consumer may have
-prestruct without freestruct, or freestruct without prestruct. So the runner
-depends on node builtins only and neither repo imports the other at runtime;
-`tests/docs-audit.test.mjs` pins this (builtins-only requires, no
-consumer-facing dep field names the sibling, no runtime import across
-`engine/`+`bin/`+`scripts/`). The ONE allowed freestruct coupling is the
-devDependency the docs deploy lane needs (`docs.yml`
-`freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs`) -- dev-only,
-never shipped.
+**Why the runner is vendored, not imported (owner rule).** A consumer may have prestruct without freestruct, or freestruct without prestruct. So the runner depends on node builtins only and neither repo imports the other at runtime; `tests/docs-audit.test.mjs` pins this (builtins-only requires, no consumer-facing dep field names the sibling, no runtime import across `engine/`+`bin/`+`scripts/`). The ONE allowed freestruct coupling is the devDependency the docs deploy lane needs (`docs.yml` `freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs`) -- dev-only, never shipped.
 
-**What converged and what did not.** prestruct's gates are `frontmatter`,
-`links`, `nav`, `style`, `truthfulness`, `language` (shells out to
-`scripts/check-language.cjs` so one command covers it), and `jekyll` (the
-build-time Liquid class: a two-argument single-arg string filter, crashtest#23,
-and any `{% tag %}` outside the Jekyll 4.x set, prestruct#77 -- ported from
-poststruct's `check-jekyll-filters.cjs`). Claims
-(`scripts/check-fiction-signatures.cjs`) stays a SEPARATE `lint:claims` script
--- the same split freestruct keeps. Two deliberate divergences:
+**What converged and what did not.** prestruct's gates are `frontmatter`, `links`, `nav`, `style`, `truthfulness`, `language` (shells out to `scripts/check-language.cjs` so one command covers it), and `jekyll` (the build-time Liquid class: a two-argument single-arg string filter, crashtest#23, and any `{% tag %}` outside the Jekyll 4.x set, prestruct#77 -- ported from poststruct's `check-jekyll-filters.cjs`). Claims (`scripts/check-fiction-signatures.cjs`) stays a SEPARATE `lint:claims` script -- the same split freestruct keeps. Two deliberate divergences:
 
-- **`nav` is forward-only here.** freestruct's `nav` gate is bidirectional
-  (every menu URL resolves AND every page is listed). prestruct's sidebar is a
-  curated menu -- the playbooks index is the hub and the discussions + playbook
-  detail pages are linked from prose, not the menu -- so prestruct checks only
-  that every menu URL resolves and none is duplicated. Porting the reverse rule
-  would red-line correct pages.
-- **No `codefmt` gate.** freestruct's `codefmt` pins its engine header
-  convention (`// engine/<file>.js - <purpose>`). prestruct's engine sources use
-  a `/** ... */` block header instead, so the gate would be a convention change,
-  not a port. Out of scope for the convergence.
+- **`nav` is forward-only here.** freestruct's `nav` gate is bidirectional (every menu URL resolves AND every page is listed). prestruct's sidebar is a curated menu -- the playbooks index is the hub and the discussions + playbook detail pages are linked from prose, not the menu -- so prestruct checks only that every menu URL resolves and none is duplicated. Porting the reverse rule would red-line correct pages.
+- **No `codefmt` gate.** freestruct's `codefmt` pins its engine header convention (`// engine/<file>.js - <purpose>`). prestruct's engine sources use a `/** ... */` block header instead, so the gate would be a convention change, not a port. Out of scope for the convergence.
 
-**Boundary: the runtime audit does NOT converge.** `engine/scripts/audit.js`
-already carries one contract, remapped per engine -- leave it. And build wiring
-stays per-repo: prestruct chains `audit-if-configured.cjs` into the template
-build (a configured scaffold fails its own build on head regressions), while
-freestruct keeps `audit` a separate subcommand. A product-contract choice, not
-drift.
+**Boundary: the runtime audit does NOT converge.** `engine/scripts/audit.js` already carries one contract, remapped per engine -- leave it. And build wiring stays per-repo: prestruct chains `audit-if-configured.cjs` into the template build (a configured scaffold fails its own build on head regressions), while freestruct keeps `audit` a separate subcommand. A product-contract choice, not drift.
 
 **Crosslinks:** [README](./README.md) for quick start, docs site under `docs/` (deploy: `docs/guides/cloudflare.md`, proxy: `README-proxy.md`, CLI: `docs/guides/cli.md`, config: `docs/guides/config.md`), pass log in `labs/TASKS.md`.

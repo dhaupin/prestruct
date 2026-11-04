@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/api
 ---
 
-
 Complete API documentation for prestruct hooks and utilities.
 
 ## usePageMeta
@@ -219,9 +218,7 @@ Mounts during browser idle time using `requestIdleCallback`. Falls back to `setT
 
 ### Props
 
-`mountIslands()` renders each registry component with **no props** --
-`ReactDOM.createRoot(el).render(React.createElement(Component))` -- and they
-cannot access React context from the main tree. To pass data:
+`mountIslands()` renders each registry component with **no props** -- `ReactDOM.createRoot(el).render(React.createElement(Component))` -- and they cannot access React context from the main tree. To pass data:
 
 **Option 1: Use global state / localStorage**
 
@@ -315,8 +312,7 @@ export default {
 }
 ```
 
-See the [full config reference](/prestruct/guides/config) for every key, including
-`platform`, `deployId`, `deployIdFooter`, and `fetchRoutes()`.
+See the [full config reference](/prestruct/guides/config) for every key, including `platform`, `deployId`, `deployIdFooter`, and `fetchRoutes()`.
 
 ---
 

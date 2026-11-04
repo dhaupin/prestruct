@@ -9,10 +9,7 @@ permalink: /playbooks/
 
 # Playbooks
 
-Each playbook is the short series of commands for one job, with the receipts
-named at every step. All of them stay inside the contract: the CLI verbs are
-the only entry points, the config is the only source of routes, and the baked
-output is judged by `prestruct audit`.
+Each playbook is the short series of commands for one job, with the receipts named at every step. All of them stay inside the contract: the CLI verbs are the only entry points, the config is the only source of routes, and the baked output is judged by `prestruct audit`.
 
 | # | playbook | the job |
 |---|----------|---------|
@@ -23,7 +20,4 @@ output is judged by `prestruct audit`.
 | 5 | [Shipping a docs change](/prestruct/playbooks/docs-change/) | edit, lint, strict build, deploy |
 | 6 | [Releasing a version](/prestruct/playbooks/release/) | bump, changelog, tag, watch the ladder |
 
-Recipes are single-file by design: they move text without moving intent, and
-each one stays letter-accurate against the workflow it documents. The
-[CI guide](/prestruct/ci) documents the lanes themselves; playbooks are what
-you run through those lanes.
+Recipes are single-file by design: they move text without moving intent, and each one stays letter-accurate against the workflow it documents. The [CI guide](/prestruct/ci) documents the lanes themselves; playbooks are what you run through those lanes.

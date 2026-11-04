@@ -57,8 +57,7 @@ export default function AppLayout() {
 
 ## Dynamic island component
 
-The component is mounted INTO the placeholder after hydration -- it never
-lives inside the `<pre-island>` JSX (that would render at build time):
+The component is mounted INTO the placeholder after hydration -- it never lives inside the `<pre-island>` JSX (that would render at build time):
 
 ```jsx
 // src/islands/CartWidget.jsx
@@ -121,12 +120,9 @@ wrangler pages deploy dist
 
 For dynamic routes or frequent content updates:
 
-1. Set `config.proxy.url` in ssr.config.js (the build then widens the CSP
-   `connect-src` allow-list with that origin)
+1. Set `config.proxy.url` in ssr.config.js (the build then widens the CSP `connect-src` allow-list with that origin)
 2. Deploy the proxy itself: VPS Node/Puppeteer, or Cloudflare Worker
-3. Route bot traffic to it ahead of Pages (DNS/proxy fronting) -- Pages keeps
-   serving static HTML to humans; the two layers stack, they don't replace
-   each other
+3. Route bot traffic to it ahead of Pages (DNS/proxy fronting) -- Pages keeps serving static HTML to humans; the two layers stack, they don't replace each other
 
 See [Bot-Render Proxy](/prestruct/guides/proxy) for full setup.
 

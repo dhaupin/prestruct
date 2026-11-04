@@ -7,13 +7,9 @@ version: 1.0.0
 permalink: /guides/cloudflare
 ---
 
-
 Deploying prestruct sites to Cloudflare Pages.
 
-Build command is either the CLI (`npm run build` with `prestruct build` as the
-script, see [CLI Reference](/prestruct/guides/cli)) or the scaffolded three-step script from the
-template (`vite build && node scripts/inject-brand.js && node
-scripts/prerender.js`). Both produce identical `dist/` output.
+Build command is either the CLI (`npm run build` with `prestruct build` as the script, see [CLI Reference](/prestruct/guides/cli)) or the scaffolded three-step script from the template (`vite build && node scripts/inject-brand.js && node scripts/prerender.js`). Both produce identical `dist/` output.
 
 ## Why Cloudflare Pages?
 
@@ -44,18 +40,11 @@ In Cloudflare Pages settings, add:
 |----------|-------|
 | `NODE_VERSION` | `20` |
 
-Set `PRESTRUCT_STRICT=1` if you want the Pages build to FAIL on config
-diagnostics instead of degrading to an SPA deploy (default off -- Pages
-deployments never break on a bad `ssr.config.js`). Config errors are printed
-as `[prestruct] config: ...` lines either way.
+Set `PRESTRUCT_STRICT=1` if you want the Pages build to FAIL on config diagnostics instead of degrading to an SPA deploy (default off -- Pages deployments never break on a bad `ssr.config.js`). Config errors are printed as `[prestruct] config: ...` lines either way.
 
 ### For Proxy Support
 
-The bot proxy is a separate deployment (VPS or Worker), not a Pages setting --
-see [README-proxy.md](https://github.com/dhaupin/prestruct/blob/main/README-proxy.md) for the full VPS / Cloudflare
-Worker runbook. Pages only cares once it exists: `inject-brand.js` then adds
-the proxy origin to `connect-src` in `dist/_headers` automatically, so the
-only Pages-side change is nothing.
+The bot proxy is a separate deployment (VPS or Worker), not a Pages setting -- see [README-proxy.md](https://github.com/dhaupin/prestruct/blob/main/README-proxy.md) for the full VPS / Cloudflare Worker runbook. Pages only cares once it exists: `inject-brand.js` then adds the proxy origin to `connect-src` in `dist/_headers` automatically, so the only Pages-side change is nothing.
 
 ## Security Headers
 
@@ -108,14 +97,9 @@ Cloudflare handles SSL automatically.
 
 ## Cache Invalidation
 
-Cloudflare automatically purges the Pages cache on every redeploy -- there is
-nothing to configure. `dist/` HTML files carry no long-lived cache headers, so
-browsers revalidate against the current deploy.
+Cloudflare automatically purges the Pages cache on every redeploy -- there is nothing to configure. `dist/` HTML files carry no long-lived cache headers, so browsers revalidate against the current deploy.
 
-The `x-prestruct-refresh` header you may have seen in the docs is the RENDER
-PROXY's cache-bust endpoint, not a Pages feature. It flushes cached bot
-renders on the VPS/Worker proxy -- see
-[README-proxy.md](https://github.com/dhaupin/prestruct/blob/main/README-proxy.md).
+The `x-prestruct-refresh` header you may have seen in the docs is the RENDER PROXY's cache-bust endpoint, not a Pages feature. It flushes cached bot renders on the VPS/Worker proxy -- see [README-proxy.md](https://github.com/dhaupin/prestruct/blob/main/README-proxy.md).
 
 ## Troubleshooting
 
@@ -165,8 +149,7 @@ Dashboard -> Analytics -> Pages
 
 ### Cloudflare Speed
 
-Check Core Web Vitals at:
-https://dash.cloudflare.com/{zone}/speed
+Check Core Web Vitals at: https://dash.cloudflare.com/{zone}/speed
 
 ### Error Logs
 

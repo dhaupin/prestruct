@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/seo
 ---
 
-
 Prestruct handles technical SEO at build time. This guide covers best practices.
 
 ## How Prestruct Works
@@ -81,8 +80,7 @@ Canonical is `siteUrl` + the route path, minus the trailing slash on `/`:
 // Generates: <link rel="canonical" href="https://example.com" />
 ```
 
-`usePageMeta` computes the same value client-side on SPA navigation, so the
-canonical never flips between SSR and client.
+`usePageMeta` computes the same value client-side on SPA navigation, so the canonical never flips between SSR and client.
 
 ## Structured Data (JSON-LD)
 
@@ -110,10 +108,7 @@ export default {
 }
 ```
 
-The returned object(s) are injected as `<script type="application/ld+json">
-into every page. `buildJsonLd` is called with no arguments and cannot vary by
-route -- see [Structured Data](/prestruct/guides/structured-data) for the full set of
-types and the per-route limitation.
+The returned object(s) are injected as `<script type="application/ld+json"> into every page. `buildJsonLd` is called with no arguments and cannot vary by route -- see [Structured Data](/prestruct/guides/structured-data) for the full set of types and the per-route limitation.
 
 ## Sitemap
 
@@ -137,8 +132,7 @@ This prevents 404 pages from appearing in search results.
 
 ## Robots.txt
 
-Two ways, one contract: prestruct never touches `dist/robots.txt` unless you
-opt in. Author your own in `public/robots.txt` (copied through untouched):
+Two ways, one contract: prestruct never touches `dist/robots.txt` unless you opt in. Author your own in `public/robots.txt` (copied through untouched):
 
 ```txt
 User-agent: *
@@ -147,39 +141,18 @@ Allow: /
 Sitemap: https://example.com/sitemap.xml
 ```
 
-Or generate one from config (`robots: true` = minimal allow-all + Sitemap
-line, `robots: "<body>"` = custom body with the Sitemap line auto-appended,
-`robots: { body, sitemap: false }` = custom body without the pointer). Both
-come from the `robots` key in `ssr.config.js`; details:
-[Config Reference](/prestruct/guides/config).
+Or generate one from config (`robots: true` = minimal allow-all + Sitemap line, `robots: "<body>"` = custom body with the Sitemap line auto-appended, `robots: { body, sitemap: false }` = custom body without the pointer). Both come from the `robots` key in `ssr.config.js`; details: [Config Reference](/prestruct/guides/config).
 
 ### AI crawlers (AEO)
 
-`robots: { aeo: true }` writes a per-bot policy instead of a catch-all:
-search-visibility crawlers are allowed, training crawlers are disallowed by
-default (`aeo: { aiBots: 'allow' }` flips that). The separation matters
-because the vendor tokens differ: `OAI-SearchBot` controls ChatGPT search
-results while `GPTBot` controls OpenAI training crawls; `Claude-SearchBot` vs
-`ClaudeBot`; `Applebot` vs `Applebot-Extended`. `Google-Extended` is a product
-token for Gemini/Vertex grounding that does not affect Google Search
-inclusion. Details: [Config Reference](/prestruct/guides/config).
+`robots: { aeo: true }` writes a per-bot policy instead of a catch-all: search-visibility crawlers are allowed, training crawlers are disallowed by default (`aeo: { aiBots: 'allow' }` flips that). The separation matters because the vendor tokens differ: `OAI-SearchBot` controls ChatGPT search results while `GPTBot` controls OpenAI training crawls; `Claude-SearchBot` vs `ClaudeBot`; `Applebot` vs `Applebot-Extended`. `Google-Extended` is a product token for Gemini/Vertex grounding that does not affect Google Search inclusion. Details: [Config Reference](/prestruct/guides/config).
 
 Two honest limits, from vendor documentation (2026):
 
-- These are crawler instructions, not citation switches. No tag or file makes
-  an answer engine cite you; Google's 2026 guidance is explicit that ordinary
-  fundamentals remain what matter and it ignores `llms.txt`.
-- robots rules are not access control. A disallowed URL may still be indexed
-  by some systems without a description, and `Perplexity-User`/
-  `ChatGPT-User`-style user-initiated fetches may ignore robots entirely.
+- These are crawler instructions, not citation switches. No tag or file makes an answer engine cite you; Google's 2026 guidance is explicit that ordinary fundamentals remain what matter and it ignores `llms.txt`.
+- robots rules are not access control. A disallowed URL may still be indexed by some systems without a description, and `Perplexity-User`/ `ChatGPT-User`-style user-initiated fetches may ignore robots entirely.
 
-What does move answer-engine visibility, per the same documentation: public
-crawlable HTML (prestruct prerenders every route, so this is already handled),
-stable canonicals, accurate titles/descriptions, visible author/date info,
-schema.org types that match visible content (Article, Person/ProfilePage,
-BreadcrumbList -- see [Structured Data](/prestruct/guides/structured-data)),
-and not accidentally blocking resource URLs. FAQ rich results were retired
-May 2026; de-prioritize FAQPage markup unless the page is genuinely Q&A.
+What does move answer-engine visibility, per the same documentation: public crawlable HTML (prestruct prerenders every route, so this is already handled), stable canonicals, accurate titles/descriptions, visible author/date info, schema.org types that match visible content (Article, Person/ProfilePage, BreadcrumbList -- see [Structured Data](/prestruct/guides/structured-data)), and not accidentally blocking resource URLs. FAQ rich results were retired May 2026; de-prioritize FAQPage markup unless the page is genuinely Q&A.
 
 ## Security Headers
 

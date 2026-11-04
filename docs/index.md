@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /
 ---
 
-
 > Static site generation for Cloudflare Pages with prerendered React apps
 
 ## Overview

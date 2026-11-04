@@ -42,11 +42,7 @@ npx prestruct indexnow
 npx prestruct help
 ```
 
-Install is NOT a CLI verb: `npm install` / `git clone` unwraps the package; the
-verbs the package ships are exactly `init`, `build`, `validate`, `audit`,
-`indexnow`, `clean`, and `help`. All commands except `help` accept a positional
-`[dir]` (explicit workdir); without one they walk up from the current directory
-until they find `ssr.config.js`.
+Install is NOT a CLI verb: `npm install` / `git clone` unwraps the package; the verbs the package ships are exactly `init`, `build`, `validate`, `audit`, `indexnow`, `clean`, and `help`. All commands except `help` accept a positional `[dir]` (explicit workdir); without one they walk up from the current directory until they find `ssr.config.js`.
 
 To use these as npm scripts instead, add prestruct to `devDependencies` and wire it up:
 
@@ -62,8 +58,7 @@ Note: the scaffolded `init/` app still uses the raw `node` npm-script forms (bel
 
 ## Template npm scripts
 
-The `init/` template ships exactly these. `prestruct build` is a packaged
-re-run of the same `npm run build` pipeline (which now ends with the audit):
+The `init/` template ships exactly these. `prestruct build` is a packaged re-run of the same `npm run build` pipeline (which now ends with the audit):
 
 ```jsonc
 {
@@ -75,9 +70,7 @@ re-run of the same `npm run build` pipeline (which now ends with the audit):
 }
 ```
 
-There is no `dev` / `preview` / `prerender` npm script in the template. Run
-`npx vite dev` / `npx vite preview` directly if you want a local server; the
-prerender step only ever runs as part of `build` (or `npx prestruct build`).
+There is no `dev` / `preview` / `prerender` npm script in the template. Run `npx vite dev` / `npx vite preview` directly if you want a local server; the prerender step only ever runs as part of `build` (or `npx prestruct build`).
 
 ## Build pipeline
 
@@ -104,49 +97,28 @@ prestruct build
     `-> prerender.js
 ```
 
-Config loading is fixed in every entry point: `ssr.config.js` from the
-explicit `[dir]` argument (default: current directory, walking up to the
-nearest parent that has one). There is currently no `--config` flag.
+Config loading is fixed in every entry point: `ssr.config.js` from the explicit `[dir]` argument (default: current directory, walking up to the nearest parent that has one). There is currently no `--config` flag.
 
 Flag notes backed by the CLI dispatch (`bin/cli.mjs`):
 
 - `build` accepts `--force` (alias `-f`) and `--clean`.
-- A route that fails to render fails the BUILD: exit 1 with
-  `[prestruct] prerender failed for N/M route(s)`. Exit 0 on a broken deploy
-  was the bug; there is no opt-out.
-- `validate` prints diagnostics only when something is wrong; a passing config
-  prints one line (`ssr.config.js is valid (N routes)`).
+- A route that fails to render fails the BUILD: exit 1 with `[prestruct] prerender failed for N/M route(s)`. Exit 0 on a broken deploy was the bug; there is no opt-out.
+- `validate` prints diagnostics only when something is wrong; a passing config prints one line (`ssr.config.js is valid (N routes)`).
 - `clean` clears `.prestruct/cache/routes.json` for the target workdir.
 
 ### The audit subcommand
 
 `prestruct audit [dist]` reads the baked output (never writes) and grades it:
 
-- **FAIL rows (exit 1):** missing title/description, non-absolute canonical,
-  duplicate head tags (title/canonical/description/og:title -- the rebuild-
-  idempotency guard), missing og:title/og:description/twitter:card/
-  twitter:title, the SVG og:image trap, unparseable JSON-LD, a 404 page
-  without noindex, missing/empty sitemap.xml, and a missing or pointer-less
-  robots.txt when `config.robots` is set (the author-owned copy is the
-  author's call, so it is never graded without the engine contract).
-- **WARN rows (report-grade, never fail):** title/description length bands,
-  the extended og/twitter set, missing og:image companions (the object form
-  supplies them), a site-local og:image that does not exist on disk,
-  structure data without `@type`, h1 hygiene, pages with no JSON-LD.
-- **`--json`:** one digest line for CI harvesting. **`--external`:** HEAD
-  probes (GET retry) up to 50 unique external hrefs, warn-grade, live
-  network. **`--internal`:** unresolved internal hrefs, warn-grade -- a link
-  to a route that was never prerendered is a gap, not a failure.
+- **FAIL rows (exit 1):** missing title/description, non-absolute canonical, duplicate head tags (title/canonical/description/og:title -- the rebuild- idempotency guard), missing og:title/og:description/twitter:card/ twitter:title, the SVG og:image trap, unparseable JSON-LD, a 404 page without noindex, missing/empty sitemap.xml, and a missing or pointer-less robots.txt when `config.robots` is set (the author-owned copy is the author's call, so it is never graded without the engine contract).
+- **WARN rows (report-grade, never fail):** title/description length bands, the extended og/twitter set, missing og:image companions (the object form supplies them), a site-local og:image that does not exist on disk, structure data without `@type`, h1 hygiene, pages with no JSON-LD.
+- **`--json`:** one digest line for CI harvesting. **`--external`:** HEAD probes (GET retry) up to 50 unique external hrefs, warn-grade, live network. **`--internal`:** unresolved internal hrefs, warn-grade -- a link to a route that was never prerendered is a gap, not a failure.
 
-The scaffolded `init/`/example apps run the audit straight after prerender in
-their `build` script, so a regression fails the build rather than shipping.
+The scaffolded `init/`/example apps run the audit straight after prerender in their `build` script, so a regression fails the build rather than shipping.
 
 ## Deploy commands (prestruct output is what deploys)
 
-`prestruct build` output is the only artifact that ships. On Cloudflare Pages,
-that's normally git-connected (push to main -> Pages runs `npm run build`,
-serves `dist/` -- full setup: [Cloudflare Pages guide](/prestruct/guides/cloudflare)).
-For direct uploads the wrangler commands operate on prestruct's `dist/`:
+`prestruct build` output is the only artifact that ships. On Cloudflare Pages, that's normally git-connected (push to main -> Pages runs `npm run build`, serves `dist/` -- full setup: [Cloudflare Pages guide](/prestruct/guides/cloudflare)). For direct uploads the wrangler commands operate on prestruct's `dist/`:
 
 ```bash
 npm run build            # or: npx prestruct build
@@ -159,14 +131,11 @@ wrangler pages deploy dist
 wrangler pages deployment list
 ```
 
-CF Pages' build queue is the "build hook": git push fires the build that runs
-prestruct. A `wrangler pages deploy dist` in CI is the equivalent for repos
-that build elsewhere.
+CF Pages' build queue is the "build hook": git push fires the build that runs prestruct. A `wrangler pages deploy dist` in CI is the equivalent for repos that build elsewhere.
 
 ## Proxy commands
 
-The bot proxy is opt-in and separate from the build. Commands, tied to what
-actually runs:
+The bot proxy is opt-in and separate from the build. Commands, tied to what actually runs:
 
 ```bash
 # VPS proxy (Node/Express/Puppeteer): needs scripts/proxy.js + the
@@ -180,9 +149,7 @@ pm2 start scripts/proxy.js --name prestruct
 wrangler deploy
 ```
 
-Both variants read `config.proxy` from `ssr.config.js` and share the
-`x-prestruct-refresh` cache-bust contract (auth: `PRESTRUCT_SECRET`). Details
-and the request flow: [Proxy guide](/prestruct/guides/proxy).
+Both variants read `config.proxy` from `ssr.config.js` and share the `x-prestruct-refresh` cache-bust contract (auth: `PRESTRUCT_SECRET`). Details and the request flow: [Proxy guide](/prestruct/guides/proxy).
 
 ## Common issues
 

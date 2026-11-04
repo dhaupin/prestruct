@@ -60,19 +60,13 @@ There is no Prettier/formatter step in the repo.
 
 ### Before submitting
 
-One command carries every lane CI runs, in loud-fail order (sync, packs,
-docs, claims, the template tree's own eslint, then the vitest battery):
+One command carries every lane CI runs, in loud-fail order (sync, packs, docs, claims, the template tree's own eslint, then the vitest battery):
 
 ```bash
 npm run gate
 ```
 
-The individual lanes (equivalent set): `npm run test:run`,
-`npm run lint:docs`, `npm run lint:claims`, `npm run sync:check`,
-`npm run lint:packs`, and `npm --prefix init run lint` -- the last one
-only rides CI otherwise, so always go through the aggregate. (Mind the
-trap the aggregate avoids: a bare `cd init && ...` inside one npm script
-moves the whole chain; `--prefix` runs the lint lane scoped to init.)
+The individual lanes (equivalent set): `npm run test:run`, `npm run lint:docs`, `npm run lint:claims`, `npm run sync:check`, `npm run lint:packs`, and `npm --prefix init run lint` -- the last one only rides CI otherwise, so always go through the aggregate. (Mind the trap the aggregate avoids: a bare `cd init && ...` inside one npm script moves the whole chain; `--prefix` runs the lint lane scoped to init.)
 
 ### PR guidelines
 
@@ -105,18 +99,12 @@ chore: maintenance tasks
 
 ## License
 
-LICENSE is MIT; LEGAL.md adds Fair-Code restrictions on commercial SaaS use.
-By contributing, you agree that your contributions ship under both.
+LICENSE is MIT; LEGAL.md adds Fair-Code restrictions on commercial SaaS use. By contributing, you agree that your contributions ship under both.
 
 ## Docs contributions
 
-Writing or editing a guide? Follow the
-[Content Style](/prestruct/guides/content-style) rules and run the truth gates before
-opening the PR:
+Writing or editing a guide? Follow the [Content Style](/prestruct/guides/content-style) rules and run the truth gates before opening the PR:
 
-- every `npx prestruct <verb>` in prose must route to `bin/cli.mjs` -- the
-  verbs are `init`, `build`, `validate`, `clean`, `help`
+- every `npx prestruct <verb>` in prose must route to `bin/cli.mjs` -- the verbs are `init`, `build`, `validate`, `clean`, `help`
 - every `./engine/...`-style module reference must resolve on disk
-- claims of behavior need engine backing (see
-  `scripts/run-docs-audit.cjs` and `scripts/check-fiction-signatures.cjs`
-  for the mechanical definitions)
+- claims of behavior need engine backing (see `scripts/run-docs-audit.cjs` and `scripts/check-fiction-signatures.cjs` for the mechanical definitions)

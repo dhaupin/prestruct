@@ -7,7 +7,6 @@ version: 1.0.0
 permalink: /guides/vite
 ---
 
-
 Setting up Vite 5+ for prestruct.
 
 ## Why Vite?
@@ -16,9 +15,7 @@ Prestruct uses Vite's `ssrLoadModule` API to load your app in Node for prerender
 
 ## Basic Setup
 
-The template's `vite.config.js` is deliberately minimal -- no `server` block,
-no custom `build` output (Vite's defaults already emit hashed bundles to
-`dist/assets/`):
+The template's `vite.config.js` is deliberately minimal -- no `server` block, no custom `build` output (Vite's defaults already emit hashed bundles to `dist/assets/`):
 
 ```js
 import react from '@vitejs/plugin-react'
@@ -28,14 +25,9 @@ export default {
 }
 ```
 
-The plugin matters: without `@vitejs/plugin-react`, JSX compiles through
-esbuild's classic runtime, which expects an in-scope `React` binding. Under
-`ssrLoadModule` that surfaces as `React is not defined` per route and prerender
-silently degrades to the SPA fallback.
+The plugin matters: without `@vitejs/plugin-react`, JSX compiles through esbuild's classic runtime, which expects an in-scope `React` binding. Under `ssrLoadModule` that surfaces as `React is not defined` per route and prerender silently degrades to the SPA fallback.
 
-Do NOT add `server: { middlewareMode: true }` to your own config -- prerender
-spins up its own middleware-mode Vite dev server internally; your config's
-`server` settings only affect your own `vite dev` runs.
+Do NOT add `server: { middlewareMode: true }` to your own config -- prerender spins up its own middleware-mode Vite dev server internally; your config's `server` settings only affect your own `vite dev` runs.
 
 ## SSR-Specific Configuration
 
@@ -93,8 +85,7 @@ The template has no `dev` npm script; run Vite directly:
 npx vite
 ```
 
-Vite dev server at `http://localhost:5173` (SPA only -- prerendered output is
-not re-rendered here).
+Vite dev server at `http://localhost:5173` (SPA only -- prerendered output is not re-rendered here).
 
 ### Preview Prerendered Build
 

@@ -10,39 +10,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 
 ### Fixed
 
-- **The release ladder no longer parses `npm pack --dry-run --json`.** The
-  phone's npm answers that probe with empty stdout (a config warning, no JSON)
-  even under `--loglevel=error`, so the ladder's `JSON.parse` failed and read as
-  a capability failure - exit 2 - on a clean tree. The ladder now derives the
-  expected set from a REAL `npm pack` of the checkout, listed by the same
-  `tarList` the served tarball already goes through.
+- **The release ladder no longer parses `npm pack --dry-run --json`.** The phone's npm answers that probe with empty stdout (a config warning, no JSON) even under `--loglevel=error`, so the ladder's `JSON.parse` failed and read as a capability failure - exit 2 - on a clean tree. The ladder now derives the expected set from a REAL `npm pack` of the checkout, listed by the same `tarList` the served tarball already goes through.
 
-- **The staged publish `.npmrc` no longer writes the deprecated `always-auth`
-  line.** npm >=9 warns `Unknown project config "always-auth"` on it, and that
-  warning reaches the child processes the `prepublishOnly` gate spawns. The
-  staged file is now exactly one line (the `${NPM_TOKEN}` expansion).
+- **The staged publish `.npmrc` no longer writes the deprecated `always-auth` line.** npm >=9 warns `Unknown project config "always-auth"` on it, and that warning reaches the child processes the `prepublishOnly` gate spawns. The staged file is now exactly one line (the `${NPM_TOKEN}` expansion).
 
 ### Changed
 
-- **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md`
-  is now Keep-a-Changelog end to end (a `## [Unreleased]` block over
-  `## [version] - date` sections) and `scripts/release-notes.cjs` is the
-  family's single superset extractor: it reads the KAC heading, still reads the
-  older bare (`## 1.2.0`) and v-prefixed (`## v1.2.0`) forms, closes the
-  version token so `## [1.2.0]` never matches a `## [1.2.0-rc.1]`, and refuses
-  a version with no section by name. One extractor across the family means one
-  release-body shape everywhere.
+- **Changelog + release-notes standardized to the family shape.** `CHANGELOG.md` is now Keep-a-Changelog end to end (a `## [Unreleased]` block over `## [version] - date` sections) and `scripts/release-notes.cjs` is the family's single superset extractor: it reads the KAC heading, still reads the older bare (`## 1.2.0`) and v-prefixed (`## v1.2.0`) forms, closes the version token so `## [1.2.0]` never matches a `## [1.2.0-rc.1]`, and refuses a version with no section by name. One extractor across the family means one release-body shape everywhere.
 
 ### Fixed
 
-- **The release ladder no longer races registry propagation, nor false-flags a
-  branch-name `target_commitish`** - both surfaced by the crashtest 1.2.0 live
-  cut. `scripts/verify-release.cjs` polls `dist-tags.latest` **and** the version
-  entry through npm's post-publish propagation window instead of reading once,
-  and the `release` job retries `npm pack prestruct@<ver>` the same way. The
-  release check now accepts GitHub's `target_commitish` default-branch name and
-  treats only a 40-hex SHA as a commit claim. This copy also gains the family
-  `--allowed` flag (prefix-scoped forbidden-scan exemptions), pinned by a test.
+- **The release ladder no longer races registry propagation, nor false-flags a branch-name `target_commitish`** - both surfaced by the crashtest 1.2.0 live cut. `scripts/verify-release.cjs` polls `dist-tags.latest` **and** the version entry through npm's post-publish propagation window instead of reading once, and the `release` job retries `npm pack prestruct@<ver>` the same way. The release check now accepts GitHub's `target_commitish` default-branch name and treats only a 40-hex SHA as a commit claim. This copy also gains the family `--allowed` flag (prefix-scoped forbidden-scan exemptions), pinned by a test.
 
 ## [1.2.0] - 2026-11-01
 
