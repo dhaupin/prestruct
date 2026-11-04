@@ -32,7 +32,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "prepublishOnly": "npm run gate",
-    "gate": "npm run sync:check && npm run lint:packs && npm run lint:docs && npm run lint:pins && npm run lint:claims && npm --prefix init run lint && npm run test:run",
+    "gate": "npm run sync:check && npm run lint:packs && npm run lint:docs && npm run lint:pins && npm run lint:prestruct-pins && npm run lint:claims && npm --prefix init run lint && npm run test:run",
     "sync": "node scripts/sync-engine.mjs",
     "sync:check": "node scripts/sync-engine.mjs check",
     "lint:packs": "packstruct lint packs/ --deep",
@@ -40,7 +40,8 @@
     "crashtest:bump": "node scripts/crashtest-bump.mjs",
     "lint:docs": "node scripts/run-docs-audit.cjs",
     "lint:claims": "node scripts/check-fiction-signatures.cjs",
-    "e2e": "node tests/e2e-fixture.mjs"
+    "e2e": "node tests/e2e-fixture.mjs",
+    "lint:prestruct-pins": "node scripts/check-prestruct-pins.cjs"
   },
   "engines": {
     "node": ">=20"

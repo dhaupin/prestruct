@@ -52,6 +52,13 @@ jobs:
       - name: Lint
         run: cd init && npm run lint
 
+      # The family prestruct floor guard, parity with the sibling lanes. The
+      # engine declares no prestruct dependency itself, so this is a clean
+      # pass; it keeps the wiring identical across the ten repos. The guard's
+      # own battery rides `npm run test:run` (vitest picks up tests/*.test.js).
+      - name: Prestruct pin guard (family floor)
+        run: npm run lint:prestruct-pins
+
       # The tracked template tree: builds green without a config (the audit
       # step is config-aware: init/scripts/audit-if-configured.cjs refuses
       # with a named skip when ssr.config.js is absent, per the unconfigured
