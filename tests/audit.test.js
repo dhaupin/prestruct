@@ -306,7 +306,22 @@ describe('auditInternalLinks', () => {
 describe('auditExternalLinks', () => {
   it('missing dir returns the empty shape', async () => {
     const r = await auditExternalLinks({ outputDir: join(makeRoot(), 'noop') })
-    expect(r).toEqual({ warns: [], checked: 0 })
+    expect(r).toEqual({ warns: [], checked: 0, blocked: 0 })
+  })
+
+  it('refuses private/loopback/metadata hosts before any socket (SSRF guard)', async () => {
+    const root = makeRoot()
+    const out = join(root, 'dist')
+    mkdirSync(out, { recursive: true })
+    writeFileSync(join(out, 'index.html'),
+      '<a href="http://169.254.169.254/latest/meta-data/">m</a>'
+      + '<a href="http://[::ffff:127.0.0.1]:8080/">l</a>'
+      + '<a href="http://localhost./x">n</a>')
+    const r = await auditExternalLinks({ outputDir: out, json: true })
+    expect(r.blocked).toBe(3)          // every private host is refused
+    expect(r.checked).toBe(0)          // a refused URL is never probed
+    expect(r.warns).toHaveLength(3)    // each refusal is a WARN finding
+    expect(r.warns.every((w) => /SSRF guard/.test(w.msg))).toBe(true)
   })
 })
 
