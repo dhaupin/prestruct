@@ -2,8 +2,9 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { describe, it, expect, afterEach } from 'vitest'
-import { auditOutput, auditInternalLinks, auditExternalLinks } from '../engine/scripts/audit.js'
+import { auditOutput, auditInternalLinks, auditExternalLinks, headCheck } from '../engine/scripts/audit.js'
 import { generateSitemap, assertXmlSafe } from '../engine/scripts/prerender.js'
+import http from 'node:http'
 
 /**
  * audit.js tests
@@ -322,6 +323,40 @@ describe('auditExternalLinks', () => {
     expect(r.checked).toBe(0)          // a refused URL is never probed
     expect(r.warns).toHaveLength(3)    // each refusal is a WARN finding
     expect(r.warns.every((w) => /SSRF guard/.test(w.msg))).toBe(true)
+  })
+
+  it('refuses a redirect to a private host (redirect SSRF guard)', async () => {
+    // A public-facing URL that answers 302 Location: http://169.254.169.254/
+    // must not be followed there: `redirect: 'follow'` would open the socket
+    // to the metadata IP before the guard saw the target. headCheck follows by
+    // hand and re-checks every hop.
+    const server = http.createServer((req, res) => {
+      res.writeHead(302, { location: 'http://169.254.169.254/latest/meta-data/' })
+      res.end()
+    })
+    await new Promise((r) => server.listen(0, '127.0.0.1', r))
+    try {
+      const problem = await headCheck(`http://127.0.0.1:${server.address().port}/go`)
+      expect(problem).toMatch(/redirect to private host/)
+    } finally {
+      server.close()
+    }
+  })
+
+  it('resolves a relative redirect Location against the current hop', async () => {
+    // The resolved hop host is the loopback server, so the guard refuses it by
+    // name - proving the relative Location was resolved, not dropped.
+    const server = http.createServer((req, res) => {
+      if (req.url === '/go') { res.writeHead(302, { location: '/final' }); res.end(); return }
+      res.writeHead(200); res.end('ok')
+    })
+    await new Promise((r) => server.listen(0, '127.0.0.1', r))
+    try {
+      const problem = await headCheck(`http://127.0.0.1:${server.address().port}/go`)
+      expect(problem).toMatch(/redirect to private host 127\.0\.0\.1/)
+    } finally {
+      server.close()
+    }
   })
 })
 
