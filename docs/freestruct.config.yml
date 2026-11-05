@@ -40,10 +40,9 @@ basePath: /prestruct
 
 outputDir: _site
 
-# linkCheck suspended until upstream lands (dhaupin/freestruct#32): the 1.1.0
-# strict link checker resolves root-absolute hrefs (`/prestruct/...`) against
-# the artifact root with no basePath awareness, so every baseurl'd site in
-# the family fails --strict on its own nav. Everything else the strict gate
-# covers (single-prefix canonical/sitemap, og, noindex hygiene) stays on.
-# Flip back to default (remove this line) when #32 ships in a pinned release.
-linkCheck: false
+# linkCheck re-enabled (2026-11-04): freestruct#32 shipped in the pinned 1.2.0
+# (the lane's default `freestruct-version`), so the strict link checker now
+# strips the basePath before resolving root-absolute hrefs and a baseurl'd site
+# no longer fails --strict on its own nav. PROVEN against a real build: Jekyll
+# output checked with the 1.2.0 engine reports 0 broken (37 pages).
+linkCheck: true

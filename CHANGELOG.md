@@ -14,6 +14,7 @@ The family built docs from four topologies; the two reusable lanes had drifted (
 
 - `.github/workflows/docs.yml` calls `dhaupin/freestruct/.github/workflows/docs-lane.yml@22bb7e9b2634d6cdd966963d9e25c7f892577276`, keeping only the trigger, permissions, concurrency, and this repo pins.
 - Already a caller (the model the rest followed); the lane SHA is re-pinned to `22bb7e9b` to ride the superset lane. `freestruct-cmd` and `crashtest-ref` are unchanged.
+- **`docs/freestruct.config.yml`: `linkCheck` re-enabled** (the suspend note named its own lift condition - "flip back when #32 ships in a pinned release" - and it has: the lane pins freestruct 1.2.0, whose checker strips `basePath` before resolving root-absolute hrefs). PROVEN against a real Jekyll build: the 1.2.0 engine reports 0 broken (37 pages). `devDependencies.freestruct` moved `^1.1.0` -> `^1.2.0` so the local gate runs the same engine the lane installs.
 - No version bump; a workflow consolidation, not a released surface.
 
 ### Changed
