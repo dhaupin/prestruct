@@ -43,11 +43,11 @@ jobs:
   docs:
     # Pinned to a freestruct SHA (the lane's own "every install is pinned"
     # doctrine; main is the only ref that carries the lane today).
-    uses: dhaupin/freestruct/.github/workflows/docs-lane.yml@22bb7e9b2634d6cdd966963d9e25c7f892577276 # main
+    uses: dhaupin/freestruct/.github/workflows/docs-lane.yml@7dfb1722d16b2ee173e8d4cbbd6106eecec11a1a # main
     with:
       # The lane defaults to freestruct's in-repo layout (`node bin/freestruct.mjs`).
       # prestruct consumes freestruct as an npm devDep, so point at the install.
       freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs
       # Pin the crashtest dogfood leg to the version prestruct's committed
-      # ledger was cut with (v1.1.0), not the lane's default moving ref.
-      crashtest-ref: 2d1fe793e2d4732b9eea52cc4199d54c6e3b0091
+      # ledger was cut with (v1.3.0), not the lane's default moving ref.
+      crashtest-ref: 873828743d7cc715893619e6295cb0a81251a439

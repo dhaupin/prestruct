@@ -27,14 +27,20 @@ function runGuard(pkg, lock = null, extra = {}) {
   return res;
 }
 
-it('a ^1.2.0 declaration passes', () => {
-  const res = runGuard({ devDependencies: { prestruct: '^1.2.0' } });
+it('a ^1.3.0 declaration passes', () => {
+  const res = runGuard({ devDependencies: { prestruct: '^1.3.0' } });
   expect(res.status, res.stderr).toBe(0);
   expect(res.stdout).toMatch(/PASS/);
 });
 
 it('a below-floor ^1.0.0 declaration fails', () => {
   const res = runGuard({ devDependencies: { prestruct: '^1.0.0' } });
+  expect(res.status).toBe(1);
+  expect(res.stderr).toMatch(/below the family floor/);
+});
+
+it('the old floor ^1.2.0 now fails (the floor moved to ^1.3.0)', () => {
+  const res = runGuard({ devDependencies: { prestruct: '^1.2.0' } });
   expect(res.status).toBe(1);
   expect(res.stderr).toMatch(/below the family floor/);
 });
@@ -67,7 +73,7 @@ it('a nested web/package.json is scanned', () => {
 
 it('a fixed spec with a stale below-floor lockfile fails', () => {
   const res = runGuard(
-    { devDependencies: { prestruct: '^1.2.0' } },
+    { devDependencies: { prestruct: '^1.3.0' } },
     { packages: { 'node_modules/prestruct': { version: '1.1.0' } } },
   );
   expect(res.status).toBe(1);
@@ -76,8 +82,8 @@ it('a fixed spec with a stale below-floor lockfile fails', () => {
 
 it('a fixed spec with a floor-or-above lockfile passes', () => {
   const res = runGuard(
-    { devDependencies: { prestruct: '^1.2.0' } },
-    { packages: { 'node_modules/prestruct': { version: '1.2.0' } } },
+    { devDependencies: { prestruct: '^1.3.0' } },
+    { packages: { 'node_modules/prestruct': { version: '1.3.0' } } },
   );
   expect(res.status, res.stderr).toBe(0);
 });
