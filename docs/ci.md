@@ -71,7 +71,7 @@ Runs on a push to `staging` or `main` that touches `docs/**`, `.github/workflows
 `docs.yml` is a **thin caller** of freestruct's canonical reusable lane (`dhaupin/freestruct/.github/workflows/docs-lane.yml`, promoted for `dhaupin/freestruct#31`). The Jekyll -> freestruct -> pagefind -> Pages runbook that used to live here inline now lives in the lane as `on: workflow_call`, so prestruct does not hand-maintain a copy that drifts from the rest of the rig (the drift table in `dhaupin/flowforge#9` is the receipt). The caller pins the lane to a freestruct SHA and overrides two of its inputs:
 
 - `freestruct-cmd: node node_modules/freestruct/bin/freestruct.mjs` -- the lane defaults to freestruct's in-repo layout; prestruct consumes freestruct as an npm devDep.
-- `crashtest-ref: <v1.1.0 sha>` -- the lane runs a crashtest dogfood leg; the pin matches the version prestruct's committed ledger was cut with.
+- `crashtest-ref: <v1.3.0 sha>` -- the lane runs a crashtest dogfood leg; the pin matches the version prestruct's committed ledger was cut with.
 
 The build legs run on both branches; the **deploy job is gated to `main` inside the lane** (see the staging flow below). The pipeline:
 

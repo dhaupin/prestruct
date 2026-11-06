@@ -1,18 +1,21 @@
 # Hardening report
 
-> crashtest v1.2.0 / seed 12648430
+> crashtest v1.3.0 / seed 12648430
 > cut stamp: labs/run-meta.json (wall clock, deliberately outside this file).
 > CI rule: fail on a NEW EXPLOITED finding, or a REGRESSION of anything previously REFUSED.
 
 ## Findings
 
-### 🛡 REFUSED (54)
+### 🛡 REFUSED (57)
 - auth/identity-spoof-headers: route "admin" not declared on this target - spoof matrix skipped (declare it for coverage) (skipped)
 - auth/secret-watermark: no fake secrets planted in env - declare CRASHTEST_SECRET to arm this probe
 - auth/privilege-escalation: route "device" not declared on this target - escalation skipped (declare it for coverage) (skipped)
+- auth/invalid-credential-fail-open: route "admin" not declared on this target - invalid-credential probe skipped (declare it for coverage) (skipped)
+- auth/over-return-allowlist: no routes declared (ctx.routes) and no allowedTopLevelKeys - the over-return surface is unmeasured (declare one for coverage) (skipped)
 - authz/method-matrix-privileged: route "admin" not declared on this target - authz skipped (declare it for coverage) (skipped)
 - authz/role-body-spoof-family: route "admin" not declared on this target - authz skipped (declare it for coverage) (skipped)
 - authz/handler-alias-confusion: route "admin" not declared on this target - authz skipped (declare it for coverage) (skipped)
+- authz/low-priv-authority-verb-deny: no authority verbs declared (ctx.authorityVerbs) - the authority blocklist is unmeasured (declare the set for coverage) (skipped)
 - governance/succession-trust-floor: vocabulary knob(s) "grantsRoute", "resolveRoute" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage) (skipped)
 - governance/succession-single-heir: vocabulary knob(s) "grantsRoute", "resolveRoute" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage) (skipped)
 - governance/succession-revocation-carry: vocabulary knob(s) "grantsRoute", "resolveRoute" not declared on this target - governance skipped (export moduleCtx['governance'].grantsRoute/resolveRoute for coverage) (skipped)
@@ -67,13 +70,16 @@
 ### 🔒 BOUNDED (0)
 
 ## Cost economics
-- total: 106 backend ops across 92 in-process requests from 54 attacks
+- total: 106 backend ops across 92 in-process requests from 57 attacks
   - auth/identity-spoof-headers: 0 ops / 0 requests
   - auth/secret-watermark: 0 ops / 0 requests
   - auth/privilege-escalation: 0 ops / 0 requests
+  - auth/invalid-credential-fail-open: 0 ops / 0 requests
+  - auth/over-return-allowlist: 0 ops / 0 requests
   - authz/method-matrix-privileged: 0 ops / 0 requests
   - authz/role-body-spoof-family: 0 ops / 0 requests
   - authz/handler-alias-confusion: 0 ops / 0 requests
+  - authz/low-priv-authority-verb-deny: 0 ops / 0 requests
   - governance/succession-trust-floor: 0 ops / 0 requests
   - governance/succession-single-heir: 0 ops / 0 requests
   - governance/succession-revocation-carry: 0 ops / 0 requests
