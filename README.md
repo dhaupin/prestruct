@@ -4,7 +4,7 @@
 
 **Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`, build, inject meta, prerender every route to static HTML. No framework migration, no runtime SSR.
 
-Status: **1.2.0, released from the v1.2.0 tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
+Status: **1.3.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
 
 ---
 
@@ -133,7 +133,7 @@ The pack travels with the checkout, not the npm tarball. Adopting it from anothe
 
 ## Publishing state
 
-**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.2.0 is the latest tagged release, published from the v1.2.0 tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted publishing with npm provenance -- verify with `npm audit signatures`. The tag drives the whole lane: npm publish, then a GitHub release cut from the same tag with its notes extracted from `CHANGELOG.md`. `main` may be ahead of the latest tag; its version pins are the next planned release.
+**prestruct is on npm: <https://www.npmjs.com/package/prestruct>** (1.2.0 is the latest tagged release; `main` carries 1.3.0, version-bumped ahead of its tag). Releases go through `publish.yml`, GitHub Actions OIDC trusted publishing with npm provenance -- verify with `npm audit signatures`. The tag drives the whole lane: npm publish, then a GitHub release cut from the same tag with its notes extracted from `CHANGELOG.md`. `main` may be ahead of the latest tag; its version pins are the next planned release.
 
 Local install test from the registry tarball passed: `init` never clobbers, `build` produces full `dist/` (baked meta, sitemap, 404).
 
