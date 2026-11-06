@@ -9,6 +9,12 @@ permalink: /guides/changelog
 
 Release history for prestruct. Commit history is the detailed source (`git log --oneline`); the npm package sits at **1.2.0** (published from the v1.2.0 tag via the Trusted-Publisher workflow, provenance-attested), and **main carries the next release's pins**.
 
+## 1.3.0 (version bumped; tag not yet cut)
+
+- **The external audit lane refuses a private host before any socket, and re-checks the host on every redirect hop (#94).** `prestruct audit --external` fetches the URLs a baked tree names, and a baked tree can be attacker-influenced, so the pass was a server-side request forgery primitive: a link to `http://169.254.169.254/...` (cloud metadata), `http://127.0.0.1:<port>/` (a co-located service), or an internal `http://10.0.0.5/` made the run probe a host the tree's author cannot reach directly and report the status in the findings. `engine/scripts/audit.js` now classifies each URL's host **literal** (dotted quad, bare integer, octal, hex, short forms, IPv6, the IPv4-mapped/translated/compatible/NAT64/6to4 carriers, the explicit-root trailing dot, plus `localhost`/`*.local`) and refuses a private/loopback/link-local target before any probe; `headCheck` then follows redirects manually and re-runs the guard on every hop. A refused URL is a WARN finding, never a silent skip.
+- **Docs lane consolidation.** `.github/workflows/docs.yml` is now a thin caller of the family's one reusable docs lane in `dhaupin/freestruct`; the freestruct link check is back on (the lane pins freestruct 1.2.0, whose checker is `basePath`-aware).
+- **Pins, never floats.** Every GitHub Action `uses:` names a 40-hex commit SHA, guarded by `scripts/check-action-pins.cjs`.
+
 ## 1.2.0 (released from the v1.2.0 tag)
 
 - **react-router 7 prerender seam fixed (#68)**: on router 7 (real ESM) the engine's `StaticRouter` and the app's router could load as two module instances with separate React contexts, failing every route with `useLocation() may be used only in the context of a <Router> component` (and, under a host `ssr.noExternal`, a Vite `module is not defined` / named-export error first). The engine now loads `StaticRouter` through the same SSR registry as the app and redirects an inlined react-router CJS entry to its ESM twin; both majors render with or without `ssr.noExternal`. Cherry-pickers: remove the `rrdom-esm-redirect.mjs` shim and the `ssr.noExternal` lines if you carried them.
