@@ -134,6 +134,17 @@ test('release lane is publish.yml only (the tag drives npm + the GH release)', (
   expect(workflow).not.toMatch(/softprops\/action-gh-release/)
 })
 
+test('the verify job waits for release (the ladder dependency that closes the cut race)', () => {
+  // verify judges what the registry AND GitHub serve, so it must wait for
+  // release to cut the object and attach the tarball. A bare `needs: publish`
+  // let verify race release and red-flag a cut that landed (the packstruct
+  // 1.1.0 first run).
+  const workflow = readFileSync('.github/workflows/publish.yml', 'utf8')
+  const verifyJob = workflow.slice(workflow.indexOf('\n  verify:'))
+  expect(verifyJob, 'verify must wait for release').toMatch(/needs: \[publish, release\]/)
+  expect(verifyJob, 'verify still stands alone in verify-only mode').toMatch(/verify-only/)
+})
+
 test('the verify job judges the release asset against the registry bytes', () => {
   // The release attaches the served tarball; the verify job must assert the
   // asset's sha512 equals the registry's integrity, or the attachment is
