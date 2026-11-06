@@ -7,7 +7,7 @@ version: 1.0.0
 permalink: /guides/roadmap
 ---
 
-Planned features and ideas for prestruct. The package is live on npm at 1.1.0 (published from the `v1.1.0` tag with provenance); main carries the next planned release (1.2.x) until it is tagged.
+Planned features and ideas for prestruct. The package is live on npm at 1.2.0 (published from the `v1.2.0` tag with provenance); main carries the next planned release (1.3.x) until it is tagged.
 
 ## Shipped (1.1.0 state)
 
@@ -37,8 +37,8 @@ Progressive streaming instead of blocking `renderToString`. Only matters once pe
 ### Vercel / Netlify platform support
 `platform: 'vercel' | 'netlify'` currently validates but generates no `vercel.json` / `netlify.toml` (cloudflare is the only fully supported platform).
 
-### Platform-matrix ceiling proof (1.3.0)
-The 1.2.0 ladder bounded the peer ranges to the proven matrix (#58): react/react-dom `>=18 <19`, router `>=6 <8`, vite `>=5 <8` (7 already graded: the example bake under vite 7.3.7 is byte-equivalent to the vite 6 output modulo asset hashes, audit clean, no deprecation noise; the example lane runs 7.3.7 while init stays on 6). The 1.3.0 move is the same proof-first shape the router 7 bump used: a matrix run in the example lane (vite 8 -- the likely break is the `ssrLoadModule` port to the ModuleRunner API, with AGENTS.md's bundled-render rejection rule staying the boundary; react 19 -- interop and the island surface are the unproven parts; vite 7 is already graded and bakes clean), graded by the 8/8 bake plus the real audit. Both majors keep compiling after the proof, so adopters move on their own schedule; the ceilings move when the proof lands, not before.
+### Platform-matrix ceiling proof (1.4.0)
+The 1.2.0 ladder bounded the peer ranges to the proven matrix (#58): react/react-dom `>=18 <19`, router `>=6 <8`, vite `>=5 <8` (7 already graded: the example bake under vite 7.3.7 is byte-equivalent to the vite 6 output modulo asset hashes, audit clean, no deprecation noise; the example lane runs 7.3.7 while init stays on 6). The 1.4.0 move is the same proof-first shape the router 7 bump used: a matrix run in the example lane (vite 8 -- the likely break is the `ssrLoadModule` port to the ModuleRunner API, with AGENTS.md's bundled-render rejection rule staying the boundary; react 19 -- interop and the island surface are the unproven parts; vite 7 is already graded and bakes clean), graded by the 8/8 bake plus the real audit. Both majors keep compiling after the proof, so adopters move on their own schedule; the ceilings move when the proof lands, not before.
 
 ## P2 - Future
 

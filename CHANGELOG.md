@@ -8,6 +8,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-06
+
+The security round since v1.2.0. The opt-in external audit lane - the pass that fetches the URLs a baked tree names - learned to refuse a private host before any socket and to re-check the host on every redirect hop, closing the SSRF primitive in the engine's only outbound path. The family's docs lane folded into a single reusable workflow and this repo became a thin caller of it. Every fix is battery-pinned.
+
 ### The docs-lane consolidation (2026-11-04)
 
 The family built docs from four topologies; the two reusable lanes had drifted (ruby 3.2 vs 3.4, pagefind `latest` scrape vs npm pin). The docs lane is now ONE canonical reusable workflow in `dhaupin/freestruct`, and this repo is a thin caller of it.
