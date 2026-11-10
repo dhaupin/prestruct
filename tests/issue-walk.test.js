@@ -205,6 +205,59 @@ describe('injectMeta grouped head additions', () => {
     expect(about).not.toContain('"SearchAction"')
   })
 
+  // -- Auto BreadcrumbList (config.breadcrumb) --------------------------------
+
+  it('emits a BreadcrumbList per non-home route when breadcrumb is on', () => {
+    const out = injectMeta(SHELL, { title: 'Getting Started | Site' }, '/guides/getting-started', SITE, '',
+      { breadcrumb: true, siteName: 'My Site' })
+    expect(out).toContain('"@type": "BreadcrumbList"')
+    expect(out).toContain('"name": "My Site"')
+    expect(out).toContain('"name": "Guides"')
+    expect(out).toContain('"name": "Getting Started | Site"')
+    expect(out).toContain('"item": "' + SITE + '/guides/getting-started"')
+  })
+
+  it('ships no breadcrumb for the home route (a one-item trail is not a breadcrumb)', () => {
+    const out = injectMeta(SHELL, { title: 'Home' }, '/', SITE, '', { breadcrumb: true, siteName: 'My Site' })
+    expect(out).not.toContain('BreadcrumbList')
+  })
+
+  it('is off unless config.breadcrumb is exactly true', () => {
+    const out = injectMeta(SHELL, { title: 'T' }, '/about', SITE, '', { siteName: 'My Site' })
+    expect(out).not.toContain('BreadcrumbList')
+  })
+
+  it('is missing-only: a route carrying its own BreadcrumbList is never doubled', () => {
+    const own = { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Custom' }] }
+    const out = injectMeta(SHELL, { title: 'T', jsonLd: own }, '/about', SITE, '', { breadcrumb: true, siteName: 'My Site' })
+    expect((out.match(/"@type": "BreadcrumbList"/g) || []).length).toBe(1)
+    expect(out).toContain('"name": "Custom"')
+    expect(out).not.toContain('"name": "My Site"')
+  })
+
+  it('coexists with a non-breadcrumb route node (the trail joins the route block)', () => {
+    const out = injectMeta(SHELL, { title: 'T', jsonLd: { '@type': 'FAQPage' } }, '/faq', SITE, '',
+      { breadcrumb: true, siteName: 'My Site' })
+    expect(out).toContain('"@type": "FAQPage"')
+    expect(out).toContain('"@type": "BreadcrumbList"')
+    expect(out).toContain('"@graph"')
+  })
+
+  it('humanizes a leaf with no title, and a hyphenated segment', () => {
+    const out = injectMeta(SHELL, {}, '/a/getting-started', SITE, '', { breadcrumb: true, siteName: 'S' })
+    expect(out).toContain('"name": "A"')
+    expect(out).toContain('"name": "Getting started"')
+  })
+
+  it('rides the cache signature: flipping breadcrumb on re-renders (QC-sweep class)', () => {
+    const route = { path: '/about', meta: { title: 'T' } }
+    const shell = SHELL
+    const off = cacheSignature(route, SITE, shell, buildHeadExtras({ siteUrl: SITE }, null))
+    const on  = cacheSignature(route, SITE, shell, buildHeadExtras({ siteUrl: SITE, breadcrumb: true, siteName: 'S' }, null))
+    expect(on).not.toBe(off)
+    expect(cacheEntryValid({ sig: off, html: 'x' }, route, SITE, shell, buildHeadExtras({ siteUrl: SITE, breadcrumb: true, siteName: 'S' }, null))).toBe(false)
+  })
+
   it('junk values render nothing: malformed verification keys and non-object jsonLd drop silently', () => {
     const out = injectMeta(SHELL, { jsonLd: 'not-a-node' }, '/about', SITE, '', {
       verification: { 'bad key<n': 'x', good: '' },

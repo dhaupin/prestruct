@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- No-flash theme bootstrap: the token sheet defaults to dark (the family
-       convention, dhaupin/coreforge web styles); only a persisted light theme
-       flips html[data-theme]. Runs before first paint, before the bundle. -->
+  <!-- No-flash theme bootstrap: the token sheet defaults to light; only a
+       persisted dark theme flips html[data-theme]. Runs before first paint,
+       before the bundle. -->
   <script>
     try {
-      if (localStorage.getItem('prestruct-theme') === 'light') {
-        document.documentElement.dataset.theme = 'light';
-      }
+      document.documentElement.dataset.theme =
+        localStorage.getItem('prestruct-theme') === 'dark' ? 'dark' : 'light';
     } catch (e) {}
   </script>
-  <meta name="theme-color" content="#080808" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f8f6" />
+  <meta name="theme-color" content="#f8f8f6" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#080808" />
 
   <!-- Primary SEO (populated by inject-brand.js) -->
   <title>prestruct | SEO prerendering for Vite + React</title>

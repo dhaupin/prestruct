@@ -18,6 +18,7 @@
  * Module surface (importable for tests; CLI logic only runs when executed):
  *   replaceRootDiv(shell, appHtml)  -- root-div injector, attribute-tolerant
  *   injectMeta(html, meta, routePath, siteUrl, ogImage)
+ *   breadcrumbJsonLd(routePath, siteUrl, siteName, leafTitle)
  *   assertXmlSafe(value, field)     -- XML escape + control-char loud-fail
  *   generateSitemap(routes, siteUrl, routeMtimes?)
  *   generate404(shell, config, siteUrl)
@@ -184,6 +185,11 @@ export function buildHeadExtras(cfg, ogImageGeneration) {
     alternates: cfg.alternates ?? null,
     verification: cfg.verification ?? null,
     searchUrl: cfg.searchUrl ?? null,
+    // Auto BreadcrumbList (config.breadcrumb): the flag decides whether a
+    // trail is emitted, and siteName names its root item. Both are rendered
+    // inputs, so both ride the signature (flipping the flag on must re-render).
+    breadcrumb: cfg.breadcrumb ?? null,
+    siteName: cfg.siteName ?? null,
     // Enabling/retargeting per-route OG generation rewrites every route's
     // og:image/twitter:image to the generated PNG -- a rendered input.
     ogImageGeneration: ogImageGeneration
@@ -334,6 +340,41 @@ export function generateLlms(routes, config, distDir) {
   return target
 }
 
+/**
+ * Build a schema.org BreadcrumbList node from a route path (the engine-level
+ * counterpart to freestruct's `breadcrumb: true`). injectMeta owns the route
+ * path, so unlike buildJsonLd() -- which is called site-wide with no route
+ * argument -- the engine can derive the trail here. Segments map to
+ * humanized names ("getting-started" -> "Getting started"); the site root
+ * leads and the page's own title (when known) is the tail. The home route
+ * (no segments) returns null: a one-item trail is not a breadcrumb.
+ *
+ * @param {string} routePath - the route path, e.g. '/guides/getting-started'
+ * @param {string} [siteUrl] - site origin (trailing slash tolerated)
+ * @param {string} [siteName] - the root ListItem name (falls back to the origin)
+ * @param {string} [leafTitle] - the page's own title for the tail item
+ * @returns {object|null} a BreadcrumbList node, or null when not applicable
+ */
+export function breadcrumbJsonLd(routePath, siteUrl, siteName, leafTitle) {
+  const segs = String(routePath || '').split('/').filter(Boolean)
+  if (segs.length === 0) return null
+  const origin = (siteUrl || '').replace(/\/$/, '')
+  const rootUrl = origin || '/'
+  const items = [{ '@type': 'ListItem', position: 1, name: siteName || origin || 'Home', item: rootUrl }]
+  let acc = ''
+  segs.forEach((seg, i) => {
+    acc += '/' + seg
+    const isLeaf = i === segs.length - 1
+    items.push({
+      '@type': 'ListItem',
+      position: i + 2,
+      name: (isLeaf && leafTitle) ? leafTitle : seg.replace(/[-_]/g, ' ').replace(/^./, (c) => c.toUpperCase()),
+      item: origin ? origin + acc : acc,
+    })
+  })
+  return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items }
+}
+
 export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras = null) {
   const title   = escapeReplacement(escapeHtml(meta.title))
   const desc    = escapeReplacement(escapeHtml(meta.description))
@@ -459,6 +500,18 @@ export function injectMeta(html, meta, routePath, siteUrl, globalOgImage, extras
     }
   } else if (routeJsonLd && typeof routeJsonLd === 'object') {
     routeNodes.push(routeJsonLd)
+  }
+  // Auto BreadcrumbList (config.breadcrumb, the engine-level counterpart to
+  // freestruct's): built from the route path injectMeta already owns. Gated
+  // on config, opt-in, and skipped on a page that already ships a
+  // BreadcrumbList of its own (missing-only) so a hand-authored trail is
+  // never doubled. `extras.siteName` rides buildHeadExtras, so the flag
+  // participates in the cache signature.
+  const crumbEnabled = extras && extras.breadcrumb === true
+  if (crumbEnabled) {
+    const alreadyHasCrumbs = routeNodes.some((n) => n && n['@type'] === 'BreadcrumbList')
+    const crumb = alreadyHasCrumbs ? null : breadcrumbJsonLd(routePath, siteUrl, extras.siteName, meta && meta.title)
+    if (crumb) routeNodes.push(crumb)
   }
   if (routeNodes.length > 0) {
     const payload = routeNodes.length === 1

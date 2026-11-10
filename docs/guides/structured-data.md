@@ -263,11 +263,42 @@ buildJsonLd() {
 
 ## BreadcrumbList
 
-Breadcrumb entries are per-route, so `buildJsonLd()`'s no-argument contract means prestruct cannot generate them for you either. Same options as BlogPosting above: keep the site-wide JSON-LD clean of breadcrumbs and inject them per-route in a prerender extension, where the route path is actually known. The mapping logic for reference:
+Breadcrumb entries are per-route, so `buildJsonLd()`'s no-argument contract cannot produce them -- it is called once, site-wide, with no route path. The engine injects each route's head itself, though, so it *can* build the trail: set `breadcrumb: true` and prestruct emits a `BreadcrumbList` per route from that route's own path.
 
 ```js
-// Inside a prerender extension -- routePath is available there,
-// never inside buildJsonLd().
+// ssr.config.js
+export default {
+  // ...other config
+  breadcrumb: true,
+}
+```
+
+The trail leads with the site root (`siteName`), then one `ListItem` per path segment, with the page's own title on the tail item:
+
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "My Site", "item": "https://example.com" },
+    { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://example.com/guides" },
+    { "@type": "ListItem", "position": 3, "name": "Getting Started | My Site", "item": "https://example.com/guides/getting-started" }
+  ]
+}
+</script>
+```
+
+Two rules keep it honest:
+
+- The home route ships none -- a one-item trail is not a breadcrumb.
+- Missing-only: a route that already carries its own `BreadcrumbList` in `route.jsonLd` is left untouched, so a hand-authored trail is never doubled.
+
+For a trail that does not mirror the URL structure (Google recommends a *typical user path*), skip the flag and author the node yourself per route with `route.jsonLd` -- the mapping below is the reference for that case:
+
+```js
+// A custom per-route trail: build it where the route is defined and hand it
+// to that route as route.jsonLd (the engine ships it as-is).
 function breadcrumbLd(routePath, siteUrl) {
   const parts = routePath.split('/').filter(Boolean)
   let url = ''

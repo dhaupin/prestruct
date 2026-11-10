@@ -42,7 +42,7 @@ export const KNOWN_CONFIG_KEYS = [
   // defaults and per-route nodes, the verification/discovery head set,
   // IndexNow, the postBuild hook seam, and the llms.txt opt-out.
   'jsonLdDefaults',
-  'alternates', 'verification', 'feed', 'searchUrl',
+  'alternates', 'verification', 'feed', 'searchUrl', 'breadcrumb',
   'indexNow', 'hooks', 'runHooks', 'ogImageGeneration',
   'llms',
 ]
@@ -189,6 +189,14 @@ export function validateConfig(config) {
   }
   if (config.appLayoutPath !== undefined && (typeof config.appLayoutPath !== 'string' || !config.appLayoutPath.startsWith('/'))) {
     errors.push('appLayoutPath: must be a Vite-rooted path starting with "/"')
+  }
+
+  // breadcrumb (auto BreadcrumbList, mirroring freestruct's contract): true
+  // opts every route into an engine-built trail from the route path. A
+  // non-boolean is a config bug, not a silent skip -- the flag either emits
+  // a trail or it does not.
+  if (config.breadcrumb !== undefined && typeof config.breadcrumb !== 'boolean') {
+    errors.push('breadcrumb: must be true (auto BreadcrumbList from the route path)')
   }
 
   // indexNow (#36): the key must be 32 lowercase hex, or the boolean forms

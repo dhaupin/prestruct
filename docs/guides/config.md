@@ -367,6 +367,7 @@ Every option below is optional, missing-only, and config-gated: a host that sets
 
 - `jsonLdDefaults` (default on) - without `buildJsonLd`, the engine emits Organization + WebSite built from `siteName`/`siteUrl`/`author`. Set `jsonLdDefaults: false` to skip.
 - `route.jsonLd` (object or array) - per-route schema nodes shipped only on that page (a FAQPage belongs on the FAQ page, not site-wide). Rebuild-safe: the block is replaced, never stacked.
+- `breadcrumb: true` - auto BreadcrumbList built from each route's own path (site root -> segments -> the page's title). Missing-only: a route that carries its own `route.jsonLd` BreadcrumbList is left alone, and the home route ships none (a one-item trail is not a breadcrumb). Unlike `buildJsonLd`, this is per-route because the engine knows the route path at injection time.
 - `searchUrl` - a search endpoint carrying a `{query}` slot; the home route gains a WebSite node wrapping its SearchAction.
 
 ### Head discovery and verification
@@ -414,6 +415,7 @@ A team running both engines writes site identity once; the documented subset map
 | author           | `author`                     | `author`                         |
 | og image         | `ogImage` (string or `{url,width,height,alt,type}`) | `og.image` |
 | structured data  | `buildJsonLd()` + `jsonLdDefaults` + `route.jsonLd` | `jsonLd` (+ route nodes) |
+| breadcrumbs      | `breadcrumb: true`           | `breadcrumb: true`               |
 | sub-path installs| `platform`                   | `basePath`                       |
 | output dir       | `dist/` convention           | `outputDir`                      |
 
