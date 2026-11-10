@@ -13,6 +13,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 - **The family prestruct floor moves to `^1.3.0`.** `scripts/check-prestruct-pins.cjs` now refuses any declaration below 1.3.0, because 1.3.0 is the security round: the opt-in external audit lane gained the SSRF guard (private-host refusal before any socket, re-checked on every redirect hop). Every consumer declaration moved with the floor, and every web lockfile re-resolved to 1.3.0. The guard's own battery gains the inverse case - the old `^1.2.0` floor now fails - so the move is pinned both ways.
 - **Family devDependency pins advance to the current cuts.** `crashtest` `1.2.0 -> 1.3.0` (via `scripts/crashtest-bump.mjs`, which regenerated `labs/crashledger.json` + `labs/hardening.md` + `labs/run-meta.json`; the verdict set is unchanged - 0 new, 0 regressed), `freestruct` `^1.2.0 -> ^1.3.0`, and `packstruct` `1.0.0 -> 1.1.0`. The docs-lane caller SHA moves to freestruct v1.3.0 (`7dfb172`) and its `crashtest-ref` moves to the crashtest v1.3.0 commit (`8738287`), so the lane's dogfood leg matches the committed ledger.
 
+### Fixed
+
+- **The `.gitignore` docs block carries the in-tree Jekyll + pagefind products (2026-11-10 sweep, coreforge#48).** Propagated from the coreforge adopter sweep (dhaupin/coreforge#52): a local `bundle exec jekyll build` + pagefind run drops its products beside the source, and the belt-and-suspenders block named only some of them. It now carries `docs/.jekyll-cache/`, `docs/.jekyll-metadata`, `docs/pagefind/`, and `docs/pagefind*`, so a local build leaves no untracked noise. No version bump.
+
 ## [1.3.0] - 2026-11-06
 
 The security round since v1.2.0. The opt-in external audit lane - the pass that fetches the URLs a baked tree names - learned to refuse a private host before any socket and to re-check the host on every redirect hop, closing the SSRF primitive in the engine's only outbound path. The family's docs lane folded into a single reusable workflow and this repo became a thin caller of it. Every fix is battery-pinned.
