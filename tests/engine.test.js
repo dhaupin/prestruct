@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { join } from 'node:path'
-import { replaceRootDiv, injectMeta, generateSitemap, generate404, loadStaticRouter, mergeRoutes, enginePaths, readCache, writeCache } from '../engine/scripts/prerender.js'
+import { replaceRootDiv, injectMeta, breadcrumbJsonLd, generateSitemap, generate404, loadStaticRouter, mergeRoutes, enginePaths, readCache, writeCache } from '../engine/scripts/prerender.js'
 import { validateConfig, formatDiagnostics, defineConfig, configKeyWarnings, formatConfigWarnings } from '../engine/scripts/validate-config.js'
 import { toReplaceSafe, generateTitle } from '../engine/scripts/inject-brand.js'
 
@@ -218,6 +218,17 @@ describe('validateConfig', () => {
     expect(validateConfig({ ...base, indexNow: true }).ok).toBe(true)
     expect(validateConfig({ ...base, indexNow: false }).ok).toBe(true)
   })
+
+  it('rejects a non-boolean breadcrumb (the flag either emits a trail or it does not)', () => {
+    const base = { siteUrl: 'https://example.com', routes: [{ path: '/' }] }
+    const { ok, errors } = validateConfig({ ...base, breadcrumb: 'yes' })
+    expect(ok).toBe(false)
+    expect(errors.some(e => e.startsWith('breadcrumb:'))).toBe(true)
+    expect(validateConfig({ ...base, breadcrumb: true }).ok).toBe(true)
+    expect(validateConfig({ ...base, breadcrumb: false }).ok).toBe(true)
+    // and the key is known, so it never draws an unknown-key warning
+    expect(configKeyWarnings({ ...base, breadcrumb: true })).toEqual([])
+  })
 })
 
 describe('inject-brand helpers (import surface)', () => {
@@ -270,6 +281,26 @@ describe('prerender pure functions (import surface)', () => {
     const xml = generateSitemap([{ path: '/', priority: '1.0' }, { path: '/about' }], siteUrl)
     expect(xml).toContain(`<loc>${siteUrl}</loc>`)
     expect(xml).toContain(`<loc>${siteUrl}/about</loc>`)
+  })
+
+  it('breadcrumbJsonLd derives the trail from the route path', () => {
+    const node = breadcrumbJsonLd('/guides/getting-started', siteUrl, 'My Site', 'Getting Started | My Site')
+    expect(node['@type']).toBe('BreadcrumbList')
+    expect(node.itemListElement.map(i => i.name)).toEqual(['My Site', 'Guides', 'Getting Started | My Site'])
+    expect(node.itemListElement[0].item).toBe(siteUrl)
+    expect(node.itemListElement[1].item).toBe(siteUrl + '/guides')
+    expect(node.itemListElement[2].item).toBe(siteUrl + '/guides/getting-started')
+  })
+
+  it('breadcrumbJsonLd returns null for the home route', () => {
+    expect(breadcrumbJsonLd('/', siteUrl, 'My Site')).toBe(null)
+    expect(breadcrumbJsonLd('', siteUrl, 'My Site')).toBe(null)
+  })
+
+  it('breadcrumbJsonLd tolerates a trailing-slash siteUrl', () => {
+    const node = breadcrumbJsonLd('/about', 'https://x.example.com/', 'X')
+    expect(node.itemListElement[0].item).toBe('https://x.example.com')
+    expect(node.itemListElement[1].item).toBe('https://x.example.com/about')
   })
 
   it('normalizes a trailing-slash siteUrl at every URL seam (#53)', () => {

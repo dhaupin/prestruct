@@ -144,6 +144,13 @@ export default {
   // alternates: [{ hreflang: 'en', href: 'https://example.com' }],
   // verification: { 'google-site-verification': 'token-here' },
 
+  // Auto BreadcrumbList (breadcrumb: true): the engine builds a trail from
+  // each route's own path (site root -> segments -> the page's title), so
+  // unlike buildJsonLd it can be per-route. Missing-only: a route carrying
+  // its own route.jsonLd BreadcrumbList is left alone. The home route ships
+  // none (a one-item trail is not a breadcrumb).
+  // breadcrumb: true,
+
   // llms.txt (AI-consumable site summary from the baked route set),
   // generated-only (a hand-rolled file is never touched). Opt-out:
   // llms: false,

@@ -1,6 +1,7 @@
 export default {
   siteUrl:       'https://prestruct.creadev.org',
   siteName:      'prestruct',
+  breadcrumb: true,
   author:        'Creadev.org',
   tagline:       'SEO Prerendering for Vite + React on Cloudflare',
   // og:image as the structured object form (width/height/alt companions for

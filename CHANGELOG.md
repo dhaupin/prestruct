@@ -8,6 +8,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 
 ## [Unreleased]
 
+### 2026-11-10 - light mode by default (web + docs)
+
+Owner directive: the family defaults to light. The product sites and docs sites shipped dark-first (a persisted `light` was the opt-in); now light is the first paint and a persisted `dark` theme is the opt-in. Shape: `<html>` pins `data-theme="light"`, the pre-paint bootstrap applies only a persisted `dark`, and the `theme-color` meta flips to the light paper. The CSS token blocks are untouched (the light block is already the second half of one set), so no palette, toggle handler, or gate changed.
+
+- `example/index.html` - `<html data-theme="light">`; bootstrap applies only a persisted `dark`; `theme-color` light (`#f8f8f6`).
+- `example/src/components/ThemeToggle.jsx` - default theme `light` (was `dark`).
+- `docs/_layouts/default.html` - `<html data-theme="light">`; bootstrap inverted; `color-scheme` `light dark`.
+- `example/public/site.webmanifest` - PWA `theme_color`/`background_color` -> light (`#f8f8f6`).
+- Receipts: `npm run gate` 389/389; docs-lint clean; `npm run sync:check` PASS.
+
+
+### Added
+
+- **Engine-level auto breadcrumbs (`breadcrumb: true`).** The engine can now emit a schema.org `BreadcrumbList` per route, built from the route's own path at injection time - the one thing `buildJsonLd()` structurally cannot do (it is called site-wide, with no route argument, which is why the structured-data guide used to tell hosts to hand-roll the trail in a prerender extension). Set `breadcrumb: true` and each non-home route ships site-root -> segments -> the page's own title; the home route ships none (a one-item trail is not a breadcrumb), and a route already carrying its own `BreadcrumbList` in `route.jsonLd` is left alone (missing-only). This is the prestruct counterpart to freestruct's `breadcrumb: true`, so the family's two engines now speak the same discovery dialect. The flag and `siteName` ride `buildHeadExtras`, so flipping it on between builds re-renders instead of riding a valid-cache hit (the QC-sweep class). Battery-pinned both ways: emission, the home-route skip, the exactly-true gate, the missing-only suppression, coexistence with a non-breadcrumb route node, the trailing-slash `siteUrl`, and the cache-signature change.
+
 ### Changed
 
 - **The family prestruct floor moves to `^1.3.0`.** `scripts/check-prestruct-pins.cjs` now refuses any declaration below 1.3.0, because 1.3.0 is the security round: the opt-in external audit lane gained the SSRF guard (private-host refusal before any socket, re-checked on every redirect hop). Every consumer declaration moved with the floor, and every web lockfile re-resolved to 1.3.0. The guard's own battery gains the inverse case - the old `^1.2.0` floor now fails - so the move is pinned both ways.
