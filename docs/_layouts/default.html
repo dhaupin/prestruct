@@ -19,7 +19,7 @@
 # family light tokens.
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +29,7 @@
     <link rel="icon" href="{{ site.baseurl }}/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ site.baseurl }}/favicon-32.png">
     <link rel="apple-touch-icon" href="{{ site.baseurl }}/apple-touch-icon.png">
-    <meta name="color-scheme" content="dark light">
+    <meta name="color-scheme" content="light dark">
     <style>
         :root {
             /* The prestruct brand sheet (og-image truth): lime #c8f000 on
@@ -218,13 +218,12 @@
         }
     </style>
     <script>
-        // Theme bootstrap (before first paint): the default tokens are dark,
-        // so only a persisted light theme needs flipping. Keep the key and
+        // Theme bootstrap (before first paint): the default tokens are light,
+        // so only a persisted dark theme needs flipping. Keep the key and
         // the palette in sync with the toggle handler below.
         try {
-            if (localStorage.getItem('prestruct-theme') === 'light') {
-                document.documentElement.dataset.theme = 'light';
-            }
+            document.documentElement.dataset.theme =
+                localStorage.getItem('prestruct-theme') === 'dark' ? 'dark' : 'light';
         } catch (e) {}
     </script>
 </head>

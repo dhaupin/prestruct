@@ -1126,3 +1126,15 @@ The engine feature landed on this branch; the second half is turning it on acros
 - **freestruct's init kit** - `init/docs/freestruct.config.yml` carries `breadcrumb: true`, so a new scaffolded site is discoverable from birth.
 
 The flag is inert-but-safe on the current `prestruct@^1.3.0` pin (a non-fatal `unknown config key` warning) and activates when this branch's cut ships. Receipts: every repo's `npm test` / `npm run check` / `lint:docs` green; docs `sync:check` PASS where generated; the `example/` build proves emission.
+
+---
+
+### 2026-11-10 - light mode by default (web + docs)
+
+Owner directive: the family defaults to light. The product sites and docs sites shipped dark-first (a persisted `light` was the opt-in); now light is the first paint and a persisted `dark` theme is the opt-in. Shape: `<html>` pins `data-theme="light"`, the pre-paint bootstrap applies only a persisted `dark`, and the `theme-color` meta flips to the light paper. The CSS token blocks are untouched (the light block is already the second half of one set), so no palette, toggle handler, or gate changed.
+
+- `example/index.html` - `<html data-theme="light">`; bootstrap applies only a persisted `dark`; `theme-color` light (`#f8f8f6`).
+- `example/src/components/ThemeToggle.jsx` - default theme `light` (was `dark`).
+- `docs/_layouts/default.html` - `<html data-theme="light">`; bootstrap inverted; `color-scheme` `light dark`.
+- `example/public/site.webmanifest` - PWA `theme_color`/`background_color` -> light (`#f8f8f6`).
+- Receipts: `npm run gate` 389/389; docs-lint clean; `npm run sync:check` PASS.

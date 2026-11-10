@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 
-// The family theme key (same as the docs layout): dark is the default token
-// sheet, only a persisted light theme flips the html[data-theme] attribute.
+// The family theme key (same as the docs layout): light is the default token
+// sheet, only a persisted dark theme flips the html[data-theme] attribute.
 const THEME_KEY = 'prestruct-theme'
 
 function getInitialTheme() {
-  if (typeof window === 'undefined') return 'dark'
+  if (typeof window === 'undefined') return 'light'
   const stored = localStorage.getItem(THEME_KEY)
   if (stored === 'light' || stored === 'dark') return stored
-  return 'dark'
+  return 'light'
 }
 
 export default function ThemeToggle() {
