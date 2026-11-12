@@ -1149,3 +1149,10 @@ Owner directive: "make sure all the fam has a ff-sync workflow, including the co
 - **The fix (`.github/workflows/staging-ff-sync.yml`).** On every push to `main` (and on `workflow_dispatch`), the job runs `git push origin origin/main:refs/heads/staging` - a fast-forward-only refspec. `git push` refuses a non-fast-forward update, so a divergence fails the job loudly instead of rewriting history; never a merge, never a force-push.
 - **The canon.** Byte-identical to coreforge's copy (`staging-ff-sync.yml`, the monoforge#20 shape), so the family's plumbing is one file. The coreforge site template already ships it (`templates/site/.github/workflows/staging-ff-sync.yml`), so a stamped repo inherits it from birth.
 - **No version bump** - CI plumbing, no product surface.
+
+### 2026-11-12 - session: the Dependabot flow lands (railyard#31)
+
+- **Change.** Added `.github/dependabot.yml` (weekly Monday, grouped minor/patch, majors alone, plus the `github-actions` ecosystem). npm directories `/`, `/example`, `/init`.
+- **Shape (receipt).** `dhaupin/creadev` PR #38 (`fca49c6`); the family-wide rollout is tracked on `dhaupin/railyard#31`.
+- **Guard.** railyard's `scripts/check-dependabot.cjs` (the shape) + `scripts/check-dependabot.test.cjs` (it bites), wired into railyard CI.
+- **No version bump.**
