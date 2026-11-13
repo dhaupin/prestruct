@@ -8,6 +8,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-13
+
+### 2026-11-13 - the pack rides the published tarball (poststruct#79)
+
+`package.json` `files` listed `bin/`, `engine/`, `init/` (plus the `!init` negations) but not `packs/`, so `npm pack` shipped zero pack bytes and `npm i prestruct` (and a `github:` dependency, which honours `files` too) installed a tree with no `node_modules/prestruct/packs/`. The `prestruct-proxy` pack - five wire-level contracts for the bot-proxy pair (method matrix, hostile-path fuzz, bot-render 302 fallback, refresh-secret parity, cache-key variant parity) - was committed and linted yet undeliverable.
+
+- `packs/` joins the `files` whitelist, so `npm i prestruct` delivers `node_modules/prestruct/packs/`. `tests/distribution.test.mjs` pins the contract (`files` carries `packs/`, every committed pack dir is delivered).
+- The publish lane's verify job and `tests/release-verify.test.js` pass `--allowed "packs/"` (the family default forbids `packs/` in the served-tarball scan).
+- The README's "the pack travels with the checkout, not the npm tarball" claim is retired; a cherry-picker can now point `crashtest.config.js` at `node_modules/prestruct/packs`.
+
 ## [1.5.0] - 2026-11-13
 
 ### 2026-11-13 - the ceiling proof lands: React 19 + Vite 8 (the #58 deferred matrix)
