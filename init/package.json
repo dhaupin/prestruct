@@ -1,6 +1,6 @@
 {
   "name": "prestruct",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Build-time SEO prerender layer for Vite + React + Cloudflare Pages",
   "type": "module",
   "scripts": {
@@ -14,21 +14,21 @@
     "tinypool": "^2.2.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "peerDependencies": {
-    "react": ">=18 <19",
-    "react-dom": ">=18 <19",
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20",
     "react-router-dom": ">=6 <8",
-    "vite": ">=5 <8"
+    "vite": ">=5 <9"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^9.0.0",
-    "vite": "^6.4.5",
+    "vite": "^8.3.7",
     "vitest": "^5.0.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-router-dom": "^6.30.1"
   }
 }

@@ -164,9 +164,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          utils: ['lodash', 'date-fns'],
+        // vite 8 (rolldown) requires a function; the object form was removed.
+        manualChunks(id) {
+          if (id.includes('node_modules/react')) return 'vendor'
+          if (/node_modules\/(lodash|date-fns)/.test(id)) return 'utils'
         }
       }
     }
@@ -219,7 +220,8 @@ Vite minifies by default in production. Ensure:
 // vite.config.js
 export default defineConfig({
   build: {
-    minify: 'esbuild', // Default, usually best
+    // vite 8 (rolldown) defaults to the oxc minifier - omit `minify`, or set
+    // 'oxc'. 'esbuild' is unbundled in vite 8 and fails the build.
     target: 'esnext'   // Smaller output
   }
 })

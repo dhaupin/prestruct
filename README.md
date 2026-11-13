@@ -4,7 +4,7 @@
 
 **Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`, build, inject meta, prerender every route to static HTML. No framework migration, no runtime SSR.
 
-Status: **1.4.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
+Status: **1.5.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
 
 ---
 
@@ -123,11 +123,11 @@ The pack travels with the checkout, not the npm tarball. Adopting it from anothe
 
 ## Stack
 
-- Vite 5+ (the example lane runs Vite 7; the template battery builds on Vite 6)
-- React 18+
+- Vite 5-8 (the example lane and the template battery both run Vite 8; Vite 5-7 also render)
+- React 18 and 19 (the example lane and the template battery run React 19; React 18 also renders)
 - React Router v6 and v7 both work: v6 via the `./server.js` subpath, v7 via the package-root fallback -- scaffold imports use the namespace+destructure form so CJS v7 passes vite SSR (docs and generated HTML render from v7 live)
 - Cloudflare Pages default; any static host otherwise
-- Node 20+
+- Node 20.19+ (Vite 8's engine floor)
 
 ---
 

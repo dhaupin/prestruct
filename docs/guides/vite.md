@@ -36,8 +36,9 @@ Do NOT add `server: { middlewareMode: true }` to your own config -- prerender sp
 ```js
 export default defineConfig({
   build: {
-    target: 'esnext',
-    minify: 'esbuild'
+    target: 'esnext'
+    // vite 8 (rolldown) minifies with oxc by default - omit `minify`, or set
+    // 'oxc'. The esbuild minifier is unbundled in vite 8 and fails the build.
   }
 })
 ```
@@ -104,8 +105,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
+        // vite 8 requires a function; the object form was removed with rollup.
+        manualChunks(id) {
+          if (id.includes('node_modules/react')) return 'vendor'
           // Add heavy dependencies here
         }
       }
