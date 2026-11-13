@@ -1165,3 +1165,14 @@ The family release-readiness pass (owner-driven). This repo's cut:
 - **Changelog.** `## [Unreleased]` cut to `## [1.4.0] - 2026-11-12`; entries stay verbatim.
 - **Announcement.** `docs/discussions/announcing-v1.4.0.md` + the index row (and the v1.3.0 row flips to "on npm" - it is).
 - **Release.** Branch -> PR -> `staging` -> PR -> `main`, then the `v1.4.0` tag drives the OIDC ladder.
+
+---
+
+### 2026-11-13 - session: the v1.5.1 pack-distribution fix (poststruct#79)
+
+Owner directive: "some might be missing their `/packs/public` that should be bundled with the release... make sure all repos ship their default `/packs/public` includes."
+
+- **The gap (measured).** `package.json` `files` listed `bin/`, `engine/`, `init/` (plus the `!init` negations) but not `packs/`. npm honours `files`, so `npm pack --dry-run` listed zero pack bytes and `npm i prestruct` installed a tree with no `node_modules/prestruct/packs/` - the `prestruct-proxy` pack was committed and linted (`npm run lint:packs`) yet undeliverable. The repo even documented the gap as intentional ("the pack travels with the checkout, not the npm tarball"), which poststruct#79 now overrides: the family arms every verdict by an EXACT npm pin, so a pack that does not ship cannot be armed from a pin. prestruct was one of four publishing repos that still violated the law (with eyestruct, freestruct, packstruct).
+- **The fix (the poststruct#79 shape).** `packs/` joins the `files` whitelist. The publish lane's verify job passes `--allowed "packs/"` - the family-default forbidden scan refuses `packs/` by prefix - and `tests/release-verify.test.js` invokes the same ladder with `--allowed packs/`. `tests/distribution.test.mjs` pins the two halves (`files` carries `packs/`, every committed pack dir is delivered); it is `.test.mjs` so the release-artifact battery (init/vitest.config.js includes only `tests/**/*.test.js`) skips it, the same split `census.test.mjs` uses. The README's checkout-only claim is retired; the v1.1.0 post's dated note gains a superseded pointer.
+- **The cut (1.5.0 -> 1.5.1, patch).** A new version is the only way a fixed `files` reaches npm, and v1.5.0 was already released (tag + npm latest + GH release, 2026-11-13). The version-truth surfaces moved in the same commit: `package.json`, `init/package.json`, `example/package.json`, `init/VERSION`, all three lockfiles, the README status line, and the `docs/guides/changelog.md` intro (which also carried a stale 1.2.0 "npm package sits at" claim - corrected to 1.5.0). `## [Unreleased]` is cut to `## [1.5.1] - 2026-11-13`. Adds the v1.5.1 release post and its index row; the v1.4.0 index row's stale "staged" status is corrected to "on npm".
+- **No tag yet** - the tag is the owner gate (the ladder publishes on `v*`).

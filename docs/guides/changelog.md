@@ -7,7 +7,11 @@ version: 1.0.0
 permalink: /guides/changelog
 ---
 
-Release history for prestruct. Commit history is the detailed source (`git log --oneline`); the npm package sits at **1.2.0** (published from the v1.2.0 tag via the Trusted-Publisher workflow, provenance-attested), and **main carries the next release's pins**.
+Release history for prestruct. Commit history is the detailed source (`git log --oneline`); the npm package sits at **1.5.0** (published from the v1.5.0 tag via the Trusted-Publisher workflow, provenance-attested), and **main carries the next release's pins**.
+
+## 1.5.1 (version bumped; tag not yet cut)
+
+- **The crashtest pack now rides the published tarball (poststruct#79).** `package.json` `files` listed `bin/`, `engine/`, `init/` (plus the `!init` negations) but not `packs/`, so `npm i prestruct` installed a tree with no `node_modules/prestruct/packs/` - the `prestruct-proxy` pack was committed and linted yet undeliverable. `packs/` joins the whitelist; the publish lane's verify job and `tests/release-verify.test.js` pass `--allowed "packs/"`, and `tests/distribution.test.mjs` pins the contract. Cherry-pickers who referenced the checkout path can now point at `node_modules/prestruct/packs`.
 
 ## 1.3.0 (version bumped; tag not yet cut)
 

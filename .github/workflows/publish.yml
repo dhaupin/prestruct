@@ -236,5 +236,5 @@ jobs:
           V="$(node -p "require('./package.json').version")"
           EXPECTED_EXPORTS="$(node -p "Object.keys(require('./package.json').exports).join(',')")"
           ENGINE_PROBE="const p=require('prestruct');if(typeof p.prerender!=='function')process.exit(1);if(typeof p.defineConfig!=='function')process.exit(1)"
-          node scripts/verify-release.cjs --npm --version "$V" --exports "$EXPECTED_EXPORTS" --probe "$ENGINE_PROBE"
+          node scripts/verify-release.cjs --npm --version "$V" --exports "$EXPECTED_EXPORTS" --probe "$ENGINE_PROBE" --allowed "packs/"
           node scripts/verify-release.cjs --gh --tag "v$V" --asset "prestruct-$V.tgz"

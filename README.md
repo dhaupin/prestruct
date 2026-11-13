@@ -4,7 +4,7 @@
 
 **Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`, build, inject meta, prerender every route to static HTML. No framework migration, no runtime SSR.
 
-Status: **1.5.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
+Status: **1.5.1, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
 
 ---
 
@@ -110,7 +110,7 @@ Prerendered HTML covers every route in `ssr.config.js`. Everything else serves t
 
 `packs/public/prestruct-proxy` (pack v0.4.0) is this repo's own adversarial pack for the bot-proxy pair above: five wire-level contracts (method matrix, hostile-path fuzz, bot-render 302 fallback, refresh-secret strict parity, cache-key variant parity), run through the [crashtest](https://github.com/dhaupin/crashtest) harness against both runtimes. Attack route names come from the host `moduleCtx`, so the pack runs against any wiring. Latest results live in [labs/hardening.md](./labs/hardening.md), the CI-comparable ledger in [labs/crashledger.json](./labs/crashledger.json).
 
-The pack travels with the checkout, not the npm tarball. Adopting it from another repo is one line in that repo's `crashtest.config.js`: `packs: ['/abs/path/to/prestruct/packs']` -- contract table and runbook in [packs/README.md](./packs/README.md).
+The pack rides the published tarball (`package.json` `files` carries `packs/`, poststruct#79), so `npm i prestruct` delivers it under `node_modules/prestruct/packs/`. Adopting it from another repo is one line in that repo's `crashtest.config.js` - the whole checkout, one pack dir, or the installed path: `packs: ['/abs/path/to/prestruct/packs']` (or `packs: ['node_modules/prestruct/packs']`) -- contract table and runbook in [packs/README.md](./packs/README.md).
 
 ---
 
