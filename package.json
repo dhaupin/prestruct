@@ -61,7 +61,7 @@
     "freestruct": "^1.3.0",
     "happy-dom": "^21.0.4",
     "packstruct": "1.1.0",
-    "react": "^18.3.1",
+    "react": "^19.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.1",
     "react-router-dom-v7": "npm:react-router-dom@^7.18.5",
