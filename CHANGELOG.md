@@ -8,6 +8,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-13
+
+### 2026-11-13 - the ceiling proof lands: React 19 + Vite 8 (the #58 deferred matrix)
+
+The 1.2.0 ladder bounded the peer ranges to the proven matrix and named the two unproven majors: vite 8 (the `ssrLoadModule` / ModuleRunner port) and react 19 (interop and the island surface). Both are graded now, on the example lane - the proof vehicle the roadmap fixed in advance: the example bakes **10/10 pages** under vite 8.3.7 + react 19.3.1 + react-router-dom 7 + @vitejs/plugin-react 6, audit clean (0 failures). The e2e scaffold leg (`tests/e2e-fixture.mjs`) runs the same matrix end to end.
+
+- **Peer ceilings moved:** `react`/`react-dom` `>=18 <19` -> `>=18 <20`; `vite` `>=5 <8` -> `>=5 <9`. `react-router-dom >=6 <8` is unchanged (6 and 7 both still proven). React 18 and vite 5-7 remain supported and render.
+- **The engine needed no source change.** `react-dom/server`'s `renderToString` and the `StaticRouter` seam both hold on React 19; `createServer` / `ssrLoadModule` still resolve on vite 8. The one consumer-side break is vite 8's rolldown build options, not the prerender: `manualChunks` must be a FUNCTION (the object form is removed) and `minify: 'esbuild'` fails (esbuild is unbundled; oxc is the default). The example's own `vite.config.js` carries the function form, and the guide snippets now show it.
+- **The example lane and the template battery move to the new matrix** (vite ^8.3.7, react/react-dom ^19.3.1, @vitejs/plugin-react ^6.3.0). Adopters move on their own schedule.
+- **Node floor:** `>=20` -> `>=20.19` (vite 8's engine floor, `^20.19.0 || >=22.12.0`). Cherry-pickers on vite 8 need it; vite 5-7 still run on older Node 20.
+
 ## [1.4.0] - 2026-11-12
 
 ### 2026-11-12 - the Dependabot flow lands (railyard#31)

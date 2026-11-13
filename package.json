@@ -1,6 +1,6 @@
 {
   "name": "prestruct",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "AI-first SEO prerender for Vite + React apps. Drop in, config, build.",
   "type": "module",
   "license": "SEE LICENSE IN LICENSE",
@@ -44,16 +44,16 @@
     "lint:prestruct-pins": "node scripts/check-prestruct-pins.cjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "overrides": {
     "tinypool": "^2.2.0"
   },
   "peerDependencies": {
-    "react": ">=18 <19",
-    "react-dom": ">=18 <19",
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20",
     "react-router-dom": ">=6 <8",
-    "vite": ">=5 <8"
+    "vite": ">=5 <9"
   },
   "devDependencies": {
     "crashtest": "1.3.0",
@@ -61,12 +61,13 @@
     "freestruct": "^1.3.0",
     "happy-dom": "^21.0.4",
     "packstruct": "1.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-router-dom": "^6.30.1",
     "react-router-dom-v7": "npm:react-router-dom@^7.18.5",
-    "vite": "^6.4.5",
-    "vitest": "^5.0.5"
+    "vite": "^8.3.7",
+    "vitest": "^5.0.5",
+    "@vitejs/plugin-react": "^6.3.0"
   },
   "repository": {
     "type": "git",

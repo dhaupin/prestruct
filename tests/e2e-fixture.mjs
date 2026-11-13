@@ -45,7 +45,7 @@ try {
   const app = join(work, 'fixture-app')
   mkdirSync(app, { recursive: true })
   writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'fixture-app', version: '1.0.0', private: true, type: 'module' }, null, 2))
-  sh(`npm install --no-audit --no-fund "${tgz}" vite@5 react@18 react-dom@18 react-router-dom@6 @vitejs/plugin-react@4`, app)
+  sh(`npm install --no-audit --no-fund "${tgz}" vite@8 react@19 react-dom@19 react-router-dom@7 @vitejs/plugin-react@6`, app)
   sh('npx prestruct init', app)
 
   // 3) activate the config

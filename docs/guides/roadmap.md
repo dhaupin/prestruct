@@ -37,8 +37,8 @@ Progressive streaming instead of blocking `renderToString`. Only matters once pe
 ### Vercel / Netlify platform support
 `platform: 'vercel' | 'netlify'` currently validates but generates no `vercel.json` / `netlify.toml` (cloudflare is the only fully supported platform).
 
-### Platform-matrix ceiling proof (1.4.0)
-The 1.2.0 ladder bounded the peer ranges to the proven matrix (#58): react/react-dom `>=18 <19`, router `>=6 <8`, vite `>=5 <8` (7 already graded: the example bake under vite 7.3.7 is byte-equivalent to the vite 6 output modulo asset hashes, audit clean, no deprecation noise; the example lane runs 7.3.7 while init stays on 6). The 1.4.0 move is the same proof-first shape the router 7 bump used: a matrix run in the example lane (vite 8 -- the likely break is the `ssrLoadModule` port to the ModuleRunner API, with AGENTS.md's bundled-render rejection rule staying the boundary; react 19 -- interop and the island surface are the unproven parts; vite 7 is already graded and bakes clean), graded by the 8/8 bake plus the real audit. Both majors keep compiling after the proof, so adopters move on their own schedule; the ceilings move when the proof lands, not before.
+### Platform-matrix ceiling proof (shipped in 1.5.0)
+The 1.2.0 ladder bounded the peer ranges to the proven matrix (#58): react/react-dom `>=18 <19`, router `>=6 <8`, vite `>=5 <8`. The ceilings moved in 1.5.0 exactly as the roadmap fixed in advance - a matrix run in the example lane, graded by the bake plus the real audit. The result: react 19 and vite 8 both bake clean (10/10 pages, audit 0 failures) under react-router-dom 7 + @vitejs/plugin-react 6. The engine needed no source change (`renderToString` + the `StaticRouter` seam hold on React 19; `ssrLoadModule` resolves on vite 8); the only consumer-side break was vite 8's rolldown build options (`manualChunks` object -> function, `minify: 'esbuild'` -> oxc). New ceilings: react/react-dom `>=18 <20`, vite `>=5 <9`. The example lane and the template battery both run the new matrix; React 18 and vite 5-7 remain supported, so adopters move on their own schedule.
 
 ## P2 - Future
 
