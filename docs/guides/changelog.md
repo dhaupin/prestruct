@@ -15,6 +15,10 @@ Release history for prestruct. Commit history is the detailed source (`git log -
 - **Docs lane consolidation.** `.github/workflows/docs.yml` is now a thin caller of the family's one reusable docs lane in `dhaupin/freestruct`; the freestruct link check is back on (the lane pins freestruct 1.2.0, whose checker is `basePath`-aware).
 - **Pins, never floats.** Every GitHub Action `uses:` names a 40-hex commit SHA, guarded by `scripts/check-action-pins.cjs`.
 
+## 1.5.0 (released from the v1.5.0 tag)
+
+- **Peer ceilings moved to the proven matrix (#58 deferred): react/react-dom `>=18 <20`, vite `>=5 <9`.** The example lane bakes 10/10 pages under vite 8.3.7 + react 19.3.1 + react-router-dom 7 + @vitejs/plugin-react 6, audit clean; the e2e scaffold leg runs the same matrix. The engine source is unchanged - `react-dom/server`'s `renderToString` and the `StaticRouter` seam hold on React 19, and `createServer`/`ssrLoadModule` resolve on vite 8. The one consumer-side break is vite 8's rolldown build options: `manualChunks` must be a function (object form removed) and `minify: 'esbuild'` fails (esbuild unbundled; oxc is the default). Node floor `>=20` -> `>=20.19` (vite 8). React 18 and vite 5-7 still render.
+
 ## 1.2.0 (released from the v1.2.0 tag)
 
 - **react-router 7 prerender seam fixed (#68)**: on router 7 (real ESM) the engine's `StaticRouter` and the app's router could load as two module instances with separate React contexts, failing every route with `useLocation() may be used only in the context of a <Router> component` (and, under a host `ssr.noExternal`, a Vite `module is not defined` / named-export error first). The engine now loads `StaticRouter` through the same SSR registry as the app and redirects an inlined react-router CJS entry to its ESM twin; both majors render with or without `ssr.noExternal`. Cherry-pickers: remove the `rrdom-esm-redirect.mjs` shim and the `ssr.noExternal` lines if you carried them.
