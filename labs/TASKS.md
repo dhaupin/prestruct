@@ -1156,3 +1156,12 @@ Owner directive: "make sure all the fam has a ff-sync workflow, including the co
 - **Shape (receipt).** `dhaupin/creadev` PR #38 (`fca49c6`); the family-wide rollout is tracked on `dhaupin/railyard#31`.
 - **Guard.** railyard's `scripts/check-dependabot.cjs` (the shape) + `scripts/check-dependabot.test.cjs` (it bites), wired into railyard CI.
 - **No version bump.**
+
+### 2026-11-12 - session: the v1.4.0 cut
+
+The family release-readiness pass (owner-driven). This repo's cut:
+
+- **Version.** `1.3.0 -> 1.4.0` across all seven pinned surfaces (package.json + init/package.json + example/package.json + both lockfiles + init/VERSION + the README status line). A minor: engine-level auto breadcrumbs (`breadcrumb: true`).
+- **Changelog.** `## [Unreleased]` cut to `## [1.4.0] - 2026-11-12`; entries stay verbatim.
+- **Announcement.** `docs/discussions/announcing-v1.4.0.md` + the index row (and the v1.3.0 row flips to "on npm" - it is).
+- **Release.** Branch -> PR -> `staging` -> PR -> `main`, then the `v1.4.0` tag drives the OIDC ladder.

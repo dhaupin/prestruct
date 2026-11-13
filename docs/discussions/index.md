@@ -30,7 +30,8 @@ Prose on these pages flows - paragraphs keep their natural length, and nothing i
 | [Announcing prestruct v0.9.0](/prestruct/discussions/announcing-v0.9.0/) | 0.9.0 | 2026-10-21 on npm - the manual bootstrap release |
 | [Announcing prestruct v1.0.0](/prestruct/discussions/announcing-v1.0.0/) | 1.0.0 | 2026-10-21 on npm - the first stable release |
 | [Announcing prestruct v1.1.0](/prestruct/discussions/announcing-v1.1.0/) | 1.1.0 | on npm |
-| [Announcing prestruct v1.3.0](/prestruct/discussions/announcing-v1.3.0/) | 1.3.0 | staged for the v1.3.0 tag |
+| [Announcing prestruct v1.3.0](/prestruct/discussions/announcing-v1.3.0/) | 1.3.0 | on npm |
+| [Announcing prestruct v1.4.0](/prestruct/discussions/announcing-v1.4.0/) | 1.4.0 | staged for the v1.4.0 tag |
 | [Announcing prestruct v1.2.0](/prestruct/discussions/announcing-v1.2.0/) | 1.2.0 | on npm |
 
 History: prestruct pioneered the format, crashtest adopted it, and the struct-family first releases follow the same shape so approaches to the community discussion stay uniform across the creadev family.

@@ -4,7 +4,7 @@
 
 **Build-time SEO prerender for Vite + React.** Validate your `ssr.config.js`, build, inject meta, prerender every route to static HTML. No framework migration, no runtime SSR.
 
-Status: **1.3.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
+Status: **1.4.0, on main ahead of the tag.** npm carries the latest tagged release. `package.json` is the single version source; this line and the side package.jsons are held to it by a test, so a release cannot leave one behind.
 
 ---
 
