@@ -61,7 +61,7 @@ The README documents adoption in one line from another repo's `crashtest.config.
 packs: ['/abs/path/to/checked-out/prestruct/packs']
 ```
 
-Note: the pack travels with the checkout only. The npm tarball ships `bin/`, `engine/`, and `init/` and never includes `packs/`.
+Note: at v1.1.0 the pack traveled with the checkout only - the npm tarball shipped `bin/`, `engine/`, and `init/` and did not include `packs/`. (Superseded in v1.5.1, poststruct#79: the pack now rides the published tarball under `node_modules/prestruct/packs/`.)
 
 The pack's v0.3.0 addition, `cache-key-variant-parity`, pins the issue-18 fix class at the wire level on both proxy runtimes: it seeds marker cache entries (KV for the Worker variant, disk files via `PRESTRUCT_CACHE_DIR` for the express variant), then asserts each URL variant serves only its own bytes and no cached byte reaches a non-bot request. If the seeded key is never consulted, the row reports exactly which surfaces it could not prove instead of claiming a pass.
 

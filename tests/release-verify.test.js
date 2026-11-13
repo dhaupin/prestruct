@@ -128,7 +128,7 @@ describe('release-verify (trust ladder)', () => {
   it('the pack ladder verifies real npm pack output (contents + identity + consumer install)', () => {
     const work = fs.mkdtempSync(path.join(os.tmpdir(), 'release-verify-'))
     const tgz = packTree(work)
-    const r = run(['--pack', tgz, '--version', pkg.version, '--exports', exportsKeys, '--probe', engineProbe])
+    const r = run(['--pack', tgz, '--version', pkg.version, '--exports', exportsKeys, '--probe', engineProbe, '--allowed', 'packs/'])
     const out = `${r.stdout}\n${r.stderr}`
     expect(r.status, `pack ladder failed (${r.status}):\n${out}`).toBe(0)
     expect(out).toContain('PASS forbidden scan')
@@ -315,7 +315,7 @@ describe('release-verify (trust ladder)', () => {
       '',
     ].join('\n'))
     fs.chmodSync(shim, 0o755)
-    const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys], {
+    const r = spawnSync('node', [script, '--pack', tgz, '--version', pkg.version, '--exports', exportsKeys, '--allowed', 'packs/'], {
       cwd: root, encoding: 'utf8', timeout: 300000,
       env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
     })
