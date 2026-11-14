@@ -8,6 +8,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/) - sections head `## [ver
 
 ## [Unreleased]
 
+### 2026-11-14 - the npm package link joins every surface (parity pass)
+
+The package was on npm but the docs footer and nav never linked it. Both now carry the npm link (the footer line mirrors eyestruct/freestruct; the nav gains npm + GitHub under Project). A new `tests/npm-parity.test.mjs` proves the docs and landing surfaces link the published `package.json` name, so a rename or a dropped surface reds instead of shipping a package nobody can find. No version bump.
+
 ## [1.5.1] - 2026-11-13
 
 ### 2026-11-13 - the pack rides the published tarball (poststruct#79)
