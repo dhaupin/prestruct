@@ -340,6 +340,12 @@ describe('prerender pure functions (import surface)', () => {
     expect(html).toContain('Page Not Found | Test')
     expect(html).toContain('noindex')
     expect(html).not.toContain('<script type="module"')
+    // The 404 is the one page with no shell chrome, so it must carry the main
+    // landmark itself: axe refuses it otherwise (landmark-one-main + region),
+    // and a screen reader's skip link has nowhere to land.
+    expect(html).toContain('<main ')
+    expect(html).toMatch(/<main [^>]*>[\s\S]*<h1[\s\S]*<\/main>/)
+    expect(html).not.toMatch(/<div id="root-404">\s*<div style="min-height:100vh/)
   })
 
   it('404 noindex does not depend on an optional <meta name="author"> in the shell', () => {

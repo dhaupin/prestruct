@@ -777,16 +777,20 @@ export function generate404(shell, config, siteUrl) {
   // "Tom &amp;amp; Jerry&amp;apos;s").
   const siteName       = config.siteName || 'Site'
 
+  // The inner wrapper is a <main>, not a <div>: this page has no shell chrome
+  // (the root div is swapped wholesale), so without it the 404 is the one page
+  // on the site with no main landmark - a screen reader's "skip to content"
+  // lands nowhere and axe refuses it (landmark-one-main, region).
   const bodyLines = [
     '<div id="root-404">',
-    '  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem">',
+    '  <main style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem">',
     `    <h1 style="font-size:2.5rem;font-weight:800;margin-bottom:1rem">${heading}</h1>`,
     `    <p style="max-width:480px;font-size:1.05rem;line-height:1.7;margin-bottom:2rem">${body}</p>`,
     // Theme-neutral CTA (#19): the filled `background:#000;color:#fff` button
     // went invisible on dark themes (black fill on near-black pages). Text and
     // outline now follow currentColor, so the CTA reads on any host theme.
     `    <a href="${primaryHref}" style="display:inline-flex;align-items:center;padding:0.75rem 1.75rem;color:inherit;font-weight:700;font-size:0.9rem;letter-spacing:0.05em;text-transform:uppercase;border:2px solid currentColor;border-radius:6px;text-decoration:none">${primaryLabel}</a>`,
-    '  </div>',
+    '  </main>',
     '</div>',
   ]
 
