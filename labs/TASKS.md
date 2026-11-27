@@ -359,6 +359,9 @@ Gates at close: vitest 228/228, sync 9/9 byte-identity, packstruct --deep, docs 
 
 # TASKS.md -- pass log for prestruct
 
+**2026-11-03 - the npm parity gate earned its teeth.** The family law is "a new law ships with a test", but this gate had stopped biting: it passed if any one of several surfaces carried the npm link, so a deleted footer link went unnoticed (measured: docs layout link removed, old gate 3 pass / 0 fail). Rewritten as a predicate over an explicit REQUIRED surface list, resolving the literal URL, {{ site.npm_url }} and {{ site.title }} against docs/_config.yml, with two mutation tests proving a stripped surface and a wrong-package link are both refused. Verified both ways: clean tree green, deleted link red (2 fail). prestruct runs vitest rather than node:test, so this gate is written in the vitest dialect; same predicate, same bite.
+
+
 Working log, not documentation. One section per pass: what was done, what was learned, what the next pass should pick up. Newer passes on top.
 
 ---
@@ -1176,3 +1179,14 @@ Owner directive: "some might be missing their `/packs/public` that should be bun
 - **The fix (the poststruct#79 shape).** `packs/` joins the `files` whitelist. The publish lane's verify job passes `--allowed "packs/"` - the family-default forbidden scan refuses `packs/` by prefix - and `tests/release-verify.test.js` invokes the same ladder with `--allowed packs/`. `tests/distribution.test.mjs` pins the two halves (`files` carries `packs/`, every committed pack dir is delivered); it is `.test.mjs` so the release-artifact battery (init/vitest.config.js includes only `tests/**/*.test.js`) skips it, the same split `census.test.mjs` uses. The README's checkout-only claim is retired; the v1.1.0 post's dated note gains a superseded pointer.
 - **The cut (1.5.0 -> 1.5.1, patch).** A new version is the only way a fixed `files` reaches npm, and v1.5.0 was already released (tag + npm latest + GH release, 2026-11-13). The version-truth surfaces moved in the same commit: `package.json`, `init/package.json`, `example/package.json`, `init/VERSION`, all three lockfiles, the README status line, and the `docs/guides/changelog.md` intro (which also carried a stale 1.2.0 "npm package sits at" claim - corrected to 1.5.0). `## [Unreleased]` is cut to `## [1.5.1] - 2026-11-13`. Adds the v1.5.1 release post and its index row; the v1.4.0 index row's stale "staged" status is corrected to "on npm".
 - **No tag yet** - the tag is the owner gate (the ladder publishes on `v*`).
+
+---
+
+### 2026-11-14 - session: the npm link parity pass
+
+Every family project publishes to npm; the project's own surfaces did not always say so. This session closes that gap and holds it with a test.
+
+- **Surfaces.** The docs footer, the docs nav, and the landing nav each link the npm package where they did not before.
+- **Proof.** A new npm-parity test proves each shipped surface links the published `package.json` name, so a rename or a dropped surface reds instead of shipping a package nobody can find.
+- **Battery + lint:docs green.**
+- **No version bump.**
